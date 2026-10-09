@@ -498,6 +498,30 @@ if (! $hadSkills || $registerChanged) {
     echo 'People: the do-not-use register and the skills list are in place.' . PHP_EOL;
 }
 
+// End-of-assignment reviews, and advances against wages. Both carried
+// over from the Fleury Solutions HR system - the concepts, not its
+// tables, which store dates and money as text with no foreign keys.
+$hrSql = __DIR__ . '/hr-modules.sql';
+
+if (! is_file($hrSql)) {
+    fwrite(STDERR, 'hr-modules.sql is missing from this deployment.' . PHP_EOL);
+    exit(1);
+}
+
+$hadReviews = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name='assignment_reviews'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($hrSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadReviews) {
+    echo 'People: end-of-assignment reviews and wage advances are in place.' . PHP_EOL;
+}
+
 echo 'Approvals: 3 tables in place.' . PHP_EOL;
 
 // An approval step is announced once; before this column every later

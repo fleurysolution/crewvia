@@ -136,6 +136,10 @@ td.nowrap,th.nowrap{white-space:nowrap}
 /* A barred name reads as barred before the tag beside it is read. */
 .barred{color:var(--red);font-weight:600}
 
+/* One card per assignment waiting to be graded. */
+.grade-form{padding:16px 18px;border-bottom:1px solid var(--line)}
+.grade-form:last-child{border-bottom:0}
+
 .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;
   border:1px solid;white-space:nowrap}
 .tag.blue {color:#1B4F8A;border-color:#BBD4EE;background:#EDF4FC}

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../hr.php';
+
 /**
  * Who is on the job, and what is missing for each of them.
  *
@@ -60,6 +62,19 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
     <div class="n" style="color:<?= $noFlight ? 'var(--amber)' : 'var(--green)' ?>"><?= count($noFlight) ?></div>
     <div class="l"><?= te('Travel not booked') ?></div>
   </div>
+  <?php
+  // A finished assignment nobody graded is the gap RSS described: "we
+  // don't always get that".
+  $finished   = array_filter($crew, fn ($p) => $p['status'] === 'completed');
+  $ungraded   = array_filter($finished, fn ($p) => ! isset($reviews[(int) $p['id']]));
+  ?>
+  <div class="stat">
+    <div class="n" style="color:<?= $ungraded ? 'var(--amber)' : 'var(--green)' ?>"><?= count($ungraded) ?></div>
+    <div class="l"><?= te('Finished, not graded') ?></div>
+    <?php if ($finished): ?>
+      <div class="h"><?= te(':n finished on this job', ['n' => count($finished)]) ?></div>
+    <?php endif; ?>
+  </div>
 </div>
 <?php endif; ?>
 
@@ -101,7 +116,30 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
           <?php endif; ?>
         </td>
 
-        <td><span class="tag <?= $tagFor($p['status']) ?>"><?= te($statuses[$p['status']] ?? $p['status']) ?></span></td>
+        <td>
+          <span class="tag <?= $tagFor($p['status']) ?>"><?= te($statuses[$p['status']] ?? $p['status']) ?></span>
+          <?php $review = $reviews[(int) $p['id']] ?? null; ?>
+          <?php if ($review): ?>
+            <div style="margin-top:5px">
+              <span class="tag <?= review_grade_tone((string) $review['grade']) ?>">
+                <?= e($review['grade']) ?>
+              </span>
+              <?php if (! (int) $review['would_rehire']): ?>
+                <span class="tag red"><?= te('Would not rehire') ?></span>
+              <?php endif; ?>
+            </div>
+            <?php if ($review['note']): ?>
+              <div class="muted small"><?= e($review['note']) ?></div>
+            <?php endif; ?>
+            <div class="muted small">
+              <?= te('by :who', ['who' => $review['reviewer'] ?: t('somebody')]) ?>
+            </div>
+          <?php elseif ($p['status'] === 'completed'): ?>
+            <div style="margin-top:5px">
+              <span class="tag amber"><?= te('Not graded') ?></span>
+            </div>
+          <?php endif; ?>
+        </td>
 
         <td class="small">
           <?php $stops = $blockers[(int) $p['id']] ?? null; ?>
@@ -180,3 +218,83 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
   </div>
   <?php endif; ?>
 </div>
+
+<!-- ── grading the assignments that finished ──────────────────────────── -->
+<?php
+$toGrade = array_filter($crew, fn ($p) => $p['status'] === 'completed'
+                                          && ! isset($reviews[(int) $p['id']]));
+?>
+<?php if ($toGrade && (can('recruiter') || can('supervisor'))): ?>
+<section class="card tight" id="grading">
+  <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+    <span class="eyebrow"><?= te('HOW IT WENT') ?></span>
+    <h2 style="margin:4px 0 2px">
+      <?= te(':n finished assignments to grade', ['n' => count($toGrade)]) ?>
+    </h2>
+    <p class="small muted" style="margin:0">
+      <?= te('Asked now, while somebody still remembers. A year from now this is the only thing that answers whether this person is worth calling back.') ?>
+    </p>
+  </div>
+
+  <?php foreach ($toGrade as $p): ?>
+    <form method="post" class="grade-form">
+      <?= csrf_field() ?>
+      <input type="hidden" name="do" value="review">
+      <input type="hidden" name="placement_id" value="<?= (int) $p['id'] ?>">
+
+      <h3 style="margin:0 0 10px">
+        <?= e($p['full_name']) ?>
+        <span class="muted small">
+          <?= e($p['trade'] ?: ucfirst((string) $p['discipline'])) ?>
+        </span>
+      </h3>
+
+      <div class="row">
+        <div>
+          <label for="g-<?= (int) $p['id'] ?>"><?= te('Overall') ?></label>
+          <select id="g-<?= (int) $p['id'] ?>" name="grade" required>
+            <?php foreach (review_grades() as $letter => $meaning): ?>
+              <option value="<?= e($letter) ?>" <?= $letter === 'B' ? 'selected' : '' ?>>
+                <?= te($meaning) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div>
+          <label for="wr-<?= (int) $p['id'] ?>"><?= te('Have them back?') ?></label>
+          <select id="wr-<?= (int) $p['id'] ?>" name="would_rehire">
+            <option value="1"><?= te('Yes') ?></option>
+            <option value="0"><?= te('No') ?></option>
+          </select>
+          <span class="hint"><?= te('A steady C who turns up is worth calling. Kept separate from the grade on purpose.') ?></span>
+        </div>
+      </div>
+
+      <?php if (review_criteria()): ?>
+        <div class="row" style="margin-top:12px">
+          <?php foreach (review_criteria() as $slug => $label): ?>
+            <div>
+              <label for="s-<?= (int) $p['id'] ?>-<?= e($slug) ?>"><?= te($label) ?></label>
+              <select id="s-<?= (int) $p['id'] ?>-<?= e($slug) ?>" name="score[<?= e($slug) ?>]">
+                <option value=""><?= te('not scored') ?></option>
+                <?php foreach ([5 => 'Very good', 4 => 'Good', 3 => 'Adequate',
+                                2 => 'Poor', 1 => 'Bad'] as $n => $word): ?>
+                  <option value="<?= $n ?>"><?= $n ?> &middot; <?= te($word) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+
+      <div class="field" style="margin-top:12px">
+        <label for="n-<?= (int) $p['id'] ?>"><?= te('What the supervisor said') ?></label>
+        <input id="n-<?= (int) $p['id'] ?>" name="note" maxlength="2000"
+               placeholder="<?= te('Required if you would not have them back.') ?>">
+      </div>
+
+      <button class="btn" type="submit" style="margin-top:12px"><?= te('Record the grade') ?></button>
+    </form>
+  <?php endforeach; ?>
+</section>
+<?php endif; ?>

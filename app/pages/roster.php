@@ -12,6 +12,85 @@ require_once __DIR__.'/../contracts.php';require_once __DIR__.'/../qualification
 $job = current_job();
 $jobId = (int) ($job['id'] ?? 0);
 
+require_once __DIR__ . '/../hr.php';
+
+// ── how the assignment went ─────────────────────────────────────────────
+// Asked when the assignment closes, because that is when somebody is
+// looking at the person and still remembers. A year later it is the only
+// thing that answers "is this one worth calling back".
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'review') {
+    require_role('recruiter', 'supervisor');
+
+    $pid = (int) ($_POST['placement_id'] ?? 0);
+    $p = row('SELECT p.*, c.full_name FROM placements p
+              JOIN candidates c ON c.id = p.candidate_id
+              WHERE p.id = ? AND p.job_id = ?', [$pid, $jobId]);
+
+    if (! $p) {
+        refuse(404, t('Placement unavailable.'));
+    }
+
+    $grade = (string) ($_POST['grade'] ?? '');
+
+    if (! array_key_exists($grade, review_grades())) {
+        flash(t('Choose a grade for the assignment.'), 'err');
+        redirect('/roster');
+    }
+
+    $note = trim((string) ($_POST['note'] ?? ''));
+
+    if (mb_strlen($note) > 2000) {
+        flash(t('That note is too long.'), 'err');
+        redirect('/roster');
+    }
+
+    // Saying somebody should not come back is a claim about a person,
+    // so it carries a reason the way the register does.
+    $rehire = ($_POST['would_rehire'] ?? '1') === '1' ? 1 : 0;
+
+    if (! $rehire && $note === '') {
+        flash(t('Say why you would not have them back. It is the note the next recruiter reads.'), 'err');
+        redirect('/roster');
+    }
+
+    db()->beginTransaction();
+
+    q('INSERT INTO assignment_reviews (placement_id, grade, would_rehire, note, reviewed_by)
+       VALUES (?,?,?,?,?)
+       ON DUPLICATE KEY UPDATE grade = VALUES(grade), would_rehire = VALUES(would_rehire),
+                               note = VALUES(note), reviewed_by = VALUES(reviewed_by),
+                               reviewed_at = NOW()',
+      [$pid, $grade, $rehire, $note !== '' ? $note : null, uid()]);
+
+    $reviewId = (int) val('SELECT id FROM assignment_reviews WHERE placement_id = ?', [$pid]);
+
+    q('DELETE FROM assignment_review_scores WHERE review_id = ?', [$reviewId]);
+
+    foreach (review_criteria() as $slug => $label) {
+        $score = (int) ($_POST['score'][$slug] ?? 0);
+
+        if ($score >= 1 && $score <= 5) {
+            q('INSERT INTO assignment_review_scores (review_id, criterion_slug, score)
+               VALUES (?,?,?)', [$reviewId, $slug, $score]);
+        }
+    }
+
+    db()->commit();
+
+    // On the person, not on the project, so it travels with them.
+    q('INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?,?,?,?)',
+      [(int) $p['candidate_id'], uid(), 'assignment review',
+       $grade . ($rehire ? '' : ' - would not rehire') . ($note !== '' ? ' - ' . $note : '')]);
+
+    log_activity('reviewed an assignment', 'placement', $pid,
+                 $p['full_name'] . ': ' . $grade);
+
+    flash(t(':name graded :grade on this assignment.',
+            ['name' => $p['full_name'], 'grade' => $grade]));
+
+    redirect('/roster');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'status') {
     require_role('recruiter');
 
@@ -69,6 +148,19 @@ $crew = rows(
      ORDER BY FIELD(p.status,'on_site','travelling','confirmed','offered','completed','cancelled'),
               c.full_name", [$jobId]);
 
+// How each closed assignment was graded, so the roster can show which
+// ones nobody has said anything about yet.
+$reviews = [];
+
+foreach ($crew as $member) {
+    $found = assignment_review((int) $member['id']);
+
+    if ($found) {
+        $found['scores'] = assignment_review_scores((int) $found['id']);
+        $reviews[(int) $member['id']] = $found;
+    }
+}
+
 // What stands between each person and the site, for the only status where
 // it decides anything. Before this, a recruiter picked a status, lost the
 // page and learned one missing item at a time.
@@ -82,4 +174,4 @@ foreach ($crew as $member) {
 }
 
 $pageTitle = t('Roster').' · '.$config['app_name'];
-render('roster', compact('blockers', 'job','crew'));
+render('roster', compact('blockers', 'job','crew', 'reviews'));

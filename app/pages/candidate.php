@@ -344,6 +344,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ── everything about this person ─────────────────────────────────────────
+require_once __DIR__ . '/../hr.php';
+
+// Their record across every project: how many jobs, how many finished,
+// and what the supervisors said. The question a recruiter actually asks
+// before picking up the telephone.
+$workHistory = person_work_history($id);
+$owedToUs    = advance_owed($id);
+
 // Where this person stands on the register, and who decided it.
 $standing = row('SELECT p.*, u.name AS decided_by
                  FROM employee_profiles p
@@ -436,4 +444,5 @@ $pageTitle = $c['full_name'] . ' · ' . $config['app_name'];
 
 render('candidate', compact('c', 'calls', 'applications', 'placements', 'documents',
                             'qualifications', 'contracts', 'clearance', 'account',
-                            'invitation', 'job', 'jobId', 'standing', 'theirSkills'));
+                            'invitation', 'job', 'jobId', 'standing', 'theirSkills',
+                            'workHistory', 'owedToUs'));

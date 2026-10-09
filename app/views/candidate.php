@@ -564,6 +564,99 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <?php endif; ?>
   </section>
 
+  <!-- ── their record with the agency ──────────────────────────────── -->
+  <section class="card" id="record">
+    <span class="eyebrow"><?= te('THEIR RECORD') ?></span>
+    <h2>
+      <?php if ($workHistory['assignments'] === 0): ?>
+        <?= te('Never been out with us') ?>
+      <?php else: ?>
+        <?= te(':n jobs, :done finished', [
+            'n' => $workHistory['assignments'], 'done' => $workHistory['completed']]) ?>
+      <?php endif; ?>
+    </h2>
+
+    <?php if ($workHistory['assignments'] > 0): ?>
+      <p class="small muted" style="margin:-6px 0 12px">
+        <?php if ($workHistory['grade']): ?>
+          <span class="tag <?= review_grade_tone((string) $workHistory['grade']) ?>">
+            <?= te('Average :grade', ['grade' => $workHistory['grade']]) ?>
+          </span>
+          <?= te('across :n graded assignments', ['n' => $workHistory['reviewed']]) ?>
+        <?php else: ?>
+          <?= te('No assignment has been graded yet, so there is nothing to go on.') ?>
+        <?php endif; ?>
+        <?php if ($workHistory['refused'] > 0): ?>
+          &middot; <span class="tag red">
+            <?= te(':n supervisors said they would not have them back',
+                   ['n' => $workHistory['refused']]) ?>
+          </span>
+        <?php endif; ?>
+      </p>
+
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th><?= te('Project') ?></th><th><?= te('Trade') ?></th>
+            <th><?= te('When') ?></th><th><?= te('Status') ?></th>
+            <th><?= te('How it went') ?></th>
+          </tr></thead>
+          <tbody>
+          <?php foreach ($workHistory['history'] as $h): ?>
+            <tr>
+              <td>
+                <strong><?= e($h['project']) ?></strong>
+                <?php if ($h['client']): ?>
+                  <div class="muted small"><?= e($h['client']) ?></div>
+                <?php endif; ?>
+              </td>
+              <td class="small"><?= e($h['trade'] ?: '—') ?></td>
+              <td class="small muted">
+                <?= $h['start_date'] ? e(d($h['start_date'])) : '—' ?>
+                <?php if ($h['end_date']): ?>
+                  <br><?= e(d($h['end_date'])) ?>
+                <?php endif; ?>
+              </td>
+              <td>
+                <span class="tag <?= placement_tone((string) $h['status']) ?>">
+                  <?= te(placement_word((string) $h['status'])) ?>
+                </span>
+              </td>
+              <td class="small">
+                <?php if ($h['grade']): ?>
+                  <span class="tag <?= review_grade_tone((string) $h['grade']) ?>">
+                    <?= e($h['grade']) ?>
+                  </span>
+                  <?php if (! (int) $h['would_rehire']): ?>
+                    <span class="tag red"><?= te('Would not rehire') ?></span>
+                  <?php endif; ?>
+                  <?php if ($h['note']): ?>
+                    <div class="muted"><?= e($h['note']) ?></div>
+                  <?php endif; ?>
+                  <?php if ($h['supervisor']): ?>
+                    <div class="muted"><?= te('under :who', ['who' => $h['supervisor']]) ?></div>
+                  <?php endif; ?>
+                <?php elseif ($h['status'] === 'completed'): ?>
+                  <span class="tag amber"><?= te('Not graded') ?></span>
+                <?php else: ?>
+                  <span class="muted">—</span>
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
+
+    <?php if ($owedToUs > 0): ?>
+      <p class="small" style="color:var(--amber);margin:14px 0 0">
+        <?= te('Owes :amount on an advance against wages.', ['amount' => money($owedToUs)]) ?>
+        <a href="/advances"><?= te('See the advance') ?></a>
+      </p>
+    <?php endif; ?>
+  </section>
+
   <!-- ── what they can do ──────────────────────────────────────────── -->
   <section class="card" id="skills">
     <span class="eyebrow"><?= te('SKILLS') ?></span>

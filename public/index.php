@@ -165,6 +165,7 @@ $routes = [
     '/employee-folder' => 'employee-folder',
     '/checks' => 'checks',
     '/expenses' => 'expenses',
+    '/advances' => 'advances',
     '/accounts-payable' => 'accounts-payable',
     '/payroll-export' => 'payroll-export',
     '/attendance' => 'attendance',

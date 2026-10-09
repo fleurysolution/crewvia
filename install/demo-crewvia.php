@@ -70,6 +70,7 @@ if ($remove) {
     foreach ($people as $person) {
         q('DELETE FROM candidate_calls WHERE candidate_id = ?', [(int) $person['id']]);
         q('DELETE FROM candidate_skills WHERE candidate_id = ?', [(int) $person['id']]);
+        q('DELETE FROM wage_advances WHERE candidate_id = ?', [(int) $person['id']]);
 
         // employee_profiles points at candidates without ON DELETE CASCADE,
         // so the person cannot be removed while a profile holds them. The
@@ -313,6 +314,98 @@ foreach ($people as $i => $person) {
     }
 
     $added++;
+}
+
+// A past worth reading. The review only means anything once there is
+// history behind it, and a demonstration built this morning has none -
+// so two of them are given one.
+$pastWork = [
+    ['Demo Marcus Bell',   'A', 1, 'Ran the night crew when the supervisor was out. Would take him anywhere.'],
+    ['Demo Elena Vasquez', 'B', 1, 'Steady, no complaints. Knows her instruments.'],
+    ['Demo Sofia Petrova', 'D', 0, 'Late four mornings out of ten and argued about it. Not again.'],
+
+    // Deliberately left ungraded: a finished assignment nobody has said
+    // anything about is the gap RSS described - "we don't always get
+    // that" - and the roster has to show it waiting.
+    ['Demo Kwame Boateng',  null, 1, null],
+];
+
+foreach ($pastWork as $index => [$name, $grade, $rehire, $note]) {
+    $who = row('SELECT id FROM candidates WHERE full_name = ?', [$name]);
+
+    if (! $who) {
+        continue;
+    }
+
+    // A finished assignment on an earlier project, so the person's record
+    // reads across jobs rather than only this one.
+    $past = row("SELECT id FROM placements
+                 WHERE candidate_id = ? AND job_id = ? AND status = 'completed'",
+                [(int) $who['id'], $jobId]);
+
+    if (! $past) {
+        q("INSERT INTO placements (candidate_id, job_id, status, start_date, end_date,
+                                   created_by, pay_rate, bill_rate, per_diem_rate, guarantee_hours)
+           VALUES (?,?,'completed',?,?,?,?,?,?,?)",
+          [(int) $who['id'], $jobId,
+           date('Y-m-d', strtotime('-120 days')),
+           date('Y-m-d', strtotime('-70 days')),
+           $actor, 48.00, 74.00, 40.00, 50]);
+
+        $past = ['id' => (int) db()->lastInsertId()];
+
+        q('INSERT INTO assignment_details (placement_id, trade, shift_label)
+           VALUES (?,?,?)', [(int) $past['id'], 'Mechanical technician', 'Days, 12 hours']);
+    }
+
+    if ($grade === null) {
+        $say('  finished, left ungraded on purpose: ' . $name);
+        continue;
+    }
+
+    if (! val('SELECT COUNT(*) FROM assignment_reviews WHERE placement_id = ?',
+              [(int) $past['id']])) {
+        q('INSERT INTO assignment_reviews (placement_id, grade, would_rehire, note, reviewed_by,
+                                           reviewed_at)
+           VALUES (?,?,?,?,?,?)',
+          [(int) $past['id'], $grade, $rehire, $note, $actor,
+           date('Y-m-d H:i:s', strtotime('-69 days'))]);
+
+        $reviewId = (int) db()->lastInsertId();
+
+        foreach (['workmanship', 'timekeeping', 'safety', 'instructions', 'teamwork'] as $n => $slug) {
+            $score = $grade === 'A' ? 5 : ($grade === 'B' ? 4 : 2);
+            q('INSERT IGNORE INTO assignment_review_scores (review_id, criterion_slug, score)
+               VALUES (?,?,?)', [$reviewId, $slug, max(1, $score - ($n % 2))]);
+        }
+
+        $say('  graded: ' . $name . ' - ' . $grade . ($rehire ? '' : ' (would not rehire)'));
+    }
+}
+
+// Somebody who flew in and needed money before the first cheque.
+$needsCash = row('SELECT id, full_name FROM candidates WHERE full_name = ?',
+                 ['Demo Marcus Bell']);
+
+if ($needsCash && ! val('SELECT COUNT(*) FROM wage_advances WHERE candidate_id = ?',
+                        [(int) $needsCash['id']])) {
+    q("INSERT INTO wage_advances (candidate_id, job_id, amount, weekly_repayment, reason,
+                                  status, requested_by, approved_by, approved_at, paid_out_on)
+       VALUES (?,?,?,?,?,'paid_out',?,?,?,?)",
+      [(int) $needsCash['id'], $jobId, 600.00, 150.00,
+       'Travelled in Sunday, first cheque is Friday week.',
+       $actor, $actor,
+       date('Y-m-d H:i:s', strtotime('-12 days')),
+       date('Y-m-d', strtotime('-12 days'))]);
+
+    $advanceId = (int) db()->lastInsertId();
+
+    q('INSERT INTO wage_advance_payments (advance_id, amount, paid_on, note, recorded_by)
+       VALUES (?,?,?,?,?)',
+      [$advanceId, 150.00, date('Y-m-d', strtotime('-5 days')),
+       'Week ending ' . date('j M', strtotime('-5 days')), $actor]);
+
+    $say('  advance: ' . $needsCash['full_name'] . ' - $600.00, $150.00 repaid');
 }
 
 // The case RSS described: hired onto a job he should never have been on,
