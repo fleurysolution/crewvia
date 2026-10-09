@@ -39,8 +39,8 @@ anybody picking the project up.
 | C5 | Code comments, CLI messages, logs and identifiers in **English** — the software is sold. | Fleury Solutions |
 | C6 | Real credentials never committed. `config.php` is ignored; `config.example.php` is the template. | Fleury Solutions |
 | C7 | Personal data of real people never leaves the authorised installation — not into a repository, not into a demonstration. | Fleury Solutions |
-| C8 | **The client gets no portal** for RSS. | Jerry (VP) |
-| C9 | **Never promise**: tax filing or deposits (ADP keeps that), no-show alerts, client sign-off on hours. | Jerry (VP) |
+| C8 | **The client gets no portal** for RSS. | the RSS VP |
+| C9 | **Never promise**: tax filing or deposits (ADP keeps that), no-show alerts, client sign-off on hours. | the RSS VP |
 | C10 | Security is a permanent priority: for every change, ask who else can see this and what a weaker role sees. | Fleury Solutions |
 
 ---
