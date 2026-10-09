@@ -470,3 +470,37 @@ HTTPS is required for DocuSign.	HTTPS est requis pour DocuSign.	Se requiere HTTP
 Invalid signing URL.	Lien de signature invalide.	Enlace de firma no válido.
 Download signature record	Télécharger le justificatif de signature	Descargar registro de firma
 Contract update failed. Contact the administrator.	La mise à jour du contrat a échoué. Contactez l’administrateur.	Falló la actualización del contrato. Contacte al administrador.
+Hourly employee	Salarié payé à l’heure	Empleado por horas
+Salaried employee	Salarié au forfait	Empleado asalariado
+Independent contractor	Travailleur indépendant	Contratista independiente
+Employed by another company	Employé par une autre société	Empleado de otra empresa
+Overtime applies (non-exempt)	Heures supplémentaires applicables (non exempté)	Aplican horas extra (no exento)
+Exempt from overtime	Exempté des heures supplémentaires	Exento de horas extra
+Not an employee of the agency	Pas un employé de l’agence	No es empleado de la agencia
+Not yet determined	Pas encore déterminé	Aún no determinado
+Choose a kind of employment from the list.	Choisissez un type d’emploi dans la liste.	Elija un tipo de empleo de la lista.
+Choose an overtime status from the list.	Choisissez un statut d’heures supplémentaires dans la liste.	Elija un estado de horas extra de la lista.
+A contractor or another company's employee is not classified for overtime by the agency.	Un indépendant ou l’employé d’une autre société n’est pas classé par l’agence pour les heures supplémentaires.	Un contratista o el empleado de otra empresa no es clasificado por la agencia para horas extra.
+An employee of the agency needs an overtime status, even if it is not yet determined.	Un employé de l’agence a besoin d’un statut d’heures supplémentaires, même s’il n’est pas encore déterminé.	Un empleado de la agencia necesita un estado de horas extra, aunque aún no esté determinado.
+Give the date the change takes effect.	Indiquez la date d’effet du changement.	Indique la fecha en que el cambio surte efecto.
+A change cannot take effect in the future. Record it on the day it applies.	Un changement ne peut pas prendre effet dans le futur. Enregistrez-le le jour où il s’applique.	Un cambio no puede surtir efecto en el futuro. Regístrelo el día en que aplique.
+Say why the classification changed.	Indiquez pourquoi la classification a changé.	Indique por qué cambió la clasificación.
+The last change took effect on :date. A new one cannot take effect before it.	Le dernier changement a pris effet le :date. Un nouveau ne peut pas prendre effet avant.	El último cambio surtió efecto el :date. Uno nuevo no puede surtir efecto antes.
+That is already the classification on record.	C’est déjà la classification enregistrée.	Esa ya es la clasificación registrada.
+Classification recorded. Weeks already approved keep what they were calculated on.	Classification enregistrée. Les semaines déjà approuvées gardent la base de leur calcul.	Clasificación registrada. Las semanas ya aprobadas conservan la base de su cálculo.
+Employment classification	Classification de l’emploi	Clasificación del empleo
+Decides whether a week is paid by the hour or as a salary, and whether overtime applies. Each change keeps the date it took effect and why.	Détermine si une semaine est payée à l’heure ou au forfait, et si les heures supplémentaires s’appliquent. Chaque changement garde sa date d’effet et son motif.	Determina si una semana se paga por hora o como salario, y si aplican horas extra. Cada cambio guarda su fecha de efecto y su motivo.
+Kind of employment	Type d’emploi	Tipo de empleo
+Overtime status	Statut des heures supplémentaires	Estado de horas extra
+Takes effect on	Prend effet le	Surte efecto el
+Record the change	Enregistrer le changement	Registrar el cambio
+No change recorded yet. The profile shows the classification held since the record was created.	Aucun changement enregistré. Le profil indique la classification détenue depuis la création de la fiche.	Ningún cambio registrado. El perfil muestra la clasificación mantenida desde que se creó el registro.
+Before history was kept	Avant la tenue de l’historique	Antes de llevar el historial
+Held before classification history was kept.	Détenue avant la tenue de l’historique des classifications.	Mantenida antes de llevar el historial de clasificaciones.
+Where these terms come from	Origine de ces conditions	Origen de estas condiciones
+Recorded when the assignment was made: requisition :req, line :line of the scope of work.	Enregistré à la création de l’affectation : réquisition :req, ligne :line du cahier des charges.	Registrado al crear la asignación: requisición :req, línea :line del alcance del trabajo.
+Not recorded on the assignment. Inferred from the latest application on this project: line :line. Check it if the person applied for two trades.	Non enregistré sur l’affectation. Déduit de la dernière candidature sur ce projet : ligne :line. Vérifiez-le si la personne a postulé à deux métiers.	No registrado en la asignación. Deducido de la última solicitud en este proyecto: línea :line. Verifíquelo si la persona se postuló a dos oficios.
+No requisition or line of the scope is linked to this assignment. Its rates were set on the assignment itself.	Aucune réquisition ni ligne du cahier des charges n’est liée à cette affectation. Ses taux ont été fixés sur l’affectation elle-même.	Ninguna requisición ni línea del alcance está vinculada a esta asignación. Sus tarifas se fijaron en la propia asignación.
+Rate changes	Changements de taux	Cambios de tarifa
+No change since the assignment was made. It is on the terms it started with.	Aucun changement depuis la création de l’affectation. Elle conserve ses conditions de départ.	Ningún cambio desde que se creó la asignación. Mantiene sus condiciones iniciales.
+By	Par	Por

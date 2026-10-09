@@ -25,7 +25,13 @@ if (! $p) {
 // never what the client agreed - a line per trade is.
 require_once __DIR__ . '/../scope.php';
 
-$line = scope_line_for_placement((int) $p['candidate_id'], (int) $p['job_id']);
+$line = scope_line_for_placement((int) $p['candidate_id'], (int) $p['job_id'],
+                                 isset($p['order_line_id']) ? (int) $p['order_line_id'] : null);
+
+// Whether the line was recorded when the placement was made, or is the
+// fallback guess from the latest application. The page says which.
+$p['line_recorded'] = ! empty($p['order_line_id']) && $line
+                      && (int) $line['id'] === (int) $p['order_line_id'];
 
 $job = [
     'pay_rate'        => $line['pay_rate'] ?? null,
@@ -65,5 +71,15 @@ foreach ($sheets as $s) {
     $totals['hours'] += $m['worked'];
 }
 
+// Pay information, so it is read only past the payroll check above.
+$origin = ! empty($p['vacancy_id'])
+    ? row('SELECT id, title FROM vacancies WHERE id = ? AND job_id = ?',
+          [(int) $p['vacancy_id'], (int) $p['job_id']])
+    : null;
+
+$rateChanges = rows('SELECT r.*, u.name AS changed_by_name FROM placement_rate_changes r
+                     LEFT JOIN users u ON u.id = r.changed_by
+                     WHERE r.placement_id = ? ORDER BY r.id DESC LIMIT 50', [$id]);
+
 $pageTitle = $p['full_name'] . ' · '.$config['app_name'];
-render('placement', compact('p','lodge','legs','sheets','job','totals'));
+render('placement', compact('p','lodge','legs','sheets','job','totals','origin','line','rateChanges'));

@@ -89,6 +89,11 @@ function placement_rates(int $jobId, ?int $vacancyId = null): array
         'per_diem_rate'   => $pick('per_diem_rate') !== null ? (float) $pick('per_diem_rate') : null,
         'guarantee_hours' => $pick('guarantee_hours') !== null ? (int) $pick('guarantee_hours') : null,
         'source'          => $source,
+        // Where the copy came from, kept on the placement so a later
+        // question - which trade, which order - has an answer that is not
+        // a guess from the person's most recent application.
+        'vacancy_id'      => $role !== [] ? $vacancyId : null,
+        'order_line_id'   => $line !== [] ? (int) $role['order_line_id'] : null,
     ];
 }
 
