@@ -551,6 +551,64 @@ if (! $hadReviews) {
     echo 'People: end-of-assignment reviews and wage advances are in place.' . PHP_EOL;
 }
 
+// Where somebody's pay goes, and what kind of leave they took.
+$hr2Sql = __DIR__ . '/hr-modules-2.sql';
+
+if (! is_file($hr2Sql)) {
+    fwrite(STDERR, 'hr-modules-2.sql is missing from this deployment.' . PHP_EOL);
+    exit(1);
+}
+
+$hadBank = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                      WHERE table_schema=DATABASE() AND table_name='worker_bank_details'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($hr2Sql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// A kind of leave, beside the free text that used to be the only record
+// of it. The text stays: it is the label somebody typed, and things
+// already read it.
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='time_off_requests'
+             AND column_name='leave_type'")) {
+    q('ALTER TABLE time_off_requests ADD COLUMN leave_type VARCHAR(40) NULL AFTER request_type');
+
+    // Only where the text leaves no doubt. A request typed "family" is
+    // not obviously personal or bereavement, and guessing it wrong is
+    // worse than leaving it unclassified.
+    foreach ([
+        'sick'        => ['sick', 'illness', 'ill', 'medical'],
+        'unpaid'      => ['unpaid', 'leave without pay', 'lwop'],
+        'bereavement' => ['bereavement', 'funeral'],
+        'jury'        => ['jury'],
+        'personal'    => ['personal'],
+    ] as $slug => $words) {
+        foreach ($words as $word) {
+            q('UPDATE time_off_requests SET leave_type = ?
+               WHERE leave_type IS NULL AND LOWER(request_type) LIKE ?',
+              [$slug, '%' . $word . '%']);
+        }
+    }
+
+    $classified = (int) val('SELECT COUNT(*) FROM time_off_requests WHERE leave_type IS NOT NULL');
+    $total = (int) val('SELECT COUNT(*) FROM time_off_requests');
+
+    if ($total > 0) {
+        echo 'Time off: ' . $classified . ' of ' . $total
+           . ' past requests matched to a leave type; the rest keep their text.' . PHP_EOL;
+    }
+
+    $bank2 = true;
+}
+
+if (! $hadBank || ! empty($bank2)) {
+    echo 'People: bank details and leave types are in place.' . PHP_EOL;
+}
+
 echo 'Approvals: 3 tables in place.' . PHP_EOL;
 
 // An approval step is announced once; before this column every later

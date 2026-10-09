@@ -1,12 +1,39 @@
 <?php
-require_login();$isWorker=is_worker_account();$jobId=(int)(current_job()['id'] ?? 0);
+require_login();require_once __DIR__.'/../hr.php';
+$isWorker=is_worker_account();$jobId=(int)(current_job()['id'] ?? 0);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  if($do==='request') {
   $pid=(int)($_POST['placement_id'] ?? 0);$from=(string)($_POST['starts_on'] ?? '');$to=(string)($_POST['ends_on'] ?? '');
   $own=row("SELECT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=? AND p.id=? AND p.status NOT IN ('completed','cancelled')",[uid(),$pid]);
   if(!$own || !valid_date($from) || !valid_date($to) || $to<$from) { refuse(422, t('Invalid assignment or dates.')); }
-  q('INSERT INTO time_off_requests(placement_id,user_id,starts_on,ends_on,request_type,reason) VALUES (?,?,?,?,?,?)',[$pid,uid(),$from,$to,mb_substr(trim((string)($_POST['request_type'] ?? 'Time off')),0,120),trim((string)($_POST['reason'] ?? ''))]);
+  // A kind of leave from the catalogue, not whatever somebody typed.
+  // The label goes into request_type beside it so everything already
+  // reading that column keeps working.
+  $slug = (string) ($_POST['leave_type'] ?? '');
+  $kinds = leave_types();
+
+  if (! array_key_exists($slug, $kinds)) {
+   flash(t('Choose what kind of time off this is.'), 'err');
+   redirect('/timeoff');
+  }
+
+  // Refused before it is asked for rather than after it is approved:
+  // an allowance that is only checked at review has already been spent
+  // in somebody's plans.
+  $candidate = (int) val('SELECT candidate_id FROM placements WHERE id = ?', [$pid]);
+  $balance = leave_balance($candidate, $slug, (int) date('Y', strtotime($from)));
+  $asking = (int) ((strtotime($to) - strtotime($from)) / 86400) + 1;
+
+  if ($balance['left'] !== null && $asking > $balance['left']) {
+   flash(t('That is :asked days and only :left of the :kind allowance is left this year.',
+           ['asked' => $asking, 'left' => $balance['left'],
+            'kind' => t((string) $kinds[$slug]['label'])]), 'err');
+   redirect('/timeoff');
+  }
+
+  q('INSERT INTO time_off_requests(placement_id,user_id,starts_on,ends_on,request_type,leave_type,reason) VALUES (?,?,?,?,?,?,?)',
+    [$pid,uid(),$from,$to,mb_substr((string)$kinds[$slug]['label'],0,120),$slug,trim((string)($_POST['reason'] ?? ''))]);
   q("INSERT INTO notifications(user_id,message,target) SELECT id,'Time-off request awaiting review','/timeoff' FROM users WHERE role='admin' AND is_active=1");
  }
  if($do==='review') {
@@ -25,4 +52,17 @@ if($isWorker && user()['role']!=='supervisor') {
  $requests=rows('SELECT r.*,j.title project FROM time_off_requests r JOIN placements p ON p.id=r.placement_id JOIN jobs j ON j.id=p.job_id WHERE r.user_id=? ORDER BY r.id DESC',[uid()]);
  $assignments=rows("SELECT p.id,j.title FROM placements p JOIN jobs j ON j.id=p.job_id JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=? AND p.status NOT IN ('completed','cancelled')",[uid()]);
 }else if(user()['role']==='supervisor') { $isWorker=false;$assignments=[];$requests=rows('SELECT r.*,c.full_name,j.title project FROM time_off_requests r JOIN placements p ON p.id=r.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN jobs j ON j.id=p.job_id JOIN assignment_details d ON d.placement_id=p.id WHERE d.supervisor_id=? ORDER BY r.id DESC',[uid()]); }else { require_role('recruiter','supervisor');$requests=rows('SELECT r.*,c.full_name,j.title project FROM time_off_requests r JOIN placements p ON p.id=r.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN jobs j ON j.id=p.job_id WHERE p.job_id=? ORDER BY r.id DESC',[$jobId]);$assignments=[]; }
-render('timeoff',compact('requests','assignments','isWorker'));
+// What each kind of leave this person has left, so the form can say so
+// before they ask rather than after somebody refuses them.
+$balances = [];
+
+if ($isWorker) {
+ $me = (int) val('SELECT candidate_id FROM worker_accounts WHERE user_id = ?', [uid()]);
+
+ foreach (leave_types() as $slug => $kind) {
+  $balances[$slug] = leave_balance($me, $slug) + ['label' => $kind['label'],
+                                                  'is_paid' => (int) $kind['is_paid']];
+ }
+}
+
+render('timeoff',compact('requests','assignments','isWorker','balances'));

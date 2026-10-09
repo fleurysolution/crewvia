@@ -15,3 +15,87 @@
 <p><a class="btn ghost" href="/qualifications?candidate_id=<?= (int)$cid ?>"><?= te('Qualifications & expiry') ?></a></p>
 
 <p><a class="btn ghost" href="/resumes?candidate_id=<?= (int)$cid ?>"><?= te('Candidate resumes') ?></a></p>
+
+<?php if (can('payroll')): ?>
+<?php require_once __DIR__ . '/../hr.php'; ?>
+<section class="card" id="bank">
+  <span class="eyebrow"><?= te('WHERE THE MONEY GOES') ?></span>
+  <h2><?= te('Bank details') ?></h2>
+  <p class="small muted" style="margin:-6px 0 12px">
+    <?= te('Encrypted with the workspace key. Only the last four digits are shown, only the payroll desk can open this, and every time somebody reads the full record it is written down.') ?>
+  </p>
+
+  <?php if (! $bank): ?>
+    <div class="empty"><?= te('Nothing on file. This person cannot be paid by transfer until there is.') ?></div>
+  <?php else: ?>
+    <p>
+      <span class="tag <?= bank_tone((string) $bank['status']) ?>">
+        <?= te(bank_states()[$bank['status']] ?? $bank['status']) ?>
+      </span>
+      <strong><?= e($bank['bank_label'] ?: t('bank not named')) ?></strong>
+      <span class="mono">&bull;&bull;&bull;&bull;<?= e($bank['last_four'] ?: '????') ?></span>
+      <?php if ($bank['reviewed_at']): ?>
+        <span class="muted small"><?= te('checked :when', ['when' => d($bank['reviewed_at'])]) ?></span>
+      <?php endif; ?>
+    </p>
+
+    <?php if ($bankFull && empty($bankFull['unreadable'])): ?>
+      <div class="card" style="background:#FDF6E7;border-color:#EEDCB0">
+        <p class="small" style="margin:0 0 8px">
+          <strong><?= te('Full record — this read has been logged.') ?></strong>
+        </p>
+        <table><tbody>
+          <tr><td><?= te('Account holder') ?></td>
+              <td class="right mono"><?= e($bankFull['details']['account_holder'] ?? '—') ?></td></tr>
+          <tr><td><?= te('Account number') ?></td>
+              <td class="right mono"><?= e($bankFull['details']['account_number'] ?? '—') ?></td></tr>
+          <tr><td><?= te('Routing number') ?></td>
+              <td class="right mono"><?= e($bankFull['details']['routing_number'] ?? '—') ?></td></tr>
+        </tbody></table>
+      </div>
+    <?php elseif ($bankFull && ! empty($bankFull['unreadable'])): ?>
+      <p class="small" style="color:var(--red)">
+        <?= te('This record cannot be decrypted. The encryption key has changed since it was saved; re-enter the details.') ?>
+      </p>
+    <?php else: ?>
+      <p><a class="btn ghost sm" href="/employee-folder?id=<?= (int) $cid ?>&amp;reveal=bank#bank">
+        <?= te('Show the full number') ?>
+      </a></p>
+    <?php endif; ?>
+  <?php endif; ?>
+
+  <form method="post" style="margin-top:14px">
+    <?= csrf_field() ?>
+    <input type="hidden" name="do" value="bank">
+    <input type="hidden" name="candidate_id" value="<?= (int) $cid ?>">
+    <h3 style="margin:0 0 10px">
+      <?= $bank ? te('Replace these details') : te('Record bank details') ?>
+    </h3>
+    <div class="row">
+      <div style="flex:2">
+        <label for="b-holder"><?= te('Name on the account') ?></label>
+        <input id="b-holder" name="account_holder" maxlength="190"
+               value="<?= e($c['full_name']) ?>">
+      </div>
+      <div style="flex:2">
+        <label for="b-bank"><?= te('Bank') ?></label>
+        <input id="b-bank" name="bank_name" maxlength="90" required>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label for="b-routing"><?= te('Routing number') ?></label>
+        <input id="b-routing" name="routing_number" maxlength="9" required
+               inputmode="numeric" autocomplete="off">
+        <span class="hint"><?= te('Nine digits. The checksum is verified.') ?></span>
+      </div>
+      <div>
+        <label for="b-account"><?= te('Account number') ?></label>
+        <input id="b-account" name="account_number" maxlength="20" required
+               inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="row tight"><button class="btn" type="submit"><?= te('Save') ?></button></div>
+    </div>
+  </form>
+</section>
+<?php endif; ?>

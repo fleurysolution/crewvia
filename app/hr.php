@@ -229,3 +229,145 @@ function advance_owed(int $candidateId): float
 
     return round($owed, 2);
 }
+
+/** The kinds of leave, and how many days each one allows. */
+function leave_types(bool $includeRetired = false): array
+{
+    static $cache = [];
+
+    $key = $includeRetired ? 'all' : 'active';
+
+    if (isset($cache[$key])) {
+        return $cache[$key];
+    }
+
+    try {
+        $found = rows('SELECT * FROM leave_types'
+                      . ($includeRetired ? '' : ' WHERE is_active = 1')
+                      . ' ORDER BY sort_order, label');
+    } catch (Throwable $e) {
+        return $cache[$key] = [];
+    }
+
+    $list = [];
+
+    foreach ($found as $row) {
+        $list[(string) $row['slug']] = $row;
+    }
+
+    return $cache[$key] = $list;
+}
+
+/**
+ * How much of an allowance somebody has used this year, and what is left.
+ *
+ * Counted from approved requests only: a pending request is not yet a
+ * day off, and refusing somebody on the strength of a request nobody has
+ * decided would be wrong.
+ *
+ * An allowance of null means there is none - unpaid leave does not run
+ * out - and that is reported as null rather than as a large number.
+ *
+ * @return array{allowed:?int,taken:int,left:?int}
+ */
+function leave_balance(int $candidateId, string $slug, ?int $year = null): array
+{
+    $year = $year ?? (int) date('Y');
+    $type = leave_types(true)[$slug] ?? null;
+    $allowed = $type && $type['days_allowed'] !== null ? (int) $type['days_allowed'] : null;
+
+    try {
+        // Inclusive of both ends: somebody off Monday to Friday has taken
+        // five days, not four.
+        $taken = (int) val("SELECT COALESCE(SUM(DATEDIFF(r.ends_on, r.starts_on) + 1), 0)
+                            FROM time_off_requests r
+                            JOIN placements p ON p.id = r.placement_id
+                            WHERE p.candidate_id = ? AND r.leave_type = ?
+                              AND r.status = 'approved'
+                              AND YEAR(r.starts_on) = ?",
+                           [$candidateId, $slug, $year]);
+    } catch (Throwable $e) {
+        $taken = 0;
+    }
+
+    return [
+        'allowed' => $allowed,
+        'taken'   => $taken,
+        'left'    => $allowed === null ? null : max(0, $allowed - $taken),
+    ];
+}
+
+/**
+ * Somebody's bank details, decrypted, and the read recorded.
+ *
+ * Every path to the plaintext goes through here, so the access log
+ * cannot be bypassed by calling something else. Returns null when there
+ * is nothing on file or when the record cannot be decrypted - a key
+ * that has been changed must fail loudly on screen, not hand back
+ * rubbish that looks like an account number.
+ */
+function worker_bank_details(int $candidateId, string $why = 'viewed'): ?array
+{
+    try {
+        $row = row('SELECT * FROM worker_bank_details WHERE candidate_id = ?', [$candidateId]);
+    } catch (Throwable $e) {
+        return null;
+    }
+
+    if (! $row) {
+        return null;
+    }
+
+    try {
+        $plain = token_decrypt((string) $row['encrypted_details']);
+    } catch (Throwable $e) {
+        $row['unreadable'] = true;
+        $row['details'] = [];
+
+        return $row;
+    }
+
+    q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)',
+      [$candidateId, uid(), mb_substr($why, 0, 40)]);
+
+    $row['details'] = $plain;
+    $row['unreadable'] = false;
+
+    return $row;
+}
+
+/**
+ * What is safe to show without reading the record.
+ *
+ * The last four digits and the bank's name are kept outside the
+ * encrypted blob precisely so a list can be rendered without anybody
+ * decrypting anything.
+ */
+function worker_bank_summary(int $candidateId): ?array
+{
+    try {
+        return row('SELECT candidate_id, last_four, bank_label, status, reviewed_at
+                    FROM worker_bank_details WHERE candidate_id = ?', [$candidateId]);
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+/** The states a bank record moves through, in words. */
+function bank_states(): array
+{
+    return [
+        'pending_review' => 'Waiting to be checked',
+        'verified'       => 'Checked and in use',
+        'rejected'       => 'Rejected, not in use',
+    ];
+}
+
+function bank_tone(string $status): string
+{
+    return match ($status) {
+        'verified' => 'green',
+        'rejected' => 'red',
+        default    => 'amber',
+    };
+}

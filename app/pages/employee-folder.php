@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__.'/../hr.php';
+require_once __DIR__.'/../gmail.php';
 require_login();$own=is_worker_account();$cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['id'] ?? $_POST['candidate_id'] ?? 0);
 if(!$own) require_role('recruiter','payroll');
 // Opened from the menu there is no id, and nowhere in the interface shows
@@ -34,6 +36,70 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
    q('UPDATE employee_profiles SET employment_type=?,availability=? WHERE candidate_id=?',[$type,$availability,$cid]);
   }
  }
+ // ── where the money goes ───────────────────────────────────────────
+ // Payroll only. A recruiter can open this folder and has no business
+ // with somebody's account number.
+ if($do==='bank') {
+  require_role('payroll');
+
+  $account = preg_replace('/\s+/', '', (string) ($_POST['account_number'] ?? ''));
+  $routing = preg_replace('/\s+/', '', (string) ($_POST['routing_number'] ?? ''));
+  $bank    = trim((string) ($_POST['bank_name'] ?? ''));
+  $holder  = trim((string) ($_POST['account_holder'] ?? ''));
+
+  if (! preg_match('/^[0-9]{4,20}$/D', $account)) {
+   flash(t('An account number is 4 to 20 digits.'), 'err');
+   redirect('/employee-folder?id=' . $cid);
+  }
+
+  // Nine digits, and the ABA checksum. A transposed digit that still
+  // passes the length test is how money reaches the wrong bank.
+  if (! preg_match('/^[0-9]{9}$/D', $routing)) {
+   flash(t('A routing number is exactly 9 digits.'), 'err');
+   redirect('/employee-folder?id=' . $cid);
+  }
+
+  $d = array_map('intval', str_split($routing));
+  $sum = 3 * ($d[0] + $d[3] + $d[6]) + 7 * ($d[1] + $d[4] + $d[7]) + ($d[2] + $d[5] + $d[8]);
+
+  if ($sum % 10 !== 0) {
+   flash(t('That routing number fails its checksum. Check the digits against the cheque.'), 'err');
+   redirect('/employee-folder?id=' . $cid);
+  }
+
+  if ($bank === '' || mb_strlen($bank) > 90) {
+   flash(t('Name the bank.'), 'err');
+   redirect('/employee-folder?id=' . $cid);
+  }
+
+  q('INSERT INTO worker_bank_details
+      (candidate_id, encrypted_details, last_four, bank_label, status,
+       submitted_by, reviewed_by, reviewed_at)
+     VALUES (?,?,?,?,?,?,?,NOW())
+     ON DUPLICATE KEY UPDATE encrypted_details = VALUES(encrypted_details),
+                             last_four = VALUES(last_four),
+                             bank_label = VALUES(bank_label),
+                             status = VALUES(status),
+                             reviewed_by = VALUES(reviewed_by),
+                             reviewed_at = NOW()',
+    [$cid,
+     token_encrypt(['account_number' => $account, 'routing_number' => $routing,
+                    'bank_name' => $bank, 'account_holder' => $holder]),
+     substr($account, -4), $bank, 'verified', uid(), uid()]);
+
+  q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)',
+    [$cid, uid(), 'recorded']);
+
+  // The number itself never reaches the activity log.
+  log_activity('recorded bank details', 'candidate', $cid,
+               $c['full_name'] . ' - ' . $bank . ' ****' . substr($account, -4));
+
+  flash(t('Bank details saved for :name, ending :last.',
+          ['name' => $c['full_name'], 'last' => substr($account, -4)]));
+
+  redirect('/employee-folder?id=' . $cid);
+ }
+
  if($do==='payment') {
   require_role('payroll');$method=$_POST['payment_method'] ?? '';$salary=$_POST['salary_per_period'] ?? '';
   if(!in_array($method,['direct_deposit','check','cash'],true) || ($salary!=='' && (!is_numeric($salary) || (float)$salary<0))) { refuse(422, t('Invalid payment setup.')); }
@@ -58,4 +124,14 @@ $credentials=rows('SELECT * FROM worker_credentials WHERE candidate_id=? ORDER B
 $docs=($own || can('recruiter'))?rows('SELECT id,document_type,status,created_at FROM worker_documents WHERE candidate_id=? ORDER BY id DESC',[$cid]):[];
 $history=rows("SELECT a.created_at,a.action,a.detail,u.name FROM activity a LEFT JOIN users u ON u.id=a.user_id WHERE (a.entity='candidate' AND a.entity_id=?) OR (a.entity IN ('placement','timesheet') AND (a.entity='placement' AND a.entity_id IN (SELECT id FROM placements WHERE candidate_id=?) OR a.entity='timesheet' AND a.entity_id IN (SELECT t.id FROM timesheets t JOIN placements p ON p.id=t.placement_id WHERE p.candidate_id=?))) ORDER BY a.id DESC LIMIT 100",[$cid,$cid,$cid]);
 $signatures=rows('SELECT d.title,d.signer_name,d.signed_at,d.status FROM signed_acknowledgements d JOIN placements p ON p.id=d.placement_id WHERE p.candidate_id=? ORDER BY d.id DESC',[$cid]);
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory'));
+// Only the summary - the last four digits and the bank - reaches the
+// view by default. The full record is read on request, and that read is
+// logged.
+$bank = can('payroll') ? worker_bank_summary($cid) : null;
+$bankFull = null;
+
+if ($bank && can('payroll') && ($_GET['reveal'] ?? '') === 'bank') {
+ $bankFull = worker_bank_details($cid, 'revealed on the folder');
+}
+
+render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull'));
