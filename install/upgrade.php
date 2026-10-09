@@ -1,0 +1,513 @@
+<?php
+declare(strict_types=1);
+if (PHP_SAPI !== 'cli') exit('CLI only');
+require_once __DIR__.'/../app/bootstrap.php';
+q("ALTER TABLE users MODIFY role ENUM('admin','recruiter','hotels','payroll','worker','supervisor','client') NOT NULL DEFAULT 'recruiter'");
+if (val("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='placements' AND index_name='uq_candidate_job'")) {
+ q('ALTER TABLE placements DROP INDEX uq_candidate_job, ADD INDEX ix_candidate_job(candidate_id,job_id)');
+}
+$sql=file_get_contents(__DIR__.'/extension.sql');
+foreach(explode(';',$sql) as $stmt) if(trim($stmt)) db()->exec($stmt);
+q('ALTER TABLE vehicle_assignments MODIFY checked_out_at DATETIME NULL DEFAULT NULL');
+$sql=file_get_contents(__DIR__.'/saas.sql');
+foreach(explode(';',$sql) as $stmt) if(trim($stmt)) db()->exec($stmt);
+foreach(['workflow.sql','recruiting-integrations.sql','client-portal.sql','completion.sql','contracts.sql'] as $migration) {
+ $sql=file_get_contents(__DIR__.'/'.$migration);foreach(explode(';',$sql) as $stmt) if(trim($stmt)) db()->exec($stmt);
+}
+// Per-account language. Guarded rather than a plain ALTER, because this
+// script must survive being run twice and ADD COLUMN is not idempotent.
+// NULL means "never chose" and follows the browser; a stored 'en' means
+// the person chose English and keeps it on a French browser.
+if (!val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='users' AND column_name='locale'")) {
+ q("ALTER TABLE users ADD COLUMN locale CHAR(2) NULL AFTER role");
+}
+
+// Indexed identity comparisons for large applicant pools; identity still needs human review.
+foreach(['normalized_email'=>"LOWER(TRIM(email))",'normalized_name'=>"LOWER(TRIM(full_name))",'normalized_phone'=>"REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(phone),' ',''),'-',''),'(',''),')',''),'+','')"] as $column=>$expression) {
+ if(!val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='candidates' AND column_name=?",[$column]))q("ALTER TABLE candidates ADD COLUMN ".$column." VARCHAR(190) GENERATED ALWAYS AS (".$expression.") STORED, ADD INDEX ix_".$column." (".$column.")");
+}
+// A requisition describes a job. It used to carry a title and a paragraph,
+// which meant the discipline, the headcount, the shift and the start date
+// were either buried in prose or absent - and a recruiter had nothing
+// structured to screen against. Each column is added only if missing.
+foreach ([
+    'discipline'   => "ENUM('mechanical','chemical','electrical','instrumentation','operator','other') NOT NULL DEFAULT 'other'",
+    'openings'     => 'SMALLINT UNSIGNED NOT NULL DEFAULT 1',
+    'shift'        => "VARCHAR(60) NULL",
+    'requirements' => 'TEXT NULL',
+    'degree'       => 'VARCHAR(190) NULL',
+    'years_experience' => 'TINYINT UNSIGNED NULL',
+    'starts_on'    => 'DATE NULL',
+] as $column => $definition) {
+ if (!val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='vacancies' AND column_name='".$column."'")) {
+  q('ALTER TABLE vacancies ADD COLUMN `'.$column.'` '.$definition);
+ }
+}
+
+// One collation, or joins fail.
+//
+// Tables written as DEFAULT CHARSET=utf8mb4 resolve to utf8mb4_general_ci;
+// tables that name no charset inherit the database's. Where an install
+// ended up with both, any text join across the two raises "Illegal mix of
+// collations" and the statement fails outright - which is what stopped
+// contracts from ever being issued.
+//
+// Everything converges on utf8mb4_general_ci: the collation the large
+// majority of tables already use, and the one that equates fewer strings,
+// so converting a UNIQUE column cannot collapse two rows that were
+// legitimately distinct.
+$target = 'utf8mb4_general_ci';
+
+$wrong = rows("SELECT table_name FROM information_schema.tables
+               WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'
+                 AND table_collation IS NOT NULL AND table_collation <> ?",
+              [$target]);
+
+if ($wrong) {
+    // Foreign keys reference columns being rewritten, so the constraint
+    // check is suspended for the conversion and restored immediately -
+    // the data itself is untouched, only how it is compared.
+    q('SET FOREIGN_KEY_CHECKS = 0');
+
+    foreach ($wrong as $t) {
+        $name = (string) $t['table_name'];
+
+        if (! preg_match('/^[A-Za-z0-9_]+$/D', $name)) { continue; }
+
+        q('ALTER TABLE `' . $name . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE ' . $target);
+    }
+
+    q('SET FOREIGN_KEY_CHECKS = 1');
+    echo 'Aligned ' . count($wrong) . " table(s) to " . $target . "." . PHP_EOL;
+}
+
+// Approval chains, ported from BPMS247.
+//
+// Read explicitly rather than assumed: file_get_contents returns false
+// when a deployment did not carry the file, and false quietly becomes an
+// empty statement list - so the upgrade would print success having
+// created nothing at all.
+$approvalSql = __DIR__ . '/approvals.sql';
+
+if (! is_file($approvalSql)) {
+    fwrite(STDERR, "approvals.sql is missing from this deployment." . PHP_EOL);
+    fwrite(STDERR, "Nothing was changed. Extract the archive again." . PHP_EOL);
+    exit(1);
+}
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($approvalSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach (['approval_chains', 'approval_chain_steps', 'approval_requests'] as $table) {
+    if (! val("SELECT COUNT(*) FROM information_schema.tables
+               WHERE table_schema = DATABASE() AND table_name = ?", [$table])) {
+        fwrite(STDERR, 'Expected table ' . $table . ' was not created.' . PHP_EOL);
+        exit(1);
+    }
+}
+
+// A project earns its stage. The old three-value status stays in step,
+// because the switcher and several screens still read it.
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='jobs'
+             AND column_name='lifecycle_stage'")) {
+    q("ALTER TABLE jobs ADD COLUMN lifecycle_stage
+       ENUM('planning','mobilising','on_site','demobilising','closed')
+       NOT NULL DEFAULT 'planning'");
+    q("UPDATE jobs SET lifecycle_stage = CASE status
+         WHEN 'active' THEN 'on_site' WHEN 'closed' THEN 'closed'
+         ELSE 'planning' END");
+    echo 'Projects: lifecycle stage added.' . PHP_EOL;
+}
+
+// A requisition can ask for an electrician, an instrument tech or an
+// operator, and a candidate could only ever be recorded as mechanical,
+// chemical or other - so the discipline a job asked for could not be the
+// discipline anybody was filed under, and matching them was guesswork.
+// The two lists are made the same. Nothing is reclassified: whatever a
+// candidate is today, they stay.
+//
+// Guarded on the column still being an ENUM. Once the trade catalogue has
+// turned it into plain text this must not run again: it would narrow the
+// column back to six values, and a value outside an ENUM is emptied here
+// rather than refused - erasing the trade of anybody filed under one of
+// the trades the agency added itself.
+$candidateDiscipline = (string) val("SELECT column_type FROM information_schema.columns
+                                     WHERE table_schema=DATABASE() AND table_name='candidates'
+                                       AND column_name='discipline'");
+
+if (str_starts_with(strtolower($candidateDiscipline), 'enum')
+    && ! str_contains($candidateDiscipline, 'instrumentation')) {
+    q("ALTER TABLE candidates MODIFY discipline
+       ENUM('mechanical','chemical','electrical','instrumentation','operator','other')
+       NOT NULL DEFAULT 'other'");
+    echo 'Candidates: discipline now matches what a requisition can ask for.' . PHP_EOL;
+}
+
+// A requisition is a role, and a role has its own money: the client
+// agrees mechanical engineers at one rate and operators at another.
+// NULL means "use the project's agreed default", so an installation that
+// never sets these behaves exactly as it did.
+foreach ([
+    'pay_rate'        => 'DECIMAL(10,2) NULL',
+    'bill_rate'       => 'DECIMAL(10,2) NULL',
+    'per_diem_rate'   => 'DECIMAL(8,2) NULL',
+    'guarantee_hours' => 'SMALLINT UNSIGNED NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='vacancies'
+                 AND column_name=?", [$column])) {
+        q('ALTER TABLE vacancies ADD COLUMN `' . $column . '` ' . $definition);
+        $addedRequisitionMoney = true;
+    }
+}
+
+if (! empty($addedRequisitionMoney)) {
+    echo 'Requisitions: each role can now carry its own rates.' . PHP_EOL;
+}
+
+// A placement already had its own rates and the payroll engine already
+// preferred them. What it never had was a guarantee of its own, so a
+// person agreed a different guaranteed week could not be recorded.
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='placements'
+             AND column_name='guarantee_hours'")) {
+    q('ALTER TABLE placements ADD COLUMN guarantee_hours SMALLINT UNSIGNED NULL');
+    echo 'Placements: a person can be agreed their own guaranteed week.' . PHP_EOL;
+}
+
+// Screening questions become scored, typed and able to disqualify.
+//
+// A question belonged to a project and had only a required flag. It now
+// belongs to a role as well, knows what kind of answer it wants, carries
+// a weight toward a score, and can name the answer that disqualifies.
+// Every column is nullable or defaulted, so questions already written
+// keep working as plain required questions.
+foreach ([
+    'vacancy_id'      => 'INT UNSIGNED NULL',
+    'answer_type'     => "ENUM('yes_no','text','number','choice') NOT NULL DEFAULT 'text'",
+    'choices'         => 'VARCHAR(500) NULL',
+    'weight'          => 'SMALLINT UNSIGNED NOT NULL DEFAULT 5',
+    'knockout_answer' => 'VARCHAR(190) NULL',
+    'sort_order'      => 'INT NOT NULL DEFAULT 0',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='screening_questions'
+                 AND column_name=?", [$column])) {
+        q('ALTER TABLE screening_questions ADD COLUMN `' . $column . '` ' . $definition);
+        $screeningChanged = true;
+    }
+}
+
+// The result of answering them, kept on the application so a board can
+// sort on it without recomputing every row.
+foreach ([
+    'screening_score'  => 'DECIMAL(5,2) NULL',
+    'screened_out'     => 'TINYINT(1) NOT NULL DEFAULT 0',
+    'screened_out_why' => 'VARCHAR(255) NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='applications'
+                 AND column_name=?", [$column])) {
+        q('ALTER TABLE applications ADD COLUMN `' . $column . '` ' . $definition);
+        $screeningChanged = true;
+    }
+}
+
+if (! empty($screeningChanged)) {
+    echo 'Screening: questions are typed, weighted and can disqualify.' . PHP_EOL;
+}
+
+// An applicant answering their own questionnaire is not a member of staff.
+// recorded_by means "which of us typed this in", and when the candidate
+// answered it themselves the honest value is nobody - but the column
+// refused NULL, so every public submission died on a constraint.
+if ('NO' === (string) val("SELECT is_nullable FROM information_schema.columns
+                           WHERE table_schema=DATABASE() AND table_name='screening_answers'
+                             AND column_name='recorded_by'")) {
+    q('ALTER TABLE screening_answers MODIFY recorded_by INT UNSIGNED NULL');
+    echo 'Screening: an applicant can answer their own questionnaire.' . PHP_EOL;
+}
+
+// ── The scope of work ───────────────────────────────────────────────────
+$scopeSql = __DIR__ . '/scope-of-work.sql';
+
+if (! is_file($scopeSql)) {
+    fwrite(STDERR, 'scope-of-work.sql is missing from this deployment.' . PHP_EOL);
+    exit(1);
+}
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($scopeSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// An agreement says what it is for, and what it covers beyond the hourly
+// rate. These were nowhere, so the one thing a client signs - the
+// description of the work - could not be recorded at all.
+foreach ([
+    'description'        => 'TEXT NULL',
+    'order_reference'    => 'VARCHAR(120) NULL',
+    'lodging_provided'   => 'TINYINT(1) NOT NULL DEFAULT 1',
+    'travel_provided'    => 'TINYINT(1) NOT NULL DEFAULT 1',
+    'transport_provided' => 'TINYINT(1) NOT NULL DEFAULT 1',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name=?",
+              [$column])) {
+        q('ALTER TABLE jobs ADD COLUMN `' . $column . '` ' . $definition);
+        $agreementChanged = true;
+    }
+}
+
+// A requisition is raised against a line of the order and takes its terms.
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='vacancies'
+             AND column_name='order_line_id'")) {
+    q('ALTER TABLE vacancies ADD COLUMN order_line_id INT UNSIGNED NULL');
+    $agreementChanged = true;
+}
+
+// Whatever a project already had becomes its first line, so no rate that
+// somebody agreed is thrown away by this change.
+foreach (rows('SELECT * FROM jobs j
+               WHERE NOT EXISTS (SELECT 1 FROM job_order_lines l WHERE l.job_id = j.id)')
+         as $job) {
+    q('INSERT INTO job_order_lines
+         (job_id, role_title, discipline, quantity, pay_rate, bill_rate,
+          per_diem_rate, guarantee_hours, strike_guarantee_hours, sort_order, notes)
+       VALUES (?,?,?,?,?,?,?,?,?,1,?)',
+      [(int) $job['id'],
+       'Crew',
+       'other',
+       max(1, (int) $job['headcount_target']),
+       $job['pay_rate'], $job['bill_rate'], $job['per_diem_rate'],
+       $job['guarantee_hours'], $job['strike_hours'],
+       'Carried over from the single rate this project used to hold.']);
+
+    $linesMade = true;
+}
+
+// Every requisition already raised is attached to its project's line, so
+// the rate chain - line, then requisition, then the person - has something
+// behind it for work already in flight. Only a project with exactly one
+// line can be matched without guessing, which is precisely the project the
+// migration above just created one line for.
+$attached = 0;
+
+foreach (rows('SELECT j.id job_id, MIN(l.id) line_id
+               FROM jobs j
+               JOIN job_order_lines l ON l.job_id = j.id
+               GROUP BY j.id
+               HAVING COUNT(l.id) = 1') as $only) {
+    // Counted before the update rather than read back from ROW_COUNT(),
+    // which the prepare in between is not guaranteed to leave alone.
+    $attached += (int) val('SELECT COUNT(*) FROM vacancies
+                            WHERE job_id = ? AND order_line_id IS NULL',
+                           [(int) $only['job_id']]);
+
+    q('UPDATE vacancies SET order_line_id = ?
+       WHERE job_id = ? AND order_line_id IS NULL',
+      [(int) $only['line_id'], (int) $only['job_id']]);
+}
+
+if ($attached > 0) {
+    echo 'Requisitions: ' . $attached . ' attached to their line of the scope of work.' . PHP_EOL;
+}
+
+// A project's headcount is now the total of its order rather than a number
+// typed separately, so any disagreement left over is settled in favour of
+// the scope - the thing the client actually signed.
+q('UPDATE jobs j SET headcount_target =
+     (SELECT COALESCE(SUM(l.quantity), 0) FROM job_order_lines l WHERE l.job_id = j.id)
+   WHERE EXISTS (SELECT 1 FROM job_order_lines l WHERE l.job_id = j.id)');
+
+if (! empty($agreementChanged) || ! empty($linesMade)) {
+    echo 'Projects: an agreement now has a description and a schedule of order lines.' . PHP_EOL;
+}
+
+// A recruiter reaches somebody by telephone or by email. The column
+// only admitted telephone outcomes, and a value outside an ENUM is
+// stored as an empty string rather than refused, so the contact would
+// have been recorded as having no outcome at all.
+$outcomes = (string) val("SELECT COLUMN_TYPE FROM information_schema.columns
+                          WHERE table_schema=DATABASE() AND table_name='candidate_calls'
+                            AND column_name='outcome'");
+
+if ($outcomes !== '' && ! str_contains($outcomes, 'emailed')) {
+    q("ALTER TABLE candidate_calls MODIFY outcome
+         ENUM('reached','voicemail','no_answer','callback','emailed',
+              'replied_email','not_interested','wrong_number') NOT NULL DEFAULT 'reached'");
+
+    echo 'Candidates: a contact can now be an email as well as a call.' . PHP_EOL;
+}
+
+// A hotel holds a block of rooms for a job. Without it the board could say
+// how many rooms had been filled and never how many were left, so the
+// booking that overruns the block went through in silence.
+$blockAdded = false;
+
+foreach ([
+    'rooms_held'   => 'SMALLINT UNSIGNED NULL',
+    'block_starts' => 'DATE NULL',
+    'block_ends'   => 'DATE NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='hotels' AND column_name=?",
+              [$column])) {
+        q('ALTER TABLE hotels ADD COLUMN `' . $column . '` ' . $definition);
+        $blockAdded = true;
+    }
+}
+
+if ($blockAdded) {
+    echo 'Hotels: a hotel can now hold a block of rooms, and the board counts them down.' . PHP_EOL;
+}
+
+// Presence on the site, which is not the same question as hours worked.
+$checkinSql = __DIR__ . '/site-checkin.sql';
+
+if (! is_file($checkinSql)) {
+    fwrite(STDERR, 'site-checkin.sql is missing from this deployment.' . PHP_EOL);
+    exit(1);
+}
+
+$hadCheckins = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='site_checkins'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($checkinSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadCheckins) {
+    echo 'Deployment: the site roll call is in place.' . PHP_EOL;
+}
+
+// The trades this agency staffs: data, not an ENUM repeated in three
+// tables. A client asking for welders should not need a schema change.
+$tradeSql = __DIR__ . '/disciplines.sql';
+
+if (! is_file($tradeSql)) {
+    fwrite(STDERR, 'disciplines.sql is missing from this deployment.' . PHP_EOL);
+    exit(1);
+}
+
+$hadTrades = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='disciplines'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($tradeSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// Whatever is already filed under a trade keeps its meaning: any value in
+// use that the catalogue does not list is added to it rather than lost.
+foreach ([['candidates', 'discipline'], ['vacancies', 'discipline'],
+          ['job_order_lines', 'discipline']] as [$table, $column]) {
+    if (! val("SELECT COUNT(*) FROM information_schema.tables
+               WHERE table_schema=DATABASE() AND table_name=?", [$table])) {
+        continue;
+    }
+
+    foreach (rows('SELECT DISTINCT `' . $column . '` v FROM `' . $table . '`
+                   WHERE `' . $column . '` IS NOT NULL') as $inUse) {
+        $slug = (string) $inUse['v'];
+
+        if ($slug === '') { continue; }
+
+        q('INSERT IGNORE INTO disciplines (slug, label, sort_order) VALUES (?,?,50)',
+          [$slug, ucfirst(str_replace('_', ' ', $slug))]);
+    }
+
+    // Plain text, so adding a trade never needs the table altered again.
+    $type = (string) val("SELECT COLUMN_TYPE FROM information_schema.columns
+                          WHERE table_schema=DATABASE() AND table_name=? AND column_name=?",
+                         [$table, $column]);
+
+    if (str_starts_with(strtolower($type), 'enum')) {
+        q('ALTER TABLE `' . $table . '` MODIFY `' . $column . "` VARCHAR(40) NOT NULL DEFAULT 'other'");
+        $tradesFreed = true;
+    }
+}
+
+if (! $hadTrades || ! empty($tradesFreed)) {
+    echo 'Trades: the discipline list is now editable, and no longer frozen into the schema.' . PHP_EOL;
+}
+
+// Who must never be called again, and what people can actually do.
+$registerSql = __DIR__ . '/do-not-use.sql';
+
+if (! is_file($registerSql)) {
+    fwrite(STDERR, 'do-not-use.sql is missing from this deployment.' . PHP_EOL);
+    exit(1);
+}
+
+$hadSkills = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='skills'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($registerSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// Why somebody is on the register, who put them there, and when. Without
+// these the flag is an accusation nobody can check or argue with.
+$registerChanged = false;
+
+foreach ([
+    'exclusion_reason' => 'VARCHAR(1000) NULL',
+    'excluded_by'      => 'INT UNSIGNED NULL',
+    'excluded_at'      => 'DATETIME NULL',
+    'available_from'   => 'DATE NULL',
+    'checked_in_at'    => 'DATETIME NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='employee_profiles'
+                 AND column_name=?", [$column])) {
+        q('ALTER TABLE employee_profiles ADD COLUMN `' . $column . '` ' . $definition);
+        $registerChanged = true;
+    }
+}
+
+// Do not use is stronger than no rehire: no rehire means do not put them
+// back on a job, do not use means do not contact them at all.
+$rehireType = (string) val("SELECT COLUMN_TYPE FROM information_schema.columns
+                            WHERE table_schema=DATABASE() AND table_name='employee_profiles'
+                              AND column_name='rehire_status'");
+
+if ($rehireType !== '' && ! str_contains($rehireType, 'do_not_use')) {
+    q("ALTER TABLE employee_profiles MODIFY rehire_status
+         ENUM('review','eligible','ineligible','do_not_use') NOT NULL DEFAULT 'review'");
+    $registerChanged = true;
+}
+
+if (! $hadSkills || $registerChanged) {
+    echo 'People: the do-not-use register and the skills list are in place.' . PHP_EOL;
+}
+
+echo 'Approvals: 3 tables in place.' . PHP_EOL;
+
+// An approval step is announced once; before this column every later
+// decision re-announced every step still open.
+if (val("SELECT COUNT(*) FROM information_schema.tables
+         WHERE table_schema=DATABASE() AND table_name='approval_requests'")
+    && ! val("SELECT COUNT(*) FROM information_schema.columns
+              WHERE table_schema=DATABASE() AND table_name='approval_requests'
+                AND column_name='notified_at'")) {
+    q('ALTER TABLE approval_requests ADD COLUMN notified_at DATETIME NULL');
+}
+
+echo "Upgrade complete. Existing records preserved.\n";

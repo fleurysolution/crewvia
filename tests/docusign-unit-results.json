@@ -1,0 +1,13 @@
+[
+    "DocuSign disabled by default",
+    "Provider endpoint rejects insecure URL",
+    "Provider endpoint restricts domain",
+    "Developer endpoint accepted",
+    "PDF content sent exactly",
+    "Embedded recipient bound to platform account",
+    "Configured signature coordinates retained",
+    "Dispatch reconciliation transaction retained",
+    "Connect HMAC verifies raw bytes",
+    "Connect HMAC rejects tampering",
+    "Connect HMAC rejects missing secrets"
+]

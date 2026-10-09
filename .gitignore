@@ -1,0 +1,29 @@
+# Secrets and live configuration.
+config.php
+config.google.php
+config.integrations.php
+config.saas.php
+tenants/
+
+# Personal data of real people. Never in a repository, not even a private
+# one: the point of a repository is that other people can read it.
+#
+#   install/data/         146 real applicants - names, locations, numbers
+#   install/seed-rss.php  RSS staff names, personal email addresses and
+#                         mobile numbers
+#
+# Both live only on the authorised installation. The one that belongs
+# here is install/demo-crewvia.php, where everybody is fictitious.
+install/data/
+install/seed-rss.php
+
+# Uploaded and generated at runtime: resumes, contracts, document proofs.
+storage/
+
+# Test and build output.
+work/
+test-results/
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db

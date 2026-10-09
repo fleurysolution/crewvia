@@ -1,0 +1,9 @@
+[
+    "Existing guarantee retained",
+    "Worked overtime added above guarantee regular floor",
+    "Unworked guarantee does not create overtime",
+    "Weekly overtime arithmetic",
+    "Salary basis retained",
+    "Salaried overtime requires provider reconciliation",
+    "Invalid amounts rejected"
+]

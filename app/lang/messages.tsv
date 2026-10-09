@@ -1,0 +1,472 @@
+A client rate is missing; invoice generation stopped.	Un tarif client manque ; la génération de facture est arrêtée.	Falta una tarifa del cliente; se detuvo la generación de la factura.
+A hotel needs a name.	L’hôtel doit avoir un nom.	El hotel debe tener un nombre.
+A private room, room number, and valid check-in/out dates are required.	Une chambre individuelle, son numéro et des dates d’arrivée/départ valides sont requis.	Se requieren habitación individual, número y fechas válidas de entrada/salida.
+A verified valid licence, approved MVR and signed vehicle agreement are required.	Un permis valide vérifié, un MVR approuvé et un accord véhicule signé sont requis.	Se requieren licencia válida verificada, MVR aprobado y acuerdo del vehículo firmado.
+ADP export blocked: check employee IDs/categories, salary setup, per-diem code and separately reconcile expenses.	Export ADP bloqué : vérifiez les identifiants/catégories, les salaires et le code des indemnités ; rapprochez les dépenses séparément.	Exportación ADP bloqueada: revise identificadores/categorías, salarios y código de viáticos; concilie los gastos por separado.
+AI provider unavailable. No recruitment decision was changed.	Service IA indisponible. Aucune décision de recrutement n’a été modifiée.	Servicio de IA no disponible. No se modificó ninguna decisión de contratación.
+Account already exists or invitation was used. Sign in or contact recruiting.	Le compte existe déjà ou l’invitation a été utilisée. Connectez-vous ou contactez le recrutement.	La cuenta ya existe o la invitación fue utilizada. Inicie sesión o contacte con selección.
+Account updated.	Compte mis à jour.	Cuenta actualizada.
+Active assignment required.	Une mission active est requise.	Se requiere una asignación activa.
+Application unavailable in this project.	Candidature indisponible dans ce projet.	Solicitud no disponible en este proyecto.
+Billing requires a configured HTTPS workspace URL.	La facturation exige une adresse HTTPS configurée pour cet espace.	La facturación requiere una URL HTTPS configurada para este espacio.
+Call logged.	Appel enregistré.	Llamada registrada.
+Candidate authorization must be signed before screening proceeds.	L’autorisation du candidat doit être signée avant de poursuivre les contrôles.	El candidato debe firmar la autorización antes de continuar los controles.
+Channel membership required.	Vous devez être membre du canal.	Debe pertenecer al canal.
+Choose a CSV or XLSX file up to 10 MB.	Choisissez un fichier CSV ou XLSX de 10 Mo maximum.	Seleccione un archivo CSV o XLSX de hasta 10 MB.
+Choose a document type and a file up to 10 MB.	Choisissez un type de document et un fichier de 10 Mo maximum.	Seleccione un tipo de documento y un archivo de hasta 10 MB.
+Complete required background/drug screening before deployment.	Terminez les contrôles d’antécédents/dépistages requis avant le déploiement.	Complete los controles de antecedentes y drogas requeridos antes del despliegue.
+Complete screening checks before offering this job.	Terminez les contrôles avant de proposer ce poste.	Complete los controles antes de ofrecer este puesto.
+Complete the employment paperwork review before deployment.	Terminez la vérification des documents d’embauche avant le déploiement.	Complete la revisión de los documentos laborales antes del despliegue.
+Completed Section 1, employer-signed form evidence, verifier and dates are required.	La section 1 complétée, le formulaire signé par l’employeur, le vérificateur et les dates sont requis.	Se requieren sección 1 completada, formulario firmado por el empleador, verificador y fechas.
+Configure ADP RUN company and earnings codes from your actual ADP template first.	Configurez d’abord les codes entreprise et rémunération selon votre modèle ADP RUN réel.	Configure primero los códigos de empresa e ingresos según su plantilla ADP RUN real.
+Configure Stripe and choose 1–100,000 contracted seats.	Configurez Stripe et choisissez entre 1 et 100 000 places contractuelles.	Configure Stripe y seleccione entre 1 y 100 000 plazas contratadas.
+Configure and approve required onboarding tasks before deployment.	Configurez et approuvez les tâches d’intégration requises avant le déploiement.	Configure y apruebe las tareas de incorporación requeridas antes del despliegue.
+Configure and approve the AI provider before requesting reviews.	Configurez et approuvez le service IA avant de demander des analyses.	Configure y apruebe el servicio de IA antes de solicitar análisis.
+Confirm that the evidence contains only relevant qualifications and is approved for external processing.	Confirmez que les preuves portent uniquement sur les qualifications pertinentes et sont autorisées pour un traitement externe.	Confirme que las pruebas contienen solo cualificaciones pertinentes y están autorizadas para tratamiento externo.
+Daily AI review limit reached.	Limite quotidienne d’analyses IA atteinte.	Se alcanzó el límite diario de análisis de IA.
+Desk changed.	Fonction modifiée.	Función modificada.
+Document encryption key is unavailable.	La clé de chiffrement des documents est indisponible.	La clave de cifrado de documentos no está disponible.
+Document integrity check failed.	La vérification d’intégrité du document a échoué.	Falló la comprobación de integridad del documento.
+Document storage unavailable.	Stockage documentaire indisponible.	Almacenamiento de documentos no disponible.
+Document unavailable.	Document indisponible.	Documento no disponible.
+Driver needs a portal account and approved vehicle agreement text.	Le conducteur doit avoir un compte portail et un accord véhicule approuvé.	El conductor necesita una cuenta del portal y un acuerdo del vehículo aprobado.
+Employee record unavailable.	Dossier employé indisponible.	Expediente del empleado no disponible.
+Encryption failed.	Échec du chiffrement.	Error de cifrado.
+Enter the complete offer terms before issuing an offer.	Saisissez toutes les conditions de l’offre avant de l’émettre.	Introduzca todas las condiciones antes de emitir la oferta.
+Equipment is unavailable.	Équipement indisponible.	Equipo no disponible.
+Google authorization expired or invalid. Start again.	Autorisation Google expirée ou invalide. Recommencez.	Autorización de Google caducada o inválida. Vuelva a empezar.
+Google authorization was not completed.	L’autorisation Google n’a pas été finalisée.	No se completó la autorización de Google.
+Google connection failed. Check configuration and use your registered account.	Connexion Google échouée. Vérifiez la configuration et utilisez votre compte enregistré.	Error de conexión con Google. Revise la configuración y use su cuenta registrada.
+Google connection is not configured. Ask the administrator to complete OAuth setup.	Connexion Google non configurée. Demandez à l’administrateur de terminer la configuration OAuth.	La conexión con Google no está configurada. Solicite al administrador completar OAuth.
+Google email is not verified.	L’adresse Google n’est pas vérifiée.	El correo de Google no está verificado.
+Guarantee cannot exceed 168 hours.	La garantie ne peut pas dépasser 168 heures.	La garantía no puede superar las 168 horas.
+Header row and at least one data row required.	Une ligne d’en-tête et au moins une ligne de données sont requises.	Se requieren una fila de encabezado y al menos una fila de datos.
+Invalid assignment or dates.	Mission ou dates invalides.	Asignación o fechas inválidas.
+Invalid billing basis.	Base de facturation invalide.	Base de facturación inválida.
+Invalid billing customer.	Client de facturation invalide.	Cliente de facturación inválido.
+Invalid billing portal URL.	Adresse du portail de facturation invalide.	URL del portal de facturación inválida.
+Invalid call outcome.	Résultat d’appel invalide.	Resultado de llamada inválido.
+Invalid channel or requisition.	Canal ou demande de personnel invalide.	Canal o solicitud de personal inválidos.
+Invalid checkout URL.	Adresse de paiement invalide.	URL de pago inválida.
+Invalid operating settings.	Paramètres opérationnels invalides.	Configuración operativa inválida.
+Invalid payment setup.	Configuration de paiement invalide.	Configuración de pago inválida.
+Invalid price.	Prix invalide.	Precio inválido.
+Invalid project amount or headcount.	Montant ou effectif du projet invalide.	Importe o cantidad de personal del proyecto inválidos.
+Invalid project dates.	Dates de projet invalides.	Fechas del proyecto inválidas.
+Invalid supervisor.	Superviseur invalide.	Supervisor inválido.
+Invitation expired or already used. Ask recruiting for a new invitation.	Invitation expirée ou déjà utilisée. Demandez une nouvelle invitation au recrutement.	Invitación caducada o utilizada. Solicite una nueva al equipo de selección.
+Job saved.	Projet enregistré.	Proyecto guardado.
+Keep at least one active administrator.	Conservez au moins un administrateur actif.	Mantenga al menos un administrador activo.
+Map the employee name column.	Associez la colonne du nom de l’employé.	Asocie la columna del nombre del empleado.
+Name, email and a desk are all needed.	Le nom, l’adresse email et la fonction sont requis.	Se requieren nombre, correo y función.
+New trade or title required.	Un nouveau métier ou intitulé est requis.	Se requiere un nuevo oficio o puesto.
+No billing customer registered.	Aucun client de facturation enregistré.	No hay cliente de facturación registrado.
+No uninvoiced approved sheets in this period.	Aucune feuille approuvée non facturée sur cette période.	No hay hojas aprobadas sin facturar en este período.
+Offer terms, your signature and consent are required.	Les conditions de l’offre, votre signature et votre consentement sont requis.	Se requieren condiciones de la oferta, firma y consentimiento.
+Only PDF, JPEG and PNG documents are accepted.	Seuls les documents PDF, JPEG et PNG sont acceptés.	Solo se aceptan documentos PDF, JPEG y PNG.
+Only closed months can be frozen.	Seuls les mois clôturés peuvent être figés.	Solo se pueden cerrar meses finalizados.
+Password changed.	Mot de passe modifié.	Contraseña modificada.
+Payroll can upload payroll forms and receipts only.	La paie peut déposer uniquement les formulaires de paie et les reçus.	Nóminas solo puede cargar formularios de nómina y recibos.
+Pick both a person and a hotel.	Choisissez une personne et un hôtel.	Seleccione una persona y un hotel.
+Placement unavailable.	Mission indisponible.	Asignación no disponible.
+Please wait before submitting again.	Veuillez patienter avant de soumettre à nouveau.	Espere antes de volver a enviar.
+Preview a file first.	Affichez d’abord l’aperçu d’un fichier.	Previsualice primero un archivo.
+Project and client names are required.	Les noms du projet et du client sont requis.	Se requieren los nombres del proyecto y del cliente.
+Provide a reason and an effective date no later than today. Scheduled changes are not enabled.	Indiquez un motif et une date d’effet au plus tard aujourd’hui. Les changements futurs ne sont pas activés.	Indique motivo y fecha efectiva no posterior a hoy. Los cambios futuros no están habilitados.
+Response too long.	Réponse trop longue.	Respuesta demasiado larga.
+Return equipment and vehicles before transferring.	Restituez les équipements et véhicules avant le transfert.	Devuelva equipos y vehículos antes del traslado.
+Return outstanding equipment before completing the assignment.	Restituez les équipements en attente avant de clôturer la mission.	Devuelva los equipos pendientes antes de finalizar la asignación.
+Route unavailable, pickup stop missing, or vehicle full.	Trajet indisponible, point de prise en charge manquant ou véhicule complet.	Ruta no disponible, parada de recogida ausente o vehículo completo.
+Run added.	Trajet ajouté.	Trayecto añadido.
+Saved.	Enregistré.	Guardado.
+Secure document storage is not configured or account is not a worker.	Le stockage sécurisé n’est pas configuré ou le compte n’est pas celui d’un salarié.	El almacenamiento seguro no está configurado o la cuenta no pertenece a un trabajador.
+Select a placement in this project.	Choisissez une mission dans ce projet.	Seleccione una asignación de este proyecto.
+Select a project and enter valid requisition details.	Choisissez un projet et saisissez une demande de personnel valide.	Seleccione un proyecto e introduzca una solicitud de personal válida.
+Select a valid equipment owner.	Choisissez un propriétaire d’équipement valide.	Seleccione un propietario del equipo válido.
+Select an existing candidate.	Choisissez un candidat existant.	Seleccione un candidato existente.
+Select another open project.	Choisissez un autre projet ouvert.	Seleccione otro proyecto abierto.
+Somebody already uses that email.	Cette adresse email est déjà utilisée.	Este correo ya está en uso.
+Status updated.	Statut mis à jour.	Estado actualizado.
+That candidate no longer exists.	Ce candidat n’existe plus.	Este candidato ya no existe.
+That is not your current password.	Ce n’est pas votre mot de passe actuel.	Esta no es su contraseña actual.
+That is the last person who can see everything. Promote somebody else first.	C’est la dernière personne ayant tous les accès. Attribuez d’abord ces droits à une autre personne.	Es la última persona con acceso completo. Otorgue esos permisos a otra persona primero.
+That placement no longer exists.	Cette mission n’existe plus.	Esta asignación ya no existe.
+The candidate already has a personal account.	Le candidat possède déjà un compte personnel.	El candidato ya tiene una cuenta personal.
+The candidate must accept their offer in their private portal.	Le candidat doit accepter son offre dans son portail privé.	El candidato debe aceptar la oferta en su portal privado.
+The two new passwords do not match.	Les deux nouveaux mots de passe ne correspondent pas.	Las dos contraseñas nuevas no coinciden.
+There is no active job to place them on.	Aucun projet actif ne permet cette affectation.	No hay proyecto activo para esta asignación.
+This exact file was already imported.	Ce fichier a déjà été importé.	Este archivo ya fue importado.
+Unknown stage.	Étape inconnue.	Etapa desconocida.
+Use an HTTPS resource URL.	Utilisez une adresse de ressource HTTPS.	Utilice una URL de recurso HTTPS.
+Use at least 10 characters. Length beats cleverness.	Utilisez au moins 10 caractères. Privilégiez un mot de passe long.	Utilice al menos 10 caracteres. Priorice una contraseña larga.
+Use at least 12 characters.	Utilisez au moins 12 caractères.	Utilice al menos 12 caracteres.
+Use the Google account matching your existing RSS account.	Utilisez le compte Google correspondant à votre compte existant sur la plateforme.	Utilice la cuenta de Google que corresponde a su cuenta existente en la plataforma.
+Use the billing portal to manage the existing subscription.	Utilisez le portail de facturation pour gérer l’abonnement existant.	Utilice el portal de facturación para gestionar la suscripción existente.
+Vacancy unavailable.	Poste indisponible.	Vacante no disponible.
+Valid assignment, positive amount and your own receipt are required.	Une mission valide, un montant positif et votre propre reçu sont requis.	Se requieren asignación válida, importe positivo y recibo propio.
+Valid contact details and consent are required.	Des coordonnées valides et le consentement sont requis.	Se requieren datos de contacto válidos y consentimiento.
+Valid project and dates required.	Un projet et des dates valides sont requis.	Se requieren proyecto y fechas válidos.
+Valid vendor invoice details required.	Les informations de facture fournisseur doivent être valides.	Los datos de la factura del proveedor deben ser válidos.
+Valid working date, assignment and 0–24 hours required.	Une date de travail, une mission valide et entre 0 et 24 heures sont requis.	Se requieren fecha laboral, asignación válida y entre 0 y 24 horas.
+Vehicle unavailable or assignment invalid.	Véhicule indisponible ou affectation invalide.	Vehículo no disponible o asignación inválida.
+Wave is unavailable or full.	Vague de déploiement indisponible ou complète.	Grupo de despliegue no disponible o completo.
+Worker already has an active assignment on the target project.	Le salarié a déjà une mission active dans le projet cible.	El trabajador ya tiene una asignación activa en el proyecto de destino.
+Worker identity cannot be converted to a staff account.	Un compte salarié ne peut pas être converti en compte du personnel administratif.	Una cuenta de trabajador no puede convertirse en cuenta administrativa.
+Worker portal, authorization text and valid screening details are required.	Un portail salarié, un texte d’autorisation et des informations de contrôle valides sont requis.	Se requieren portal del trabajador, texto de autorización y datos de control válidos.
+You cannot switch off your own account.	Vous ne pouvez pas désactiver votre propre compte.	No puede desactivar su propia cuenta.
+Client portal	Portail client	Portal del cliente
+Client access	Accès clients	Acceso de clientes
+Client requests	Demandes clients	Solicitudes de clientes
+Client accounts see only authorized projects and business reports. Employee documents and payroll remain private.	Les comptes clients voient uniquement les projets autorisés et les rapports commerciaux. Les documents employés et la paie restent privés.	Las cuentas de clientes solo ven proyectos autorizados e informes comerciales. Los documentos de empleados y nóminas son privados.
+Create client account	Créer un compte client	Crear cuenta de cliente
+Grant client access	Autoriser l’accès client	Autorizar acceso de cliente
+Grant access	Autoriser l’accès	Autorizar acceso
+Revoke access	Révoquer l’accès	Revocar acceso
+Select a valid client.	Choisissez un client valide.	Seleccione un cliente válido.
+Enter a name and an unused valid email.	Saisissez un nom et une adresse email valide non utilisée.	Introduzca un nombre y un correo válido sin utilizar.
+Select a client portal account.	Choisissez un compte du portail client.	Seleccione una cuenta del portal del cliente.
+Temporary client password: :password. Share privately; a change is required at first sign-in.	Mot de passe client temporaire : :password. Transmettez-le en privé ; il devra être modifié à la première connexion.	Contraseña temporal del cliente: :password. Compártala en privado; deberá cambiarse al iniciar sesión.
+Client portal account required.	Un compte portail client est requis.	Se requiere una cuenta del portal del cliente.
+Project unavailable.	Projet indisponible.	Proyecto no disponible.
+Choose a valid decision and explain any disputed attendance.	Choisissez une décision valide et expliquez toute présence contestée.	Seleccione una decisión válida y explique cualquier asistencia disputada.
+Attendance record unavailable.	Relevé de présence indisponible.	Registro de asistencia no disponible.
+CLIENT WORKSPACE	ESPACE CLIENT	ESPACIO DEL CLIENTE
+Your project workforce	Les effectifs de vos projets	El personal de sus proyectos
+Review deployed teams, approved attendance and issued invoices.	Consultez les équipes déployées, les présences approuvées et les factures émises.	Revise equipos desplegados, asistencia aprobada y facturas emitidas.
+No authorized projects. Contact your agency administrator.	Aucun projet autorisé. Contactez l’administrateur de votre agence.	No hay proyectos autorizados. Contacte al administrador de su agencia.
+Approved attendance records	Relevés de présence approuvés	Registros de asistencia aprobados
+Issued invoices	Factures émises	Facturas emitidas
+Approved attendance	Présences approuvées	Asistencia aprobada
+Export attendance	Exporter les présences	Exportar asistencia
+Client review	Validation client	Revisión del cliente
+Latest 300 records. Client confirmation does not alter payroll approval or wages.	Les 300 relevés les plus récents. La confirmation client ne modifie ni l’approbation de paie ni les salaires.	Los 300 registros más recientes. La confirmación del cliente no modifica la aprobación de nóminas ni los salarios.
+Awaiting review	En attente de validation	Pendiente de revisión
+confirmed	Confirmé	Confirmado
+disputed	Contesté	Disputado
+Review note	Note de validation	Nota de revisión
+Save review	Enregistrer la validation	Guardar revisión
+Record email, phone or meeting instructions. Client login is optional; approved requests become projects.	Enregistrez les instructions reçues par email, téléphone ou réunion. La connexion client est facultative ; les demandes approuvées deviennent des projets.	Registre instrucciones recibidas por correo, teléfono o reunión. El acceso del cliente es opcional; las solicitudes aprobadas se convierten en proyectos.
+Record a client request	Enregistrer une demande client	Registrar una solicitud del cliente
+Request title	Intitulé de la demande	Título de la solicitud
+Workers requested	Effectif demandé	Personal solicitado
+Source reference	Référence du message	Referencia del mensaje
+Client contact	Contact client	Contacto del cliente
+Requirements and client instructions	Exigences et instructions du client	Requisitos e instrucciones del cliente
+Save request	Enregistrer la demande	Guardar solicitud
+Update instructions / decision note	Instructions complémentaires / motif de décision	Instrucciones adicionales / nota de decisión
+Update request	Mettre à jour la demande	Actualizar solicitud
+Create project from request	Créer le projet depuis la demande	Crear proyecto desde la solicitud
+Configure project terms, then create its application QR in Requisitions.	Configurez les conditions du projet, puis créez son QR de candidature dans les demandes de personnel.	Configure las condiciones del proyecto y cree el QR de solicitud en Solicitudes de personal.
+Request history	Historique de la demande	Historial de la solicitud
+Enter valid client request details.	Saisissez une demande client valide.	Introduzca una solicitud de cliente válida.
+Client request unavailable.	Demande client indisponible.	Solicitud del cliente no disponible.
+Approve the request before creating its project; split requests above 65,535 workers.	Approuvez la demande avant de créer le projet ; répartissez les demandes de plus de 65 535 salariés.	Apruebe la solicitud antes de crear el proyecto; divida solicitudes de más de 65 535 trabajadores.
+Enter a request update and valid status.	Saisissez une mise à jour et un statut valide.	Introduzca una actualización y un estado válido.
+email	Email	Correo
+phone	Téléphone	Teléfono
+meeting	Réunion	Reunión
+other	Autre	Otro
+reviewing	En cours d’examen	En revisión
+converted	Projet créé	Proyecto creado
+created	Créé	Creado
+:name is already on this job.	:name est déjà affecté à ce projet.	:name ya está asignado a este proyecto.
+:name added to the roster. They now need a bed and a flight.	:name ajouté aux effectifs. Il faut maintenant prévoir son hébergement et son voyage.	:name añadido al personal. Ahora necesita alojamiento y viaje.
+Call logged for :name.	Appel enregistré pour :name.	Llamada registrada para :name.
+:name moved to :stage.	:name est passé à l’étape :stage.	:name pasó a la etapa :stage.
+:name added.	:name ajouté.	:name añadido.
+Room :room already has :name during these dates. Choose another room.	La chambre :room est déjà occupée par :name sur ces dates. Choisissez une autre chambre.	La habitación :room ya está ocupada por :name en esas fechas. Seleccione otra habitación.
+:name booked into :hotel, room :room.	:name réservé à :hotel, chambre :room.	:name con reserva en :hotel, habitación :room.
+:name booked into :hotel.	:name réservé à :hotel.	:name con reserva en :hotel.
+:count timesheets saved for week ending :date.	:count feuilles enregistrées pour la semaine se terminant le :date.	:count hojas guardadas para la semana que termina el :date.
+Week ending :date approved.	Semaine se terminant le :date approuvée.	Semana que termina el :date aprobada.
+:name added. Their temporary password is: :password	:name ajouté. Son mot de passe temporaire est : :password	:name añadido. Su contraseña temporal es: :password
+New temporary password for :name: :password	Nouveau mot de passe temporaire pour :name : :password	Nueva contraseña temporal de :name: :password
+Travel saved for :name.	Voyage enregistré pour :name.	Viaje guardado para :name.
+Stage recorded. Invitation needs attention: :message	Étape enregistrée. Invitation à vérifier : :message	Etapa registrada. Revise la invitación: :message
+:count rooms booked	:count chambres réservées	:count habitaciones reservadas
+:count without a bed	:count sans hébergement	:count sin alojamiento
+:count sharing a room	:count partagent une chambre	:count comparten habitación
+That email and password do not match an account.	L’adresse email et le mot de passe ne correspondent à aucun compte.	El correo y la contraseña no corresponden a ninguna cuenta.
+Candidate needs a valid email.	Le candidat doit avoir une adresse email valide.	El candidato necesita un correo válido.
+An account already uses this email. Review candidate identity before activation.	Un compte utilise déjà cette adresse. Vérifiez l’identité du candidat avant l’activation.	Una cuenta ya utiliza este correo. Revise la identidad del candidato antes de activarlo.
+Invoice unavailable.	Facture indisponible.	Factura no disponible.
+Choose a reporting period of no more than 366 days.	Choisissez une période de rapport de 366 jours maximum.	Seleccione un período de informe de hasta 366 días.
+Print invoice	Imprimer la facture	Imprimir factura
+Strike is live. Weekly guarantee: :hours hours.	Grève active. Garantie hebdomadaire : :hours heures.	Huelga activa. Garantía semanal: :hours horas.
+Strike stood down. Weekly guarantee: :hours hours.	Grève terminée. Garantie hebdomadaire : :hours heures.	Huelga finalizada. Garantía semanal: :hours horas.
+Invoice	Facture	Factura
+Client rate	Tarif client	Tarifa del cliente
+Trade	Métier	Oficio
+To	Au	Hasta
+Reference	Référence	Referencia
+Period	Période	Período
+Create account	Créer le compte	Crear cuenta
+Source	Origine	Origen
+End date	Date de fin	Fecha final
+Previous page	Page précédente	Página anterior
+Next page	Page suivante	Página siguiente
+:count records · page :page	:count relevés · page :page	:count registros · página :page
+Client confirmation does not alter payroll approval or wages.	La confirmation client ne modifie ni l’approbation de paie ni les salaires.	La confirmación del cliente no modifica la aprobación de nóminas ni los salarios.
+Reports	Rapports	Informes
+new	Nouveau	Nuevo
+approved	Approuvé	Aprobado
+declined	Refusé	Rechazado
+on_site	Sur site	En sitio
+issued	Émise	Emitida
+paid	Payé	Pagado
+submitted	Soumis	Enviado
+rejected	Refusé	Rechazado
+offered	Offre émise	Oferta emitida
+completed	Terminé	Completado
+travelling	En déplacement	En viaje
+screening	Contrôles	Controles
+interview	Entretien	Entrevista
+accepted	Accepté	Aceptado
+withdrawn	Retiré	Retirado
+pending	En attente	Pendiente
+passed	Validé	Superado
+failed	Échec	Fallido
+Deployment logistics	Logistique du déploiement	Logística del despliegue
+Rooms reserved	Chambres réservées	Habitaciones reservadas
+Flights booked	Vols réservés	Vuelos reservados
+Vehicles out	Véhicules remis	Vehículos entregados
+Equipment outstanding	Matériel non restitué	Equipo pendiente de devolución
+Client-owned equipment	Matériel appartenant au client	Equipo propiedad del cliente
+Asset tag	Identifiant du matériel	Identificador del equipo
+Serial number	Numéro de série	Número de serie
+Returned	Restitué	Devuelto
+Equipment	Équipement	Equipo
+Pending	En attente	Pendiente
+Invalid or expired authentication code.	Code d’authentification invalide ou expiré.	Código de autenticación inválido o caducado.
+Two-step verification enabled.	Authentification à deux étapes activée.	Verificación en dos pasos activada.
+Two-step verification disabled.	Authentification à deux étapes désactivée.	Verificación en dos pasos desactivada.
+Other sessions revoked.	Les autres sessions ont été révoquées.	Se han revocado las otras sesiones.
+Choose an existing project and service template.	Choisissez un projet existant et un modèle de service.	Seleccione un proyecto existente y una plantilla de servicio.
+Service template applied. Review project instructions and requirements before recruitment.	Modèle appliqué. Vérifiez les instructions et exigences du projet avant de recruter.	Plantilla aplicada. Revise las instrucciones y requisitos del proyecto antes de reclutar.
+Invalid weekly payroll policy.	Règle de paie hebdomadaire invalide.	Regla de nómina semanal inválida.
+Approved attendance imported. Review per diem and expenses before approving payroll.	Présences approuvées importées. Vérifiez les indemnités et frais avant d’approuver la paie.	Asistencia aprobada importada. Revise dietas y gastos antes de aprobar la nómina.
+Set the employee salary basis before approving payroll.	Configurez le salaire de base de l’employé avant d’approuver la paie.	Configure el salario base del empleado antes de aprobar la nómina.
+Cross-project workweek requires payroll provider reconciliation before approval.	Une semaine travaillée sur plusieurs projets nécessite un rapprochement avec le prestataire de paie avant approbation.	Una semana trabajada en varios proyectos requiere conciliación con el proveedor de nómina antes de aprobarla.
+Salaried overtime requires payroll provider reconciliation.	Les heures supplémentaires d’un salarié nécessitent un rapprochement avec le prestataire de paie.	Las horas extras de un empleado asalariado requieren conciliación con el proveedor de nómina.
+Message accepted by Gmail.	Message accepté par Gmail.	Mensaje aceptado por Gmail.
+Sign in / connect with Google	Se connecter avec Google	Iniciar sesión con Google
+Recover account	Récupérer le compte	Recuperar cuenta
+Two-step verification	Authentification à deux étapes	Verificación en dos pasos
+Authenticator code	Code de l’application d’authentification	Código del autenticador
+Verify	Vérifier	Verificar
+Back to sign in	Retour à la connexion	Volver a iniciar sesión
+Configure the ADP overtime earnings code before export.	Configurez le code ADP des heures supplémentaires avant l’export.	Configure el código ADP de horas extras antes de exportar.
+Candidate unavailable.	Candidat indisponible.	Candidato no disponible.
+Enter a valid qualification name.	Saisissez un nom de qualification valide.	Introduzca un nombre de cualificación válido.
+Choose an existing project and qualification.	Choisissez un projet et une qualification existants.	Seleccione un proyecto y una cualificación existentes.
+Valid qualification dates and evidence reference required.	Des dates valides et une référence de justificatif sont requises.	Se requieren fechas válidas y una referencia del justificante.
+A review decision and evidence note are required.	Une décision et une note de vérification sont requises.	Se requieren una decisión y una nota de verificación.
+An expired or incomplete qualification cannot be verified.	Une qualification expirée ou incomplète ne peut pas être validée.	No se puede validar una cualificación caducada o incompleta.
+Recovery link expired or password invalid.	Lien de récupération expiré ou mot de passe invalide.	Enlace de recuperación caducado o contraseña inválida.
+Password reset. Sign in with your new password.	Mot de passe réinitialisé. Connectez-vous avec votre nouveau mot de passe.	Contraseña restablecida. Inicie sesión con su nueva contraseña.
+If this account exists, a recovery message has been queued.	Si ce compte existe, un message de récupération a été mis en attente d’envoi.	Si esta cuenta existe, se ha puesto un mensaje de recuperación en la cola de envío.
+Continue	Continuer	Continuar
+Complete required screening questions before offering this job.	Complétez les questions obligatoires avant de proposer ce poste.	Complete las preguntas obligatorias antes de ofrecer este puesto.
+Current verified project qualifications are required before deployment.	Les qualifications du projet doivent être valides et vérifiées avant le déploiement.	Las cualificaciones del proyecto deben estar vigentes y verificadas antes del despliegue.
+Enter a screening question for the selected project.	Saisissez une question de présélection pour le projet choisi.	Introduzca una pregunta de selección para el proyecto seleccionado.
+Screening answer is too long.	La réponse est trop longue.	La respuesta es demasiado larga.
+Valid contact details and outcome required.	Des informations de contact et un résultat valides sont requis.	Se requieren datos de contacto y un resultado válidos.
+Search employee folders	Rechercher des dossiers employés	Buscar expedientes de empleados
+Account security	Sécurité du compte	Seguridad de la cuenta
+Protect your account with an authenticator and manage active sessions.	Protégez votre compte avec une application d’authentification et gérez les sessions actives.	Proteja su cuenta con un autenticador y gestione las sesiones activas.
+Configure a 32-byte encryption key.	Configurez une clé de chiffrement de 32 octets.	Configure una clave de cifrado de 32 bytes.
+Disable	Désactiver	Desactivar
+Add this setup key to your authenticator, then verify the six-digit code.	Ajoutez cette clé à votre application d’authentification, puis vérifiez le code à six chiffres.	Añada esta clave al autenticador y verifique el código de seis dígitos.
+Enable	Activer	Activar
+Set up authenticator	Configurer l’authentification	Configurar autenticador
+Active sessions	Sessions actives	Sesiones activas
+Sign out other sessions	Fermer les autres sessions	Cerrar las otras sesiones
+Agency configuration	Configuration de l’agence	Configuración de la agencia
+Each subscriber configures its own services, teams, requirements and client projects.	Chaque abonné configure ses services, équipes, exigences et projets clients.	Cada suscriptor configura sus servicios, equipos, requisitos y proyectos de clientes.
+Adds screening questions, onboarding tasks and relevant qualification requirements to the selected project.	Ajoute des questions, des tâches d’intégration et des qualifications au projet choisi.	Añade preguntas, tareas de incorporación y cualificaciones al proyecto seleccionado.
+Apply qualification requirements to this trade only	Appliquer les qualifications uniquement à ce métier	Aplicar las cualificaciones solo a este oficio
+Leave blank for all project workers	Laisser vide pour tous les travailleurs du projet	Dejar vacío para todos los trabajadores del proyecto
+Review all requirements and approved instructions before use. These templates are starting points, not regulatory certification.	Vérifiez les exigences et instructions avant utilisation. Ces modèles constituent un point de départ et ne certifient pas la conformité réglementaire.	Revise los requisitos e instrucciones antes de utilizarlos. Estas plantillas son un punto de partida y no certifican el cumplimiento normativo.
+Apply to selected project	Appliquer au projet choisi	Aplicar al proyecto seleccionado
+Qualifications & expiry	Qualifications et échéances	Cualificaciones y vencimientos
+Hampton Inn	Hampton Inn	Hampton Inn
+Import approved attendance	Importer les présences approuvées	Importar asistencia aprobada
+Approved weeks remain frozen. Per diem and expenses require separate review.	Les semaines approuvées restent figées. Les indemnités et frais nécessitent une vérification séparée.	Las semanas aprobadas permanecen bloqueadas. Las dietas y gastos requieren una revisión separada.
+Gross payroll policy	Règles de paie brute	Reglas de nómina bruta
+Configure reviewed weekly overtime rules. Taxes, daily overtime and deductions remain with the payroll provider.	Configurez les règles validées d’heures supplémentaires hebdomadaires. Les taxes, heures supplémentaires quotidiennes et retenues restent gérées par le prestataire de paie.	Configure las reglas revisadas de horas extras semanales. Los impuestos, horas extras diarias y deducciones siguen a cargo del proveedor de nómina.
+Weekly overtime after hours	Seuil hebdomadaire d’heures supplémentaires	Umbral semanal de horas extras
+Overtime multiplier	Coefficient des heures supplémentaires	Multiplicador de horas extras
+Save policy	Enregistrer les règles	Guardar reglas
+Your connected mailbox stays private to your account. Read and send messages here; reconnect Google to grant sending permission.	Votre boîte connectée reste privée. Lisez et envoyez vos messages ici ; reconnectez Google pour autoriser l’envoi.	Su buzón conectado permanece privado. Lea y envíe mensajes aquí; vuelva a conectar Google para autorizar el envío.
+Compose email	Rédiger un email	Redactar correo
+Subject	Objet	Asunto
+Send email	Envoyer l’email	Enviar correo
+Reconnect Google for sending permission	Reconnecter Google pour autoriser l’envoi	Volver a conectar Google para autorizar el envío
+Configure evidence requirements by project. Expired or unverified qualifications block deployment; this does not replace regulatory verification.	Configurez les justificatifs par projet. Les qualifications expirées ou non vérifiées bloquent le déploiement ; cela ne remplace pas la vérification réglementaire.	Configure los justificantes por proyecto. Las cualificaciones caducadas o sin verificar bloquean el despliegue; esto no sustituye la verificación normativa.
+Project requirements	Exigences du projet	Requisitos del proyecto
+Qualification	Qualification	Cualificación
+Required class or endorsement	Classe ou mention requise	Clase o habilitación requerida
+Qualification catalogue	Catalogue des qualifications	Catálogo de cualificaciones
+Expiry required	Échéance obligatoire	Vencimiento obligatorio
+Expires within 30 days or already expired	Expire sous 30 jours ou déjà expiré	Vence en 30 días o ya ha vencido
+Submit qualification evidence	Soumettre un justificatif de qualification	Presentar justificante de cualificación
+Upload private evidence in Document proofs and reference its document ID here. Do not enter a full licence or identity number.	Déposez le justificatif privé dans Documents et indiquez sa référence ici. Ne saisissez pas de numéro complet de permis ou d’identité.	Suba el justificante privado en Documentos e indique aquí su referencia. No introduzca un número completo de licencia o identidad.
+Class or endorsement	Classe ou mention	Clase o habilitación
+Issued on	Date de délivrance	Fecha de expedición
+Expires on	Date d’expiration	Fecha de vencimiento
+Evidence reference	Référence du justificatif	Referencia del justificante
+Verified	Vérifié	Verificado
+History	Historique	Historial
+Screening questionnaire & contacts	Questionnaire et contacts de recrutement	Cuestionario y contactos de selección
+Project screening questions	Questions de présélection du projet	Preguntas de selección del proyecto
+Question	Question	Pregunta
+Required before offer	Obligatoire avant l’offre	Obligatorio antes de la oferta
+Add question	Ajouter une question	Añadir pregunta
+Save answers	Enregistrer les réponses	Guardar respuestas
+Record call or interview	Enregistrer un appel ou entretien	Registrar llamada o entrevista
+Outcome	Résultat	Resultado
+Follow-up at	Prochain suivi	Próximo seguimiento
+Save contact	Enregistrer le contact	Guardar contacto
+Contact history	Historique des contacts	Historial de contactos
+ADP overtime earnings code	Code ADP des heures supplémentaires	Código ADP de horas extras
+Estimate only. Subscription billing requires configured Stripe credentials and validated tenant settings.	Estimation uniquement. La facturation nécessite Stripe configuré et les paramètres de l’entreprise validés.	Solo estimación. La facturación requiere Stripe configurado y los ajustes de la empresa validados.
+Save your recovery codes now	Enregistrez vos codes de secours maintenant	Guarde sus códigos de recuperación ahora
+Each code works once. These codes are displayed only once; keep them somewhere private.	Chaque code ne fonctionne qu’une fois. Ils ne sont affichés qu’une fois ; conservez-les dans un endroit privé.	Cada código funciona una sola vez. Solo se muestran una vez; guárdelos en un lugar privado.
+Warehouse staffing	Personnel d’entrepôt	Personal de almacén
+Production & manufacturing	Production et fabrication	Producción y fabricación
+Skilled trades	Métiers spécialisés	Oficios especializados
+Driver staffing	Personnel de conduite	Personal de conducción
+Strike replacement	Remplacement pendant les grèves	Sustitución durante huelgas
+Site security staffing	Personnel de sécurité de site	Personal de seguridad del sitio
+Valid recipient, subject and message required.	Un destinataire, un objet et un message valides sont requis.	Se requieren destinatario, asunto y mensaje válidos.
+Email sending limit reached. Try again later.	Limite d’envoi atteinte. Réessayez plus tard.	Límite de envío alcanzado. Inténtelo más tarde.
+Use an authenticator code or a saved recovery code.	Utilisez un code d’authentification ou un code de secours enregistré.	Use un código de autenticación o un código de recuperación guardado.
+Secure document storage is not configured.	Le stockage sécurisé des documents n’est pas configuré.	El almacenamiento seguro de documentos no está configurado.
+Choose a PDF or DOCX resume up to 5 MB.	Choisissez un CV PDF ou DOCX de 5 Mo maximum.	Seleccione un CV PDF o DOCX de hasta 5 MB.
+Invalid resume format.	Format de CV invalide.	Formato de CV inválido.
+Join our talent pool	Rejoindre notre vivier de candidats	Unirse a nuestra base de candidatos
+Apply for future opportunities without choosing a current requisition.	Postulez pour de futures opportunités sans choisir une réquisition actuelle.	Postúlese para futuras oportunidades sin elegir una requisición actual.
+Resume · PDF or DOCX, maximum 5 MB	CV · PDF ou DOCX, 5 Mo maximum	CV · PDF o DOCX, máximo 5 MB
+I authorize the hiring agency to review my application and contact me about opportunities.	J’autorise l’agence à examiner ma candidature et à me contacter pour des opportunités.	Autorizo a la agencia a revisar mi candidatura y contactarme sobre oportunidades.
+Candidate resumes	CV des candidats	CV de candidatos
+Valid offboarding title and instructions required.	Un titre et des instructions de sortie valides sont requis.	Se requieren un título e instrucciones de salida válidos.
+Valid assignment and offboarding response required.	Une affectation et une réponse de sortie valides sont requises.	Se requieren una asignación y una respuesta de salida válidas.
+Invalid review decision.	Décision de vérification invalide.	Decisión de revisión inválida.
+Track handover and return tasks before closing an assignment. Earned wages remain separate from operational closure.	Suivez la passation et les restitutions avant de clôturer la mission. Le salaire acquis reste indépendant de la clôture opérationnelle.	Controle la entrega y las devoluciones antes de cerrar la misión. El salario devengado permanece separado del cierre operativo.
+Project exit checklist	Checklist de sortie du projet	Lista de salida del proyecto
+Safety plan text is too long.	Le texte du plan de sécurité est trop long.	El texto del plan de seguridad es demasiado largo.
+Choose a project first.	Choisissez d’abord un projet.	Seleccione primero un proyecto.
+Site safety plan	Plan de sécurité du site	Plan de seguridad del sitio
+Save safety plan	Enregistrer le plan de sécurité	Guardar plan de seguridad
+Site access instructions	Instructions d’accès au site	Instrucciones de acceso al sitio
+Emergency contacts	Contacts d’urgence	Contactos de emergencia
+Incident escalation procedure	Procédure d’escalade des incidents	Procedimiento de escalado de incidentes
+Security posts and handover instructions	Postes de sécurité et instructions de passation	Puestos de seguridad e instrucciones de relevo
+Complete approved offboarding tasks before closing the assignment.	Faites approuver les tâches de sortie avant de clôturer la mission.	Complete y apruebe las tareas de salida antes de cerrar la misión.
+An unresolved checkout needs billing reconciliation before changing seats or starting another attempt.	Un paiement non résolu nécessite un rapprochement avant de modifier les places ou de réessayer.	Un pago sin resolver requiere conciliación antes de cambiar plazas o iniciar otro intento.
+Offboarding	Sortie de mission	Salida de misión
+Instructions	Instructions	Instrucciones
+Pagination	Pagination	Paginación
+Page :page	Page :page	Página :page
+Password is too long.	Le mot de passe est trop long.	La contraseña es demasiado larga.
+This screen requires additional permissions. Ask your company administrator to review your access.	Cet écran nécessite des droits supplémentaires. Demandez à votre administrateur de vérifier vos accès.	Esta pantalla requiere permisos adicionales. Solicite a su administrador que revise su acceso.
+Project guarantee: :normal hours; active strike guarantee: :strike hours. Review the contractual terms before changing this setting.	Garantie du projet : :normal heures ; garantie pendant la grève : :strike heures. Vérifiez les conditions contractuelles avant de modifier ce réglage.	Garantía del proyecto: :normal horas; garantía durante la huelga: :strike horas. Revise las condiciones contractuales antes de cambiar este ajuste.
+Estimated monthly software fee:	Coût mensuel estimé du logiciel :	Coste mensual estimado del software:
+Approved onboarding instructions are required.	Des instructions d’intégration approuvées sont requises.	Se requieren instrucciones de incorporación aprobadas.
+Requirement unavailable.	Exigence indisponible.	Requisito no disponible.
+Instructions updated. Active assignments require a new review.	Instructions mises à jour. Les missions actives nécessitent une nouvelle vérification.	Instrucciones actualizadas. Las misiones activas requieren una nueva revisión.
+Configure project instructions	Configurer les instructions du projet	Configurar instrucciones del proyecto
+Approved instructions	Instructions approuvées	Instrucciones aprobadas
+Save instructions	Enregistrer les instructions	Guardar instrucciones
+Replace template instructions with approved project instructions before deployment.	Remplacez les instructions du modèle par des instructions approuvées avant le déploiement.	Sustituya las instrucciones de la plantilla por instrucciones aprobadas antes del despliegue.
+Welcome, :name	Bienvenue, :name	Bienvenido, :name
+:project · :status · :date	:project · :status · :date	:project · :status · :date
+:hotel · room :room · :start to :end	:hotel · chambre :room · du :start au :end	:hotel · habitación :room · del :start al :end
+:project · :trade · :shift · supervisor :name	:project · :trade · :shift · superviseur :name	:project · :trade · :shift · supervisor :name
+:date :time · :stop · driver :name	:date :time · :stop · chauffeur :name	:date :time · :stop · conductor :name
+Required	Obligatoire	Obligatorio
+CSV and XLSX · preview and map identity, employee category, payment method, ADP ID, assignment dates, shift and rates. Unknown columns stay encrypted for review. Hotel, vehicle and historical finance records require separate reconciliation.	CSV et XLSX · aperçu et mapping de l’identité, catégorie, paiement, identifiant ADP, dates, shift et taux. Les colonnes inconnues restent chiffrées pour vérification. Les historiques hôtels, véhicules et finances nécessitent un rapprochement séparé.	CSV y XLSX · vista previa y mapeo de identidad, categoría, pago, ID ADP, fechas, turno y tarifas. Las columnas desconocidas permanecen cifradas para revisión. Los históricos de hoteles, vehículos y finanzas requieren conciliación separada.
+Employee number	Numéro d’employé	Número de empleado
+Contract unavailable.	Contrat indisponible.	Contrato no disponible.
+Contract updated.	Contrat mis à jour.	Contrato actualizado.
+Review and sign the current contract in Contracts & signatures.	Consultez et signez le contrat actuel dans Contrats et signatures.	Revise y firme el contrato actual en Contratos y firmas.
+Required documents must be approved before offer acceptance.	Les pièces requises doivent être approuvées avant l’acceptation de l’offre.	Los documentos requeridos deben aprobarse antes de aceptar la oferta.
+Use the contract workflow after required document verification.	Utilisez le parcours contrat après vérification des pièces requises.	Utilice el flujo de contratos tras verificar los documentos requeridos.
+A signed current contract is required before deployment.	Un contrat actuel signé est requis avant le déploiement.	Se requiere un contrato vigente firmado antes del despliegue.
+Contracts & signatures	Contrats et signatures	Contratos y firmas
+Verified documents, approved contract revisions, signature and private archive.	Pièces vérifiées, versions approuvées du contrat, signature et archivage privé.	Documentos verificados, versiones aprobadas del contrato, firma y archivo privado.
+Project contract policy	Politique des contrats du projet	Política de contratos del proyecto
+Signature method	Méthode de signature	Método de firma
+Internal signature	Signature interne	Firma interna
+Signed contract required before deployment	Contrat signé requis avant déploiement	Contrato firmado requerido antes del despliegue
+Required document types before contract preparation (one per line)	Types de pièces requis avant préparation du contrat (un par ligne)	Tipos de documentos requeridos antes de preparar el contrato (uno por línea)
+Use exact document types from proof uploads. Configure lawful requirements and deadlines; do not require I-9 before an offer by default.	Utilisez les types exacts des pièces téléversées. Configurez des exigences et délais appropriés ; ne rendez pas l’I-9 obligatoire avant une offre par défaut.	Use los tipos exactos de documentos cargados. Configure requisitos y plazos adecuados; no exija I-9 antes de una oferta por defecto.
+Prepare contract draft	Préparer un brouillon de contrat	Preparar borrador de contrato
+Contract title	Titre du contrat	Título del contrato
+Contract terms	Conditions du contrat	Condiciones del contrato
+Validity in days	Validité en jours	Validez en días
+For DocuSign, attach the complete PDF to the draft and verify signature coordinates before approval.	Pour DocuSign, joignez le PDF complet au brouillon et vérifiez la position de signature avant approbation.	Para DocuSign, adjunte el PDF completo al borrador y verifique la posición de firma antes de aprobarlo.
+Signature page	Page de signature	Página de firma
+Prepare draft	Préparer le brouillon	Preparar borrador
+Contract archive	Archives des contrats	Archivo de contratos
+Expires	Expiration	Vence
+Download	Télécharger	Descargar
+Signed by :name on :date	Signé par :name le :date	Firmado por :name el :date
+The internal signature record binds the displayed terms and attached original PDF hash. An uploaded PDF requires staff verification; it is not a provider certificate.	La signature interne lie les conditions affichées et l’empreinte du PDF original joint. Un PDF téléversé nécessite une vérification du bureau ; ce n’est pas un certificat de prestataire.	La firma interna vincula las condiciones mostradas y la huella del PDF original adjunto. Un PDF cargado requiere verificación del personal; no es un certificado del proveedor.
+I have reviewed the terms and every attached original document, and intend to sign this contract electronically.	J’ai consulté les conditions et chaque document original joint, et souhaite signer ce contrat électroniquement.	He revisado las condiciones y cada documento original adjunto, y deseo firmar este contrato electrónicamente.
+Sign contract	Signer le contrat	Firmar contrato
+Upload signed PDF for staff verification	Téléverser le PDF signé pour vérification par le bureau	Cargar PDF firmado para verificación del personal
+Submit signed PDF	Soumettre le PDF signé	Enviar PDF firmado
+Review and sign with DocuSign	Consulter et signer avec DocuSign	Revisar y firmar con DocuSign
+Reason for declining	Motif du refus	Motivo del rechazo
+Decline contract	Refuser le contrat	Rechazar contrato
+Attach original contract PDF	Joindre le PDF original du contrat	Adjuntar PDF original del contrato
+Attach PDF	Joindre le PDF	Adjuntar PDF
+Signature verification notes	Notes de vérification de la signature	Notas de verificación de firma
+Approve uploaded signature	Approuver la signature téléversée	Aprobar firma cargada
+Contract history	Historique du contrat	Historial del contrato
+Approve contract	Approuver le contrat	Aprobar contrato
+Issue contract	Émettre le contrat	Emitir contrato
+Reconcile DocuSign	Rapprocher avec DocuSign	Conciliar con DocuSign
+Void contract	Annuler le contrat	Anular contrato
+viewed	consulté	consultado
+uploaded_review	signature à vérifier	firma pendiente de revisión
+original	original	original
+certificate	certificat	certificado
+uploaded_signed	PDF signé téléversé	PDF firmado cargado
+Invalid signature method.	Méthode de signature invalide.	Método de firma no válido.
+Document type too long.	Type de pièce trop long.	Tipo de documento demasiado largo.
+Contract title and terms are required.	Le titre et les conditions du contrat sont requis.	Se requieren el título y las condiciones del contrato.
+Application is not available for a new contract.	Cette candidature ne permet pas un nouveau contrat.	Esta candidatura no permite un contrato nuevo.
+Approve required documents before preparing the contract.	Approuvez les pièces requises avant de préparer le contrat.	Apruebe los documentos requeridos antes de preparar el contrato.
+Close the active contract before preparing a revision.	Clôturez le contrat actif avant de préparer une nouvelle version.	Cierre el contrato activo antes de preparar una nueva versión.
+Contract cannot be signed in its current state.	Le contrat ne peut pas être signé dans son état actuel.	El contrato no se puede firmar en su estado actual.
+Approve the contract and activate the candidate account first.	Approuvez le contrat et activez d’abord le compte du candidat.	Apruebe el contrato y active primero la cuenta del candidato.
+Complete document and screening reviews before issuing the contract.	Terminez les vérifications des pièces et du screening avant d’émettre le contrat.	Complete la revisión de documentos y controles antes de emitir el contrato.
+No pending provider contract.	Aucun contrat prestataire en attente.	No hay contrato pendiente del proveedor.
+Provider dispatch requires manual reconciliation; do not resend.	L’envoi nécessite un rapprochement manuel avec le prestataire ; ne renvoyez pas le contrat.	El envío requiere conciliación manual con el proveedor; no reenvíe el contrato.
+Provider signer does not match the candidate.	Le signataire du prestataire ne correspond pas au candidat.	El firmante del proveedor no coincide con el candidato.
+Contract integrity check failed.	La vérification d’intégrité du contrat a échoué.	Falló la verificación de integridad del contrato.
+A newer contract revision exists.	Une version plus récente du contrat existe.	Existe una versión más reciente del contrato.
+Contract has expired.	Le contrat a expiré.	El contrato ha vencido.
+Only draft attachments can be added.	Seules les pièces d’un brouillon peuvent être ajoutées.	Solo se pueden añadir adjuntos a un borrador.
+A PDF up to 15 MB is required.	Un PDF de 15 Mo maximum est requis.	Se requiere un PDF de hasta 15 MB.
+Only a draft can be approved.	Seul un brouillon peut être approuvé.	Solo se puede aprobar un borrador.
+Read the current contract and provide your name and consent.	Consultez le contrat actuel, puis fournissez votre nom et votre consentement.	Revise el contrato actual e indique su nombre y consentimiento.
+Use the provider signing flow for this contract.	Utilisez le parcours de signature du prestataire pour ce contrat.	Utilice el flujo de firma del proveedor para este contrato.
+Review the uploaded signature and record verification notes.	Vérifiez la signature téléversée et consignez vos notes.	Revise la firma cargada y registre las notas de verificación.
+Void the envelope with the provider and reconcile its status.	Annulez l’enveloppe chez le prestataire puis rapprochez son statut.	Anule el sobre en el proveedor y concilie su estado.
+A signed contract cannot be changed.	Un contrat signé ne peut pas être modifié.	No se puede modificar un contrato firmado.
+Invalid contract action.	Action de contrat invalide.	Acción de contrato no válida.
+Offer already accepted.	Offre déjà acceptée.	Oferta ya aceptada.
+Secure contract storage unavailable.	Stockage sécurisé des contrats indisponible.	Almacenamiento seguro de contratos no disponible.
+Contract storage unavailable.	Stockage des contrats indisponible.	Almacenamiento de contratos no disponible.
+DocuSign is disabled or not configured.	DocuSign est désactivé ou non configuré.	DocuSign está desactivado o sin configurar.
+Invalid DocuSign API endpoint.	Adresse API DocuSign invalide.	Dirección API DocuSign no válida.
+DocuSign request failed; reconcile before retrying.	La requête DocuSign a échoué ; rapprochez le statut avant de réessayer.	Falló la solicitud DocuSign; concilie el estado antes de reintentar.
+Attach the contract PDF before DocuSign issuance.	Joignez le PDF du contrat avant l’émission DocuSign.	Adjunte el PDF del contrato antes de emitirlo en DocuSign.
+Invalid envelope response.	Réponse d’enveloppe invalide.	Respuesta de sobre no válida.
+HTTPS is required for DocuSign.	HTTPS est requis pour DocuSign.	Se requiere HTTPS para DocuSign.
+Invalid signing URL.	Lien de signature invalide.	Enlace de firma no válido.
+Download signature record	Télécharger le justificatif de signature	Descargar registro de firma
+Contract update failed. Contact the administrator.	La mise à jour du contrat a échoué. Contactez l’administrateur.	Falló la actualización del contrato. Contacte al administrador.

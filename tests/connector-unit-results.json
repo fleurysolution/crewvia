@@ -1,0 +1,8 @@
+[
+    "Signed application verified",
+    "Changed application rejected",
+    "Expired signature rejected",
+    "Missing secret rejected",
+    "Valid application parsed",
+    "Consent required"
+]

@@ -1,0 +1,10 @@
+<h1><?= te('Daily attendance') ?></h1><p class="sub"><?= te('Worker submissions, supervisor review and a dated record of who worked on site. Weekly payroll sheets remain a separate approval step.') ?></p><?php if($own && !$supervisor): ?><form class="card row" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="submit"><div><label><?= te('Assignment') ?></label><select name="placement_id"><?php foreach($assignments as $a): ?><option value="<?= (int)$a['id'] ?>"><?= e($a['title']) ?></option><?php endforeach; ?></select></div><div><label><?= te('Date') ?></label><input type="date" name="work_date" required></div><div><label><?= te('Hours') ?></label><input name="hours" type="number" min="0" max="24" step="0.25" required></div><button class="btn"><?= te('Submit hours') ?></button></form><?php endif; ?><?php if(!$records): ?>
+<div class="card"><div class="empty">
+  <?php if($own && !$supervisor): ?>
+    <?= te('No hours submitted yet. Use the form above for each day you worked.') ?>
+  <?php else: ?>
+    <?= te('No attendance yet. Workers submit their days from their own portal; deployed crew appear here for review.') ?>
+  <?php endif; ?>
+</div></div>
+<?php endif; ?>
+<div class="card scroll"><table><tr><th><?= te('Worker') ?></th><th><?= te('Project') ?></th><th><?= te('Date') ?></th><th><?= te('Hours') ?></th><th><?= te('Status') ?></th><th><?= te('Review') ?></th></tr><?php foreach($records as $r): ?><tr><td><?= e($r['full_name']) ?></td><td><?= e($r['title']) ?></td><td><?= e($r['work_date']) ?></td><td><?= e($r['hours']) ?></td><td><?= e($r['status']) ?></td><td><?php if((can('payroll') || $supervisor) && $r['status']==='submitted'): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="review"><input type="hidden" name="attendance_id" value="<?= (int)$r['id'] ?>"><select name="status"><option value="approved"><?= te('approved') ?></option><option value="rejected"><?= te('rejected') ?></option></select><button class="btn sm"><?= te('Review') ?></button></form><?php endif; ?></td></tr><?php endforeach; ?></table></div>

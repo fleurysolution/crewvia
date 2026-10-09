@@ -1,0 +1,16 @@
+[
+    "Base32 round trip",
+    "RFC 6238 vector 59",
+    "RFC 6238 vector 1111111109",
+    "RFC 6238 vector 1111111111",
+    "RFC 6238 vector 1234567890",
+    "RFC 6238 vector 2000000000",
+    "RFC 6238 vector 20000000000",
+    "Current authenticator code accepted",
+    "Used authenticator code cannot replay",
+    "Malformed authenticator code rejected",
+    "Stale authenticator code rejected",
+    "Subject cannot inject mail headers",
+    "Email body encoded independently",
+    "Address header injection rejected"
+]

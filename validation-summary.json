@@ -1,0 +1,108 @@
+{
+  "http_checks_passed": 202,
+  "php_lint": {
+    "files": 184,
+    "errors": []
+  },
+  "runtime_php_errors": [],
+  "blank_installation": "passed",
+  "repeat_upgrade": "passed",
+  "browser_checks": {
+    "qr": true,
+    "mobileOverflow": false,
+    "javascriptErrors": []
+  },
+  "synthetic_scale": {
+    "synthetic_workers": 10000,
+    "projects": 10,
+    "workers_per_project": 1000,
+    "single_user_sequential_requests": true,
+    "concurrent_load_certified": false,
+    "requests": [
+      {
+        "route": "/overview",
+        "seconds": 0.096,
+        "html_bytes": 23178
+      },
+      {
+        "route": "/employees",
+        "seconds": 0.082,
+        "html_bytes": 34981
+      },
+      {
+        "route": "/employees?q=synthetic-10-1000",
+        "seconds": 0.088,
+        "html_bytes": 16209
+      },
+      {
+        "route": "/candidates?q=synthetic",
+        "seconds": 0.191,
+        "html_bytes": 229516
+      },
+      {
+        "route": "/manning",
+        "seconds": 0.149,
+        "html_bytes": 318871
+      },
+      {
+        "route": "/roster",
+        "seconds": 0.221,
+        "html_bytes": 1575752
+      },
+      {
+        "route": "/recruitment",
+        "seconds": 0.111,
+        "html_bytes": 126719
+      },
+      {
+        "route": "/recruitment?page=10",
+        "seconds": 0.176,
+        "html_bytes": 126489
+      },
+      {
+        "route": "/hours",
+        "seconds": 0.229,
+        "html_bytes": 1036749
+      },
+      {
+        "route": "/organization",
+        "seconds": 0.099,
+        "html_bytes": 124888
+      },
+      {
+        "route": "/client-orders",
+        "seconds": 0.081,
+        "html_bytes": 18723
+      }
+    ]
+  },
+  "tenant_runtime_checks": {
+    "separate_databases": true,
+    "checks": [
+      "Real tenants use different session cookies",
+      "Alpha tenant login",
+      "Bravo tenant login",
+      "Alpha database records scoped",
+      "Bravo database records scoped",
+      "Alpha session cannot authenticate to Bravo",
+      "Unknown tenant host rejected",
+      "Alpha cannot see Bravo candidate"
+    ],
+    "https_production_tested": false,
+    "concurrent_load_tested": false
+  },
+  "external_services": "disabled by owner; no real provider tested",
+  "concurrent_load_tested": false,
+  "deployed": false,
+  "saas_unit_checks_passed": 16,
+  "recruiting_unit_checks_passed": 9,
+  "security_unit_checks_passed": 14,
+  "payroll_unit_checks_passed": 7,
+  "connector_unit_checks_passed": 6,
+  "docusign_unit_checks_passed": 11,
+  "i18n_catalogue_checks": {
+    "en": 783,
+    "fr": 783,
+    "es": 783
+  }
+}

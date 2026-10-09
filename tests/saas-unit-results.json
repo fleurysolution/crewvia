@@ -1,0 +1,18 @@
+[
+    "Tenant hosts select separate databases",
+    "Tenant sessions have separate cookie names",
+    "Tenant documents use separate storage namespaces",
+    "Unknown host fails closed",
+    "Host header cannot select a filesystem path",
+    "Tenant file traversal rejected",
+    "Single installation remains compatible",
+    "Stripe raw signature validates",
+    "Stripe rotated signatures validate",
+    "Tampered webhook rejected",
+    "Expired webhook rejected",
+    "Future webhook outside tolerance rejected",
+    "Missing webhook secret rejected",
+    "Oversized webhook rejected",
+    "Demo does not enable Stripe",
+    "Missing payment credentials do not enable Stripe"
+]

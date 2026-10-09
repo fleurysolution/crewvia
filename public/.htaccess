@@ -1,0 +1,25 @@
+# This folder is the document root. The parent directory denies everything,
+# so access is granted back here - and only here.
+#
+# Both this line and the parent's "Require all denied" ship inside the
+# archive on purpose. Adding either by hand after extracting is how the
+# protection quietly disappears at the next deployment, because tar
+# overwrites whatever it carries.
+Require all granted
+
+# Everything goes through index.php.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
+
+# The app never needs to serve these.
+<FilesMatch "\.(sql|json|md|log)$">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "^\.ht">
+  Require all denied
+</FilesMatch>
+
+Options -Indexes

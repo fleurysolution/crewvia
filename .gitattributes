@@ -1,0 +1,7 @@
+# Store every file exactly as it is on disk.
+#
+# The tree is mixed: most files are CRLF, a few are LF, and the scripts
+# that edit them read the ending from the file and write the same one
+# back. Letting git normalise would rewrite files nobody touched and
+# produce diffs that are entirely line endings.
+* -text

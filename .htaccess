@@ -1,0 +1,18 @@
+# This folder holds the application: code, configuration, private storage and
+# the installer. None of it is ever served over HTTP.
+#
+# It matters because cPanel forces a document root under public_html, so this
+# directory is reachable laterally through the account's main domain - for
+# example https://veloraweb.com/crewvia/ - even though the subdomain's own
+# document root is public/ one level down.
+#
+# public/.htaccess grants access back for that one directory. Both files ship
+# in the archive on purpose: adding them by hand after extraction is how the
+# protection gets silently overwritten by the next deployment.
+Require all denied
+
+<FilesMatch "^\.ht">
+  Require all denied
+</FilesMatch>
+
+Options -Indexes

@@ -1,0 +1,39 @@
+name: Staging checks
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  php-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, openssl, curl, mbstring, fileinfo, zip, dom
+      - name: Validate every PHP source
+        run: find . -name '*.php' -not -path './storage/*' -print0 | xargs -0 -n1 php -l
+      - name: Run standalone unit checks
+        run: |
+          php tests/saas_unit.php
+          php tests/recruiting_unit.php
+          php tests/i18n_unit.php en
+          php tests/i18n_unit.php fr
+          php tests/i18n_unit.php es
+# Local Windows integration runner remains tests/run_windows.py.
+# No deployment, credentials, customer records or live-server writes in this workflow.
+
+      - name: Authentication and MIME tests
+        run: php tests/security_unit.php
+
+      - name: Gross payroll tests
+        run: php tests/payroll_unit.php
+
+      - name: Recruitment ingestion contract tests
+        run: php tests/connector_unit.php
+
+      - name: DocuSign staging contract tests
+        run: php tests/docusign_unit.php

@@ -1,0 +1,1 @@
+<div class="card"><h1><?= te('Application received') ?></h1><p><?= te('RSS recruiting will review your application and contact you about next steps.') ?></p></div>
