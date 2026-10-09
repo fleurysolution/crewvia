@@ -294,10 +294,12 @@ foreach ($people as $i => $person) {
     if ($stage === 'placed') {
         $terms = placement_rates($jobId, $requisitions[$role]);
 
-        q("INSERT INTO placements (candidate_id, job_id, status, start_date, created_by,
+        q("INSERT INTO placements (candidate_id, job_id, vacancy_id, order_line_id, status,
+                                   start_date, created_by,
                                    pay_rate, bill_rate, per_diem_rate, guarantee_hours)
-           VALUES (?,?,'on_site',?,?,?,?,?,?)",
-          [$candidateId, $jobId, date('Y-m-d', strtotime('-5 days')), $actor,
+           VALUES (?,?,?,?,'on_site',?,?,?,?,?,?)",
+          [$candidateId, $jobId, $terms['vacancy_id'], $terms['order_line_id'],
+           date('Y-m-d', strtotime('-5 days')), $actor,
            $terms['pay_rate'], $terms['bill_rate'],
            $terms['per_diem_rate'], $terms['guarantee_hours']]);
 

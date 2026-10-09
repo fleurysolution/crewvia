@@ -1,5 +1,5 @@
 <?php
-require_role('admin');require __DIR__.'/../gmail.php';require __DIR__.'/../import-reader.php';require_once __DIR__.'/../import-fields.php';
+require_role('admin');require __DIR__.'/../gmail.php';require __DIR__.'/../import-reader.php';require_once __DIR__.'/../import-fields.php';require_once __DIR__.'/../classification.php';
 $error=null;$preview=$_SESSION['import_preview'] ?? null;$fields=['full_name','email','phone','city','state','trade','employee_number','start_date','end_date','shift','employment_type','payment_method','adp_employee_id','pay_rate','bill_rate','per_diem_rate','salary_per_period'];
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
@@ -39,6 +39,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
      else {
       q("INSERT INTO candidates(full_name,email,phone,city,state,source) VALUES (?,?,?,?,?,'Spreadsheet import')",[$name,$item['email']?:null,$item['phone']?:null,$item['city']?:null,$item['state']?:null]);$cid=(int)db()->lastInsertId();
       q('INSERT INTO employee_profiles(candidate_id,employee_number,employment_type,payment_method,adp_employee_id,salary_per_period) VALUES (?,?,?,?,?,?)',[$cid,$item['employee_number']?:null,$employment,$payment,$item['adp_employee_id']?:null,$salary]);
+      // The spreadsheet says what they are, not since when, so no date is invented.
+      classification_record_initial($cid,$employment,mb_substr('Imported from '.$input['filename'].' row '.($i+2),0,500),uid());
       if($jobId) { q("INSERT INTO placements(candidate_id,job_id,status,created_by,start_date,end_date,pay_rate,bill_rate,per_diem_rate) VALUES (?,?,'offered',?,?,?,?,?,?)",[$cid,$jobId,uid(),$start,$end,$pay,$bill,$diem]);$pid=(int)db()->lastInsertId();if($item['trade']||$item['shift']) q('INSERT INTO assignment_details(placement_id,trade,shift_label) VALUES (?,?,?)',[$pid,mb_substr($item['trade']?:'Unassigned',0,190),$item['shift']]); }
       $status='imported';$note='Identity imported; screening/onboarding remains required.';
       q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$cid,uid(),'spreadsheet import',$input['filename'].' row '.($i+2)]);

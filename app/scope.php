@@ -134,9 +134,22 @@ function scope_terms_for_line(?int $lineId, int $jobId): array
  * hired as a labourer was then shown, and paid against, whatever single
  * number the project carried. The line they were actually recruited against
  * is the agreed answer, so it is the one used.
+ *
+ * A placement that recorded its line when it was created is answered from
+ * that record. Only one that did not - created before the link existed, or
+ * imported - falls back to the person's latest application, which is a
+ * guess when they applied to two trades on the same project.
  */
-function scope_line_for_placement(int $candidateId, int $jobId): ?array
+function scope_line_for_placement(int $candidateId, int $jobId, ?int $orderLineId = null): ?array
 {
+    if ($orderLineId) {
+        $line = row('SELECT * FROM job_order_lines WHERE id = ? AND job_id = ?', [$orderLineId, $jobId]);
+
+        if ($line) {
+            return $line;
+        }
+    }
+
     try {
         return row('SELECT l.* FROM applications a
                     JOIN vacancies v ON v.id = a.vacancy_id AND v.job_id = ?
