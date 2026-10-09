@@ -40,7 +40,9 @@ class Client:
 
     def login(self, email):
         self.get('/login')
-        return self.post('/login', {'email': email, 'password': 'TestPassword123!'})
+        status, body = self.post('/login', {'email': email, 'password': 'TestPassword123!'})
+        # A refused sign-in also answers 200, with the form again. Only leaving it counts.
+        return (status if '<title>Sign in' not in body else 401), body
 
 
 def check(label, condition, detail=''):

@@ -504,3 +504,59 @@ No requisition or line of the scope is linked to this assignment. Its rates were
 Rate changes	Changements de taux	Cambios de tarifa
 No change since the assignment was made. It is on the terms it started with.	Aucun changement depuis la création de l’affectation. Elle conserve ses conditions de départ.	Ningún cambio desde que se creó la asignación. Mantiene sus condiciones iniciales.
 By	Par	Por
+Was :old h, changed by :name on :date: :reason	Était :old h, modifié par :name le :date : :reason	Era :old h, cambiado por :name el :date: :reason
+Entered by staff: :note	Saisi par le personnel : :note	Registrado por el personal: :note
+Week check: exceptions and reconciliation	Contrôle de la semaine : anomalies et rapprochement	Control de la semana: anomalías y conciliación
+Week ending :date on :project. Read-only: correct days on the attendance page, import and approve sheets on Hours.	Semaine se terminant le :date sur :project. Lecture seule : corrigez les jours sur la page des présences, importez et approuvez les feuilles dans Heures.	Semana que termina el :date en :project. Solo lectura: corrija los días en la página de asistencia, importe y apruebe las hojas en Horas.
+Nothing to look at: roll call and hours agree, no long days, nobody on two jobs the same day, nothing left waiting.	Rien à signaler : l’appel et les heures concordent, aucune journée trop longue, personne sur deux chantiers le même jour, rien en attente.	Nada que revisar: el pase de lista y las horas coinciden, sin jornadas largas, nadie en dos trabajos el mismo día, nada pendiente.
+Week check	Contrôle de la semaine	Control de la semana
+A day outside the assignment's dates	Un jour en dehors des dates de l’affectation	Un día fuera de las fechas de la asignación
+Approved days	Jours approuvés	Días aprobados
+Approved days against the weekly sheet	Jours approuvés face à la feuille hebdomadaire	Días aprobados frente a la hoja semanal
+Approved days, but no weekly sheet yet - import them	Des jours approuvés, mais pas encore de feuille hebdomadaire - importez-les	Días aprobados, pero aún sin hoja semanal - impórtelos
+Approved for pay with a difference - settle it as an adjustment	Approuvé pour la paie avec un écart - réglez-le par un ajustement	Aprobado para pago con una diferencia - resuélvala con un ajuste
+Approved hours across every project they worked on. Overtime is counted on the week, not per assignment.	Heures approuvées sur tous les projets travaillés. Les heures supplémentaires se comptent sur la semaine, pas par affectation.	Horas aprobadas en todos los proyectos trabajados. Las horas extra se cuentan por semana, no por asignación.
+Check	Contrôle	Control
+Choose somebody on your crew who is on the assignment.	Choisissez une personne de votre équipe qui est sur l’affectation.	Elija a alguien de su equipo que esté en la asignación.
+Correct	Corriger	Corregir
+Corrected hours	Heures corrigées	Horas corregidas
+Day corrected. The previous hours and your reason are kept on the record.	Jour corrigé. Les heures précédentes et votre motif sont conservés au dossier.	Día corregido. Las horas anteriores y su motivo quedan en el registro.
+Day recorded and approved, with your note.	Jour enregistré et approuvé, avec votre note.	Día registrado y aprobado, con su nota.
+Days approved or corrected since the import - import again	Jours approuvés ou corrigés depuis l’import - importez à nouveau	Días aprobados o corregidos desde la importación - importe de nuevo
+Days submitted, none approved yet	Jours soumis, aucun encore approuvé	Días enviados, ninguno aprobado aún
+Days that do not add up	Jours qui ne concordent pas	Días que no cuadran
+Detail	Détail	Detalle
+Enter a day for a worker	Saisir un jour pour un travailleur	Registrar un día para un trabajador
+Everybody on this project worked a single assignment this week.	Tout le monde sur ce projet a travaillé sur une seule affectation cette semaine.	Todos en este proyecto trabajaron en una sola asignación esta semana.
+For a day the worker could not enter themselves. You validate it by entering it, so say why in the note; the worker sees it.	Pour un jour que le travailleur n’a pas pu saisir lui-même. Vous le validez en le saisissant : indiquez pourquoi dans la note ; le travailleur la voit.	Para un día que el trabajador no pudo registrar. Usted lo valida al registrarlo, así que explique por qué en la nota; el trabajador la ve.
+Give a working date no later than today.	Indiquez une date de travail au plus tard aujourd’hui.	Indique una fecha de trabajo no posterior a hoy.
+Hours for one day are a number from 0 to 24.	Les heures d’une journée sont un nombre de 0 à 24.	Las horas de un día son un número de 0 a 24.
+Hours on a day marked absent at roll call	Des heures un jour marqué absent à l’appel	Horas en un día marcado ausente en el pase de lista
+Hours on two assignments the same day	Des heures sur deux affectations le même jour	Horas en dos asignaciones el mismo día
+Hours this week	Heures cette semaine	Horas esta semana
+Hours typed on the sheet with no approved days behind them	Des heures saisies sur la feuille sans jours approuvés derrière	Horas escritas en la hoja sin días aprobados que las respalden
+Imported	Importé	Importado
+More than 16 hours in one day	Plus de 16 heures en une journée	Más de 16 horas en un día
+Nobody corrects their own hours.	Personne ne corrige ses propres heures.	Nadie corrige sus propias horas.
+Nobody on this project has days or a weekly sheet this week, so there is nothing to compare.	Personne sur ce projet n’a de jours ni de feuille hebdomadaire cette semaine : il n’y a rien à comparer.	Nadie en este proyecto tiene días ni hoja semanal esta semana, así que no hay nada que comparar.
+Nobody on your crew is on an assignment, so there is nobody to enter a day for.	Personne de votre équipe n’est sur une affectation : il n’y a personne pour qui saisir un jour.	Nadie de su equipo está en una asignación, así que no hay a quién registrar un día.
+On more than one assignment this week	Sur plus d’une affectation cette semaine	En más de una asignación esta semana
+On the sheet	Sur la feuille	En la hoja
+Only an approved day is corrected. A submitted day is approved or rejected; a rejected one is resubmitted by the worker.	Seul un jour approuvé se corrige. Un jour soumis est approuvé ou refusé ; un jour refusé est soumis à nouveau par le travailleur.	Solo se corrige un día aprobado. Un día enviado se aprueba o rechaza; uno rechazado lo reenvía el trabajador.
+Open this week in Hours	Ouvrir cette semaine dans Heures	Abrir esta semana en Horas
+Present at roll call, no hours for the day	Présent à l’appel, aucune heure pour la journée	Presente en el pase de lista, sin horas para el día
+Record the day	Enregistrer le jour	Registrar el día
+Say why the hours changed. The worker will see it.	Indiquez pourquoi les heures ont changé. Le travailleur le verra.	Indique por qué cambiaron las horas. El trabajador lo verá.
+Say why the worker could not enter this day themselves.	Indiquez pourquoi le travailleur n’a pas pu saisir ce jour lui-même.	Indique por qué el trabajador no pudo registrar este día.
+Submitted more than two days ago and not yet reviewed	Soumis il y a plus de deux jours et pas encore examiné	Enviado hace más de dos días y aún sin revisar
+That date is outside the assignment.	Cette date est en dehors de l’affectation.	Esa fecha está fuera de la asignación.
+That day is not one you can correct.	Vous ne pouvez pas corriger ce jour.	No puede corregir ese día.
+That week is already approved for pay. Record the difference as a payroll adjustment instead.	Cette semaine est déjà approuvée pour la paie. Enregistrez plutôt l’écart comme un ajustement de paie.	Esa semana ya está aprobada para pago. Registre la diferencia como un ajuste de nómina.
+The weekly sheet differs from the approved days	La feuille hebdomadaire diffère des jours approuvés	La hoja semanal difiere de los días aprobados
+The weekly sheet matches the approved days	La feuille hebdomadaire correspond aux jours approuvés	La hoja semanal coincide con los días aprobados
+The worker already submitted this day. Approve or reject it instead.	Le travailleur a déjà soumis ce jour. Approuvez-le ou refusez-le plutôt.	El trabajador ya envió este día. Apruébelo o rechácelo.
+The worker's entry for this day was rejected. They resubmit it, or it is corrected once approved.	La saisie du travailleur pour ce jour a été refusée. Il la soumet à nouveau, ou elle est corrigée une fois approuvée.	El registro del trabajador para este día fue rechazado. Lo reenvía, o se corrige una vez aprobado.
+This day is already approved. Correct it instead.	Ce jour est déjà approuvé. Corrigez-le plutôt.	Este día ya está aprobado. Corríjalo.
+Those are already the hours on record.	Ce sont déjà les heures enregistrées.	Esas ya son las horas registradas.
+Waiting for review	En attente d’examen	Pendiente de revisión
+← Daily attendance	← Présences quotidiennes	← Asistencia diaria

@@ -702,4 +702,45 @@ if ($linksAdded) {
        . $unlinked . ' left unlinked because it is not certain which.' . PHP_EOL;
 }
 
+// ── P1-M02: attendance corrections and staff-entered days ─────────────
+// Reversed by install/rollback/p1-m02.sql.
+$attendanceSql = __DIR__ . '/attendance-controls.sql';
+
+if (! is_file($attendanceSql)) {
+    fwrite(STDERR, "Missing install/attendance-controls.sql\n");
+    exit(1);
+}
+
+$hadCorrections = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                             WHERE table_schema=DATABASE() AND table_name='attendance_corrections'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($attendanceSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+$attendanceColumns = [
+    // Who put the day in: the worker from their portal, or a supervisor or
+    // payroll on their behalf when they could not.
+    'source' => "ENUM('worker','staff') NOT NULL DEFAULT 'worker' AFTER hours",
+    // Required for a staff-entered day: why the worker did not enter it.
+    'note'   => 'VARCHAR(500) NULL AFTER source',
+];
+$attendanceChanged = ! $hadCorrections;
+
+foreach ($attendanceColumns as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='attendance_records' AND column_name=?", [$column])) {
+        q('ALTER TABLE attendance_records ADD COLUMN `' . $column . '` ' . $definition);
+        $attendanceChanged = true;
+    }
+}
+
+if ($attendanceChanged) {
+    echo 'Attendance: corrections and staff-entered days are in place; '
+       . (int) val('SELECT COUNT(*) FROM attendance_records') . ' existing day(s) kept as entered by the worker.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

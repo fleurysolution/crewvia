@@ -169,6 +169,7 @@ $routes = [
     '/accounts-payable' => 'accounts-payable',
     '/payroll-export' => 'payroll-export',
     '/attendance' => 'attendance',
+    '/attendance-week' => 'attendance-week',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',

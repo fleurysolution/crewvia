@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(prefix='rss-', dir=scratch) as temporary:
     base=pathlib.Path(temporary);work=base/'work';work.mkdir();(base/'outputs').mkdir()
     app=work/'test-app';shutil.copytree(source,app,ignore=shutil.ignore_patterns('config.php','storage','tenants','.git','tests'))
     for folder in ['sessions','uploads']: (work/folder).mkdir()
-    for name in ['fixture.php','http_tests.py','browser_tests.cjs','saas_unit.php','recruiting_unit.php','i18n_unit.php','security_unit.php','payroll_unit.php','connector_unit.php','docusign_unit.php','scale_fixture.php','scale_http.py','tenant_fixture.php','tenant_http.py','hr_relationships_db.php','hr_relationships_http.py','hr_relationships_probe.php']:shutil.copy2(source/'tests'/name,work/name)
+    for name in ['fixture.php','http_tests.py','browser_tests.cjs','saas_unit.php','recruiting_unit.php','i18n_unit.php','security_unit.php','payroll_unit.php','connector_unit.php','docusign_unit.php','scale_fixture.php','scale_http.py','tenant_fixture.php','tenant_http.py','hr_relationships_db.php','hr_relationships_http.py','hr_relationships_probe.php','attendance_controls_db.php','attendance_controls_http.py','attendance_controls_probe.php']:shutil.copy2(source/'tests'/name,work/name)
     (app/'config.php').write_text("<?php return ['db_host'=>'127.0.0.1;port=3308','db_name'=>'rss_ops_test','db_user'=>'root','db_pass'=>'','app_url'=>'http://127.0.0.1:8097','debug'=>true,'encryption_key'=>'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=','recruiting_webhooks'=>['test_partner'=>['enabled'=>true,'secret'=>'unit-test-secret-unit-test-secret']]];")
     init=mysql_dir/'mysql_install_db.exe'
     subprocess.run([str(init),'--datadir='+str(work/'mysql-data'),'--port=3308'],check=True)
@@ -48,11 +48,14 @@ with tempfile.TemporaryDirectory(prefix='rss-', dir=scratch) as temporary:
             (work/'fixture.json').write_text(fixture.stdout)
             # P1-M01: rollback, upgrade and backfill on the test database, before any HTTP.
             subprocess.run(command+[str(work/'hr_relationships_db.php')],check=True)
+            # P1-M02: rollback and upgrade, then the synthetic week the screens are tested on.
+            subprocess.run(command+[str(work/'attendance_controls_db.php')],check=True)
             http=subprocess.Popen(command+['-d','extension=zip','-d','upload_tmp_dir='+str(work/'uploads'),'-S','127.0.0.1:8097','-t',str(app/'public'),str(app/'public/index.php')],stdout=log,stderr=log)
             try:
                 time.sleep(1)
                 subprocess.run([sys.executable,str(work/'http_tests.py')],cwd=base,check=True)
                 subprocess.run([sys.executable,str(work/'hr_relationships_http.py')],cwd=base,env=dict(os.environ,PHP_BIN=php),check=True)
+                subprocess.run([sys.executable,str(work/'attendance_controls_http.py')],cwd=base,env=dict(os.environ,PHP_BIN=php),check=True)
                 subprocess.run(command+[str(app/'install/verify-relationships.php')],check=True)
                 print('PASS Relationships consistent after the HTTP suites',flush=True)
                 if skip_browser:print('SKIPPED Browser screenshots (SKIP_BROWSER=1). This is not a full run.',flush=True)
@@ -83,7 +86,7 @@ with tempfile.TemporaryDirectory(prefix='rss-', dir=scratch) as temporary:
         finally:
             mysql.terminate();mysql.wait(timeout=10)
     output=pathlib.Path(os.environ.get('TEST_OUTPUT_DIR',str(source/'test-results'))).resolve();output.mkdir(parents=True,exist_ok=True)
-    for name in [*([] if skip_browser else ['browser-results.json']),'m01-db-results.json','m01-http-results.json','test-results.json','runtime-services.log','saas-unit-results.json','recruiting-unit-results.json','security-unit-results.json','payroll-unit-results.json','connector-unit-results.json','docusign-unit-results.json','scale-results.json','tenant-runtime-results.json']:shutil.copy2(work/name,output/name)
+    for name in [*([] if skip_browser else ['browser-results.json']),'m01-db-results.json','m01-http-results.json','m02-db-results.json','m02-http-results.json','test-results.json','runtime-services.log','saas-unit-results.json','recruiting-unit-results.json','security-unit-results.json','payroll-unit-results.json','connector-unit-results.json','docusign-unit-results.json','scale-results.json','tenant-runtime-results.json']:shutil.copy2(work/name,output/name)
     for screenshot in (base/'outputs').glob('*.png'):shutil.copy2(screenshot,output/screenshot.name)
     for locale in ['en','fr','es']:shutil.copy2(work/('i18n-unit-'+locale+'.json'),output/('i18n-unit-'+locale+'.json'))
     print('Test evidence:',output)
