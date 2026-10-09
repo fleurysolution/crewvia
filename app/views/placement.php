@@ -117,3 +117,45 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
   </div>
 </div>
 <?php endif; ?>
+
+<?php if (can('payroll')): ?>
+<div class="card" id="terms-origin">
+  <h2><?= te('Where these terms come from') ?></h2>
+  <?php if ($p['line_recorded'] && $origin): ?>
+    <p class="small" style="margin:0"><?= te('Recorded when the assignment was made: requisition :req, line :line of the scope of work.',
+        ['req' => $origin['title'], 'line' => $line['role_title']]) ?></p>
+  <?php elseif ($line): ?>
+    <p class="small" style="margin:0;color:var(--amber)"><?= te('Not recorded on the assignment. Inferred from the latest application on this project: line :line. Check it if the person applied for two trades.',
+        ['line' => $line['role_title']]) ?></p>
+  <?php else: ?>
+    <p class="small muted" style="margin:0"><?= te('No requisition or line of the scope is linked to this assignment. Its rates were set on the assignment itself.') ?></p>
+  <?php endif; ?>
+
+  <h3 style="margin:14px 0 6px"><?= te('Rate changes') ?></h3>
+  <?php if (! $rateChanges): ?>
+    <p class="small muted" style="margin:0"><?= te('No change since the assignment was made. It is on the terms it started with.') ?></p>
+  <?php else: ?>
+    <div class="scroll"><table>
+      <thead><tr><th><?= te('When') ?></th><th><?= te('By') ?></th><th class="num"><?= te('Pay') ?></th>
+        <th class="num"><?= te('Bill') ?></th><th class="num"><?= te('Per diem') ?></th><th class="num"><?= te('Guarantee') ?></th></tr></thead>
+      <tbody>
+      <?php
+      $was = static fn($old, $new, bool $money): string =>
+          ($old === null ? '—' : ($money ? money((float) $old) : (string) (int) $old))
+          . ' → '
+          . ($new === null ? '—' : ($money ? money((float) $new) : (string) (int) $new));
+      foreach ($rateChanges as $r): ?>
+        <tr>
+          <td><?= e(d(substr((string) $r['changed_at'], 0, 10))) ?></td>
+          <td><?= e($r['changed_by_name'] ?? '—') ?></td>
+          <td class="num mono"><?= e($was($r['old_pay_rate'], $r['new_pay_rate'], true)) ?></td>
+          <td class="num mono"><?= e($was($r['old_bill_rate'], $r['new_bill_rate'], true)) ?></td>
+          <td class="num mono"><?= e($was($r['old_per_diem_rate'], $r['new_per_diem_rate'], true)) ?></td>
+          <td class="num mono"><?= e($was($r['old_guarantee_hours'], $r['new_guarantee_hours'], false)) ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table></div>
+  <?php endif; ?>
+</div>
+<?php endif; ?>

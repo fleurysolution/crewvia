@@ -621,4 +621,85 @@ if (val("SELECT COUNT(*) FROM information_schema.tables
     q('ALTER TABLE approval_requests ADD COLUMN notified_at DATETIME NULL');
 }
 
+// ── P1-M01: classification history and where an assignment came from ──
+// Reversed by install/rollback/p1-m01.sql.
+$relationshipsSql = __DIR__ . '/hr-relationships.sql';
+
+if (! is_file($relationshipsSql)) {
+    fwrite(STDERR, "Missing install/hr-relationships.sql\n");
+    exit(1);
+}
+
+$hadClassifications = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                                 WHERE table_schema=DATABASE() AND table_name='employee_classifications'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($relationshipsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='employee_profiles'
+             AND column_name='flsa_status'")) {
+    q("ALTER TABLE employee_profiles ADD COLUMN flsa_status
+         ENUM('non_exempt','exempt','not_applicable','not_determined')
+         NOT NULL DEFAULT 'not_determined' AFTER employment_type");
+    echo 'People: overtime status added to employee profiles.' . PHP_EOL;
+}
+
+if (! $hadClassifications) {
+    // One row per existing profile, saying only what is known: the type it
+    // held, and no date, because nobody recorded since when.
+    require_once __DIR__ . '/../app/classification.php';
+
+    $profiles = rows('SELECT candidate_id, employment_type FROM employee_profiles');
+
+    foreach ($profiles as $profile) {
+        classification_record_initial((int) $profile['candidate_id'],
+                                      (string) $profile['employment_type'],
+                                      'Held before classification history was kept.');
+    }
+
+    $undecided = (int) val("SELECT COUNT(*) FROM employee_profiles WHERE flsa_status = 'not_determined'");
+
+    echo 'People: classification history started for ' . count($profiles) . ' profile(s); '
+       . $undecided . ' still need an overtime status decided.' . PHP_EOL;
+}
+
+$linkColumns = [
+    'vacancy_id'    => 'INT UNSIGNED NULL AFTER job_id, ADD INDEX ix_placement_vacancy (vacancy_id)',
+    'order_line_id' => 'INT UNSIGNED NULL AFTER vacancy_id, ADD INDEX ix_placement_order_line (order_line_id)',
+];
+$linksAdded = false;
+
+foreach ($linkColumns as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='placements' AND column_name=?", [$column])) {
+        q('ALTER TABLE placements ADD COLUMN `' . $column . '` ' . $definition);
+        $linksAdded = true;
+    }
+}
+
+if ($linksAdded) {
+    // Only where the answer is not a guess: the person applied to exactly
+    // one requisition on that project. Two applications could be two
+    // trades, and picking the latest is how the wrong rate gets quoted.
+    $linked = q('UPDATE placements p
+                 JOIN (SELECT a.candidate_id, v.job_id, MIN(v.id) AS vacancy_id
+                       FROM applications a JOIN vacancies v ON v.id = a.vacancy_id
+                       GROUP BY a.candidate_id, v.job_id
+                       HAVING COUNT(DISTINCT v.id) = 1) one
+                   ON one.candidate_id = p.candidate_id AND one.job_id = p.job_id
+                 JOIN vacancies v ON v.id = one.vacancy_id
+                 SET p.vacancy_id = v.id, p.order_line_id = v.order_line_id
+                 WHERE p.vacancy_id IS NULL')->rowCount();
+
+    $unlinked = (int) val('SELECT COUNT(*) FROM placements WHERE vacancy_id IS NULL');
+
+    echo 'Assignments: ' . $linked . ' linked to the requisition they came from; '
+       . $unlinked . ' left unlinked because it is not certain which.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

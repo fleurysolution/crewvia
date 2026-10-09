@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../hr.php';
 require_once __DIR__.'/../gmail.php';
+require_once __DIR__.'/../classification.php';
 require_login();$own=is_worker_account();$cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['id'] ?? $_POST['candidate_id'] ?? 0);
 if(!$own) require_role('recruiter','payroll');
 // Opened from the menu there is no id, and nowhere in the interface shows
@@ -27,14 +28,28 @@ q('INSERT IGNORE INTO employee_profiles(candidate_id) VALUES (?)',[$cid]);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  if($do==='profile') {
-  require_role('recruiter');$type=$_POST['employment_type'] ?? '';$availability=$_POST['availability'] ?? '';$rehire=$_POST['rehire_status'] ?? '';
-  if(in_array($type,['hourly','salaried','contractor','external'],true) && in_array($availability,['available','unavailable','on_assignment'],true) && array_key_exists($rehire,rehire_states())) {
-   // The rehire decision is made on the person's page, where it asks
-   // for a reason. Letting it be changed here as well, silently and
-   // without one, is how a block loses the only thing that makes it
-   // reviewable.
-   q('UPDATE employee_profiles SET employment_type=?,availability=? WHERE candidate_id=?',[$type,$availability,$cid]);
+  require_role('recruiter');$availability=$_POST['availability'] ?? '';
+  // The rehire decision is made on the person's page, where it asks
+  // for a reason. Letting it be changed here as well, silently and
+  // without one, is how a block loses the only thing that makes it
+  // reviewable. The kind of employment is the same: it decides how a
+  // week is paid, so it has its own form below, with a date and a reason.
+  if(in_array($availability,['available','unavailable','on_assignment'],true)) {
+   q('UPDATE employee_profiles SET availability=? WHERE candidate_id=?',[$availability,$cid]);
   }
+ }
+ // ── what they are employed as, from when ───────────────────────────
+ if($do==='classification') {
+  require_role('recruiter','payroll');
+  db()->beginTransaction();
+  q('SELECT candidate_id FROM employee_profiles WHERE candidate_id=? FOR UPDATE',[$cid]);
+  $refusal=classification_change($cid,(string)($_POST['employment_type'] ?? ''),(string)($_POST['flsa_status'] ?? ''),
+                                 (string)($_POST['effective_from'] ?? ''),(string)($_POST['reason'] ?? ''),uid());
+  if($refusal!==null) { db()->rollBack();refuse(422,$refusal); }
+  db()->commit();
+  log_activity('changed employment classification','candidate',$cid,
+               $c['full_name'].' - '.$_POST['employment_type'].' / '.$_POST['flsa_status'].' from '.$_POST['effective_from']);
+  flash(t('Classification recorded. Weeks already approved keep what they were calculated on.'));
  }
  // ── where the money goes ───────────────────────────────────────────
  // Payroll only. A recruiter can open this folder and has no business
@@ -134,4 +149,8 @@ if ($bank && can('payroll') && ($_GET['reveal'] ?? '') === 'bank') {
  $bankFull = worker_bank_details($cid, 'revealed on the folder');
 }
 
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull'));
+// The reasons are staff notes about a person; the person sees their own
+// current classification on the profile card, not the deliberations.
+$classifications=$own?[]:classification_history($cid);
+
+render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications'));

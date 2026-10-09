@@ -284,10 +284,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $values[$field] = $field === 'guarantee_hours' ? (int) $given : (float) $given;
         }
 
+        // What it was, beside what it becomes. The activity line kept only
+        // the new pay rate, as text, so "what was he on before March?" had
+        // no answer.
+        $same = static fn($old, $new): bool => ($old === null || $old === '')
+            ? $new === null
+            : $new !== null && abs((float) $old - (float) $new) < 0.005;
+
+        $changed = false;
+
+        foreach ($values as $field => $new) {
+            if (! $same($placement[$field] ?? null, $new)) {
+                $changed = true;
+            }
+        }
+
+        db()->beginTransaction();
+
         q('UPDATE placements SET pay_rate = ?, bill_rate = ?, per_diem_rate = ?, guarantee_hours = ?
            WHERE id = ?',
           [$values['pay_rate'], $values['bill_rate'],
            $values['per_diem_rate'], $values['guarantee_hours'], $placement['id']]);
+
+        if ($changed) {
+            q('INSERT INTO placement_rate_changes
+                 (placement_id, old_pay_rate, new_pay_rate, old_bill_rate, new_bill_rate,
+                  old_per_diem_rate, new_per_diem_rate, old_guarantee_hours, new_guarantee_hours,
+                  changed_by)
+               VALUES (?,?,?,?,?,?,?,?,?,?)',
+              [$placement['id'],
+               $placement['pay_rate'], $values['pay_rate'],
+               $placement['bill_rate'], $values['bill_rate'],
+               $placement['per_diem_rate'], $values['per_diem_rate'],
+               $placement['guarantee_hours'], $values['guarantee_hours'],
+               uid()]);
+        }
+
+        db()->commit();
 
         log_activity('changed what somebody is paid', 'placement', (int) $placement['id'],
                      $c['full_name'] . ' ' . (string) $values['pay_rate']);
@@ -324,10 +357,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $rates = placement_rates($jobId, $vacancy ?: null);
 
-        q('INSERT INTO placements (candidate_id, job_id, status, start_date, created_by,
+        q('INSERT INTO placements (candidate_id, job_id, vacancy_id, order_line_id, status,
+                                   start_date, created_by,
                                    pay_rate, bill_rate, per_diem_rate, guarantee_hours)
-           VALUES (?,?,?,?,?,?,?,?,?)',
-          [$id, $jobId, 'offered', ($_POST['start_date'] ?? '') ?: null, uid(),
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+          [$id, $jobId, $rates['vacancy_id'], $rates['order_line_id'], 'offered',
+           ($_POST['start_date'] ?? '') ?: null, uid(),
            $rates['pay_rate'], $rates['bill_rate'],
            $rates['per_diem_rate'], $rates['guarantee_hours']]);
 
