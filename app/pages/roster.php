@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'review') 
 
     q('DELETE FROM assignment_review_scores WHERE review_id = ?', [$reviewId]);
 
-    foreach (review_criteria() as $slug => $label) {
+    foreach (assignment_review_criteria() as $slug => $label) {
         $score = (int) ($_POST['score'][$slug] ?? 0);
 
         if ($score >= 1 && $score <= 5) {

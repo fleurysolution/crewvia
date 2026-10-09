@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $present = ($_POST['present'] ?? '1') === '1' ? 1 : 0;
 
-        q('INSERT INTO site_checkins (placement_id, work_date, present, marked_by)
+        q('INSERT INTO assignment_checkins (placement_id, work_date, present, marked_by)
            VALUES (?, CURDATE(), ?, ?)
            ON DUPLICATE KEY UPDATE present = VALUES(present),
                                    marked_by = VALUES(marked_by),
@@ -152,7 +152,7 @@ $rollCall = $jobId ? rows(
      JOIN candidates c ON c.id = p.candidate_id
      LEFT JOIN assignment_details d ON d.placement_id = p.id
      LEFT JOIN users u ON u.id = d.supervisor_id
-     LEFT JOIN site_checkins k ON k.placement_id = p.id AND k.work_date = CURDATE()
+     LEFT JOIN assignment_checkins k ON k.placement_id = p.id AND k.work_date = CURDATE()
      LEFT JOIN users m ON m.id = k.marked_by
      WHERE p.job_id = ? AND p.status IN ('confirmed','travelling','on_site')
      ORDER BY k.present IS NULL DESC, c.full_name", [$jobId]) : [];

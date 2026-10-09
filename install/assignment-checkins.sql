@@ -8,7 +8,7 @@
 -- One row per person per day: marking twice corrects the mark rather than
 -- stacking a second one, which is what the unique key enforces.
 
-CREATE TABLE IF NOT EXISTS site_checkins (
+CREATE TABLE IF NOT EXISTS assignment_checkins (
   id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   placement_id INT UNSIGNED NOT NULL,
   work_date    DATE NOT NULL,

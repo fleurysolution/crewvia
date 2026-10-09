@@ -270,9 +270,9 @@ $toGrade = array_filter($crew, fn ($p) => $p['status'] === 'completed'
         </div>
       </div>
 
-      <?php if (review_criteria()): ?>
+      <?php if (assignment_review_criteria()): ?>
         <div class="row" style="margin-top:12px">
-          <?php foreach (review_criteria() as $slug => $label): ?>
+          <?php foreach (assignment_review_criteria() as $slug => $label): ?>
             <div>
               <label for="s-<?= (int) $p['id'] ?>-<?= e($slug) ?>"><?= te($label) ?></label>
               <select id="s-<?= (int) $p['id'] ?>-<?= e($slug) ?>" name="score[<?= e($slug) ?>]">

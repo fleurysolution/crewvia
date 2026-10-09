@@ -6,6 +6,35 @@ q("ALTER TABLE users MODIFY role ENUM('admin','recruiter','hotels','payroll','wo
 if (val("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='placements' AND index_name='uq_candidate_job'")) {
  q('ALTER TABLE placements DROP INDEX uq_candidate_job, ADD INDEX ix_candidate_job(candidate_id,job_id)');
 }
+// ── names brought into line with the rest of the schema ────────────────
+// Crewvia groups a table under the entity it belongs to: candidate_*,
+// screening_*, onboarding_*, assignment_*. Two tables added this week
+// sat outside that and are renamed into the assignment_* family.
+//
+// A rename, not a new table: site_checkins is live with roll-call rows
+// in it, and creating the new name beside it would orphan every mark
+// somebody has made.
+foreach ([
+    'site_checkins'   => 'assignment_checkins',
+    'review_criteria' => 'assignment_review_criteria',
+] as $was => $now) {
+    $hasOld = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name=?", [$was]);
+    $hasNew = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name=?", [$now]);
+
+    if ($hasOld && ! $hasNew) {
+        q('RENAME TABLE `' . $was . '` TO `' . $now . '`');
+        echo 'Renamed ' . $was . ' to ' . $now . ', with its rows.' . PHP_EOL;
+    } elseif ($hasOld && $hasNew) {
+        // Both present means a half-finished rename. Say so rather than
+        // guessing which one the application should be reading.
+        fwrite(STDERR, 'Both ' . $was . ' and ' . $now . ' exist. '
+                     . 'Merge them by hand before running this again.' . PHP_EOL);
+        exit(1);
+    }
+}
+
 $sql=file_get_contents(__DIR__.'/extension.sql');
 foreach(explode(';',$sql) as $stmt) if(trim($stmt)) db()->exec($stmt);
 q('ALTER TABLE vehicle_assignments MODIFY checked_out_at DATETIME NULL DEFAULT NULL');
@@ -371,15 +400,15 @@ if ($blockAdded) {
 }
 
 // Presence on the site, which is not the same question as hours worked.
-$checkinSql = __DIR__ . '/site-checkin.sql';
+$checkinSql = __DIR__ . '/assignment-checkins.sql';
 
 if (! is_file($checkinSql)) {
-    fwrite(STDERR, 'site-checkin.sql is missing from this deployment.' . PHP_EOL);
+    fwrite(STDERR, 'assignment-checkins.sql is missing from this deployment.' . PHP_EOL);
     exit(1);
 }
 
 $hadCheckins = (int) val("SELECT COUNT(*) FROM information_schema.tables
-                          WHERE table_schema=DATABASE() AND table_name='site_checkins'");
+                          WHERE table_schema=DATABASE() AND table_name='assignment_checkins'");
 
 foreach (preg_split('/;\s*\n/', (string) file_get_contents($checkinSql)) as $chunk) {
     $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));

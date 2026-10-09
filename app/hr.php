@@ -16,7 +16,7 @@
 declare(strict_types=1);
 
 /** What an assignment is scored on. Data, so the form can change. */
-function review_criteria(bool $includeRetired = false): array
+function assignment_review_criteria(bool $includeRetired = false): array
 {
     static $cache = [];
 
@@ -27,7 +27,7 @@ function review_criteria(bool $includeRetired = false): array
     }
 
     try {
-        $found = rows('SELECT slug, label FROM review_criteria'
+        $found = rows('SELECT slug, label FROM assignment_review_criteria'
                       . ($includeRetired ? '' : ' WHERE is_active = 1')
                       . ' ORDER BY sort_order, label');
     } catch (Throwable $e) {

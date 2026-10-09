@@ -25,7 +25,7 @@
 -- A catalogue, like trades and skills, so a supervisor's form can change
 -- without a schema change. Retired rather than deleted: past reviews must
 -- keep meaning what they meant.
-CREATE TABLE IF NOT EXISTS review_criteria (
+CREATE TABLE IF NOT EXISTS assignment_review_criteria (
   slug       VARCHAR(40) NOT NULL PRIMARY KEY,
   label      VARCHAR(90) NOT NULL,
   sort_order SMALLINT NOT NULL DEFAULT 0,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS review_criteria (
   KEY ix_criterion_order (is_active, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT IGNORE INTO review_criteria (slug, label, sort_order) VALUES
+INSERT IGNORE INTO assignment_review_criteria (slug, label, sort_order) VALUES
   ('workmanship',   'Quality of work',            1),
   ('timekeeping',   'Turned up, and on time',     2),
   ('safety',        'Worked safely',              3),
