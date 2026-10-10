@@ -186,6 +186,7 @@ function advance_states(): array
         'paid_out'  => 'Paid out, repaying',
         'cleared'   => 'Repaid in full',
         'cancelled' => 'Cancelled',
+        'written_off' => 'Written off',
     ];
 }
 

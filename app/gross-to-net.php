@@ -84,8 +84,11 @@ function gross_to_net_for_sheet(array $sheet, array $money): array
                             WHERE method = 'advance_repayment' AND is_active = 1 ORDER BY id LIMIT 1") ?: null;
 
         if ($advanceItem) {
+            // Not before its first week, and not in a paused week (P2-M05).
             foreach (rows("SELECT * FROM wage_advances WHERE candidate_id = ? AND status = 'paid_out'
-                           AND (paid_out_on IS NULL OR paid_out_on <= ?) ORDER BY id", [$candidateId, $weekEnding]) as $a) {
+                           AND (paid_out_on IS NULL OR paid_out_on <= ?) AND (first_week IS NULL OR first_week <= ?)
+                           AND NOT EXISTS (SELECT 1 FROM advance_pauses x WHERE x.advance_id = wage_advances.id AND ? BETWEEN x.from_week AND x.until_week)
+                           ORDER BY id", [$candidateId, $weekEnding, $weekEnding, $weekEnding]) as $a) {
                 $balance = advance_balance($a);
 
                 if ($balance > 0) {

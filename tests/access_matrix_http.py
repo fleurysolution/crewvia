@@ -83,7 +83,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 for path, do in [('/attendance', 'correct'), ('/hours', 'approve_week'), ('/pay-rules', 'create'), ('/pay-items', 'create'),
                  ('/payroll-runs', 'open'), ('/leave-types', 'create'), ('/employee-folder', 'classification'),
-                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close'), ('/vendors', 'save'), ('/vendors', 'thresholds'), ('/procurement', 'rfq'), ('/procurement', 'revise'), ('/bill-matching', 'clear'), ('/performance', 'goal_add'), ('/performance', 'cycle_create'), ('/benefits', 'enroll')]:
+                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close'), ('/vendors', 'save'), ('/vendors', 'thresholds'), ('/procurement', 'rfq'), ('/procurement', 'revise'), ('/bill-matching', 'clear'), ('/performance', 'goal_add'), ('/performance', 'cycle_create'), ('/benefits', 'enroll'), ('/advances', 'pause')]:
     status, _, _ = admin.post(path, {'do': do}, csrf=False)
     check('CSRF: %s %s without its token is refused' % (path, do), status == 419, status)
 

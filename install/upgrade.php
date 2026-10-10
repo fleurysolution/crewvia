@@ -1425,4 +1425,50 @@ if (! $hadBenefits) {
     echo 'Benefits: plans, eligibility, enrollment and waivers are in place; enrollments feed payroll as deductions and employer contributions. No plan yet.' . PHP_EOL;
 }
 
+// ── P2-M05: loans and advances ───────────────────────────────────────────
+// Reversed by install/rollback/p2-m05.sql.
+$loansSql = __DIR__ . '/loans.sql';
+
+if (! is_file($loansSql)) {
+    fwrite(STDERR, "Missing install/loans.sql\n");
+    exit(1);
+}
+
+$hadLoans = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                       WHERE table_schema=DATABASE() AND table_name='advance_pauses'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($loansSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach ([
+    // An advance is against the next weeks' wages; a loan is larger and longer. Same mechanics.
+    'kind'               => "ENUM('advance','loan') NOT NULL DEFAULT 'advance'",
+    // The week repayment starts. Unset: the week it was paid out.
+    'first_week'         => 'DATE NULL',
+    'written_off_amount' => 'DECIMAL(10,2) NULL',
+    'written_off_reason' => 'VARCHAR(500) NULL',
+    'written_off_by'     => 'INT UNSIGNED NULL',
+    'written_off_at'     => 'DATETIME NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='wage_advances' AND column_name=?", [$column])) {
+        q('ALTER TABLE wage_advances ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns
+                                  WHERE table_schema=DATABASE() AND table_name='wage_advances' AND column_name='status'"), 'written_off')) {
+    q("ALTER TABLE wage_advances MODIFY status ENUM('requested','approved','paid_out','cleared','cancelled','written_off') NOT NULL DEFAULT 'requested'");
+}
+
+if (! $hadLoans) {
+    // Above this, or when it takes what the person owes above it, an administrator approves.
+    q("INSERT IGNORE INTO platform_settings (setting_key, setting_value) VALUES ('advance_admin_above', '1000')");
+    echo 'Loans and advances: schedules, approval limits, pauses and write-offs are in place; '
+       . (int) val("SELECT COUNT(*) FROM wage_advances WHERE status = 'paid_out'") . ' advance(s) being repaid keep their weekly amount; above $1,000 an administrator approves.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

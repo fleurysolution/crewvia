@@ -1761,3 +1761,49 @@ eligible since :date	admissible depuis le :date	elegible desde el :date
 first assignment began :date	première affectation commencée le :date	primera asignación iniciada el :date
 no assignment yet	pas encore d'affectation	aún sin asignación
 person elects up to :max %, agency adds :er %	la personne choisit jusqu'à :max %, l'agence ajoute :er %	la persona elige hasta :max %, la agencia añade :er %
+:amount behind	:amount de retard	:amount de atraso
+A pause is at most 26 weeks.	Une suspension dure au plus 26 semaines.	Una pausa dura como máximo 26 semanas.
+A pause runs from one week to another, the first first.	Une suspension va d'une semaine à une autre, la première d'abord.	Una pausa va de una semana a otra, la primera antes.
+A pause starts this week or later: weeks already past are adjusted, not paused.	Une suspension commence cette semaine ou après : les semaines passées s'ajustent, elles ne se suspendent pas.	Una pausa empieza esta semana o después: las semanas pasadas se ajustan, no se pausan.
+A week	Par semaine	Por semana
+Above :limit, or when it takes what the person owes above it (:owed already), an administrator approves.	Au-delà de :limit, ou quand cela porte ce que la personne doit au-delà (:owed déjà), un administrateur approuve.	Por encima de :limit, o cuando lleva lo que la persona debe por encima (:owed ya), aprueba un administrador.
+Above :limit, or when it takes what the person owes above it, an administrator approves. Whoever records it never approves it.	Au-delà de :limit, ou quand cela porte ce que la personne doit au-delà, un administrateur approuve. Qui l'enregistre ne l'approuve jamais.	Por encima de :limit, o cuando lleva lo que la persona debe por encima, aprueba un administrador. Quien lo registra nunca lo aprueba.
+Above the limit: an administrator approves.	Au-delà du plafond : un administrateur approuve.	Por encima del límite: aprueba un administrador.
+Coming	À venir	Próxima
+Empty: the week it is paid out.	Vide : la semaine du versement.	Vacío: la semana del desembolso.
+Loan	Prêt	Préstamo
+Nothing is left to write off.	Il ne reste rien à passer en perte.	No queda nada que cancelar.
+On schedule	Dans les temps	Al día
+Only an administrator writes off what is owed.	Seul un administrateur passe une dette en perte.	Solo un administrador cancela lo adeudado.
+Only an advance being repaid is paused.	Seule une avance en cours de remboursement se suspend.	Solo se pausa un anticipo en reembolso.
+Only an advance being repaid is written off.	Seule une avance en cours de remboursement se passe en perte.	Solo se cancela un anticipo en reembolso.
+Outstanding	En cours	Pendiente
+Owed	Dû	Adeudado
+Paid out	Versée	Desembolsado
+Pause from the week of	Suspendre à partir de la semaine du	Pausar desde la semana del
+Pause repayment	Suspendre le remboursement	Pausar el reembolso
+Paused	Suspendu	En pausa
+Paused until :date	Suspendu jusqu'au :date	En pausa hasta el :date
+Recorded	Enregistrée	Registrado
+Repaid by hand	Remboursé à la main	Reembolsado a mano
+Repayment paused.	Remboursement suspendu.	Reembolso en pausa.
+Repayment starts the week of	Le remboursement commence la semaine du	El reembolso empieza la semana del
+Repayment starts this week or later.	Le remboursement commence cette semaine ou après.	El reembolso empieza esta semana o después.
+Say why it is written off.	Dites pourquoi c'est passé en perte.	Diga por qué se cancela.
+Say why repayment is paused.	Dites pourquoi le remboursement est suspendu.	Diga por qué se pausa el reembolso.
+Schedule	Échéancier	Calendario
+Schedule: :n installment(s) · :repaid of :amount repaid	Échéancier : :n versement(s) · :repaid sur :amount remboursés	Calendario: :n cuota(s) · :repaid de :amount reembolsados
+Short	Incomplet	Incompleto
+That overlaps a pause already set.	Cela chevauche une suspension déjà prévue.	Eso se superpone a una pausa ya fijada.
+Wage advance	Avance sur salaire	Anticipo de salario
+Weeks left	Semaines restantes	Semanas restantes
+Whoever recorded an advance does not approve it.	Qui enregistre une avance ne l'approuve pas.	Quien registra un anticipo no lo aprueba.
+Why it will not be recovered	Pourquoi elle ne sera pas recouvrée	Por qué no se recuperará
+Write off	Passer en perte	Cancelar
+Write off what is left	Passer en perte le reste	Cancelar lo que queda
+Written off	Passée en perte	Cancelado
+Written off.	Passée en perte.	Cancelado.
+Written off: :amount	Passé en perte : :amount	Cancelado: :amount
+e.g. No hours while the plant is down	ex. pas d'heures pendant l'arrêt de l'usine	p. ej. sin horas mientras la planta está parada
+repaid from the week ending :date	remboursée à partir de la semaine se terminant le :date	reembolsado desde la semana que termina el :date
+until the week of	jusqu'à la semaine du	hasta la semana del

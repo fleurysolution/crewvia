@@ -18,6 +18,7 @@
 
 require_role('payroll', 'recruiter');
 require_once __DIR__ . '/../hr.php';
+require_once __DIR__ . '/../loans.php';
 
 $job   = current_job();
 $jobId = (int) ($job['id'] ?? 0);
@@ -51,11 +52,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('/advances');
         }
 
+        // A loan or an advance, and the week repayment starts (P2-M05).
+        $kind = ($_POST['kind'] ?? 'advance') === 'loan' ? 'loan' : 'advance';
+        $first = trim((string) ($_POST['first_week'] ?? ''));
+        if ($first !== '' && (! valid_date($first) || week_ending($first) < week_ending(date('Y-m-d')))) {
+            refuse(422, t('Repayment starts this week or later.'));
+        }
+
         q('INSERT INTO wage_advances (candidate_id, job_id, amount, weekly_repayment,
-                                      reason, status, requested_by)
-           VALUES (?,?,?,?,?,?,?)',
+                                      reason, status, requested_by, kind, first_week)
+           VALUES (?,?,?,?,?,?,?,?,?)',
           [$candidateId, $jobId ?: null, (float) $amount, (float) $weekly,
-           trim((string) ($_POST['reason'] ?? '')) ?: null, 'requested', uid()]);
+           trim((string) ($_POST['reason'] ?? '')) ?: null, 'requested', uid(), $kind, $first !== '' ? week_ending($first) : null]);
+        advance_event((int) db()->lastInsertId(), 'requested', loan_kinds()[$kind] . ' ' . money((float) $amount) . ', ' . money((float) $weekly) . '/week');
 
         log_activity('requested a wage advance', 'candidate', $candidateId,
                      $person['full_name'] . ': ' . money((float) $amount));
@@ -86,6 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $approve = $do === 'approve';
 
+        // Never by whoever recorded it; above the limit, an administrator (P2-M05).
+        if ($approve && ($why = advance_approval_refusal($advance))) {
+            refuse(403, $why);
+        }
+        advance_event((int) $advance['id'], $approve ? 'approved' : 'cancelled');
+
         q('UPDATE wage_advances SET status = ?, approved_by = ?, approved_at = ? WHERE id = ?',
           [$approve ? 'approved' : 'cancelled',
            $approve ? uid() : null,
@@ -114,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         q("UPDATE wage_advances SET status = 'paid_out', paid_out_on = CURDATE() WHERE id = ?",
           [(int) $advance['id']]);
+        advance_event((int) $advance['id'], 'paid_out');
 
         log_activity('paid out a wage advance', 'candidate', (int) $advance['candidate_id'],
                      $advance['full_name'] . ': ' . money((float) $advance['amount']));
@@ -121,6 +137,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash(t(':name has been paid :amount. Repayment starts from the next week recorded.',
                 ['name' => $advance['full_name'], 'amount' => money((float) $advance['amount'])]));
 
+        redirect('/advances');
+    }
+
+    // ── pausing, writing off (P2-M05) ───────────────────────────────
+    if ($do === 'pause' || $do === 'write_off') {
+        require_role('payroll');
+        db()->beginTransaction();
+        $why = $do === 'pause'
+            ? advance_pause($advance, trim((string) ($_POST['from_week'] ?? '')), trim((string) ($_POST['until_week'] ?? '')), (string) ($_POST['reason'] ?? ''))
+            : advance_write_off($advance, (string) ($_POST['reason'] ?? ''));
+        if ($why !== null) {
+            db()->rollBack();
+            refuse($why === t('Only an administrator writes off what is owed.') ? 403 : 422, $why);
+        }
+        db()->commit();
+        log_activity($do === 'pause' ? 'paused an advance' : 'wrote off an advance', 'candidate', (int) $advance['candidate_id'], $advance['full_name'] . ': ' . (string) ($_POST['reason'] ?? ''));
+        flash($do === 'pause' ? t('Repayment paused.') : t('Written off.'));
         redirect('/advances');
     }
 
@@ -171,6 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             q("UPDATE wage_advances SET status = 'cleared' WHERE id = ?", [(int) $advance['id']]);
         }
 
+        advance_event((int) $advance['id'], 'repaid_by_hand', money((float) $amount));
         db()->commit();
 
         log_activity('recorded a repayment', 'candidate', (int) $advance['candidate_id'],
@@ -197,12 +231,17 @@ $advances = rows('SELECT a.*, c.full_name, c.id AS candidate_id,
                   LEFT JOIN jobs j ON j.id = a.job_id
                   LEFT JOIN users req ON req.id = a.requested_by
                   LEFT JOIN users app ON app.id = a.approved_by
-                  ORDER BY FIELD(a.status,\'requested\',\'approved\',\'paid_out\',\'cleared\',\'cancelled\'),
+                  ORDER BY FIELD(a.status,\'requested\',\'approved\',\'paid_out\',\'cleared\',\'written_off\',\'cancelled\'),
                            a.id DESC
                   LIMIT 300');
 
 foreach ($advances as $i => $advance) {
-    $advances[$i]['balance'] = advance_balance($advance);
+    $advances[$i]['balance'] = $advance['status'] === 'written_off' ? 0.0 : advance_balance($advance);
+    $advances[$i]['schedule'] = advance_schedule($advance);
+    $advances[$i]['pauses'] = advance_pauses((int) $advance['id']);
+    $advances[$i]['events'] = rows('SELECT e.*, u.name AS by_name FROM advance_events e LEFT JOIN users u ON u.id = e.user_id WHERE e.advance_id = ? ORDER BY e.id', [(int) $advance['id']]);
+    $advances[$i]['needs_admin'] = in_array($advance['status'], ['requested'], true)
+        && ((float) $advance['amount'] > advance_admin_above() + 0.004 || advance_owed((int) $advance['candidate_id']) + (float) $advance['amount'] > advance_admin_above() + 0.004);
     $advances[$i]['payments'] = rows('SELECT p.*, u.name AS who
                                       FROM wage_advance_payments p
                                       LEFT JOIN users u ON u.id = p.recorded_by
@@ -232,4 +271,5 @@ foreach ($people as $i => $person) {
 
 $pageTitle = t('Advances') . ' · ' . $config['app_name'];
 
-render('advances', compact('advances', 'people', 'outstanding', 'job'));
+$limit = advance_admin_above();
+render('advances', compact('advances', 'people', 'outstanding', 'job', 'limit'));
