@@ -10,6 +10,7 @@
 
 require_once __DIR__ . '/../procurement.php';
 require_once __DIR__ . '/../vendors.php';
+require_once __DIR__ . '/../rfq.php';
 
 require_login();
 
@@ -19,6 +20,33 @@ if (! procurement_can_use()) {
 
 $job   = current_job();
 $jobId = (int) ($job['id'] ?? 0);
+
+// A request for quotation or an order, on paper (P3-M07).
+if (isset($_GET['print'])) {
+    $kind = (string) $_GET['print'];
+    $printId = (int) ($_GET['id'] ?? 0);
+    if ($kind === 'rfq') {
+        $doc = row('SELECT f.*, r.title, r.description, r.quantity, r.needed_from, r.needed_to, u.label AS unit_label, j.title AS project, j.site_name
+                    FROM purchase_rfqs f JOIN purchase_requests r ON r.id = f.request_id JOIN procurement_units u ON u.id = r.unit_id
+                    JOIN jobs j ON j.id = r.job_id WHERE f.id = ? AND r.job_id = ?', [$printId, $jobId]);
+    } else {
+        $doc = row('SELECT o.*, r.title, r.description, r.needed_from, r.needed_to, u.label AS unit_label, j.title AS project, j.site_name, h.name AS hotel_name
+                    FROM purchase_orders o JOIN purchase_requests r ON r.id = o.request_id JOIN procurement_units u ON u.id = o.unit_id
+                    JOIN jobs j ON j.id = o.job_id LEFT JOIN hotels h ON h.id = o.hotel_id WHERE o.id = ? AND o.job_id = ?', [$printId, $jobId]);
+        if ($doc) {
+            $doc['approvals'] = rows('SELECT a.approver, a.created_at, u.name FROM purchase_order_approvals a JOIN users u ON u.id = a.user_id
+                                      WHERE a.purchase_order_id = ? AND a.revision = ? ORDER BY a.id', [$printId, (int) $doc['revision']]);
+            $doc['shares'] = rows('SELECT a.amount, j.title FROM purchase_order_allocations a JOIN jobs j ON j.id = a.job_id WHERE a.purchase_order_id = ? ORDER BY a.id', [$printId]);
+        }
+    }
+    if (! $doc) {
+        refuse(404, t('That document is not on this project.'));
+    }
+    $brand = (string) ($config['app_name'] ?? 'Crewvia');
+    try { $brand = (string) (val("SELECT setting_value FROM platform_settings WHERE setting_key = 'brand_name'") ?: $brand); } catch (Throwable $e) {}
+    require __DIR__ . '/../views/procurement-print.php';
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = (string) ($_POST['do'] ?? '');
@@ -79,6 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             q('SELECT id FROM purchase_requests WHERE id = ? FOR UPDATE', [(int) $r['id']]);
             $vendor = trim((string) ($_POST['vendor_name'] ?? ''));
             $price = trim((string) ($_POST['unit_price'] ?? ''));
+            $quotation = (int) ($_POST['quotation_id'] ?? 0);
+            if ($quotation) {
+                // From a recorded quotation: its vendor and its price, while it holds.
+                [$vendor, $price, $why] = rfq_quotation_for_order($quotation, $r);
+                if ($why !== null) { db()->rollBack(); refuse(422, $why); }
+            }
             $hotel = (int) ($_POST['hotel_id'] ?? 0) ?: (int) $r['hotel_id'];
             // A rejected order leaves the request open to be ordered again;
             // only a live order stops another.
@@ -118,6 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               [procurement_next_reference(), $jobId, (int) $r['id'], vendor_by_name($vendor)['name'], $r['category'] === 'lodging' ? $hotel : null,
                $r['quantity'], $r['unit_id'], round((float) $price, 2), $total, uid(), $approvers, $over ? 1 : 0]);
             $po = (int) db()->lastInsertId();
+            if ($quotation) {
+                q('UPDATE purchase_orders SET quotation_id = ? WHERE id = ?', [$quotation, $po]);
+            }
             foreach ($split as $sj => $share) {
                 q('INSERT INTO purchase_order_allocations (purchase_order_id, job_id, amount) VALUES (?,?,?)', [$po, (int) $sj, $share]);
             }
@@ -127,6 +164,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $who = ['budget_owner' => t('the budget owner'), 'admin' => t('an administrator'), 'both' => t('the budget owner and an administrator')][$over && $approvers === 'budget_owner' ? 'both' : $approvers];
             flash(t('Purchase order raised for :total. It goes to :who for approval.', ['total' => money($total), 'who' => $who])
                   . ($over ? ' ' . t('It goes past the budget of :projects.', ['projects' => implode('; ', $over)]) : ''));
+            break;
+
+        case 'rfq':
+            if (! procurement_can_buy()) { require_role('hotels', 'payroll'); }
+            db()->beginTransaction();
+            $r = $request((int) ($_POST['request_id'] ?? 0));
+            [$refs, $why] = rfq_send($r, is_array($_POST['vendors'] ?? null) ? $_POST['vendors'] : [], trim((string) ($_POST['reply_by'] ?? '')));
+            if ($why !== null) { db()->rollBack(); refuse(422, $why); }
+            db()->commit();
+            log_activity('asked for quotations', 'project', $jobId, $r['title'] . ': ' . implode(', ', $refs));
+            flash(t('Requests for quotation :refs made. Print each and send it to its vendor.', ['refs' => implode(', ', $refs)]));
+            break;
+
+        case 'rfq_answer':
+        case 'rfq_decline':
+        case 'rfq_withdraw':
+            if (! procurement_can_buy()) { require_role('hotels', 'payroll'); }
+            db()->beginTransaction();
+            $f = row('SELECT f.* FROM purchase_rfqs f JOIN purchase_requests r ON r.id = f.request_id WHERE f.id = ? AND r.job_id = ? FOR UPDATE', [(int) ($_POST['rfq_id'] ?? 0), $jobId]);
+            if (! $f) { db()->rollBack(); refuse(404, t('That request for quotation is not on this project.')); }
+            $why = $do === 'rfq_answer'
+                ? rfq_answer($f, trim((string) ($_POST['unit_price'] ?? '')), trim((string) ($_POST['valid_until'] ?? '')), (string) ($_POST['note'] ?? ''))
+                : rfq_close($f, $do === 'rfq_decline' ? 'declined' : 'withdrawn', (string) ($_POST['note'] ?? ''));
+            if ($why !== null) { db()->rollBack(); refuse(422, $why); }
+            db()->commit();
+            log_activity('request for quotation ' . substr($do, 4), 'project', $jobId, $f['reference']);
+            flash(t('Recorded.'));
+            break;
+
+        case 'revise':
+            if (! procurement_can_buy()) { require_role('hotels', 'payroll'); }
+            db()->beginTransaction();
+            $o = $order((int) ($_POST['purchase_order_id'] ?? 0));
+            $o = row('SELECT * FROM purchase_orders WHERE id = ? FOR UPDATE', [(int) $o['id']]);
+            $why = po_revise($o, trim((string) ($_POST['quantity'] ?? '')), trim((string) ($_POST['unit_price'] ?? '')), (string) ($_POST['reason'] ?? ''),
+                             is_array($_POST['share_job'] ?? null) ? $_POST['share_job'] : [], is_array($_POST['share_amount'] ?? null) ? $_POST['share_amount'] : []);
+            if ($why !== null) { db()->rollBack(); refuse(422, $why); }
+            db()->commit();
+            $o = row('SELECT * FROM purchase_orders WHERE id = ?', [(int) $o['id']]);
+            log_activity('revised a purchase order', 'project', $jobId, $o['reference'] . ' rev ' . $o['revision'] . ': ' . trim((string) $_POST['reason']));
+            flash(t(':ref revision :n is :total. It is authorised again, by :who.', ['ref' => $o['reference'], 'n' => (int) $o['revision'], 'total' => money($o['total']),
+                  'who' => implode(' ' . t('and') . ' ', array_map(fn($n) => $n === 'admin' ? t('an administrator') : t('the budget owner'), procurement_still_needed($o)))]));
             break;
 
         case 'approve':
@@ -140,13 +219,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($as === null) {
                 db()->rollBack();
                 refuse(403, (int) $o['created_by'] === uid() ? t('Whoever raised an order does not approve it.')
-                    : (val('SELECT COUNT(*) FROM purchase_order_approvals WHERE purchase_order_id = ? AND user_id = ?', [(int) $o['id'], uid()])
+                    : (val('SELECT COUNT(*) FROM purchase_order_approvals WHERE purchase_order_id = ? AND revision = ? AND user_id = ?', [(int) $o['id'], (int) $o['revision'], uid()])
                        ? t('You have approved this order already; the other approval is somebody else\'s.')
                        : t('This order waits for :who.', ['who' => implode(' ' . t('and') . ' ', array_map(fn($n) => $n === 'admin' ? t('an administrator') : t('the budget owner'), procurement_still_needed($o)))])));
             }
             if ($do === 'reject' && mb_strlen($note) < 3) { db()->rollBack(); refuse(422, t('Say why the order is rejected.')); }
             if ($do === 'approve') {
-                q('INSERT INTO purchase_order_approvals (purchase_order_id, approver, user_id) VALUES (?,?,?)', [(int) $o['id'], $as, uid()]);
+                q('INSERT INTO purchase_order_approvals (purchase_order_id, revision, approver, user_id) VALUES (?,?,?,?)', [(int) $o['id'], (int) $o['revision'], $as, uid()]);
                 if (procurement_still_needed($o)) {
                     db()->commit();
                     log_activity('approved a purchase order in part', 'project', $jobId, $o['reference'] . ' as ' . $as);
@@ -249,7 +328,8 @@ $requests = $jobId ? rows("SELECT r.*, u.label AS unit_label, h.name AS hotel_na
                            LEFT JOIN purchase_orders o ON o.id = (SELECT MAX(o2.id) FROM purchase_orders o2 WHERE o2.request_id = r.id)
                            WHERE r.job_id = ? ORDER BY FIELD(r.status,'requested','ordered','received','closed','cancelled'), r.id DESC", [$jobId]) : [];
 $quotes = [];
-foreach ($requests ? rows('SELECT * FROM purchase_quotations WHERE request_id IN (' . implode(',', array_map('intval', array_column($requests, 'id'))) . ') ORDER BY unit_price') : [] as $q) {
+// As they came, never ranked (R43).
+foreach ($requests ? rows('SELECT * FROM purchase_quotations WHERE request_id IN (' . implode(',', array_map('intval', array_column($requests, 'id'))) . ') ORDER BY id') : [] as $q) {
     $quotes[(int) $q['request_id']][] = $q;
 }
 $orders = $jobId ? rows("SELECT o.*, u.label AS unit_label, r.title, r.category, h.name AS hotel_name, cb.name AS created_by_name, db.name AS decided_by_name,
@@ -259,13 +339,26 @@ $orders = $jobId ? rows("SELECT o.*, u.label AS unit_label, r.title, r.category,
                          WHERE o.job_id = ? ORDER BY FIELD(o.status,'awaiting_approval','approved','closed','rejected','cancelled'), o.id DESC", [$jobId]) : [];
 foreach ($orders as &$o) {
     $o['needed'] = $o['status'] === 'awaiting_approval' ? procurement_still_needed($o) : [];
-    $o['given'] = rows('SELECT a.approver, u.name FROM purchase_order_approvals a JOIN users u ON u.id = a.user_id WHERE a.purchase_order_id = ? ORDER BY a.id', [(int) $o['id']]);
+    $o['given'] = rows('SELECT a.approver, u.name FROM purchase_order_approvals a JOIN users u ON u.id = a.user_id WHERE a.purchase_order_id = ? AND a.revision = ? ORDER BY a.id', [(int) $o['id'], (int) $o['revision']]);
     $o['shares'] = rows('SELECT a.amount, j.title FROM purchase_order_allocations a JOIN jobs j ON j.id = a.job_id WHERE a.purchase_order_id = ? ORDER BY a.id', [(int) $o['id']]);
     $o['can_decide'] = $o['status'] === 'awaiting_approval' && procurement_approver_role($o) !== null;
 }
 unset($o);
 $commitments = $jobId ? procurement_commitments($jobId) : [];
 $vendorNames = array_column(rows("SELECT name FROM vendors WHERE status = 'approved' ORDER BY name"), 'name');
+$vendorsBy = [];
+foreach (rows("SELECT name, categories FROM vendors WHERE status = 'approved' ORDER BY name") as $v) {
+    foreach (explode(',', (string) $v['categories']) as $c) { $vendorsBy[$c][] = $v['name']; }
+}
+$rfqs = [];
+foreach ($requests ? rows('SELECT * FROM purchase_rfqs WHERE request_id IN (' . implode(',', array_map('intval', array_column($requests, 'id'))) . ') ORDER BY id') : [] as $f) {
+    $rfqs[(int) $f['request_id']][] = $f;
+}
+$revisions = [];
+foreach ($orders ? rows('SELECT v.*, u.name AS by_name FROM purchase_order_revisions v LEFT JOIN users u ON u.id = v.created_by WHERE v.purchase_order_id IN ('
+                        . implode(',', array_map('intval', array_column($orders, 'id'))) . ') ORDER BY v.revision') : [] as $v) {
+    $revisions[(int) $v['purchase_order_id']][] = $v;
+}
 $otherJobs = $jobId ? rows('SELECT id, title FROM jobs ORDER BY title') : [];
 $units = procurement_units();
 $hotels = rows('SELECT id, name FROM hotels ORDER BY name');
@@ -273,4 +366,4 @@ $owners = can('admin') ? rows("SELECT id, name, role FROM users WHERE is_active 
 $owner = $jobId ? row('SELECT u.id, u.name FROM jobs j JOIN users u ON u.id = j.budget_owner_id WHERE j.id = ?', [$jobId]) : null;
 
 $pageTitle = t('Procurement') . ' · ' . $config['app_name'];
-render('procurement', compact('job', 'requests', 'quotes', 'orders', 'commitments', 'units', 'hotels', 'owners', 'owner', 'vendorNames', 'otherJobs'));
+render('procurement', compact('job', 'requests', 'quotes', 'orders', 'commitments', 'units', 'hotels', 'owners', 'owner', 'vendorNames', 'otherJobs', 'vendorsBy', 'rfqs', 'revisions'));

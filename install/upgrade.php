@@ -1279,4 +1279,49 @@ if (! $hadVendors) {
        . '25,000 (administrator), above (both); every existing order allocated to its own project.' . PHP_EOL;
 }
 
+// ── P3-M07: requests for quotation, order revisions, authorization ────────
+// Reversed by install/rollback/p3-m07.sql.
+$rfqSql = __DIR__ . '/rfq.sql';
+
+if (! is_file($rfqSql)) {
+    fwrite(STDERR, "Missing install/rfq.sql\n");
+    exit(1);
+}
+
+$hadRfq = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                     WHERE table_schema=DATABASE() AND table_name='purchase_rfqs'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($rfqSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach ([
+    ['purchase_quotations', 'rfq_id', 'INT UNSIGNED NULL'],
+    // A quotation holds until this date; an order is not raised on it after.
+    ['purchase_quotations', 'valid_until', 'DATE NULL'],
+    // 0 as raised, then one more for every revision.
+    ['purchase_orders', 'revision', 'SMALLINT UNSIGNED NOT NULL DEFAULT 0'],
+    ['purchase_orders', 'quotation_id', 'INT UNSIGNED NULL'],
+] as [$table, $column, $definition]) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name=? AND column_name=?", [$table, $column])) {
+        q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+// Approvals belong to a revision: a revised order is authorised again.
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='purchase_order_approvals' AND column_name='revision'")) {
+    q('ALTER TABLE purchase_order_approvals ADD COLUMN revision SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+       ADD UNIQUE KEY uq_po_approval_revision (purchase_order_id, revision, approver), DROP INDEX uq_po_approval');
+}
+
+if (! $hadRfq) {
+    echo 'Requests for quotation and order revisions: in place; quotations are listed as received, never ranked; '
+       . (int) val('SELECT COUNT(*) FROM purchase_orders') . ' existing order(s) start at revision 0.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

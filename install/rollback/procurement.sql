@@ -14,8 +14,10 @@
 ALTER TABLE vendor_invoices DROP FOREIGN KEY fk_invoice_po, DROP COLUMN purchase_order_id;
 ALTER TABLE jobs DROP COLUMN budget_owner_id, DROP COLUMN auto_lodging;
 
--- P3-M06 builds on the orders: its approvals and allocations go with them.
+-- P3-M06 and P3-M07 build on the requests and orders: their tables go with them.
 DROP TABLE IF EXISTS purchase_order_allocations;
+DROP TABLE IF EXISTS purchase_order_revisions;
+DROP TABLE IF EXISTS purchase_rfqs;
 DROP TABLE IF EXISTS purchase_order_approvals;
 DROP TABLE IF EXISTS purchase_receipts;
 DROP TABLE IF EXISTS purchase_orders;

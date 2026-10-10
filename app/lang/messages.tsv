@@ -1497,3 +1497,52 @@ expired	expirée	vencido
 no limit	sans plafond	sin límite
 the budget owner	le responsable du budget	el responsable del presupuesto
 the budget owner and an administrator	le responsable du budget et un administrateur	el responsable del presupuesto y un administrador
+:invoiced is already invoiced on this order: it cannot total less.	:invoiced est déjà facturé sur cette commande : elle ne peut pas totaliser moins.	:invoiced ya está facturado en este pedido: no puede sumar menos.
+:name was already asked and has not answered.	:name a déjà été sollicité et n'a pas répondu.	Ya se pidió a :name y no ha respondido.
+:received already arrived: the order cannot ask for fewer.	:received sont déjà arrivés : la commande ne peut pas en demander moins.	Ya llegaron :received: el pedido no puede pedir menos.
+:ref revision :n is :total. It is authorised again, by :who.	:ref révision :n fait :total. Elle est à nouveau autorisée, par :who.	:ref revisión :n es :total. Se autoriza de nuevo, por :who.
+A quotation is valid until today or later.	Un devis est valable jusqu'à aujourd'hui ou après.	Una cotización es válida hasta hoy o después.
+A quotation needs a unit price from 0 to 1,000,000.	Un devis demande un prix unitaire de 0 à 1 000 000.	Una cotización necesita un precio unitario de 0 a 1.000.000.
+A revision needs a quantity above 0 and a unit price from 0 to 1,000,000.	Une révision demande une quantité supérieure à 0 et un prix unitaire de 0 à 1 000 000.	Una revisión necesita una cantidad mayor que 0 y un precio unitario de 0 a 1.000.000.
+Answered	Répondu	Respondida
+Ask for quotations	Demander des devis	Pedir cotizaciones
+Authorised by	Autorisé par	Autorizado por
+Charged to	Imputé à	Cargado a
+Choose at least one vendor.	Choisissez au moins un fournisseur.	Elija al menos un proveedor.
+Empty shares keep the same split. A revision is approved again under its new total.	Des parts vides gardent la même répartition. Une révision est approuvée à nouveau selon son nouveau total.	Partes vacías mantienen el mismo reparto. Una revisión se aprueba de nuevo según su nuevo total.
+Give a reply-by date, today or later.	Donnez une date de réponse, aujourd'hui ou après.	Indique una fecha de respuesta, hoy o después.
+NOT AUTHORISED — do not send to the vendor	NON AUTORISÉ — ne pas envoyer au fournisseur	NO AUTORIZADO — no enviar al proveedor
+Needed	Requis	Necesario
+Note · needed to decline	Note · obligatoire pour un refus	Nota · obligatoria para rechazar
+Nothing changes in that revision.	Rien ne change dans cette révision.	Nada cambia en esa revisión.
+Only an order waiting for approval or approved is revised.	Seule une commande en attente d'approbation ou approuvée est révisée.	Solo se revisa un pedido pendiente de aprobación o aprobado.
+Order on this quote	Commander sur ce devis	Pedir con esta cotización
+Please quote this order's reference on your delivery note and your invoice.	Merci d'indiquer la référence de cette commande sur votre bon de livraison et votre facture.	Indique la referencia de este pedido en su albarán y su factura.
+Please send your unit price, how long it holds, and any condition, quoting :ref, by :date. This is a request for a price, not an order.	Merci d'envoyer votre prix unitaire, sa durée de validité et vos conditions, en citant :ref, avant le :date. Ceci est une demande de prix, pas une commande.	Envíe su precio unitario, su validez y cualquier condición, citando :ref, antes del :date. Esto es una solicitud de precio, no un pedido.
+Purchase order	Bon de commande	Orden de compra
+Quotations are asked for before the order is raised.	Les devis se demandent avant que la commande soit passée.	Las cotizaciones se piden antes de emitir el pedido.
+Record the quote	Saisir le devis	Registrar la cotización
+Reply by	Réponse avant le	Responder antes del
+Request for quotation	Demande de devis	Solicitud de cotización
+Requests for quotation :refs made. Print each and send it to its vendor.	Demandes de devis :refs faites. Imprimez chacune et envoyez-la à son fournisseur.	Solicitudes de cotización :refs hechas. Imprima cada una y envíela a su proveedor.
+Rev :n by :name: :before → :after · :why	Rév. :n par :name : :before → :after · :why	Rev. :n por :name: :before → :after · :why
+Revise	Réviser	Revisar
+Revise and send for approval	Réviser et envoyer pour approbation	Revisar y enviar a aprobación
+Say why the order is revised.	Dites pourquoi la commande est révisée.	Diga por qué se revisa el pedido.
+That document is not on this project.	Ce document n'est pas sur ce projet.	Ese documento no está en este proyecto.
+That quotation expired on :date. Ask the vendor again.	Ce devis a expiré le :date. Redemandez au fournisseur.	Esa cotización venció el :date. Vuelva a pedirla al proveedor.
+That quotation is not on this request.	Ce devis n'est pas sur cette demande.	Esa cotización no está en esta solicitud.
+That request for quotation is already closed.	Cette demande de devis est déjà close.	Esa solicitud de cotización ya está cerrada.
+That request for quotation is not on this project.	Cette demande de devis n'est pas sur ce projet.	Esa solicitud de cotización no está en este proyecto.
+Valid until	Valable jusqu'au	Válida hasta
+Vendors to ask	Fournisseurs à solliciter	Proveedores a consultar
+Waiting for an answer	En attente de réponse	Esperando respuesta
+Why it is revised	Pourquoi elle est révisée	Por qué se revisa
+Withdraw	Retirer	Retirar
+Withdrawn	Retirée	Retirada
+Your unit price	Votre prix unitaire	Su precio unitario
+expired :date	expiré le :date	venció el :date
+reply by :date	réponse avant le :date	responder antes del :date
+rev :n	rév. :n	rev. :n
+revision :n	révision :n	revisión :n
+valid until :date	valable jusqu'au :date	válida hasta el :date

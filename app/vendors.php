@@ -244,7 +244,8 @@ function procurement_still_needed(array $order): array
         $rule = 'both';
     }
     $needed = $rule === 'both' ? ['budget_owner', 'admin'] : [$rule];
-    $given = array_column(rows('SELECT approver FROM purchase_order_approvals WHERE purchase_order_id = ?', [(int) $order['id']]), 'approver');
+    // Only this revision's approvals count: a revised order is authorised again (P3-M07).
+    $given = array_column(rows('SELECT approver FROM purchase_order_approvals WHERE purchase_order_id = ? AND revision = ?', [(int) $order['id'], (int) ($order['revision'] ?? 0)]), 'approver');
 
     return array_values(array_diff($needed, $given));
 }
@@ -256,7 +257,7 @@ function procurement_approver_role(array $order): ?string
         return null;
     }
     // One person, one approval: whoever approved once does not approve again.
-    if (val('SELECT COUNT(*) FROM purchase_order_approvals WHERE purchase_order_id = ? AND user_id = ?', [(int) $order['id'], uid()])) {
+    if (val('SELECT COUNT(*) FROM purchase_order_approvals WHERE purchase_order_id = ? AND revision = ? AND user_id = ?', [(int) $order['id'], (int) ($order['revision'] ?? 0), uid()])) {
         return null;
     }
     $owner = (int) val('SELECT budget_owner_id FROM jobs WHERE id = ?', [(int) $order['job_id']]);
