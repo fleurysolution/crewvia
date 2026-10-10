@@ -50,6 +50,18 @@ availability check-in (T1).
 Ledger and chart of accounts (GAP-901), procurement chain (GAP-902),
 project costing on top of D6 (GAP-903).
 
+Procurement follows the owner's statement of 9 October (REQUIREMENTS R41-R47),
+not the HR system's full chain:
+
+- request -> purchase order -> receipt -> commitment; quotation optional,
+  **no bid analysis or committee**;
+- approval by the budget owner (supervisor or project owner);
+- the receipt for lodging is the **rooms available**, and feeds the hotel
+  room blocks that already exist (D11) rather than a second count;
+- a hire who needs a bed raises the lodging request automatically;
+- commitments are the bills expected from what was ordered and used;
+- units of measure are data, created when needed.
+
 ## Phase 4 — reporting, integrations, security, production validation
 
 Encryption key rotation tool (GAP-1002, for SEC-0), safe parameterised

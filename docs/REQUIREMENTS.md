@@ -248,6 +248,31 @@ And the shape of a job, as described:
 
 ---
 
+## 8a. Procurement - stated by Fleury Solutions, 9 October 2026
+
+RSS buys for every job: hotel rooms, cars and vans, safety boots and
+other protective equipment, and more. The HR system's procurement module
+is the reference, cut down to how RSS actually buys.
+
+- **R41** A **purchase request** for anything the job needs: rooms,
+  vehicles, protective equipment, other items.
+- **R42** **Lodging is requested automatically** when a person is hired
+  and needs a bed: the hire raises the request, nobody retypes it.
+- **R43** **No bid analysis.** RSS does not run bids. A quotation may be
+  attached, but the flow is request -> purchase order.
+- **R44** The purchase order is **approved by the person who owns the
+  budget** - the supervisor or whoever holds it - before it is placed.
+- **R45** What arrives is recorded as **available**: for hotels, the
+  goods receipt *is* the rooms available, and it is what the hotel board
+  counts down.
+- **R46** **Commitments**: the bills that follow from what was ordered -
+  the rooms, the units used - so what is owed is visible before the
+  invoice arrives.
+- **R47** **Units of measure** (room-night, van-day, pair, each) are
+  created when needed, and every quantity is accounted in its unit.
+
+---
+
 ## 9. Standards the code must meet
 
 Not requested by the client, but binding on the work.
