@@ -153,3 +153,27 @@ $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules
   </table></div>
 </div>
 <?php endif; ?>
+
+<?php $withNet = array_filter($lines, fn($l) => ! empty($l['gtn'])); ?>
+<?php if ($withNet): ?>
+<div class="card" id="gross-to-net">
+  <h2><?= te('Gross to net, before taxes') ?></h2>
+  <p class="muted"><?= te('Deductions agreed with each person and what the employer pays on top. Taxes are withheld by the payroll provider, not here. A week is frozen when it is approved; until then this is a preview.') ?></p>
+  <div class="scroll"><table>
+    <tr><th><?= te('Worker') ?></th><th class="num"><?= te('Gross wages') ?></th><th><?= te('Deductions') ?></th><th class="num"><?= te('Per diem and expenses') ?></th><th class="num"><?= te('Net before taxes') ?></th><th class="num"><?= te('Employer contributions') ?></th><th></th></tr>
+    <?php foreach ($withNet as $l): $g = $l['gtn']; ?>
+    <tr data-net="<?= (int) $l['id'] ?>">
+      <td><?= e($l['full_name']) ?></td>
+      <td class="num mono"><?= e(money($g['gross_wages'])) ?></td>
+      <td class="small"><?php if (! $g['deductions'] && ! $g['shortfalls']): ?><?= ! empty($g['taken_on_other_sheet']) ? te('Taken on another assignment this week') : '—' ?><?php endif; ?>
+        <?php foreach ($g['deductions'] as $d): ?><div><?= e($d['label']) ?>: <span class="mono"><?= e(money($d['amount'])) ?></span><?= $d['pre_tax'] ? ' <span class="tag grey">' . te('pre-tax') . '</span>' : '' ?></div><?php endforeach; ?>
+        <?php foreach ($g['shortfalls'] as $d): ?><div style="color:var(--amber)"><?= te(':item: :amount could not be taken - not enough wages this week', ['item' => $d['label'], 'amount' => money($d['amount'])]) ?></div><?php endforeach; ?></td>
+      <td class="num mono"><?= e(money($g['reimbursements'])) ?></td>
+      <td class="num mono" data-k="net"><?= e(money($g['net_before_tax'])) ?></td>
+      <td class="num mono"><?= e(money($g['total_employer'])) ?></td>
+      <td><span class="tag <?= ! empty($l['gtn_frozen']) ? 'green' : 'amber' ?>"><?= ! empty($l['gtn_frozen']) ? te('Frozen') : te('Preview') ?></span></td>
+    </tr>
+    <?php endforeach; ?>
+  </table></div>
+</div>
+<?php endif; ?>

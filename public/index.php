@@ -172,6 +172,7 @@ $routes = [
     '/attendance-week' => 'attendance-week',
     '/pay-rules' => 'pay-rules',
     '/leave-types' => 'leave-types',
+    '/pay-items' => 'pay-items',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',

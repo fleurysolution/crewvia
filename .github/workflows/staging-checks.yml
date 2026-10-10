@@ -38,6 +38,9 @@ jobs:
       - name: Leave tests
         run: php tests/leave_unit.php
 
+      - name: Gross to net tests
+        run: php tests/gross_to_net_unit.php
+
       - name: Recruitment ingestion contract tests
         run: php tests/connector_unit.php
 

@@ -11,13 +11,16 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  }
 }
 if(isset($_GET['export'])) {
+ // The provider code as set now: a week frozen before a code was given
+ // still exports under it.
+ $itemCodes=array_column(rows('SELECT code,provider_code FROM pay_items WHERE provider_code IS NOT NULL'),'provider_code','code');
  $adp=$_GET['export']==='adp_run';$company=$settings['adp_company_code'] ?? '';$code=$settings['adp_hours_code'] ?? '';$diemCode=$settings['adp_perdiem_code'] ?? '';$otCode=$settings['adp_overtime_code']??'';
  if($adp && (!$company || !$code || !preg_match('/^[A-Za-z0-9_-]+$/',$company) || !preg_match('/^[A-Za-z0-9_-]+$/',$code))) { refuse(422, t('Configure ADP RUN company and earnings codes from your actual ADP template first.')); }
  foreach($sheets as $sheet) if($adp && (!$sheet['adp_employee_id'] || !preg_match('/^[A-Za-z0-9_-]+$/',$sheet['adp_employee_id']) || !in_array($sheet['employment_type'],['hourly','salaried'],true) || ($sheet['employment_type']==='salaried' && $sheet['salary_per_period']===null) || ((float)$sheet['per_diem_days']>0 && !$diemCode) || (float)$sheet['expenses']>0)) { refuse(422, t('ADP export blocked: check employee IDs/categories, salary setup, per-diem code and separately reconcile expenses.')); }
- foreach($sheets as $sheet){$m=week_money($sheet,$sheet,$job?:[]);if($adp&&($m['overtime_hours']??0)>0&&(!$otCode||!preg_match('/^[A-Za-z0-9_-]+$/',$otCode))){refuse(422, t('Configure the ADP overtime earnings code before export.'));}if($adp&&(($m['double_hours']??0)>0||($m['holiday_hours']??0)>0)){refuse(422, t('Double-time and holiday hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.'));}if($adp&&($m['paid_leave_hours']??0)>0){refuse(422, t('Paid leave hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.'));}}
+ foreach($sheets as $sheet){$m=week_money($sheet,$sheet,$job?:[]);if($adp&&($m['overtime_hours']??0)>0&&(!$otCode||!preg_match('/^[A-Za-z0-9_-]+$/',$otCode))){refuse(422, t('Configure the ADP overtime earnings code before export.'));}if($adp&&(($m['double_hours']??0)>0||($m['holiday_hours']??0)>0)){refuse(422, t('Double-time and holiday hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.'));}if($adp&&($m['paid_leave_hours']??0)>0){refuse(422, t('Paid leave hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.'));}foreach(($m['gross_to_net']['deductions']??[]) as $d){$d['provider_code']=$itemCodes[$d['code']]??$d['provider_code'];if($adp&&(!$d['provider_code']||!preg_match('/^[A-Za-z0-9_-]+$/',$d['provider_code']))){refuse(422, t('A deduction has no ADP deduction code: :item. Set its provider code on the Pay items page, or use the review export.',['item'=>$d['label']]));}}}
  header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="'.($adp?'adp-run-draft':'payroll-review').'-'.$week.'.csv"');$out=fopen('php://output','w');
  if($adp) { fputcsv($out,['##GENERIC## V1.0']);fputcsv($out,['IID','Pay Frequency','Pay Period Start Date','Pay Period End Date','Employee ID','Earnings Code','Pay Hours','Dollars','Separate Check','Worked In Dept','Rate Code']); }
- else fputcsv($out,['Employee','ADP ID','Employment category','Payment method','Worked hours','Paid hours','Gross calculated pay','Per diem','Expenses','Status']);
+ else fputcsv($out,['Employee','ADP ID','Employment category','Payment method','Worked hours','Paid hours','Gross calculated pay','Per diem','Expenses','Status','Gross wages','Deductions','Net before taxes','Employer contributions']);
  foreach($sheets as $sheet) {
   $m=week_money($sheet,$sheet,$job ?: []);
   if($adp) {
@@ -25,7 +28,8 @@ if(isset($_GET['export'])) {
    fputcsv($out,[...$prefix,$code,$sheet['employment_type']==='salaried'?'':($m['regular_hours']??$m['paid_hours']),$sheet['employment_type']==='salaried'?$sheet['salary_per_period']:'','','',1]);
    if(($m['overtime_hours']??0)>0)fputcsv($out,[...$prefix,$otCode,$m['overtime_hours'],'','','',1]);
    if($m['per_diem']>0) fputcsv($out,[...$prefix,$diemCode,'',$m['per_diem'],'','','']);
-  }else { $name=preg_match('/^[=+@-]/',$sheet['full_name'])?"'".$sheet['full_name']:$sheet['full_name'];fputcsv($out,[$name,$sheet['adp_employee_id'],$sheet['employment_type'],$sheet['payment_method'],$m['worked'],$m['paid_hours'],$m['pay_total'],$m['per_diem'],$m['expenses'],$sheet['status']]); }
+   foreach(($m['gross_to_net']['deductions']??[]) as $d) fputcsv($out,[...$prefix,$itemCodes[$d['code']]??$d['provider_code'],'',number_format(-(float)$d['amount'],2,'.',''),'','','']);
+  }else { $name=preg_match('/^[=+@-]/',$sheet['full_name'])?"'".$sheet['full_name']:$sheet['full_name'];fputcsv($out,[$name,$sheet['adp_employee_id'],$sheet['employment_type'],$sheet['payment_method'],$m['worked'],$m['paid_hours'],$m['pay_total'],$m['per_diem'],$m['expenses'],$sheet['status'],$m['gross_to_net']['gross_wages']??'',$m['gross_to_net']['total_deductions']??'',$m['gross_to_net']['net_before_tax']??'',$m['gross_to_net']['total_employer']??'']); }
  }fclose($out);exit;
 }
 render('payroll-export',compact('sheets','week'));

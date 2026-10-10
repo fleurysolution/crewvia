@@ -2,6 +2,7 @@
 require_once __DIR__.'/../hr.php';
 require_once __DIR__.'/../gmail.php';
 require_once __DIR__.'/../classification.php';
+require_once __DIR__.'/../gross-to-net.php';
 require_login();$own=is_worker_account();$cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['id'] ?? $_POST['candidate_id'] ?? 0);
 if(!$own) require_role('recruiter','payroll');
 // Opened from the menu there is no id, and nowhere in the interface shows
@@ -115,6 +116,29 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   redirect('/employee-folder?id=' . $cid);
  }
 
+ // ── what is taken from pay, and what the employer adds ─────────────
+ // Payroll only, like the bank details: these are terms of pay.
+ if($do==='pay_item_add') {
+  require_role('payroll');
+  $item=row("SELECT * FROM pay_items WHERE id=? AND is_active=1 AND method<>'advance_repayment'",[(int)($_POST['pay_item_id'] ?? 0)]);
+  $amount=trim((string)($_POST['amount'] ?? ''));$from=(string)($_POST['starts_on'] ?? '');
+  if(!$item) refuse(422,t('Choose a pay item from the list.'));
+  $max=$item['method']==='percent_of_gross'?100.0:10000.0;
+  if(!is_numeric($amount)||(float)$amount<=0||(float)$amount>$max) refuse(422,$item['method']==='percent_of_gross'?t('A percentage is above 0 and at most 100.'):t('An amount a week is above 0 and at most 10,000.'));
+  if(!valid_date($from)) refuse(422,t('Give the date it starts.'));
+  if(val('SELECT COUNT(*) FROM employee_pay_items WHERE candidate_id=? AND pay_item_id=? AND (ends_on IS NULL OR ends_on>=?)',[$cid,(int)$item['id'],$from])) refuse(422,t('This person already has that item running. End it first, then add the new amount.'));
+  q('INSERT INTO employee_pay_items(candidate_id,pay_item_id,amount,starts_on,note,created_by) VALUES (?,?,?,?,?,?)',[$cid,(int)$item['id'],round((float)$amount,2),$from,mb_substr(trim((string)($_POST['note'] ?? '')),0,255)?:null,uid()]);
+  log_activity('added a pay item','candidate',$cid,$item['code'].' '.$amount.' from '.$from);
+ }
+ if($do==='pay_item_end') {
+  require_role('payroll');
+  $entry=row('SELECT * FROM employee_pay_items WHERE id=? AND candidate_id=? AND ends_on IS NULL',[(int)($_POST['employee_pay_item_id'] ?? 0),$cid]);
+  $to=(string)($_POST['ends_on'] ?? '');
+  if(!$entry) refuse(404,t('That item is not running for this person.'));
+  if(!valid_date($to)||$to<$entry['starts_on']) refuse(422,t('Give an end date on or after the day it started.'));
+  q('UPDATE employee_pay_items SET ends_on=? WHERE id=?',[$to,(int)$entry['id']]);
+  log_activity('ended a pay item','candidate',$cid,'#'.$entry['id'].' to '.$to);
+ }
  if($do==='payment') {
   require_role('payroll');$method=$_POST['payment_method'] ?? '';$salary=$_POST['salary_per_period'] ?? '';
   if(!in_array($method,['direct_deposit','check','cash'],true) || ($salary!=='' && (!is_numeric($salary) || (float)$salary<0))) { refuse(422, t('Invalid payment setup.')); }
@@ -152,5 +176,7 @@ if ($bank && can('payroll') && ($_GET['reveal'] ?? '') === 'bank') {
 // The reasons are staff notes about a person; the person sees their own
 // current classification on the profile card, not the deliberations.
 $classifications=$own?[]:classification_history($cid);
+$payItems=can('payroll')?employee_pay_items($cid):[];
+$payItemChoices=can('payroll')?array_values(array_filter(pay_items(),fn($i)=>$i['method']!=='advance_repayment')):[];
 
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications'));
+render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices'));

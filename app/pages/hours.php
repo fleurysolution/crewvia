@@ -106,8 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if(isset($job['weekly_overtime_after']) && (int)val("SELECT COUNT(*) FROM timesheets ts JOIN placements p ON p.id=ts.placement_id WHERE p.candidate_id=? AND p.job_id<>? AND ts.week_ending=? AND ts.hours_worked>0",[$sheet['candidate_id'],$jobId,$weekEnding])){db()->rollBack();flash(t('Cross-project workweek requires payroll provider reconciliation before approval.'),'err');redirect('/hours?week='.$weekEnding);}
             if(($sheet['employment_type']??'')==='salaried'&&isset($job['weekly_overtime_after'])&&(float)$sheet['hours_worked']>(float)$job['weekly_overtime_after']){db()->rollBack();flash(t('Salaried overtime requires payroll provider reconciliation.'),'err');redirect('/hours?week='.$weekEnding);}
             }
+            // Gross to net before taxes is frozen with the week, and the
+            // advance repayments it took are recorded against the sheet.
+            require_once __DIR__.'/../gross-to-net.php';
+            $result['gross_to_net']=gross_to_net_for_sheet($sheet,$result);
             q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)',[$sheet['id'],json_encode($result,JSON_THROW_ON_ERROR)]);
             q("UPDATE timesheets SET status='approved',approved_by=?,approved_at=NOW() WHERE id=?",[uid(),$sheet['id']]);
+            gross_to_net_record_advances((int)$sheet['id'],$weekEnding,$result['gross_to_net'],uid());
         }
         db()->commit();
 
@@ -157,6 +162,14 @@ foreach ($crew as $p) {
 }
 
 require_once __DIR__.'/../pay-rules.php';
+require_once __DIR__.'/../gross-to-net.php';
+// Gross to net before taxes: frozen for an approved week, a preview otherwise.
+foreach($lines as &$line) {
+    if(($line['hours_worked'] ?? null)===null && (float)($line['paid_leave_hours'] ?? 0)<=0) { $line['gtn']=null; continue; }
+    $line['gtn']=$line['m']['gross_to_net'] ?? gross_to_net_for_sheet(['placement_id'=>$line['id'],'week_ending'=>$week],$line['m']);
+    $line['gtn_frozen']=isset($line['m']['gross_to_net']);
+}
+unset($line);
 $ruleSet=pay_rule_set((int)($job['pay_rule_set_id'] ?? 0));
 $reviewReasons=pay_rule_review_reasons();
 $pageTitle = t('Hours').' · '.$config['app_name'];

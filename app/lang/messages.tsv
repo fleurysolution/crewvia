@@ -709,3 +709,54 @@ Unpaid	Non payé	No pagado
 Unused days that carry into next year	Jours non utilisés reportés sur l’année suivante	Días no usados que pasan al año siguiente
 Waiting period	Délai d’attente	Periodo de espera
 Who may take it (none ticked: everybody)	Qui peut le prendre (rien de coché : tout le monde)	Quién puede tomarlo (nada marcado: todos)
+:item: :amount could not be taken - not enough wages this week	:item : :amount n’a pas pu être retenu - salaire insuffisant cette semaine	:item: no se pudo retener :amount - salario insuficiente esta semana
+A deduction has no ADP deduction code: :item. Set its provider code on the Pay items page, or use the review export.	Une retenue n’a pas de code de retenue ADP : :item. Indiquez son code prestataire dans Éléments de paie, ou utilisez l’export de contrôle.	Una deducción no tiene código de deducción ADP: :item. Indique su código de proveedor en Conceptos de pago, o use la exportación de revisión.
+A fixed amount a week	Un montant fixe par semaine	Un importe fijo por semana
+A pay item with that name already exists.	Un élément de paie de ce nom existe déjà.	Ya existe un concepto de pago con ese nombre.
+A percentage is above 0 and at most 100.	Un pourcentage est supérieur à 0 et au plus 100.	Un porcentaje es mayor que 0 y como máximo 100.
+A percentage of gross wages	Un pourcentage du salaire brut	Un porcentaje del salario bruto
+A provider code is letters, digits, dash or underscore, up to 40.	Un code prestataire est fait de lettres, chiffres, tirets ou soulignés, jusqu’à 40.	Un código de proveedor son letras, dígitos, guion o guion bajo, hasta 40.
+Amount or %	Montant ou %	Importe o %
+An amount a week is above 0 and at most 10,000.	Un montant par semaine est supérieur à 0 et au plus 10 000.	Un importe semanal es mayor que 0 y como máximo 10.000.
+Choose a pay item from the list.	Choisissez un élément de paie dans la liste.	Elija un concepto de pago de la lista.
+Choose whether it is taken from pay or paid by the employer, and how it is worked out.	Indiquez s’il est retenu sur la paie ou payé par l’employeur, et comment il se calcule.	Indique si se retiene del pago o lo paga el empleador, y cómo se calcula.
+Deduction from pay	Retenue sur la paie	Deducción del pago
+Deductions	Retenues	Deducciones
+Deductions agreed with each person and what the employer pays on top. Taxes are withheld by the payroll provider, not here. A week is frozen when it is approved; until then this is a preview.	Les retenues convenues avec chaque personne et ce que l’employeur paie en plus. Les impôts sont retenus par le prestataire de paie, pas ici. Une semaine est figée à son approbation ; jusque-là, c’est un aperçu.	Las deducciones acordadas con cada persona y lo que el empleador paga además. Los impuestos los retiene el proveedor de nómina, no aquí. Una semana se congela al aprobarse; hasta entonces es una vista previa.
+Deductions agreed with people, and contributions the employer pays on top. They prepare gross to net before taxes; the payroll provider withholds taxes.	Les retenues convenues avec les personnes, et les cotisations que l’employeur paie en plus. Elles préparent le passage du brut au net avant impôts ; le prestataire de paie retient les impôts.	Las deducciones acordadas con las personas y las contribuciones que el empleador paga además. Preparan de bruto a neto antes de impuestos; el proveedor de nómina retiene los impuestos.
+Deductions and contributions	Retenues et cotisations	Deducciones y contribuciones
+Employer contribution	Cotisation employeur	Contribución del empleador
+Employer contributions	Cotisations employeur	Contribuciones del empleador
+End	Terminer	Terminar
+Frozen	Figé	Congelado
+Give an end date on or after the day it started.	Indiquez une date de fin égale ou postérieure au début.	Indique una fecha de fin igual o posterior al inicio.
+Give the date it starts.	Indiquez la date de début.	Indique la fecha de inicio.
+Gross to net, before taxes	Du brut au net, avant impôts	De bruto a neto, antes de impuestos
+Gross wages	Salaire brut	Salario bruto
+Item	Élément	Concepto
+Name the pay item in 2 to 120 characters.	Nommez l’élément de paie en 2 à 120 caractères.	Nombre el concepto de pago con 2 a 120 caracteres.
+Net before taxes	Net avant impôts	Neto antes de impuestos
+New pay item	Nouvel élément de paie	Nuevo concepto de pago
+No pay item yet. Create them on the Pay items page.	Aucun élément de paie pour l’instant. Créez-les dans Éléments de paie.	Aún no hay conceptos de pago. Créelos en Conceptos de pago.
+Nothing is taken from this person's pay, and the employer adds nothing.	Rien n’est retenu sur la paie de cette personne, et l’employeur n’ajoute rien.	No se retiene nada del pago de esta persona y el empleador no añade nada.
+Open advances, at their agreed weekly repayment	Les avances en cours, à leur remboursement hebdomadaire convenu	Los anticipos abiertos, a su reembolso semanal acordado
+Pay item saved. Give it to people from their employee folder.	Élément de paie enregistré. Attribuez-le aux personnes depuis leur dossier.	Concepto de pago guardado. Asígnelo a las personas desde su expediente.
+Pay items	Éléments de paie	Conceptos de pago
+Per diem and expenses	Indemnités et frais	Viáticos y gastos
+Preview	Aperçu	Vista previa
+Provider code	Code prestataire	Código de proveedor
+Provider code (optional)	Code prestataire (facultatif)	Código de proveedor (opcional)
+Restored: it is taken again from weeks not yet approved.	Rétabli : il est de nouveau retenu sur les semaines pas encore approuvées.	Restaurado: se vuelve a aplicar a las semanas aún no aprobadas.
+Retired: weeks not yet approved no longer take it. Approved weeks keep it.	Retiré : les semaines pas encore approuvées ne le retiennent plus. Les semaines approuvées le gardent.	Retirado: las semanas aún no aprobadas ya no lo aplican. Las aprobadas lo conservan.
+Side	Nature	Tipo
+Taken before taxes (the provider applies it)	Retenu avant impôts (le prestataire l’applique)	Se retiene antes de impuestos (lo aplica el proveedor)
+Taken from each approved week, or paid on top by the employer, from the start date. Advances are repaid automatically and are not set here.	Retenu sur chaque semaine approuvée, ou payé en plus par l’employeur, à partir de la date de début. Les avances se remboursent automatiquement et ne se règlent pas ici.	Se retiene de cada semana aprobada, o lo paga además el empleador, desde la fecha de inicio. Los anticipos se reembolsan automáticamente y no se configuran aquí.
+Taken on another assignment this week	Retenu sur une autre affectation cette semaine	Retenido en otra asignación esta semana
+That item is not running for this person.	Cet élément n’est pas en cours pour cette personne.	Ese concepto no está activo para esta persona.
+That pay item does not exist.	Cet élément de paie n’existe pas.	Ese concepto de pago no existe.
+This person already has that item running. End it first, then add the new amount.	Cette personne a déjà cet élément en cours. Terminez-le d’abord, puis ajoutez le nouveau montant.	Esta persona ya tiene ese concepto activo. Termínelo primero y luego añada el nuevo importe.
+Until	Jusqu’au	Hasta
+Worked out as	Calculé comme	Se calcula como
+for example: Uniform	par exemple : Uniforme	por ejemplo: Uniforme
+pre-tax	avant impôts	antes de impuestos
+Advance repayment	Remboursement d’avance	Reembolso de anticipo

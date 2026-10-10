@@ -816,4 +816,39 @@ if ($leaveAdded > 0) {
        . (int) val('SELECT COUNT(*) FROM leave_types') . ' existing leave type(s) keep their yearly allowance.' . PHP_EOL;
 }
 
+// ── P1-M05: deductions, employer contributions, gross to net ──────────
+// Reversed by install/rollback/p1-m05.sql.
+$grossToNetSql = __DIR__ . '/gross-to-net.sql';
+
+if (! is_file($grossToNetSql)) {
+    fwrite(STDERR, "Missing install/gross-to-net.sql\n");
+    exit(1);
+}
+
+$hadPayItems = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='pay_items'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($grossToNetSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='wage_advance_payments' AND column_name='timesheet_id'")) {
+    // Which weekly sheet a repayment was taken from, so a week can never
+    // take the same advance twice.
+    q('ALTER TABLE wage_advance_payments ADD COLUMN timesheet_id INT UNSIGNED NULL AFTER advance_id,
+       ADD UNIQUE KEY uq_advance_sheet (advance_id, timesheet_id)');
+}
+
+if (! $hadPayItems) {
+    // The one item every installation has: open advances are repaid out
+    // of the weeks that follow, at the repayment agreed for each.
+    q("INSERT INTO pay_items (code, label, side, method, pre_tax, sort_order)
+       VALUES ('advance_repayment', 'Advance repayment', 'deduction', 'advance_repayment', 0, 100)");
+    echo 'Pay: deductions and employer contributions are in place; open advances are now repaid from approved weeks.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
