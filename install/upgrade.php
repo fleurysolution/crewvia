@@ -947,4 +947,33 @@ if (! $hadSelfService) {
     echo 'Self-service: workers can propose their bank details and changes to their details, for staff to validate.' . PHP_EOL;
 }
 
+// ── P2-M01: grades, pay bands, effective-dated pay changes ────────────
+// Reversed by install/rollback/p2-m01.sql.
+$compensationSql = __DIR__ . '/compensation.sql';
+
+if (! is_file($compensationSql)) {
+    fwrite(STDERR, "Missing install/compensation.sql\n");
+    exit(1);
+}
+
+$hadGrades = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='pay_grades'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($compensationSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='employee_profiles' AND column_name='grade_id'")) {
+    // The grade in effect today; compensation_changes holds how it got there.
+    q('ALTER TABLE employee_profiles ADD COLUMN grade_id INT UNSIGNED NULL');
+}
+
+if (! $hadGrades) {
+    echo 'Compensation: grades with pay bands and dated pay changes are in place; nobody has a grade yet.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -9,6 +9,8 @@
  */
 
 require_role('payroll');
+require_once __DIR__ . '/../compensation.php';
+compensation_apply_due();
 
 $job = current_job();
 $jobId = (int) ($job['id'] ?? 0);

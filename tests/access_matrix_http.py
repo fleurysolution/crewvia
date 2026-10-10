@@ -54,7 +54,7 @@ def check(label, condition, detail=''):
 # Who may open what. Anything not listed for a role must not render for it.
 payroll_only = ['/hours', '/payroll-export', '/pay-rules', '/pay-items', '/payroll-runs', '/attendance-week', '/billing',
                 '/accounts-payable', '/client-invoices']
-admin_only = ['/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
+admin_only = ['/pay-grades', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
               '/agency-setup', '/client-access', '/subscription', '/email-delivery', '/job']
 roles = {
     'admin':      ('admin@test.invalid', []),

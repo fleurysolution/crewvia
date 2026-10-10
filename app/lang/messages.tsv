@@ -985,3 +985,62 @@ Those bank details have already been decided.	Ces coordonnées bancaires ont dé
 What workers asked to change from their own folder. Nothing changes until it is accepted here; a refusal tells the worker why.	Ce que les travailleurs ont demandé à changer depuis leur dossier. Rien ne change avant d’être accepté ici ; un refus explique la raison au travailleur.	Lo que los trabajadores pidieron cambiar desde su expediente. Nada cambia hasta aceptarse aquí; un rechazo le explica el motivo al trabajador.
 Your last bank details are still being checked. Wait for payroll before sending new ones.	Vos dernières coordonnées bancaires sont encore en vérification. Attendez la paie avant d’en envoyer de nouvelles.	Sus últimos datos bancarios aún se están revisando. Espere a nómina antes de enviar otros.
 replaces the account ending :last	remplace le compte se terminant par :last	sustituye la cuenta que termina en :last
+A change applies to every week ending on or after its date, never to a week already approved. Outside the band of the grade, only an administrator can set it.	Un changement s’applique à chaque semaine se terminant à sa date ou après, jamais à une semaine déjà approuvée. Hors de la fourchette de l’échelon, seul un administrateur peut le fixer.	Un cambio se aplica a cada semana que termina en su fecha o después, nunca a una semana ya aprobada. Fuera de la banda del grado, solo un administrador puede fijarlo.
+A change of this kind already takes effect on that date. Cancel it first.	Un changement de ce type prend déjà effet à cette date. Annulez-le d’abord.	Ya hay un cambio de este tipo con efecto en esa fecha. Cancélelo primero.
+A grade with that name already exists.	Un échelon de ce nom existe déjà.	Ya existe un grado con ese nombre.
+A grade, and the band its pay is expected to sit in. Pay outside the band of somebody's grade can only be set by an administrator, with the reason, and it is marked.	Un échelon, et la fourchette où sa paie doit se situer. Une paie hors de la fourchette de l’échelon ne peut être fixée que par un administrateur, avec la raison, et elle est signalée.	Un grado y la banda en la que debe situarse su pago. Un pago fuera de la banda del grado solo puede fijarlo un administrador, con el motivo, y queda marcado.
+A salary per pay period is above 0 and at most 1,000,000.	Un salaire par période de paie est supérieur à 0 et au plus 1 000 000.	Un salario por periodo de pago es mayor que 0 y como máximo 1.000.000.
+An hourly rate is above 0 and at most 1,000.	Un taux horaire est supérieur à 0 et au plus 1 000.	Una tarifa por hora es mayor que 0 y como máximo 1.000.
+Assignment ended	Fin d’affectation	Fin de asignación
+Assignment started	Début d’affectation	Inicio de asignación
+Assignment, for an hourly rate	Affectation, pour un taux horaire	Asignación, para una tarifa por hora
+Band ends are blank, or amounts: up to 1,000 an hour, up to 1,000,000 a pay period.	Les bornes de fourchette sont vides ou des montants : jusqu’à 1 000 de l’heure, jusqu’à 1 000 000 par période.	Los extremos de la banda están vacíos o son importes: hasta 1.000 por hora, hasta 1.000.000 por periodo.
+Cancelled. It will not take effect.	Annulé. Il ne prendra pas effet.	Cancelado. No tendrá efecto.
+Change :grade	Modifier :grade	Modificar :grade
+Choose a grade from the list.	Choisissez un échelon dans la liste.	Elija un grado de la lista.
+Choose one of this person's current assignments.	Choisissez une des affectations en cours de cette personne.	Elija una de las asignaciones actuales de esta persona.
+Choose what changes: salary, an hourly rate or the grade.	Choisissez ce qui change : salaire, taux horaire ou échelon.	Elija qué cambia: salario, tarifa por hora o grado.
+Classification changed	Classification modifiée	Clasificación cambiada
+Employment history	Historique d’emploi	Historial de empleo
+Grade	Échelon	Grado
+Grade changed	Échelon modifié	Grado cambiado
+Grade saved. Pay already set is not changed; a change outside the band now needs an administrator.	Échelon enregistré. La paie déjà fixée ne change pas ; un changement hors fourchette nécessite désormais un administrateur.	Grado guardado. El pago ya fijado no cambia; un cambio fuera de la banda ahora requiere un administrador.
+Grade: :grade	Échelon : :grade	Grado: :grade
+Hourly band	Fourchette horaire	Banda por hora
+Hourly rate changed	Taux horaire modifié	Tarifa por hora cambiada
+Hourly rate from	Taux horaire de	Tarifa por hora desde
+Hourly rate on an assignment	Taux horaire d’une affectation	Tarifa por hora de una asignación
+Hourly rate to	Taux horaire à	Tarifa por hora hasta
+Name the grade in 2 to 120 characters.	Nommez l’échelon en 2 à 120 caractères.	Nombre el grado con 2 a 120 caracteres.
+New amount	Nouveau montant	Nuevo importe
+New grade	Nouvel échelon	Nuevo grado
+No grade yet. Pay is not compared with any band until there is one.	Aucun échelon pour l’instant. La paie n’est comparée à aucune fourchette tant qu’il n’y en a pas.	Aún no hay grados. El pago no se compara con ninguna banda hasta que haya uno.
+Not a grade	Pas un échelon	No es un grado
+Not an hourly rate	Pas un taux horaire	No es una tarifa por hora
+Nothing recorded yet: no assignment, promotion, transfer or change of classification or grade.	Rien d’enregistré : aucune affectation, promotion, mutation ni changement de classification ou d’échelon.	Nada registrado aún: ninguna asignación, ascenso, traslado ni cambio de clasificación o grado.
+Pay and grade	Paie et échelon	Pago y grado
+Pay change recorded. It applies to every week ending on or after its date.	Changement de paie enregistré. Il s’applique à chaque semaine se terminant à sa date ou après.	Cambio de pago registrado. Se aplica a cada semana que termina en su fecha o después.
+Pay for the week ending :date is already approved. Make the change take effect after it, and settle the difference with an adjustment.	La paie de la semaine se terminant le :date est déjà approuvée. Faites prendre effet le changement après, et réglez l’écart par un ajustement.	El pago de la semana que termina el :date ya está aprobado. Haga que el cambio surta efecto después y resuelva la diferencia con un ajuste.
+Pay grades	Échelons de paie	Grados de pago
+Promoted	Promu	Ascendido
+Salary band	Fourchette de salaire	Banda salarial
+Salary changed	Salaire modifié	Salario cambiado
+Salary per pay period	Salaire par période de paie	Salario por periodo de pago
+Salary per pay period from	Salaire par période de	Salario por periodo desde
+Salary per pay period to	Salaire par période à	Salario por periodo hasta
+Say why pay changes, in up to 500 characters.	Indiquez pourquoi la paie change, en 500 caractères au plus.	Indique por qué cambia el pago, en hasta 500 caracteres.
+That change is already in effect. Record a new one instead.	Ce changement est déjà en vigueur. Enregistrez-en plutôt un nouveau.	Ese cambio ya está en vigor. Registre uno nuevo en su lugar.
+That change is not waiting to take effect.	Ce changement n’attend pas de prendre effet.	Ese cambio no está pendiente de surtir efecto.
+That grade does not exist.	Cet échelon n’existe pas.	Ese grado no existe.
+That is already the grade on that date.	C’est déjà l’échelon à cette date.	Ese ya es el grado en esa fecha.
+That is already the pay on that date.	C’est déjà la paie à cette date.	Ese ya es el pago en esa fecha.
+That is outside the band of the person's grade. An administrator can set it, with the reason.	C’est hors de la fourchette de l’échelon de la personne. Un administrateur peut le fixer, avec la raison.	Está fuera de la banda del grado de la persona. Un administrador puede fijarlo, con el motivo.
+The bottom of a band cannot be above its top.	Le bas d’une fourchette ne peut pas dépasser son haut.	El mínimo de una banda no puede superar su máximo.
+Transferred	Muté	Trasladado
+What changes	Ce qui change	Qué cambia
+cancelled	annulé	cancelado
+changed under Pay and grade, with a date and a reason	se modifie dans Paie et échelon, avec une date et une raison	se cambia en Pago y grado, con una fecha y un motivo
+for example: Journeyman welder	par exemple : Soudeur qualifié	por ejemplo: Soldador oficial
+hourly :rate · salary :salary	horaire :rate · salaire :salary	por hora :rate · salario :salary
+outside the band	hors fourchette	fuera de la banda
+rate from the scope of work	taux du cahier des charges	tarifa del alcance del trabajo

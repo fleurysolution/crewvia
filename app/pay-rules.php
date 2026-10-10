@@ -186,7 +186,8 @@ function pay_rules_week_for(array $sheet, array $placement, array $job, ?float $
                                   [$setId, $start, $weekEnding]), 'holiday_date');
 
     $type = (string) ($person['employment_type'] ?? $placement['employment_type'] ?? 'hourly');
-    $salaryValue = $person['salary_per_period'] ?? $placement['salary_per_period'] ?? null;
+    // The caller's figure first: week_money() puts a dated salary there (P2-M01).
+    $salaryValue = $placement['salary_per_period'] ?? $person['salary_per_period'] ?? null;
     $salary = $type === 'salaried' && $salaryValue !== null ? (float) $salaryValue : null;
     $guarantee = $guaranteeHours ?? (float) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 0) : ($job['guarantee_hours'] ?? 0));
     $rate = (float) ($placement['pay_rate'] ?? $job['pay_rate'] ?? 0);

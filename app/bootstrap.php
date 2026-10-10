@@ -360,6 +360,18 @@ function week_money(array $t, array $p, array $job): array
     $pay      = (float) ($p['pay_rate']      ?? $job['pay_rate']);
     $bill     = (float) ($p['bill_rate']     ?? $job['bill_rate'] ?? 0);
     $perDiem  = (float) ($p['per_diem_rate'] ?? $job['per_diem_rate']);
+    // A pay change dated for this week (P2-M01) wins over what the
+    // assignment or profile says today: the week is paid as it stood then.
+    require_once __DIR__.'/compensation.php';
+    if (!empty($t['placement_id']) && !empty($t['week_ending'])) {
+        $datedRate = compensation_rate_on((int) $t['placement_id'], (string) $t['week_ending']);
+        if ($datedRate !== null) { $pay = $datedRate; $p['pay_rate'] = $datedRate; }
+        if (($p['employment_type'] ?? '') === 'salaried') {
+            $owner = (int) val('SELECT candidate_id FROM placements WHERE id = ?', [(int) $t['placement_id']]);
+            $datedSalary = compensation_salary_on($owner, (string) $t['week_ending']);
+            if ($datedSalary !== null) { $p['salary_per_period'] = $datedSalary; }
+        }
+    }
 
     $guarantee = (int) ($job['strike_live'] ? $job['strike_hours'] : $job['guarantee_hours']);
     $worked    = (float) $t['hours_worked'];

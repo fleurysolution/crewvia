@@ -58,6 +58,7 @@ function workspace_nav(?array $u): array
         ['/attendance-week',    'Week check',                         'payroll'],
         ['/pay-rules',          'Pay rules',                          'payroll'],
         ['/leave-types',        'Leave types',                        'admin'],
+        ['/pay-grades',         'Pay grades',                         'admin'],
         ['/pay-items',          'Pay items',                          'payroll'],
         ['/payroll-runs',       'Pay periods',                        'payroll'],
         ['/payroll-export',     'Payroll export',                     'payroll'],
@@ -163,7 +164,7 @@ function workspace_sections(): array
         'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/advances', '/expenses', '/payroll-export',
                               '/accounts-payable', '/billing', '/client-invoices'],
         'Clients' => ['/client-orders', '/client-access', '/client-portal'],
-        'Administration' => ['/people', '/leave-types', '/organization', '/job', '/employees', '/personnel',
+        'Administration' => ['/people', '/leave-types', '/pay-grades', '/organization', '/job', '/employees', '/personnel',
                              '/offboarding', '/imports', '/settings', '/agency-setup',
                              '/email-delivery', '/subscription', '/approval-chains'],
     ];

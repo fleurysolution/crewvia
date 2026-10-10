@@ -178,6 +178,7 @@ $routes = [
     '/my-payslips' => 'my-payslips',
     '/procurement' => 'procurement',
     '/change-requests' => 'change-requests',
+    '/pay-grades' => 'pay-grades',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',

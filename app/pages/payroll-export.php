@@ -1,5 +1,5 @@
 <?php
-require_role('payroll');$jobId=(int)(current_job()['id'] ?? 0);$week=week_ending($_GET['week'] ?? null);
+require_role('payroll');require_once __DIR__.'/../compensation.php';compensation_apply_due();$jobId=(int)(current_job()['id'] ?? 0);$week=week_ending($_GET['week'] ?? null);
 $sheets=rows("SELECT t.*,s.result_json snapshot_json,p.pay_rate,p.bill_rate,p.per_diem_rate,c.full_name,e.adp_employee_id,e.employment_type,e.payment_method,e.salary_per_period FROM timesheets t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id LEFT JOIN employee_profiles e ON e.candidate_id=c.id LEFT JOIN pay_snapshots s ON s.timesheet_id=t.id WHERE p.job_id=? AND t.week_ending=? AND t.status IN ('approved','paid') ORDER BY c.full_name",[$jobId,$week]);
 $job=current_job();$settings=array_column(rows('SELECT * FROM platform_settings'),'setting_value','setting_key');
 if($_SERVER['REQUEST_METHOD']==='POST') {

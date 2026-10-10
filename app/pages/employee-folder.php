@@ -4,6 +4,7 @@ require_once __DIR__.'/../gmail.php';
 require_once __DIR__.'/../classification.php';
 require_once __DIR__.'/../gross-to-net.php';
 require_once __DIR__.'/../self-service.php';
+require_once __DIR__.'/../compensation.php';
 require_login();$own=is_worker_account();$cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['id'] ?? $_POST['candidate_id'] ?? 0);
 if(!$own) require_role('recruiter','payroll');
 // Opened from the menu there is no id, and nowhere in the interface shows
@@ -26,6 +27,8 @@ if(!$own && !$cid) {
 }
 
 $c=row('SELECT * FROM candidates WHERE id=?',[$cid]);if(!$c) { refuse(404, t('Employee record unavailable.')); }
+// Changes whose date has come are brought onto the current values first.
+compensation_apply_due($cid);
 q('INSERT IGNORE INTO employee_profiles(candidate_id) VALUES (?)',[$cid]);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
@@ -153,10 +156,27 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   q('UPDATE employee_pay_items SET ends_on=? WHERE id=?',[$to,(int)$entry['id']]);
   log_activity('ended a pay item','candidate',$cid,'#'.$entry['id'].' to '.$to);
  }
+ if($do==='comp_record') {
+  require_role('payroll');
+  db()->beginTransaction();
+  q('SELECT candidate_id FROM employee_profiles WHERE candidate_id=? FOR UPDATE',[$cid]);
+  if(($why=compensation_record($cid,$_POST,uid(),can('admin')))!==null) { db()->rollBack();refuse(422,$why); }
+  db()->commit();
+  log_activity('recorded a pay change','candidate',$cid,(string)($_POST['kind'] ?? '').' from '.(string)($_POST['effective_from'] ?? '').' - '.mb_substr((string)($_POST['reason'] ?? ''),0,200));
+  flash(t('Pay change recorded. It applies to every week ending on or after its date.'));
+ }
+ if($do==='comp_cancel') {
+  require_role('payroll');
+  if(($why=compensation_cancel((int)($_POST['change_id'] ?? 0),$cid,uid()))!==null) refuse(422,$why);
+  log_activity('cancelled a pay change','candidate',$cid,'#'.(int)$_POST['change_id']);
+  flash(t('Cancelled. It will not take effect.'));
+ }
  if($do==='payment') {
-  require_role('payroll');$method=$_POST['payment_method'] ?? '';$salary=$_POST['salary_per_period'] ?? '';
-  if(!in_array($method,['direct_deposit','check','cash'],true) || ($salary!=='' && (!is_numeric($salary) || (float)$salary<0))) { refuse(422, t('Invalid payment setup.')); }
-  q('UPDATE employee_profiles SET payment_method=?,adp_employee_id=?,salary_per_period=? WHERE candidate_id=?',[$method,trim((string)($_POST['adp_employee_id'] ?? ''))?:null,$salary!==''?(float)$salary:null,$cid]);
+  require_role('payroll');$method=$_POST['payment_method'] ?? '';
+  if(!in_array($method,['direct_deposit','check','cash'],true)) { refuse(422, t('Invalid payment setup.')); }
+  // The salary is not typed over here any more: it changes through a dated
+  // change with a reason, under "Pay and grade" (P2-M01).
+  q('UPDATE employee_profiles SET payment_method=?,adp_employee_id=? WHERE candidate_id=?',[$method,trim((string)($_POST['adp_employee_id'] ?? ''))?:null,$cid]);
  }
  if($do==='credential') {
   $expiry=(string)($_POST['expires_on'] ?? '');$type=trim((string)($_POST['credential_type'] ?? ''));$docId=(int)($_POST['document_id'] ?? 0);
@@ -191,8 +211,10 @@ if ($bank && can('payroll') && ($_GET['reveal'] ?? '') === 'bank') {
 // current classification on the profile card, not the deliberations.
 $classifications=$own?[]:classification_history($cid);
 $selfService=self_service_state($cid);
+$employment=!$own?employment_history($cid,can('payroll')):[];
+$comp=can('payroll')&&!$own?['grade'=>compensation_grade_on($cid,date('Y-m-d')),'grades'=>pay_grades(),'changes'=>rows('SELECT c.*,g.label AS grade_label,j.title FROM compensation_changes c LEFT JOIN pay_grades g ON g.id=c.grade_id LEFT JOIN placements p ON p.id=c.placement_id LEFT JOIN jobs j ON j.id=p.job_id WHERE c.candidate_id=? ORDER BY c.effective_from DESC,c.id DESC LIMIT 30',[$cid]),'current'=>rows("SELECT p.id,p.pay_rate,j.title FROM placements p JOIN jobs j ON j.id=p.job_id WHERE p.candidate_id=? AND p.status NOT IN ('completed','cancelled') ORDER BY p.id DESC",[$cid])]:null;
 $ownBank=$own?worker_bank_summary($cid):null;
 $payItems=can('payroll')?employee_pay_items($cid):[];
 $payItemChoices=can('payroll')?array_values(array_filter(pay_items(),fn($i)=>$i['method']!=='advance_repayment')):[];
 
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank'));
+render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank','employment','comp'));
