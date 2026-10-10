@@ -71,8 +71,8 @@ if ($fresh['role']==='client' && !in_array($path,['/client-portal','/account','/
     if($path==='/') redirect('/client-portal');
     http_response_code(403);render('403',['need'=>['client']]);exit;
 }
-if ($fresh['role'] === 'supervisor' && !in_array($path,['/procurement','/appraisals','/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
-if ($fresh['role'] === 'worker' && !in_array($path, ['/my-payslips','/appraisals','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
+if ($fresh['role'] === 'supervisor' && !in_array($path,['/procurement','/appraisals','/performance','/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
+if ($fresh['role'] === 'worker' && !in_array($path, ['/my-payslips','/appraisals','/performance','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
 
 if ($fresh['must_change_pw'] && $path !== '/account') redirect('/account');
 if (($config['commercial_mode'] ?? 'demo')==='subscription' && !empty($config['saas_enforce_subscription'])
@@ -188,6 +188,7 @@ $routes = [
     '/periods' => 'periods',
     '/vendors' => 'vendors',
     '/bill-matching' => 'bill-matching',
+    '/performance' => 'performance',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',

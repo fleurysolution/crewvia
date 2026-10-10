@@ -1364,4 +1364,35 @@ if (! $hadMatching) {
        . $open . ' open bill(s) against an order are now checked; tolerance 2% or $10.' . PHP_EOL;
 }
 
+// ── P2-M03: cycles, goals, development plans ─────────────────────────────
+// Reversed by install/rollback/p2-m03.sql.
+$performanceSql = __DIR__ . '/performance.sql';
+
+if (! is_file($performanceSql)) {
+    fwrite(STDERR, "Missing install/performance.sql\n");
+    exit(1);
+}
+
+$hadPerformance = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                             WHERE table_schema=DATABASE() AND table_name='performance_goals'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($performanceSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='appraisals' AND column_name='cycle_id'")) {
+    // The round a review was opened in, if any.
+    q('ALTER TABLE appraisals ADD COLUMN cycle_id INT UNSIGNED NULL,
+       ADD CONSTRAINT fk_appraisal_cycle FOREIGN KEY (cycle_id) REFERENCES appraisal_cycles(id)');
+}
+
+if (! $hadPerformance) {
+    echo 'Performance: evaluation cycles, goals with their progress, and development plans with follow-up are in place; '
+       . (int) val('SELECT COUNT(*) FROM appraisals') . ' existing review(s) belong to no cycle.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

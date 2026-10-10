@@ -1588,3 +1588,90 @@ Unit price differs from the order	Le prix unitaire diffère de la commande	El pr
 What does not match	Ce qui ne correspond pas	Lo que no coincide
 Why it is paid anyway	Pourquoi elle est payée quand même	Por qué se paga de todos modos
 Why rejected	Pourquoi refusé	Por qué se rechazó
+:n review(s) in this cycle are not finished. Say why it closes anyway.	:n évaluation(s) de ce cycle ne sont pas terminées. Dites pourquoi il se clôt quand même.	:n evaluación(es) de este ciclo no están terminadas. Diga por qué se cierra de todos modos.
+:n review(s) opened.	:n évaluation(s) ouverte(s).	:n evaluación(es) abierta(s).
+A cycle covers a period, the start first, and is due on or after its end.	Un cycle couvre une période, le début d'abord, et son échéance tombe à sa fin ou après.	Un ciclo cubre un periodo, el inicio primero, y vence en su fin o después.
+A goal is due today or later.	Un objectif est dû aujourd'hui ou après.	Un objetivo vence hoy o después.
+Achieved	Atteint	Logrado
+All projects	Tous les projets	Todos los proyectos
+An action is due today or later.	Une action est due aujourd'hui ou après.	Una acción vence hoy o después.
+Certification	Certification	Certificación
+Choose a project, or all of them.	Choisissez un projet, ou tous.	Elija un proyecto, o todos.
+Choose what kind of action it is.	Choisissez le type d'action.	Elija el tipo de acción.
+Choose who follows it up: a recruiter or a supervisor.	Choisissez qui en assure le suivi : un recruteur ou un superviseur.	Elija quién le da seguimiento: un reclutador o un supervisor.
+Close the goal	Clore l'objectif	Cerrar el objetivo
+Coaching	Accompagnement	Acompañamiento
+Create the cycle	Créer le cycle	Crear el ciclo
+Cycle	Cycle	Ciclo
+Describe the action in 3 to 500 characters.	Décrivez l'action en 3 à 500 caractères.	Describa la acción con 3 a 500 caracteres.
+Development action cancelled	Action de développement annulée	Acción de desarrollo cancelada
+Development action done	Action de développement faite	Acción de desarrollo hecha
+Development action planned	Action de développement prévue	Acción de desarrollo planificada
+Development plan	Plan de développement	Plan de desarrollo
+Done	Fait	Hecho
+Dropped	Abandonné	Abandonado
+Followed up by	Suivi par	Seguimiento de
+From the review	Issu de l'évaluation	De la evaluación
+Goal	Objectif	Objetivo
+Goal :status	Objectif :status	Objetivo :status
+Goal set	Objectif fixé	Objetivo fijado
+Goals	Objectifs	Objetivos
+Goals and development	Objectifs et développement	Objetivos y desarrollo
+Goals and development plan for :name	Objectifs et plan de développement de :name	Objetivos y plan de desarrollo de :name
+How it ended	Comment il s'est terminé	Cómo terminó
+How it is measured	Comment il se mesure	Cómo se mide
+Measured by: :m	Mesuré par : :m	Medido por: :m
+Missed	Manqué	No logrado
+Name the cycle in 3 to 120 characters.	Nommez le cycle en 3 à 120 caractères.	Nombre el ciclo con 3 a 120 caracteres.
+Name the goal in 3 to 190 characters.	Nommez l'objectif en 3 à 190 caractères.	Nombre el objetivo con 3 a 190 caracteres.
+New cycle	Nouveau cycle	Nuevo ciclo
+No cycle yet.	Aucun cycle pour l'instant.	Todavía no hay ciclos.
+No goal or development action yet.	Aucun objectif ni action de développement pour l'instant.	Todavía no hay objetivos ni acciones de desarrollo.
+No goal yet.	Aucun objectif pour l'instant.	Todavía no hay objetivos.
+Not opened: :list	Non ouvertes : :list	No abiertas: :list
+Nothing planned yet.	Rien de prévu pour l'instant.	Nada planificado todavía.
+Only a recruiter, or this person's supervisor, closes a goal.	Seul un recruteur, ou le superviseur de cette personne, clôt un objectif.	Solo un reclutador, o el supervisor de esta persona, cierra un objetivo.
+Only a recruiter, or this person's supervisor, plans their development.	Seul un recruteur, ou le superviseur de cette personne, planifie son développement.	Solo un reclutador, o el supervisor de esta persona, planifica su desarrollo.
+Only a recruiter, or this person's supervisor, sets their goals.	Seul un recruteur, ou le superviseur de cette personne, fixe ses objectifs.	Solo un reclutador, o el supervisor de esta persona, fija sus objetivos.
+Only a recruiter, this person's supervisor, or the person, reports on a goal.	Seuls un recruteur, le superviseur de cette personne, ou la personne, rendent compte d'un objectif.	Solo un reclutador, el supervisor de esta persona, o la persona, informan sobre un objetivo.
+Only an open cycle is closed.	Seul un cycle ouvert se clôt.	Solo se cierra un ciclo abierto.
+Only its owner, a recruiter, or this person's supervisor, closes an action.	Seuls son responsable, un recruteur, ou le superviseur de cette personne, clôturent une action.	Solo su responsable, un reclutador, o el supervisor de esta persona, cierran una acción.
+Open for new assignments	Ouvrir aux nouvelles affectations	Abrir para nuevas asignaciones
+Open the cycle	Ouvrir le cycle	Abrir el ciclo
+Open the goals and development plan	Ouvrir les objectifs et le plan de développement	Abrir los objetivos y el plan de desarrollo
+Overdue	En retard	Vencido
+Performance	Performance	Desempeño
+Plan an action	Prévoir une action	Planificar una acción
+Plan the action	Prévoir l'action	Planificar la acción
+Planned	Prévu	Planificado
+Progress (%)	Avancement (%)	Avance (%)
+Progress is a percentage from 0 to 100.	L'avancement est un pourcentage de 0 à 100.	El avance es un porcentaje de 0 a 100.
+Progress record	Suivi des progrès	Registro de avances
+Progress, own account	Avancement, selon la personne	Avance, según la persona
+Record progress	Noter l'avancement	Registrar avance
+Review approved	Évaluation approuvée	Evaluación aprobada
+Review cycles	Cycles d'évaluation	Ciclos de evaluación
+Review cycles, goals and how they progress, and the development plan with whoever follows it up.	Cycles d'évaluation, objectifs et leur avancement, et le plan de développement avec son responsable de suivi.	Ciclos de evaluación, objetivos y su avance, y el plan de desarrollo con quien le da seguimiento.
+Say how it ended.	Dites comment il s'est terminé.	Diga cómo terminó.
+Say how the goal is measured.	Dites comment l'objectif se mesure.	Diga cómo se mide el objetivo.
+Say what came of it.	Dites ce qui en est sorti.	Diga qué resultó.
+Say what was done.	Dites ce qui a été fait.	Diga qué se hizo.
+Set a goal	Fixer un objectif	Fijar un objetivo
+Set the goal	Fixer l'objectif	Fijar el objetivo
+That action does not exist.	Cette action n'existe pas.	Esa acción no existe.
+That action is closed.	Cette action est close.	Esa acción está cerrada.
+That cycle does not exist.	Ce cycle n'existe pas.	Ese ciclo no existe.
+That cycle is closed.	Ce cycle est clos.	Ese ciclo está cerrado.
+That goal does not exist.	Cet objectif n'existe pas.	Ese objetivo no existe.
+That goal is closed.	Cet objectif est clos.	Ese objetivo está cerrado.
+That person is not yours to see.	Cette personne ne relève pas de vous.	Esa persona no le corresponde.
+That review is not this person's.	Cette évaluation n'est pas celle de cette personne.	Esa evaluación no es de esta persona.
+What came of it	Ce qui en est sorti	Qué resultó
+What was done	Ce qui a été fait	Qué se hizo
+Why, if reviews are unfinished	Pourquoi, si des évaluations ne sont pas finies	Por qué, si hay evaluaciones sin terminar
+Your crew	Votre équipe	Su equipo
+Yours to follow up	À vous de suivre	Para su seguimiento
+by :date	d'ici le :date	para el :date
+for example: Fourth-quarter reviews	par exemple : évaluations du quatrième trimestre	por ejemplo: evaluaciones del cuarto trimestre
+for example: confined-space entry course	par exemple : formation espace confiné	por ejemplo: curso de espacios confinados
+own account	selon la personne	según la persona

@@ -212,9 +212,10 @@ if ($bank && can('payroll') && ($_GET['reveal'] ?? '') === 'bank') {
 $classifications=$own?[]:classification_history($cid);
 $selfService=self_service_state($cid);
 $employment=!$own?employment_history($cid,can('payroll')):[];
+require_once __DIR__.'/../performance.php';$progress=can('recruiter')?array_slice(progress_record($cid),0,12):[];
 $comp=can('payroll')&&!$own?['grade'=>compensation_grade_on($cid,date('Y-m-d')),'grades'=>pay_grades(),'changes'=>rows('SELECT c.*,g.label AS grade_label,j.title FROM compensation_changes c LEFT JOIN pay_grades g ON g.id=c.grade_id LEFT JOIN placements p ON p.id=c.placement_id LEFT JOIN jobs j ON j.id=p.job_id WHERE c.candidate_id=? ORDER BY c.effective_from DESC,c.id DESC LIMIT 30',[$cid]),'current'=>rows("SELECT p.id,p.pay_rate,j.title FROM placements p JOIN jobs j ON j.id=p.job_id WHERE p.candidate_id=? AND p.status NOT IN ('completed','cancelled') ORDER BY p.id DESC",[$cid])]:null;
 $ownBank=$own?worker_bank_summary($cid):null;
 $payItems=can('payroll')?employee_pay_items($cid):[];
 $payItemChoices=can('payroll')?array_values(array_filter(pay_items(),fn($i)=>$i['method']!=='advance_repayment')):[];
 
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank','employment','comp'));
+render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank','employment','progress','comp'));

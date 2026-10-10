@@ -72,6 +72,7 @@ $tone = static fn(string $s): string => ['self_review' => 'blue', 'supervisor_re
 <?php endif; ?>
 
 <?php if ($role !== 'worker'): ?>
+<p><a href="/performance?candidate=<?= (int) $a['candidate_id'] ?>&amp;appraisal=<?= (int) $a['id'] ?>"><?= te('Goals and development plan for :name', ['name' => $a['full_name']]) ?></a></p>
 <div class="card scroll" id="appraisal-history"><h2><?= te('History') ?></h2>
   <table><tr><th><?= te('When') ?></th><th><?= te('What') ?></th><th><?= te('Detail') ?></th><th><?= te('By') ?></th></tr>
   <?php foreach ($events as $ev): ?>
