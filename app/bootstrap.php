@@ -363,6 +363,11 @@ function week_money(array $t, array $p, array $job): array
 
     $guarantee = (int) ($job['strike_live'] ? $job['strike_hours'] : $job['guarantee_hours']);
     $worked    = (float) $t['hours_worked'];
+    // Paid leave is paid at the base rate and counts toward the guarantee -
+    // a week of leave is not also topped up to the guarantee - but it is not
+    // time worked, so it never makes overtime.
+    $leaveHours = (float) ($t['paid_leave_hours'] ?? 0);
+    $guarantee  = max(0, $guarantee - $leaveHours);
 
     // The guarantee is a floor, never a ceiling.
     $paidHours  = max($worked, (float) $guarantee);
@@ -377,10 +382,11 @@ function week_money(array $t, array $p, array $job): array
     // weekly lines, double time, holidays, shift premiums, the person's
     // other assignments. A project without one is paid exactly as above.
     require_once __DIR__.'/pay-rules.php';
-    $ruled = pay_rules_week_for($t, $p, $job);
+    $ruled = pay_rules_week_for($t, $p, $job, (float) $guarantee);
     if ($ruled !== null) { $gross = $ruled; }
+    $leavePay   = round($leaveHours * $pay, 2);
     $labourCost = $gross['labour_cost'];
-    $payTotal   = $labourCost + $perDiemAmt + $expenses;
+    $payTotal   = $labourCost + $leavePay + $perDiemAmt + $expenses;
 
     // Billing follows hours actually worked unless the client agreed to carry
     // the guarantee. Until RSS tells us otherwise we bill what was worked,
@@ -395,6 +401,8 @@ function week_money(array $t, array $p, array $job): array
         'pay_rate'    => $pay,
         'bill_rate'   => $bill,
         'labour_cost' => $labourCost,
+        'paid_leave_hours' => $leaveHours,
+        'leave_pay'   => $leavePay,
         'per_diem'    => $perDiemAmt,
         'expenses'    => $expenses,
         'pay_total'   => $payTotal,

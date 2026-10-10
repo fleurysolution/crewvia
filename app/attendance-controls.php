@@ -286,6 +286,18 @@ function attendance_exceptions(int $jobId, string $from, string $to): array
         $add('waiting_review', $r);
     }
 
+    // Hours worked on a day the person is on approved leave: one of the
+    // two is wrong, and paying both pays the day twice.
+    foreach (rows("SELECT a.placement_id, a.work_date, a.hours, c.full_name, r.request_type
+                   FROM attendance_records a
+                   JOIN placements p ON p.id = a.placement_id JOIN candidates c ON c.id = p.candidate_id
+                   JOIN time_off_requests r ON r.placement_id = a.placement_id AND r.status = 'approved'
+                        AND a.work_date BETWEEN r.starts_on AND r.ends_on
+                   WHERE p.job_id = ? AND a.hours > 0 AND a.status <> 'rejected' AND a.work_date BETWEEN ? AND ?
+                   ORDER BY a.work_date, c.full_name", [$jobId, $from, $to]) as $r) {
+        $add('hours_on_leave', $r, (string) $r['request_type'] . ' · ' . (string) (float) $r['hours']);
+    }
+
     // A day outside the assignment's dates, which change after the fact.
     foreach (rows("SELECT a.placement_id, a.work_date, c.full_name
                    FROM attendance_records a
@@ -310,6 +322,7 @@ function attendance_exception_kinds(): array
         'two_assignments'    => t('Hours on two assignments the same day'),
         'waiting_review'     => t('Submitted more than two days ago and not yet reviewed'),
         'outside_assignment' => t('A day outside the assignment\'s dates'),
+        'hours_on_leave'     => t('Hours worked on a day of approved leave'),
     ];
 }
 

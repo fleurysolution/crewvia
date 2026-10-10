@@ -663,3 +663,49 @@ copy	copie	copia
 for example: Michigan	par exemple : Michigan	por ejemplo: Michigan
 for example: our payroll provider, 9 Oct 2026	par exemple : notre prestataire de paie, 9 oct. 2026	por ejemplo: nuestro proveedor de nómina, 9 oct. 2026
 none	aucun	ninguno
+1 day per :h hours worked	1 jour pour :h heures travaillées	1 día por cada :h horas trabajadas
+:kind is available after :n days on assignment.	:kind est disponible après :n jours d’affectation.	:kind está disponible tras :n días de asignación.
+:kind is available once an assignment has started.	:kind est disponible une fois une affectation commencée.	:kind está disponible una vez iniciada una asignación.
+:kind is not available to this kind of employment.	:kind n’est pas ouvert à ce type d’emploi.	:kind no está disponible para este tipo de empleo.
+:n days a year	:n jours par an	:n días al año
+A day of leave is paid as a number of hours from 0.25 to 24.	Un jour de congé est payé comme un nombre d’heures de 0,25 à 24.	Un día de permiso se paga como un número de horas de 0,25 a 24.
+A kind of leave with that name already exists.	Un type de congé de ce nom existe déjà.	Ya existe un tipo de permiso con ese nombre.
+A number of days each year	Un nombre de jours chaque année	Un número de días cada año
+Approving this would go over the allowance: :asked days asked, :left left.	L’approuver dépasserait le droit : :asked jours demandés, :left restants.	Aprobarlo excedería el derecho: :asked días pedidos, :left restantes.
+Cap :n days	Plafond :n jours	Tope :n días
+Carries over	Report	Se traspasa
+Change :kind	Modifier :kind	Modificar :kind
+Choose at least one kind of employment, or leave them all unticked for everybody.	Choisissez au moins un type d’emploi, ou ne cochez rien pour tout le monde.	Elija al menos un tipo de empleo, o no marque ninguno para todos.
+Days a year (blank for unlimited)	Jours par an (vide pour illimité)	Días al año (vacío para ilimitado)
+Days are whole numbers: up to 366 for an allowance, cap or carryover, up to 3650 for a waiting period.	Les jours sont des nombres entiers : jusqu’à 366 pour un droit, un plafond ou un report, jusqu’à 3650 pour un délai d’attente.	Los días son números enteros: hasta 366 para un derecho, tope o traspaso, hasta 3650 para un periodo de espera.
+Days on assignment before it can be taken	Jours d’affectation avant de pouvoir le prendre	Días de asignación antes de poder tomarlo
+Earned	Acquis	Generado
+Earned from hours worked	Acquis selon les heures travaillées	Generado por horas trabajadas
+Everybody	Tout le monde	Todos
+From approved leave of a paid kind, imported with the attendance. Paid at the base rate; counts toward the guarantee, never toward overtime.	Issu des congés payés approuvés, importé avec les présences. Payé au taux de base ; compte dans la garantie, jamais dans les heures supplémentaires.	De permisos pagados aprobados, importados con la asistencia. Se pagan a la tarifa base; cuentan para la garantía, nunca para horas extra.
+Hours paid for a day of it	Heures payées pour un jour	Horas pagadas por un día
+Hours worked on a day of approved leave	Des heures travaillées un jour de congé approuvé	Horas trabajadas en un día de permiso aprobado
+Hours worked to earn one day	Heures travaillées pour acquérir un jour	Horas trabajadas para generar un día
+How it is earned	Comment il s’acquiert	Cómo se genera
+Leave earned from hours worked needs the hours that earn one day, from 1 to 2000.	Un congé acquis selon les heures travaillées a besoin des heures qui valent un jour, de 1 à 2000.	Un permiso generado por horas trabajadas necesita las horas que generan un día, de 1 a 2000.
+Leave hours	Heures de congé	Horas de permiso
+Leave pay	Paie de congé	Pago de permiso
+Leave types	Types de congé	Tipos de permiso
+Most days available at once (blank for no cap)	Jours disponibles au maximum à la fois (vide pour aucun plafond)	Máximo de días disponibles a la vez (vacío para sin tope)
+Name the kind of leave in 2 to 90 characters.	Nommez le type de congé en 2 à 90 caractères.	Nombre el tipo de permiso con 2 a 90 caracteres.
+New kind of leave	Nouveau type de congé	Nuevo tipo de permiso
+Order in the list	Ordre dans la liste	Orden en la lista
+Paid leave hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.	Les heures de congé payé n’ont pas encore de code de gain ADP. Utilisez l’export de contrôle et saisissez-les à la main dans ADP.	Las horas de permiso pagado aún no tienen código de ingreso ADP. Use la exportación de revisión e introdúzcalas a mano en ADP.
+Paid leave this week	Congés payés cette semaine	Permisos pagados esta semana
+Requests	Demandes	Solicitudes
+Restore	Rétablir	Restaurar
+Restored: it can be asked for again.	Rétabli : il peut à nouveau être demandé.	Restaurado: puede volver a solicitarse.
+Retired: nobody can ask for it any more. Requests already made keep it.	Retiré : plus personne ne peut le demander. Les demandes déjà faites le gardent.	Retirado: ya nadie puede solicitarlo. Las solicitudes ya hechas lo conservan.
+Saved. Balances are worked out again from these rules the next time anybody looks.	Enregistré. Les soldes sont recalculés selon ces règles à la prochaine consultation.	Guardado. Los saldos se recalculan con estas reglas la próxima vez que alguien los consulte.
+That kind of leave does not exist.	Ce type de congé n’existe pas.	Ese tipo de permiso no existe.
+The kinds of time off, how each is earned, how much carries over and who may take it. Balances are always worked out from these rules and the approved requests, never typed.	Les types de congé, comment chacun s’acquiert, ce qui se reporte et qui peut le prendre. Les soldes sont toujours calculés à partir de ces règles et des demandes approuvées, jamais saisis.	Los tipos de permiso, cómo se genera cada uno, cuánto se traspasa y quién puede tomarlo. Los saldos se calculan siempre con estas reglas y las solicitudes aprobadas, nunca se escriben.
+Unlimited	Illimité	Ilimitado
+Unpaid	Non payé	No pagado
+Unused days that carry into next year	Jours non utilisés reportés sur l’année suivante	Días no usados que pasan al año siguiente
+Waiting period	Délai d’attente	Periodo de espera
+Who may take it (none ticked: everybody)	Qui peut le prendre (rien de coché : tout le monde)	Quién puede tomarlo (nada marcado: todos)

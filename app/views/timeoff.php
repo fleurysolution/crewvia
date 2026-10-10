@@ -47,14 +47,14 @@ $days = static fn (array $r): int =>
     <div class="grid g4" style="margin-bottom:18px">
       <?php foreach ($balances as $slug => $b): ?>
         <div class="stat">
-          <div class="n"><?= $b['left'] === null ? '&infin;' : (int) $b['left'] ?></div>
+          <div class="n"><?= $b['left'] === null ? '&infin;' : e(leave_days_text($b['left'])) ?></div>
           <div class="l"><?= te((string) $b['label']) ?></div>
           <div class="h">
             <?php if ($b['allowed'] === null): ?>
               <?= te('no yearly limit') ?>
             <?php else: ?>
               <?= te(':taken of :allowed days used', [
-                  'taken' => (int) $b['taken'], 'allowed' => (int) $b['allowed']]) ?>
+                  'taken' => leave_days_text($b['taken']), 'allowed' => leave_days_text($b['allowed'])]) ?>
             <?php endif; ?>
             <?= (int) $b['is_paid'] ? '' : ' · ' . te('unpaid') ?>
           </div>
@@ -101,7 +101,7 @@ $days = static fn (array $r): int =>
               <option value="<?= e($slug) ?>">
                 <?= te((string) $b['label']) ?>
                 <?php if ($b['left'] !== null): ?>
-                  &nbsp;— <?= te(':n days left', ['n' => (int) $b['left']]) ?>
+                  &nbsp;— <?= te(':n days left', ['n' => leave_days_text($b['left'])]) ?>
                 <?php endif; ?>
               </option>
             <?php endforeach; ?>

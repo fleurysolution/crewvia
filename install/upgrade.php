@@ -780,4 +780,40 @@ if (! $hadPayRules) {
     echo 'Pay rules: a draft federal baseline was added; it is not active until confirmed.' . PHP_EOL;
 }
 
+// ── P1-M04: leave accrual, carryover, eligibility, paid leave on the sheet ─
+// Reversed by install/rollback/p1-m04.sql. Every default reproduces what a
+// leave type did before: a yearly allowance, no carryover, no waiting
+// period, open to every kind of employment.
+$leaveColumns = [
+    'accrual_method'            => "ENUM('annual','hours_worked') NOT NULL DEFAULT 'annual' AFTER days_allowed",
+    'accrual_hours_per_day'     => 'DECIMAL(6,2) NULL AFTER accrual_method',
+    'accrual_cap_days'          => 'SMALLINT UNSIGNED NULL AFTER accrual_hours_per_day',
+    'carryover_max_days'        => 'SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER accrual_cap_days',
+    'eligible_after_days'       => 'SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER carryover_max_days',
+    'eligible_employment_types' => 'VARCHAR(100) NULL AFTER eligible_after_days',
+    'hours_per_day'             => 'DECIMAL(4,2) NOT NULL DEFAULT 8.00 AFTER is_paid',
+];
+$leaveAdded = 0;
+
+foreach ($leaveColumns as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='leave_types' AND column_name=?", [$column])) {
+        q('ALTER TABLE leave_types ADD COLUMN `' . $column . '` ' . $definition);
+        $leaveAdded++;
+    }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='timesheets' AND column_name='paid_leave_hours'")) {
+    // Paid leave is paid, but it is not time worked: it never counts
+    // toward overtime, so it is kept apart from hours_worked.
+    q('ALTER TABLE timesheets ADD COLUMN paid_leave_hours DECIMAL(6,2) NOT NULL DEFAULT 0 AFTER hours_worked');
+    $leaveAdded++;
+}
+
+if ($leaveAdded > 0) {
+    echo 'Leave: accrual, carryover, eligibility and paid leave on the weekly sheet are in place; '
+       . (int) val('SELECT COUNT(*) FROM leave_types') . ' existing leave type(s) keep their yearly allowance.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

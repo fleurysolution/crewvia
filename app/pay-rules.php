@@ -144,7 +144,7 @@ function pay_rule_shift_premium(int $setId, ?string $shiftLabel): float
  * Reads the approved days behind the sheet, the person's approved hours on
  * other assignments that week, their overtime status and their shift.
  */
-function pay_rules_week_for(array $sheet, array $placement, array $job): ?array
+function pay_rules_week_for(array $sheet, array $placement, array $job, ?float $guaranteeHours = null): ?array
 {
     $setId = (int) ($job['pay_rule_set_id'] ?? 0);
     $placementId = (int) ($sheet['placement_id'] ?? 0);
@@ -188,7 +188,7 @@ function pay_rules_week_for(array $sheet, array $placement, array $job): ?array
     $type = (string) ($person['employment_type'] ?? $placement['employment_type'] ?? 'hourly');
     $salaryValue = $person['salary_per_period'] ?? $placement['salary_per_period'] ?? null;
     $salary = $type === 'salaried' && $salaryValue !== null ? (float) $salaryValue : null;
-    $guarantee = (float) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 0) : ($job['guarantee_hours'] ?? 0));
+    $guarantee = $guaranteeHours ?? (float) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 0) : ($job['guarantee_hours'] ?? 0));
     $rate = (float) ($placement['pay_rate'] ?? $job['pay_rate'] ?? 0);
 
     $result = pay_rules_week($days, (float) $sheet['hours_worked'], $other, $guarantee, $rate,

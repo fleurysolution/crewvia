@@ -139,3 +139,17 @@ $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules
     <?php endif; ?>
   <?php endif; ?>
 </div>
+
+<?php $onLeave = array_filter($lines, fn($l) => (float) ($l['m']['paid_leave_hours'] ?? 0) > 0); ?>
+<?php if ($onLeave): ?>
+<div class="card" id="paid-leave-week">
+  <h2><?= te('Paid leave this week') ?></h2>
+  <p class="muted"><?= te('From approved leave of a paid kind, imported with the attendance. Paid at the base rate; counts toward the guarantee, never toward overtime.') ?></p>
+  <div class="scroll"><table>
+    <tr><th><?= te('Worker') ?></th><th class="num"><?= te('Leave hours') ?></th><th class="num"><?= te('Leave pay') ?></th></tr>
+    <?php foreach ($onLeave as $l): ?>
+    <tr data-leave="<?= (int) $l['id'] ?>"><td><?= e($l['full_name']) ?></td><td class="num mono"><?= e((string) (float) $l['m']['paid_leave_hours']) ?></td><td class="num mono"><?= e(money($l['m']['leave_pay'])) ?></td></tr>
+    <?php endforeach; ?>
+  </table></div>
+</div>
+<?php endif; ?>

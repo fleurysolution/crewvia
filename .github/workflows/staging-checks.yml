@@ -35,6 +35,9 @@ jobs:
       - name: Pay rules tests
         run: php tests/pay_rules_unit.php
 
+      - name: Leave tests
+        run: php tests/leave_unit.php
+
       - name: Recruitment ingestion contract tests
         run: php tests/connector_unit.php
 

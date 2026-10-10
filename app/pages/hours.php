@@ -35,6 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sheet=(int)val('SELECT id FROM timesheets WHERE placement_id=? AND week_ending=?',[$pid,$weekEnding]);
             q('INSERT INTO attendance_payroll_sources(timesheet_id,attendance_json,imported_by) VALUES (?,?,?) ON DUPLICATE KEY UPDATE attendance_json=VALUES(attendance_json),imported_by=VALUES(imported_by),imported_at=NOW()',[$sheet,json_encode($source,JSON_THROW_ON_ERROR),uid()]);
         }
+        // Paid leave in the week, for every open sheet - and a sheet for
+        // somebody whose whole week was leave. A leave cancelled since the
+        // last import goes back to zero here.
+        require_once __DIR__.'/../hr.php';
+        $leaveFor=array_column(rows("SELECT DISTINCT r.placement_id FROM time_off_requests r JOIN placements p ON p.id=r.placement_id WHERE p.job_id=? AND r.status='approved' AND r.starts_on<=? AND r.ends_on>=?",[$jobId,$weekEnding,$start]),'placement_id');
+        $open=array_column(rows("SELECT ts.placement_id FROM timesheets ts JOIN placements p ON p.id=ts.placement_id WHERE p.job_id=? AND ts.week_ending=? AND ts.status IN ('draft','submitted')",[$jobId,$weekEnding]),'placement_id');
+        foreach(array_unique(array_map('intval',array_merge($leaveFor,$open))) as $pid) {
+            if(row("SELECT id FROM timesheets WHERE placement_id=? AND week_ending=? AND status IN ('approved','paid')",[$pid,$weekEnding]))continue;
+            $leaveHours=leave_paid_hours_for_week($pid,$weekEnding);
+            if($leaveHours>0) q('INSERT INTO timesheets(placement_id,week_ending,hours_worked,paid_leave_hours) VALUES (?,?,0,?) ON DUPLICATE KEY UPDATE paid_leave_hours=VALUES(paid_leave_hours)',[$pid,$weekEnding,$leaveHours]);
+            else q("UPDATE timesheets SET paid_leave_hours=0 WHERE placement_id=? AND week_ending=? AND status IN ('draft','submitted')",[$pid,$weekEnding]);
+        }
         db()->commit();log_activity('imported approved attendance','project',$jobId,$weekEnding);flash(t('Approved attendance imported. Review per diem and expenses before approving payroll.'));redirect('/hours?week='.$weekEnding);
     }
     if ($do === 'save') {
@@ -108,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $crew = rows(
     "SELECT p.id, p.pay_rate, p.bill_rate, p.per_diem_rate, p.status,
             c.full_name, c.discipline,
-            e.employment_type,e.salary_per_period,ts.hours_worked, ts.per_diem_days, ts.expenses, ts.status AS sheet_status,snap.result_json snapshot_json
+            e.employment_type,e.salary_per_period,ts.hours_worked, ts.paid_leave_hours, ts.per_diem_days, ts.expenses, ts.status AS sheet_status,snap.result_json snapshot_json
      FROM placements p
      JOIN candidates c ON c.id = p.candidate_id
      LEFT JOIN employee_profiles e ON e.candidate_id=p.candidate_id
@@ -126,6 +138,7 @@ foreach ($crew as $p) {
         'week_ending'   => $week,
         'snapshot_json' => $p['snapshot_json'] ?? null,
         'hours_worked' => $p['hours_worked']  ?? 0,
+        'paid_leave_hours' => $p['paid_leave_hours'] ?? 0,
         'per_diem_days' => $p['per_diem_days'] ?? 0,
         'expenses'      => $p['expenses']      ?? 0,
     ];

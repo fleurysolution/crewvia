@@ -259,42 +259,120 @@ function leave_types(bool $includeRetired = false): array
 }
 
 /**
- * How much of an allowance somebody has used this year, and what is left.
+ * How much of an allowance somebody has, has used this year, and has left.
  *
  * Counted from approved requests only: a pending request is not yet a
  * day off, and refusing somebody on the strength of a request nobody has
  * decided would be wrong.
  *
- * An allowance of null means there is none - unpaid leave does not run
- * out - and that is reported as null rather than as a large number.
+ * The allowance follows the leave type: a yearly grant, or days earned
+ * from approved hours worked in the year, plus what carries over from
+ * last year, within the type's cap (app/leave-calculation.php). An
+ * allowance of null means there is none - unpaid leave does not run out -
+ * and that is reported as null rather than as a large number.
  *
- * @return array{allowed:?int,taken:int,left:?int}
+ * $exceptRequest leaves one request out of "taken", so an approval can
+ * ask whether this request still fits.
+ *
+ * @return array{allowed:?float,taken:float,left:?float,grant:?float,carryover:float}
  */
-function leave_balance(int $candidateId, string $slug, ?int $year = null): array
+function leave_balance(int $candidateId, string $slug, ?int $year = null, int $exceptRequest = 0): array
 {
+    require_once __DIR__ . '/leave-calculation.php';
+
     $year = $year ?? (int) date('Y');
     $type = leave_types(true)[$slug] ?? null;
-    $allowed = $type && $type['days_allowed'] !== null ? (int) $type['days_allowed'] : null;
 
-    try {
-        // Inclusive of both ends: somebody off Monday to Friday has taken
-        // five days, not four.
-        $taken = (int) val("SELECT COALESCE(SUM(DATEDIFF(r.ends_on, r.starts_on) + 1), 0)
+    if (! $type) {
+        return ['allowed' => 0.0, 'taken' => 0.0, 'left' => 0.0, 'grant' => 0.0, 'carryover' => 0.0];
+    }
+
+    // Inclusive of both ends: somebody off Monday to Friday has taken
+    // five days, not four.
+    $taken = static fn(int $y): float => (float) val("SELECT COALESCE(SUM(DATEDIFF(r.ends_on, r.starts_on) + 1), 0)
                             FROM time_off_requests r
                             JOIN placements p ON p.id = r.placement_id
                             WHERE p.candidate_id = ? AND r.leave_type = ?
-                              AND r.status = 'approved'
+                              AND r.status = 'approved' AND r.id <> ?
                               AND YEAR(r.starts_on) = ?",
-                           [$candidateId, $slug, $year]);
-    } catch (Throwable $e) {
-        $taken = 0;
-    }
+                           [$candidateId, $slug, $exceptRequest, $y]);
+
+    // What was earned is what was paid as worked: approved weekly sheets.
+    $hours = static fn(int $y): float => ($type['accrual_method'] ?? 'annual') !== 'hours_worked' ? 0.0
+        : (float) val("SELECT COALESCE(SUM(t.hours_worked), 0) FROM timesheets t
+                       JOIN placements p ON p.id = t.placement_id
+                       WHERE p.candidate_id = ? AND t.status IN ('approved','paid') AND YEAR(t.week_ending) = ?",
+                      [$candidateId, $y]);
+
+    $e = leave_entitlement($type, $hours($year), $hours($year - 1), $taken($year - 1));
+    $usedNow = $taken($year);
 
     return [
-        'allowed' => $allowed,
-        'taken'   => $taken,
-        'left'    => $allowed === null ? null : max(0, $allowed - $taken),
+        'allowed'   => $e['allowed'],
+        'taken'     => $usedNow,
+        'left'      => $e['allowed'] === null ? null : max(0.0, round($e['allowed'] - $usedNow, 2)),
+        'grant'     => $e['grant'],
+        'carryover' => $e['carryover'],
     ];
+}
+
+/**
+ * Why somebody may not take a kind of leave on a date, in words, or null.
+ */
+function leave_refusal_for(int $candidateId, string $slug, string $onDate): ?string
+{
+    require_once __DIR__ . '/leave-calculation.php';
+
+    $type = leave_types(true)[$slug] ?? null;
+
+    if (! $type) {
+        return t('Choose what kind of time off this is.');
+    }
+
+    $type['eligible_after_days'] ??= 0;
+    $employment = (string) (val('SELECT employment_type FROM employee_profiles WHERE candidate_id = ?', [$candidateId]) ?? 'hourly');
+    $first = val("SELECT MIN(start_date) FROM placements WHERE candidate_id = ? AND status <> 'cancelled'", [$candidateId]);
+
+    return match (leave_ineligibility($type, $employment, $first !== null ? (string) $first : null, $onDate)) {
+        'employment_type' => t(':kind is not available to this kind of employment.', ['kind' => t((string) $type['label'])]),
+        'waiting_period'  => t(':kind is available after :n days on assignment.', ['kind' => t((string) $type['label']), 'n' => (int) $type['eligible_after_days']]),
+        'not_started'     => t(':kind is available once an assignment has started.', ['kind' => t((string) $type['label'])]),
+        default           => null,
+    };
+}
+
+/** A number of days as people write it: 3, 2.5, 0.25. */
+function leave_days_text(?float $days): string
+{
+    if ($days === null) {
+        return '∞';
+    }
+
+    return rtrim(rtrim(number_format($days, 2, '.', ''), '0'), '.') ?: '0';
+}
+
+/**
+ * Paid leave hours for one assignment in one week: approved, paid kinds of
+ * leave, the days of each request inside the week, at the type's hours per
+ * day. Read when approved attendance is imported into the weekly sheet.
+ */
+function leave_paid_hours_for_week(int $placementId, string $weekEnding): float
+{
+    require_once __DIR__ . '/leave-calculation.php';
+
+    $start = date('Y-m-d', strtotime($weekEnding . ' -6 days'));
+    $hours = 0.0;
+
+    foreach (rows("SELECT r.starts_on, r.ends_on, t.hours_per_day
+                   FROM time_off_requests r JOIN leave_types t ON t.slug = r.leave_type
+                   WHERE r.placement_id = ? AND r.status = 'approved' AND t.is_paid = 1
+                     AND r.starts_on <= ? AND r.ends_on >= ?",
+                  [$placementId, $weekEnding, $start]) as $r) {
+        $hours += leave_days_between((string) $r['starts_on'], (string) $r['ends_on'], $start, $weekEnding)
+                * (float) $r['hours_per_day'];
+    }
+
+    return round($hours, 2);
 }
 
 /**
