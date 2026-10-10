@@ -1519,4 +1519,86 @@ if (! $hadHrRequests) {
        . 'and can send HR requests; ' . (int) val('SELECT COUNT(*) FROM worker_accounts') . ' worker account(s) see it.' . PHP_EOL;
 }
 
+// ── P3-M03: Crewvia's own general ledger ─────────────────────────────────
+// Reversed by install/rollback/p3-m03.sql.
+$ledgerSql = __DIR__ . '/ledger.sql';
+
+if (! is_file($ledgerSql)) {
+    fwrite(STDERR, "Missing install/ledger.sql\n");
+    exit(1);
+}
+
+$hadLedger = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='gl_journals'");
+
+// The chart of accounts gains numbers, an equity side, and accounts an
+// administrator adds. The accounts the records post to are the system's
+// and cannot be switched off.
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns
+                                 WHERE table_schema=DATABASE() AND table_name='accounting_accounts' AND column_name='side'"), 'equity')) {
+    q("ALTER TABLE accounting_accounts MODIFY side ENUM('asset','liability','equity','income','expense') NOT NULL");
+}
+$numbered = (bool) val("SELECT COUNT(*) FROM information_schema.columns
+                        WHERE table_schema=DATABASE() AND table_name='accounting_accounts' AND column_name='number'");
+foreach (['number' => 'VARCHAR(10) NULL', 'is_system' => 'TINYINT(1) NOT NULL DEFAULT 0', 'is_active' => 'TINYINT(1) NOT NULL DEFAULT 1'] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='accounting_accounts' AND column_name=?", [$column])) {
+        q('ALTER TABLE accounting_accounts ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.statistics
+           WHERE table_schema=DATABASE() AND table_name='accounting_accounts' AND index_name='uq_account_number'")) {
+    q('ALTER TABLE accounting_accounts ADD UNIQUE KEY uq_account_number (number)');
+}
+if (! $numbered) {
+    q('INSERT IGNORE INTO accounting_accounts (account_key, label, side, qb_account, sort_order) VALUES (?,?,?,?,?)', ['owner_equity', 'Owner equity', 'equity', 'Owner Investment', 0]);
+    q('INSERT IGNORE INTO accounting_accounts (account_key, label, side, qb_account, sort_order) VALUES (?,?,?,?,?)', ['retained_earnings', 'Retained earnings', 'equity', 'Retained Earnings', 0]);
+    foreach (['bank' => 1000, 'accounts_receivable' => 1100, 'accounts_payable' => 2000, 'net_pay_payable' => 2100, 'deductions_payable' => 2110,
+              'employer_payable' => 2120, 'owner_equity' => 3000, 'retained_earnings' => 3900, 'revenue' => 4000, 'wages_expense' => 5000,
+              'employer_expense' => 5010, 'per_diem_expense' => 5020, 'hotels_expense' => 5100, 'transportation_expense' => 5110,
+              'equipment_expense' => 5120, 'other_expense' => 5900] as $key => $number) {
+        q('UPDATE accounting_accounts SET number = ?, sort_order = ?, is_system = 1 WHERE account_key = ? AND number IS NULL', [(string) $number, $number, $key]);
+    }
+}
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($ledgerSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// A posted journal and its lines are never changed or deleted. Only the
+// link to its correcting journal is written later. The triggers need the
+// TRIGGER privilege: without it the ledger still refuses changes in the
+// application, and its hash chain still shows any made around it.
+$guard = static fn(string $cond, string $msg): string => "BEGIN IF $cond THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '$msg'; END IF; END";
+$journalSame = implode(' AND ', array_map(fn($c) => "NEW.$c <=> OLD.$c", ['id', 'kind', 'source', 'export_key', 'doc_date', 'posted_on', 'memo', 'status', 'total',
+                                                                             'reverses_id', 'reason', 'created_by', 'approved_by', 'posted_at', 'chain_no', 'prev_hash', 'hash']));
+$posted = static fn(string $row): string => "(SELECT status FROM gl_journals WHERE id = $row.journal_id) = 'posted'";
+$triggers = [
+    'gl_journals_no_update' => ['BEFORE UPDATE ON gl_journals', $guard("OLD.status = 'posted' AND NOT ($journalSame)", 'A posted journal cannot be changed')],
+    'gl_journals_no_delete' => ['BEFORE DELETE ON gl_journals', $guard("OLD.status = 'posted'", 'A posted journal cannot be deleted')],
+    'gl_lines_no_insert'    => ['BEFORE INSERT ON gl_lines', $guard($posted('NEW'), 'A posted journal cannot be changed')],
+    'gl_lines_no_update'    => ['BEFORE UPDATE ON gl_lines', $guard($posted('OLD') . ' OR ' . $posted('NEW'), 'A posted journal cannot be changed')],
+    'gl_lines_no_delete'    => ['BEFORE DELETE ON gl_lines', $guard($posted('OLD'), 'A posted journal cannot be deleted')],
+];
+$triggerWarning = null;
+foreach ($triggers as $name => [$when, $body]) {
+    try {
+        db()->exec("CREATE TRIGGER IF NOT EXISTS $name $when FOR EACH ROW $body");
+    } catch (Throwable $e) {
+        $triggerWarning = $e->getMessage();
+    }
+}
+if ($triggerWarning !== null) {
+    echo 'Ledger: WARNING, the database refused the triggers that protect posted journals (' . $triggerWarning . '). '
+       . 'The application still refuses changes and the hash chain shows any; grant TRIGGER and run the upgrade again.' . PHP_EOL;
+}
+
+if (! $hadLedger) {
+    echo 'Ledger: Crewvia keeps its own books; each recorded invoice, payment, credit, bill, claim and payroll period posts itself once, '
+       . 'and the QuickBooks export is drawn from it; ' . (int) val('SELECT COUNT(*) FROM accounting_accounts') . ' accounts are numbered.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -2,7 +2,7 @@
 $sum = static fn(array $entries, string $side): float => round(array_sum(array_map(fn($e) => array_sum(array_column($e['lines'], $side)), $entries)), 2);
 ?>
 <h1><?= te('QuickBooks export') ?></h1>
-<p class="sub"><?= te('Crewvia keeps no ledger. It sends what it records to QuickBooks Online as journal entries, each record once. A batch is never edited: a mistake is cancelled by a reversal.') ?></p>
+<p class="sub"><?= te('Drawn from the Crewvia ledger: each journal goes to QuickBooks Online once, so nothing is keyed twice. A batch is never edited: a mistake is cancelled by a reversal.') ?> <a href="/ledger"><?= te('Ledger') ?></a></p>
 
 <div class="card" id="export-pending">
   <h2><?= te('Waiting to be exported') ?></h2>

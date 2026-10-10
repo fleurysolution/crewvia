@@ -113,9 +113,12 @@ check('The same payment dated today, an open month, is recorded', status == 200)
 pay = probe()['ar'][-1]
 probe('backdate', pay['id'])
 status, body = payroll.get('/accounting')
-check('A record that slipped into the closed month blocks the export', 'a closed month' in body and act(payroll, '/accounting', {'do': 'export', 'through': TODAY})[0] == 422)
+slipped = next(g for g in probe()['gl'] if g['source'] == 'ar_payment:%d:post' % int(pay['id']))
+check('A record that slipped into the closed month reaches the ledger in the open month, never in March (P3-M03)',
+      slipped['doc_date'] == '2023-03-28' and slipped['posted_on'] == TODAY and 'a closed month' not in body, slipped)
 probe('restore', pay['id'])
-check('Back in an open month, it exports', act(payroll, '/accounting', {'do': 'export', 'through': TODAY})[0] == 200)
+check('It exports, dated today', act(payroll, '/accounting', {'do': 'export', 'through': TODAY})[0] == 200
+      and not [l for l in probe()['march'] if l['source'] == 'ar_payment:%d:post' % int(pay['id'])])
 check('Reversing the March export dated in March is refused', act(payroll, '/accounting', {'do': 'reverse', 'batch_id': march_batch, 'date': '2023-03-31', 'reason': 'Wrong company'})[0] == 422)
 check('Reversed today instead, it is accepted', act(payroll, '/accounting', {'do': 'reverse', 'batch_id': march_batch, 'date': TODAY, 'reason': 'Wrong company'})[0] == 200)
 rows_after, _ = tb(payroll.get('/periods?period=' + MARCH)[1])

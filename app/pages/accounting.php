@@ -10,6 +10,9 @@ require_once __DIR__ . '/../accounting.php';
 
 require_role('payroll');
 
+// What was recorded since reaches the ledger first, so the export has it.
+ledger_sync();
+
 if (isset($_GET['download'])) {
     $b = row('SELECT * FROM accounting_batches WHERE id = ?', [(int) $_GET['download']]);
     if (! $b) {

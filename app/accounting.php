@@ -2,9 +2,11 @@
 /**
  * The chart-of-accounts mapping and the QuickBooks export (P3-M02).
  *
- * Crewvia keeps no ledger. RSS keeps its books in QuickBooks Online and
- * runs payroll through ADP. Crewvia turns what it already records into
- * QuickBooks journal entries, in batches:
+ * RSS keeps its books in QuickBooks Online and runs payroll through ADP.
+ * Crewvia turns what it already records into journal entries: they post
+ * themselves to Crewvia's own ledger (P3-M03, app/ledger.php), and the
+ * export sends the ledger's journals to QuickBooks, in batches. Nothing is
+ * keyed twice. The entries are:
  *
  *   client invoice issued     Dr A/R (client)          Cr revenue
  *   payment received (P3-M04) Dr bank                  Cr A/R (client)
@@ -28,7 +30,9 @@
  *
  * Rules that keep the books right:
  *   - every entry balances, or the batch is refused
- *   - each source goes out once: accounting_sources.active_key is unique
+ *   - each journal goes out once: accounting_sources.active_key is unique.
+ *     A journal posted from a record keeps the record's key (the keys of
+ *     exports made before the ledger), a manual one is gl_journal:<id>:<random>
  *   - nothing goes to an account an administrator has not confirmed
  *   - a batch is never edited or deleted; it is reversed by a correcting
  *     batch with debits and credits swapped, which frees its sources
@@ -37,6 +41,8 @@
  */
 
 declare(strict_types=1);
+
+require_once __DIR__ . '/ledger.php';
 
 function accounting_accounts(): array
 {
@@ -62,12 +68,23 @@ function accounting_cost_account(string $category): string
 }
 
 /**
- * Every entry not yet exported, dated on or before $through. Each entry is
- * one source with balanced lines.
+ * Every ledger journal not yet exported, posted on or before $through. Each
+ * entry is one journal with balanced lines. The caller syncs the ledger
+ * first (ledger_sync), outside its transaction.
  *
  * @return list<array{source:string,date:string,memo:string,lines:list<array>}>
  */
 function accounting_pending(string $through): array
+{
+    return ledger_unexported($through, accounting_payroll_enabled());
+}
+
+/**
+ * Every entry Crewvia's records make, dated on or before $through. The
+ * ledger posts each once (ledger_sync). $payroll: whether the payroll
+ * periods are included.
+ */
+function accounting_entries(string $through, bool $payroll): array
 {
     $entries = [];
     $line = static fn(string $account, float $debit, float $credit, ?string $party = null, ?string $class = null): array =>
@@ -163,7 +180,7 @@ function accounting_pending(string $through): array
               [$line(accounting_cost_account((string) $e['category']), $amount, 0, null, $e['title']), $line('bank', 0, $amount, null, $e['title'])]);
     }
 
-    if (accounting_payroll_enabled()) {
+    if ($payroll) {
         foreach (rows("SELECT * FROM payroll_runs WHERE status IN ('approved','locked')") as $run) {
             $lines = accounting_payroll_lines($run, $line);
             if ($lines) {
@@ -174,12 +191,7 @@ function accounting_pending(string $through): array
 
     usort($entries, fn($a, $b) => [$a['date'], $a['source']] <=> [$b['date'], $b['source']]);
 
-    $done = [];
-    foreach (rows('SELECT active_key FROM accounting_sources WHERE active_key IS NOT NULL') as $r) {
-        $done[$r['active_key']] = true;
-    }
-
-    return array_values(array_filter($entries, fn($e) => ! isset($done[$e['source']])));
+    return $entries;
 }
 
 /** One payroll period as a balanced journal, a set of lines per project. */

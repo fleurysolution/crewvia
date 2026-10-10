@@ -1980,3 +1980,86 @@ Your name, contact details and bank details; changes are checked by HR.	Votre no
 Your reviews, once approved.	Vos évaluations, une fois approuvées.	Sus evaluaciones, una vez aprobadas.
 crew member	membre d'équipe	miembro del equipo
 the letter is to state the pay rate	la lettre doit indiquer le taux de paie	la carta debe indicar la tarifa
+Date the journal today or earlier.	Datez l'écriture d'aujourd'hui ou d'avant.	Feche el asiento hoy o antes.
+Say what the journal records.	Dites ce que l'écriture enregistre.	Diga qué registra el asiento.
+A journal has between 2 and 20 lines.	Une écriture compte de 2 à 20 lignes.	Un asiento tiene entre 2 y 20 líneas.
+Client and vendor balances are recorded on Receivables and payables, never by journal: they would no longer match the invoices.	Les soldes clients et fournisseurs s'enregistrent dans Créances et dettes, jamais par écriture : ils ne correspondraient plus aux factures.	Los saldos de clientes y proveedores se registran en Cuentas por cobrar y por pagar, nunca por asiento: ya no coincidirían con las facturas.
+Choose an active account on every line.	Choisissez un compte actif sur chaque ligne.	Elija una cuenta activa en cada línea.
+Amounts are positive, with at most two decimals.	Les montants sont positifs, avec au plus deux décimales.	Los importes son positivos, con dos decimales como máximo.
+Each line is either a debit or a credit.	Chaque ligne est soit un débit, soit un crédit.	Cada línea es un débito o un crédito.
+A name or class is at most 190 characters.	Un nom ou une classe fait au plus 190 caractères.	Un nombre o una clase tiene como máximo 190 caracteres.
+Debits and credits must be equal: debits :dr, credits :cr.	Les débits et les crédits doivent être égaux : débits :dr, crédits :cr.	Los débitos y los créditos deben ser iguales: débitos :dr, créditos :cr.
+That draft journal does not exist or is no longer a draft.	Ce brouillon d'écriture n'existe pas ou n'est plus un brouillon.	Ese borrador de asiento no existe o ya no es un borrador.
+Someone other than the author posts a journal.	Une écriture est comptabilisée par une autre personne que son auteur.	Un asiento lo contabiliza alguien distinto de su autor.
+Only its author or an administrator discards a draft.	Seuls son auteur ou un administrateur abandonnent un brouillon.	Solo su autor o un administrador descartan un borrador.
+That journal does not exist or is not posted.	Cette écriture n'existe pas ou n'est pas comptabilisée.	Ese asiento no existe o no está contabilizado.
+A journal posted from a record is corrected on the record: reverse the payment, or issue a credit note.	Une écriture issue d'un enregistrement se corrige sur l'enregistrement : annulez le paiement, ou émettez un avoir.	Un asiento que proviene de un registro se corrige en el registro: anule el pago o emita una nota de crédito.
+That journal is already reversed.	Cette écriture est déjà contre-passée.	Ese asiento ya está revertido.
+Say why the journal is reversed.	Dites pourquoi l'écriture est contre-passée.	Diga por qué se revierte el asiento.
+Date the reversal between the journal date and today.	Datez la contre-passation entre la date de l'écriture et aujourd'hui.	Feche la reversión entre la fecha del asiento y hoy.
+An account number has 4 to 6 digits.	Un numéro de compte a de 4 à 6 chiffres.	Un número de cuenta tiene de 4 a 6 dígitos.
+That account number is taken.	Ce numéro de compte est déjà pris.	Ese número de cuenta ya está en uso.
+Name the account in 3 to 120 characters.	Nommez le compte en 3 à 120 caractères.	Nombre la cuenta con 3 a 120 caracteres.
+Choose what kind of account it is.	Choisissez le type de compte.	Elija el tipo de cuenta.
+That account does not exist.	Ce compte n'existe pas.	Esa cuenta no existe.
+The records post to this account: it stays active.	Les enregistrements alimentent ce compte : il reste actif.	Los registros contabilizan en esta cuenta: sigue activa.
+The record no longer makes this entry.	L'enregistrement ne produit plus cette écriture.	El registro ya no produce este asiento.
+The record now gives other amounts or accounts.	L'enregistrement donne maintenant d'autres montants ou comptes.	El registro ahora da otros importes o cuentas.
+The record is now dated :d, not :p.	L'enregistrement est maintenant daté du :d, et non du :p.	El registro ahora tiene fecha :d, no :p.
+Account added. Map it to QuickBooks before a journal using it is exported.	Compte ajouté. Faites-le correspondre à QuickBooks avant qu'une écriture qui l'utilise soit exportée.	Cuenta añadida. Asóciela a QuickBooks antes de exportar un asiento que la use.
+Account saved.	Compte enregistré.	Cuenta guardada.
+The ledger is busy. Try again in a moment.	Le grand livre est occupé. Réessayez dans un instant.	El libro mayor está ocupado. Inténtelo de nuevo en un momento.
+Journal :n drafted. Someone else posts it.	Écriture :n en brouillon. Une autre personne la comptabilise.	Asiento :n en borrador. Otra persona lo contabiliza.
+Journal :n posted.	Écriture :n comptabilisée.	Asiento :n contabilizado.
+Draft :n discarded.	Brouillon :n abandonné.	Borrador :n descartado.
+Journal :n reversed by journal :r.	Écriture :n contre-passée par l'écriture :r.	Asiento :n revertido por el asiento :r.
+Liability	Passif	Pasivo
+Equity	Capitaux propres	Patrimonio
+Income	Produit	Ingreso
+Expense	Charge	Gasto
+From a record	Issue d'un enregistrement	De un registro
+Manual	Manuelle	Manual
+Reversal	Contre-passation	Reversión
+Ledger	Grand livre	Libro mayor
+Crewvia keeps its own books. Each invoice, payment, credit note, bill, paid claim and payroll period posts itself here once, when it is recorded; nothing is keyed twice, and the QuickBooks export is drawn from these journals. Type a journal only for what Crewvia never sees: rent, insurance, bank fees, payroll taxes paid through ADP.	Crewvia tient ses propres livres. Chaque facture, paiement, avoir, facture fournisseur, remboursement payé et période de paie s'y inscrit une seule fois, dès qu'il est enregistré ; rien n'est saisi deux fois, et l'export QuickBooks est tiré de ces écritures. Saisissez une écriture seulement pour ce que Crewvia ne voit jamais : loyer, assurance, frais bancaires, charges de paie payées par ADP.	Crewvia lleva sus propios libros. Cada factura, pago, nota de crédito, factura de proveedor, reembolso pagado y período de nómina se contabiliza aquí una sola vez, al registrarse; nada se ingresa dos veces, y la exportación a QuickBooks sale de estos asientos. Escriba un asiento solo para lo que Crewvia nunca ve: alquiler, seguros, comisiones bancarias, impuestos de nómina pagados por ADP.
+Integrity	Intégrité	Integridad
+Intact	Intact	Intacto
+:n posted journals checked: each balances, and each fingerprint matches its content and the journal before it.	:n écritures comptabilisées vérifiées : chacune est équilibrée, et chaque empreinte correspond à son contenu et à l'écriture précédente.	:n asientos contabilizados verificados: cada uno cuadra, y cada huella coincide con su contenido y con el asiento anterior.
+Journal :n no longer matches its fingerprint: it, or one before it, was changed outside Crewvia. Restore it from a backup.	L'écriture :n ne correspond plus à son empreinte : elle, ou une précédente, a été modifiée hors de Crewvia. Restaurez-la depuis une sauvegarde.	El asiento :n ya no coincide con su huella: él, o uno anterior, se modificó fuera de Crewvia. Restáurelo desde una copia de seguridad.
+Journals that do not balance: :list.	Écritures non équilibrées : :list.	Asientos que no cuadran: :list.
+The database itself refuses any change to a posted journal.	La base de données refuse elle-même toute modification d'une écriture comptabilisée.	La propia base de datos rechaza cualquier cambio en un asiento contabilizado.
+The database triggers that refuse changes to posted journals are missing: grant TRIGGER and run the upgrade. Crewvia still refuses them.	Les déclencheurs de la base qui refusent les modifications des écritures comptabilisées manquent : accordez TRIGGER et relancez la mise à niveau. Crewvia les refuse toujours.	Faltan los disparadores de la base que rechazan cambios en asientos contabilizados: conceda TRIGGER y ejecute la actualización. Crewvia los sigue rechazando.
+:n journals were just posted from the records.	:n écritures viennent d'être comptabilisées depuis les enregistrements.	Se acaban de contabilizar :n asientos desde los registros.
+These records do not balance and were not posted: :list.	Ces enregistrements ne sont pas équilibrés et n'ont pas été comptabilisés : :list.	Estos registros no cuadran y no se contabilizaron: :list.
+Records changed after posting	Enregistrements modifiés après comptabilisation	Registros modificados después de contabilizar
+The journal stands as posted. Correct the record with its own correction, a reversal or a credit note, which posts the difference.	L'écriture reste telle que comptabilisée. Corrigez l'enregistrement par sa propre correction, une annulation ou un avoir, qui comptabilise la différence.	El asiento queda como se contabilizó. Corrija el registro con su propia corrección, una anulación o una nota de crédito, que contabiliza la diferencia.
+Trial balance	Balance de vérification	Balance de comprobación
+Nothing posted up to the end of this month.	Rien de comptabilisé jusqu'à la fin de ce mois.	Nada contabilizado hasta el final de este mes.
+Debits and credits differ. Check the integrity above.	Les débits et les crédits diffèrent. Vérifiez l'intégrité ci-dessus.	Los débitos y los créditos difieren. Revise la integridad más arriba.
+Posted	Comptabilisée	Contabilizado
+Journal	Écriture	Asiento
+Memo	Libellé	Concepto
+Opening balance	Solde d'ouverture	Saldo inicial
+Ledger and QuickBooks	Grand livre et QuickBooks	Libro mayor y QuickBooks
+Each account in the ledger beside what was exported to QuickBooks, to date. A difference is waiting to be exported, or payroll left to ADP.	Chaque compte du grand livre à côté de ce qui a été exporté vers QuickBooks, à ce jour. Un écart attend d'être exporté, ou c'est la paie laissée à ADP.	Cada cuenta del libro mayor junto a lo exportado a QuickBooks, a la fecha. Una diferencia espera ser exportada, o es nómina dejada a ADP.
+Exported	Exporté	Exportado
+Journals waiting to be posted	Écritures en attente de comptabilisation	Asientos pendientes de contabilizar
+No draft journal.	Aucun brouillon d'écriture.	Ningún borrador de asiento.
+by :name	par :name	por :name
+Post it	La comptabiliser	Contabilizarlo
+Someone else posts it.	Une autre personne la comptabilise.	Otra persona lo contabiliza.
+Discard	Abandonner	Descartar
+New journal	Nouvelle écriture	Nuevo asiento
+Only for what Crewvia does not record. Client and vendor balances go through Receivables and payables. Someone other than you posts it.	Seulement pour ce que Crewvia n'enregistre pas. Les soldes clients et fournisseurs passent par Créances et dettes. Une autre personne que vous la comptabilise.	Solo para lo que Crewvia no registra. Los saldos de clientes y proveedores van por Cuentas por cobrar y por pagar. Otra persona lo contabiliza.
+What it records	Ce qu'elle enregistre	Qué registra
+Draft the journal	Préparer l'écriture	Preparar el asiento
+Posted journals	Écritures comptabilisées	Asientos contabilizados
+Nothing posted yet.	Rien de comptabilisé pour l'instant.	Nada contabilizado todavía.
+Lines	Lignes	Líneas
+dated :d, a month already closed	daté du :d, un mois déjà clôturé	con fecha :d, un mes ya cerrado
+Number	Numéro	Número
+not checked	non vérifié	sin verificar
+Built in: stays active	Intégré : reste actif	Integrada: sigue activa
+Add the account	Ajouter le compte	Añadir la cuenta
+A new account is mapped to QuickBooks on the QuickBooks export page before a journal using it can be exported.	Un nouveau compte est mis en correspondance avec QuickBooks sur la page d'export QuickBooks avant qu'une écriture qui l'utilise puisse être exportée.	Una cuenta nueva se asocia a QuickBooks en la página de exportación a QuickBooks antes de poder exportar un asiento que la use.
+Drawn from the Crewvia ledger: each journal goes to QuickBooks Online once, so nothing is keyed twice. A batch is never edited: a mistake is cancelled by a reversal.	Tiré du grand livre Crewvia : chaque écriture part une seule fois vers QuickBooks Online, donc rien n'est saisi deux fois. Un lot n'est jamais modifié : une erreur s'annule par une contre-passation.	Sale del libro mayor de Crewvia: cada asiento va una sola vez a QuickBooks Online, así que nada se ingresa dos veces. Un lote nunca se edita: un error se anula con una reversión.

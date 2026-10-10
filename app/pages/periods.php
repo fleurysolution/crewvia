@@ -10,6 +10,9 @@ require_once __DIR__ . '/../periods.php';
 
 require_role('payroll');
 
+// A month is judged on a ledger that has everything recorded in it.
+ledger_sync();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_role('admin');
     $do = (string) ($_POST['do'] ?? '');

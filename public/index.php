@@ -184,6 +184,7 @@ $routes = [
     '/appraisal-templates' => 'appraisal-templates',
     '/project-costs' => 'project-costs',
     '/accounting' => 'accounting',
+    '/ledger' => 'ledger',
     '/balances' => 'balances',
     '/periods' => 'periods',
     '/vendors' => 'vendors',

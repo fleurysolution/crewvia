@@ -11,6 +11,9 @@
 --
 -- Run:  mysql <database> < install/rollback/p3-m02.sql
 
+-- The ledger (P3-M03) posts to these accounts: it goes first.
+DROP TABLE IF EXISTS gl_lines;
+DROP TABLE IF EXISTS gl_journals;
 DROP TABLE IF EXISTS accounting_sources;
 DROP TABLE IF EXISTS accounting_lines;
 DROP TABLE IF EXISTS accounting_batches;

@@ -39,4 +39,5 @@ echo json_encode([
     'bills'   => rows("SELECT id, status FROM vendor_invoices WHERE vendor_name = 'Periods vendor' ORDER BY id"),
     'ar'      => rows('SELECT id, client_id, reference FROM ar_payments ORDER BY id'),
     'batches' => rows('SELECT id, kind, status FROM accounting_batches ORDER BY id'),
+    'gl'      => rows("SELECT source, doc_date, posted_on FROM gl_journals WHERE source LIKE 'ar_payment:%' ORDER BY id"),
 ]);
