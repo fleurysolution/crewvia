@@ -59,11 +59,11 @@ admin_only = ['/leave-types', '/settings', '/people', '/imports', '/structure', 
 roles = {
     'admin':      ('admin@test.invalid', []),
     'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/hotels', '/travel', '/procurement']),
-    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/candidates', '/recruitment', '/employees', '/advances']),
+    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
     'payroll':    ('m01-payroll@test.invalid', admin_only + ['/hotels', '/travel', '/candidates', '/recruitment']),
-    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster']),
-    'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team']),
-    'client':     ('client@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff']),
+    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
+    'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests']),
+    'client':     ('client@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
 }
 
 pages = 0

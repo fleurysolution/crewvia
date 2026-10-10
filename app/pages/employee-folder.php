@@ -3,6 +3,7 @@ require_once __DIR__.'/../hr.php';
 require_once __DIR__.'/../gmail.php';
 require_once __DIR__.'/../classification.php';
 require_once __DIR__.'/../gross-to-net.php';
+require_once __DIR__.'/../self-service.php';
 require_login();$own=is_worker_account();$cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['id'] ?? $_POST['candidate_id'] ?? 0);
 if(!$own) require_role('recruiter','payroll');
 // Opened from the menu there is no id, and nowhere in the interface shows
@@ -28,6 +29,19 @@ $c=row('SELECT * FROM candidates WHERE id=?',[$cid]);if(!$c) { refuse(404, t('Em
 q('INSERT IGNORE INTO employee_profiles(candidate_id) VALUES (?)',[$cid]);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
+ // ── the worker's own: proposed, then validated by staff (R22-R24) ──
+ if($own && $do==='self_bank') {
+  if(($why=self_bank_submit($cid,$_POST,uid()))!==null) refuse(422,$why);
+  flash(t('Thank you. Payroll checks your bank details before they are used; until then your pay goes where it went before.'));
+ }
+ if($own && $do==='self_detail') {
+  if(($why=self_detail_submit($cid,(string)($_POST['field'] ?? ''),(string)($_POST['value'] ?? ''),(string)($_POST['reason'] ?? ''),uid()))!==null) refuse(422,$why);
+  flash(t('Sent. Your details change once somebody here has checked it.'));
+ }
+ if($own && $do==='self_confirm') {
+  self_confirm_unchanged($cid,uid());
+  flash(t('Thank you. Your details on file are confirmed for this job.'));
+ }
  if($do==='profile') {
   require_role('recruiter');$availability=$_POST['availability'] ?? '';
   // The rehire decision is made on the person's page, where it asks
@@ -176,7 +190,9 @@ if ($bank && can('payroll') && ($_GET['reveal'] ?? '') === 'bank') {
 // The reasons are staff notes about a person; the person sees their own
 // current classification on the profile card, not the deliberations.
 $classifications=$own?[]:classification_history($cid);
+$selfService=self_service_state($cid);
+$ownBank=$own?worker_bank_summary($cid):null;
 $payItems=can('payroll')?employee_pay_items($cid):[];
 $payItemChoices=can('payroll')?array_values(array_filter(pay_items(),fn($i)=>$i['method']!=='advance_repayment')):[];
 
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices'));
+render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank'));

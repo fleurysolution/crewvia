@@ -934,3 +934,54 @@ Room-night	Nuitée	Noche de habitación
 Van-day	Jour de fourgon	Día de furgoneta
 Pair	Paire	Par
 Each	Pièce	Unidad
+:bank, account ending :last	:bank, compte se terminant par :last	:bank, cuenta que termina en :last
+:n change(s) waiting to be checked.	:n changement(s) en attente de vérification.	:n cambio(s) pendiente(s) de revisión.
+A change to this detail is already waiting to be checked.	Un changement de cette information attend déjà d’être vérifié.	Un cambio de este dato ya está pendiente de revisión.
+A city is 2 to 120 characters.	Une ville fait 2 à 120 caractères.	Una ciudad tiene de 2 a 120 caracteres.
+A name is 2 to 190 characters.	Un nom fait 2 à 190 caractères.	Un nombre tiene de 2 a 190 caracteres.
+A state is 2 to 40 characters.	Un État fait 2 à 40 caractères.	Un estado tiene de 2 a 40 caracteres.
+Accept	Accepter	Aceptar
+Accepted. The worker has been told.	Accepté. Le travailleur a été prévenu.	Aceptado. Se ha avisado al trabajador.
+Ask for the change	Demander le changement	Solicitar el cambio
+Asked for by the worker	Demandé par le travailleur	Solicitado por el trabajador
+Bank details to check	Coordonnées bancaires à vérifier	Datos bancarios por revisar
+Change requests	Demandes de changement	Solicitudes de cambio
+Check the numbers against the cheque or bank letter before accepting. Showing them is recorded.	Vérifiez les numéros sur le chèque ou la lettre de la banque avant d’accepter. Leur affichage est enregistré.	Compruebe los números con el cheque o la carta del banco antes de aceptar. Mostrarlos queda registrado.
+Check them	Les vérifier	Revisarlos
+Choose which detail to change.	Choisissez l’information à changer.	Elija qué dato cambiar.
+Coming back for another job? If nothing has changed, say so and you are done. To change something, ask below; somebody here checks it before your record changes.	Vous revenez pour un autre chantier ? Si rien n’a changé, dites-le et c’est fini. Pour changer quelque chose, demandez-le ci-dessous ; quelqu’un ici le vérifie avant que votre dossier change.	¿Vuelve para otro trabajo? Si nada ha cambiado, dígalo y listo. Para cambiar algo, pídalo abajo; alguien aquí lo revisa antes de cambiar su expediente.
+Encrypted as soon as it is sent. Only the last four digits are ever shown, and payroll checks it before it is used.	Chiffré dès l’envoi. Seuls les quatre derniers chiffres sont affichés, et la paie les vérifie avant usage.	Se cifra en cuanto se envía. Solo se muestran los cuatro últimos dígitos, y nómina lo revisa antes de usarlo.
+Give a phone number of 7 to 40 digits and spaces.	Indiquez un numéro de téléphone de 7 à 40 chiffres et espaces.	Indique un teléfono de 7 a 40 dígitos y espacios.
+Give a valid email address.	Indiquez une adresse e-mail valide.	Indique un correo electrónico válido.
+Give the name on the account.	Indiquez le nom du titulaire du compte.	Indique el nombre del titular de la cuenta.
+In use: :bank, account ending :last.	En usage : :bank, compte se terminant par :last.	En uso: :bank, cuenta que termina en :last.
+Last confirmed unchanged on :date.	Dernière confirmation sans changement le :date.	Confirmado sin cambios por última vez el :date.
+My bank details	Mes coordonnées bancaires	Mis datos bancarios
+My details	Mes informations	Mis datos
+New value	Nouvelle valeur	Nuevo valor
+No bank details on file yet.	Aucune coordonnée bancaire au dossier pour l’instant.	Aún no hay datos bancarios en el expediente.
+No bank details waiting.	Aucune coordonnée bancaire en attente.	No hay datos bancarios pendientes.
+No change to personal details waiting.	Aucun changement d’informations personnelles en attente.	No hay cambios de datos personales pendientes.
+Nobody checks bank details they entered themselves.	Personne ne vérifie des coordonnées bancaires qu’il a saisies lui-même.	Nadie revisa datos bancarios que introdujo él mismo.
+Not confirmed yet.	Pas encore confirmé.	Aún no confirmado.
+Note (needed to refuse)	Note (requise pour refuser)	Nota (necesaria para rechazar)
+Nothing has changed	Rien n’a changé	Nada ha cambiado
+Nothing waiting from this person.	Rien en attente de la part de cette personne.	Nada pendiente de esta persona.
+Personal details to check	Informations personnelles à vérifier	Datos personales por revisar
+Refused	Refusé	Rechazado
+Refused. The worker has been told why.	Refusé. Le travailleur a été prévenu de la raison.	Rechazado. Se ha explicado el motivo al trabajador.
+Routing :routing · account :account · name :name	Code banque :routing · compte :account · titulaire :name	Ruta :routing · cuenta :account · titular :name
+Say why the bank details are refused, so the worker can correct them.	Indiquez pourquoi les coordonnées bancaires sont refusées, pour que le travailleur puisse les corriger.	Indique por qué se rechazan los datos bancarios, para que el trabajador pueda corregirlos.
+Say why the change is refused.	Indiquez pourquoi le changement est refusé.	Indique por qué se rechaza el cambio.
+Send my bank details	Envoyer mes coordonnées bancaires	Enviar mis datos bancarios
+Sent :date: :bank, ending :last	Envoyé le :date : :bank, se terminant par :last	Enviado el :date: :bank, termina en :last
+Sent. Your details change once somebody here has checked it.	Envoyé. Vos informations changeront une fois vérifiées par quelqu’un ici.	Enviado. Sus datos cambiarán cuando alguien aquí lo haya revisado.
+Show the full numbers	Afficher les numéros complets	Mostrar los números completos
+Thank you. Payroll checks your bank details before they are used; until then your pay goes where it went before.	Merci. La paie vérifie vos coordonnées bancaires avant de les utiliser ; d’ici là, votre paie va là où elle allait avant.	Gracias. Nómina revisa sus datos bancarios antes de usarlos; hasta entonces su pago va donde iba antes.
+Thank you. Your details on file are confirmed for this job.	Merci. Vos informations au dossier sont confirmées pour ce chantier.	Gracias. Sus datos en el expediente quedan confirmados para este trabajo.
+That change has already been decided.	Ce changement a déjà été décidé.	Ese cambio ya fue decidido.
+That is already what is on file.	C’est déjà ce qui figure au dossier.	Eso ya es lo que figura en el expediente.
+Those bank details have already been decided.	Ces coordonnées bancaires ont déjà été décidées.	Esos datos bancarios ya fueron decididos.
+What workers asked to change from their own folder. Nothing changes until it is accepted here; a refusal tells the worker why.	Ce que les travailleurs ont demandé à changer depuis leur dossier. Rien ne change avant d’être accepté ici ; un refus explique la raison au travailleur.	Lo que los trabajadores pidieron cambiar desde su expediente. Nada cambia hasta aceptarse aquí; un rechazo le explica el motivo al trabajador.
+Your last bank details are still being checked. Wait for payroll before sending new ones.	Vos dernières coordonnées bancaires sont encore en vérification. Attendez la paie avant d’en envoyer de nouvelles.	Sus últimos datos bancarios aún se están revisando. Espere a nómina antes de enviar otros.
+replaces the account ending :last	remplace le compte se terminant par :last	sustituye la cuenta que termina en :last

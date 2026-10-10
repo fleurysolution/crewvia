@@ -924,4 +924,27 @@ if (! $hadProcurement) {
        . 'projects raise lodging requests for new hires only once turned on.' . PHP_EOL;
 }
 
+// ── HR self-service (R22-R24) ─────────────────────────────────────────
+// Reversed by install/rollback/self-service.sql.
+$selfServiceSql = __DIR__ . '/self-service.sql';
+
+if (! is_file($selfServiceSql)) {
+    fwrite(STDERR, "Missing install/self-service.sql\n");
+    exit(1);
+}
+
+$hadSelfService = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                             WHERE table_schema=DATABASE() AND table_name='profile_change_requests'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($selfServiceSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadSelfService) {
+    echo 'Self-service: workers can propose their bank details and changes to their details, for staff to validate.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
