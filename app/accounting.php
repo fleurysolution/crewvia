@@ -99,8 +99,24 @@ function accounting_pending(string $through): array
                    WHERE v.status IN ('approved','paid')") as $v) {
         $amount = (float) $v['amount'];
         $cost = $v['hotel_id'] ? 'hotels_expense' : accounting_cost_account((string) ($v['category'] ?? ''));
+        // A bill against an order split across projects (P3-M06) puts its cost
+        // on each project's Class by its share; the last share takes the cents.
+        $costLines = [];
+        $shares = $v['purchase_order_id'] ? rows('SELECT a.amount, j.title FROM purchase_order_allocations a JOIN jobs j ON j.id = a.job_id
+                                                  WHERE a.purchase_order_id = ? ORDER BY a.id', [(int) $v['purchase_order_id']]) : [];
+        $orderTotal = array_sum(array_map(fn($s) => (float) $s['amount'], $shares));
+        if (count($shares) > 1 && $orderTotal > 0) {
+            $left = $amount;
+            foreach ($shares as $k => $s) {
+                $part = $k === count($shares) - 1 ? round($left, 2) : round($amount * (float) $s['amount'] / $orderTotal, 2);
+                $left -= $part;
+                $costLines[] = $line($cost, $part, 0, $v['vendor_name'], $s['title']);
+            }
+        } else {
+            $costLines[] = $line($cost, $amount, 0, $v['vendor_name'], $shares[0]['title'] ?? $v['title']);
+        }
         $push('vendor_invoice:' . $v['id'] . ':bill', (string) $v['due_on'], 'Bill ' . $v['reference'],
-              [$line($cost, $amount, 0, $v['vendor_name'], $v['title']), $line('accounts_payable', 0, $amount, $v['vendor_name'], $v['title'])]);
+              [...$costLines, $line('accounts_payable', 0, $amount, $v['vendor_name'], $v['title'])]);
         if ($v['status'] === 'paid' && (int) $v['recorded'] === 0) {
             $push('vendor_invoice:' . $v['id'] . ':payment', substr((string) ($v['paid_at'] ?? $v['due_on']), 0, 10), 'Payment of bill ' . $v['reference'],
                   [$line('accounts_payable', $amount, 0, $v['vendor_name'], $v['title']), $line('bank', 0, $amount, $v['vendor_name'], $v['title'])]);

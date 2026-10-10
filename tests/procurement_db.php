@@ -61,6 +61,10 @@ q("INSERT INTO jobs(client_id,title,description,pay_rate,bill_rate,guarantee_hou
 $job = (int) db()->lastInsertId();
 q("INSERT INTO hotels(name,nightly_rate) VALUES ('Procurement hotel',100)");
 $hotel = (int) db()->lastInsertId();
+// The vendors these orders go to, approved (P3-M06: an order goes only to an approved vendor).
+foreach ([['Boot Co', 'safety_equipment'], ['Glove Co', 'safety_equipment'], ['Procurement hotel', 'lodging']] as [$vendor, $supplies]) {
+    q("INSERT INTO vendors(name,status,categories,w9_on_file) VALUES (?,'approved',?,1) ON DUPLICATE KEY UPDATE status='approved', categories=VALUES(categories), w9_on_file=1", [$vendor, $supplies]);
+}
 $hire = static function (string $name): int {
     q('INSERT INTO candidates(full_name,email) VALUES (?,?)', [$name, strtolower(str_replace(' ', '-', $name)) . '@test.invalid']);
     return (int) db()->lastInsertId();

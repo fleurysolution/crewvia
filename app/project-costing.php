@@ -162,9 +162,23 @@ function project_costs(int $jobId): array
 
     // ── vendor invoices: by the order they bill, hotels to reconcile only ──
     $hotelInvoiced = 0.0;
-    foreach (rows("SELECT v.amount, v.hotel_id, r.category FROM vendor_invoices v
-                   LEFT JOIN purchase_orders o ON o.id = v.purchase_order_id LEFT JOIN purchase_requests r ON r.id = o.request_id
-                   WHERE v.job_id = ? AND v.status IN ('approved','paid')", [$jobId]) as $v) {
+    // An invoice against an order split across projects (P3-M06) counts
+    // here for this project's share of the order, wherever it was entered.
+    $split = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'purchase_order_allocations'");
+    $invoices = $split
+        ? rows("SELECT v.hotel_id, r.category,
+                       CASE WHEN EXISTS (SELECT 1 FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id) AND o.total > 0
+                            THEN v.amount * (SELECT SUM(a.amount) FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id AND a.job_id = ?) / o.total
+                            ELSE v.amount END AS amount
+                FROM vendor_invoices v
+                LEFT JOIN purchase_orders o ON o.id = v.purchase_order_id LEFT JOIN purchase_requests r ON r.id = o.request_id
+                WHERE v.status IN ('approved','paid') AND (
+                      EXISTS (SELECT 1 FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id AND a.job_id = ?)
+                   OR (v.job_id = ? AND NOT EXISTS (SELECT 1 FROM purchase_order_allocations a WHERE o.id IS NOT NULL AND a.purchase_order_id = o.id)))", [$jobId, $jobId, $jobId])
+        : rows("SELECT v.amount, v.hotel_id, r.category FROM vendor_invoices v
+                LEFT JOIN purchase_orders o ON o.id = v.purchase_order_id LEFT JOIN purchase_requests r ON r.id = o.request_id
+                WHERE v.job_id = ? AND v.status IN ('approved','paid')", [$jobId]);
+    foreach ($invoices as $v) {
         if ($v['hotel_id'] || $v['category'] === 'lodging') {
             $hotelInvoiced += (float) $v['amount'];
             continue;
@@ -180,7 +194,7 @@ function project_costs(int $jobId): array
     $committed = 0.0;
     foreach (procurement_commitments($jobId) as $o) {
         if ($o['category'] !== 'lodging' && $o['status'] === 'approved') {
-            $committed += max(0.0, (float) $o['total'] - (float) $o['invoiced']);
+            $committed += max(0.0, (float) $o['share'] - (float) $o['invoiced_share']);
         }
     }
 

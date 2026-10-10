@@ -1218,4 +1218,65 @@ if (! $hadPeriods) {
     echo 'Financial periods: months can be closed against new entries and exports; every month starts open.' . PHP_EOL;
 }
 
+// ── P3-M06: approved vendors, thresholds, purchasing allocations ──────────
+// Reversed by install/rollback/p3-m06.sql.
+$vendorsSql = __DIR__ . '/vendors.sql';
+
+if (! is_file($vendorsSql)) {
+    fwrite(STDERR, "Missing install/vendors.sql\n");
+    exit(1);
+}
+
+$hadVendors = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name='vendors'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($vendorsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach ([
+    // Who must approve, fixed when the order is raised.
+    'approvers'   => "ENUM('budget_owner','admin','both') NULL",
+    // The order took a project past a budget line when it was raised.
+    'over_budget' => 'TINYINT(1) NOT NULL DEFAULT 0',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='purchase_orders' AND column_name=?", [$column])) {
+        q('ALTER TABLE purchase_orders ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+if (! $hadVendors) {
+    // Vendors already ordered from, billed or housing crews stay usable:
+    // approved, for what they already supplied, marked as carried over.
+    $carried = [];
+    foreach (rows("SELECT o.vendor_name AS name, r.category FROM purchase_orders o JOIN purchase_requests r ON r.id = o.request_id
+                   UNION SELECT v.vendor_name, CASE WHEN v.hotel_id IS NULL THEN 'other' ELSE 'lodging' END FROM vendor_invoices v
+                   UNION SELECT h.name, 'lodging' FROM hotels h") as $r) {
+        $name = trim((string) $r['name']);
+        if ($name !== '') {
+            // Names compare without case, as the database does.
+            $key = mb_strtolower($name);
+            $carried[$key]['name'] ??= $name;
+            $carried[$key]['cats'][$r['category']] = true;
+        }
+    }
+    $carriedCount = 0;
+    foreach ($carried as $v) {
+        $carriedCount += q("INSERT IGNORE INTO vendors (name, status, categories, w9_on_file, note, decided_at) VALUES (?, 'approved', ?, 1, ?, NOW())",
+          [mb_substr($v['name'], 0, 190), implode(',', array_keys($v['cats'])), 'Carried over at upgrade: already in use. Check the W-9 and insurance.'])->rowCount();
+    }
+    foreach ([[5000, 'budget_owner'], [25000, 'admin'], [null, 'both']] as [$upTo, $who]) {
+        q('INSERT IGNORE INTO procurement_thresholds (up_to, approvers) VALUES (?,?)', [$upTo, $who]);
+    }
+    // Every existing order is carried wholly by its own project.
+    q('INSERT INTO purchase_order_allocations (purchase_order_id, job_id, amount) SELECT o.id, o.job_id, o.total FROM purchase_orders o
+       WHERE NOT EXISTS (SELECT 1 FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id)');
+    echo 'Approved vendors: ' . $carriedCount . ' vendor(s) already in use carried over as approved; thresholds set at 5,000 (budget owner), '
+       . '25,000 (administrator), above (both); every existing order allocated to its own project.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -56,9 +56,10 @@ $qty = static fn($q): string => rtrim(rtrim(number_format((float) $q, 2, '.', ''
     <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="quote"><input type="hidden" name="request_id" value="<?= (int) $r['id'] ?>">
       <input name="vendor_name" required maxlength="190" placeholder="<?= te('Vendor') ?>" aria-label="<?= te('Vendor') ?>" style="max-width:10em"><input name="unit_price" type="number" min="0" step="0.01" required placeholder="<?= te('Unit price') ?>" aria-label="<?= te('Unit price') ?>" style="max-width:7em"><button class="btn ghost sm"><?= te('Add quote') ?></button></form>
     <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="order"><input type="hidden" name="request_id" value="<?= (int) $r['id'] ?>">
-      <input name="vendor_name" required maxlength="190" value="<?= e($best['vendor_name'] ?? '') ?>" placeholder="<?= te('Vendor') ?>" aria-label="<?= te('Vendor') ?>" style="max-width:10em">
+      <input name="vendor_name" required maxlength="190" list="approved-vendors" value="<?= e($best['vendor_name'] ?? '') ?>" placeholder="<?= te('Approved vendor') ?>" aria-label="<?= te('Vendor') ?>" style="max-width:10em">
       <input name="unit_price" type="number" min="0" step="0.01" required value="<?= e((string) ($best['unit_price'] ?? $r['estimated_unit_cost'] ?? '')) ?>" placeholder="<?= $r['category'] === 'lodging' ? te('Per room per night') : te('Unit price') ?>" aria-label="<?= te('Unit price') ?>" style="max-width:8em">
       <?php if ($r['category'] === 'lodging'): ?><select name="hotel_id" aria-label="<?= te('Hotel') ?>"><option value=""><?= te('Hotel') ?></option><?php foreach ($hotels as $h): ?><option value="<?= (int) $h['id'] ?>" <?= (int) $r['hotel_id'] === (int) $h['id'] ? 'selected' : '' ?>><?= e($h['name']) ?></option><?php endforeach; ?></select><?php endif; ?>
+      <details class="small"><summary><?= te('Split across projects') ?></summary><?php for ($k = 0; $k < 3; $k++): ?><div class="row"><select name="share_job[]" aria-label="<?= te('Project') ?>"><option value=""><?= te('Project') ?></option><?php foreach ($otherJobs as $oj): ?><option value="<?= (int) $oj['id'] ?>"><?= e($oj['title']) ?></option><?php endforeach; ?></select><input name="share_amount[]" type="number" min="0.01" step="0.01" placeholder="<?= te('Share') ?>" aria-label="<?= te('Share') ?>" style="max-width:8em"></div><?php endfor; ?><span class="muted"><?= te('Empty, this project carries the whole order. The shares add up to the order\'s total.') ?></span></details>
       <button class="btn sm"><?= te('Raise purchase order') ?></button></form>
     <?php endif; ?>
     <?php if ($buy && in_array($r['status'], ['requested', 'ordered'], true)): ?>
@@ -68,6 +69,7 @@ $qty = static fn($q): string => rtrim(rtrim(number_format((float) $q, 2, '.', ''
   <?php endforeach; ?>
 </div>
 
+<datalist id="approved-vendors"><?php foreach ($vendorNames as $vn): ?><option value="<?= e($vn) ?>"><?php endforeach; ?></datalist>
 <div class="card scroll" id="orders">
   <h2><?= te('Purchase orders') ?></h2>
   <?php if (! $orders): ?><p class="muted"><?= te('No purchase order on this project yet.') ?></p><?php else: ?>
@@ -75,17 +77,17 @@ $qty = static fn($q): string => rtrim(rtrim(number_format((float) $q, 2, '.', ''
     <tr><th><?= te('Order') ?></th><th><?= te('Vendor') ?></th><th class="num"><?= te('Quantity') ?></th><th class="num"><?= te('Total') ?></th><th><?= te('Status') ?></th><th></th></tr>
     <?php foreach ($orders as $o): ?>
     <tr data-order="<?= (int) $o['id'] ?>" data-status="<?= e($o['status']) ?>">
-      <td><strong><?= e($o['reference']) ?></strong><div class="small"><?= e($o['title']) ?></div><div class="small muted"><?= te('Raised by :name', ['name' => $o['created_by_name'] ?? '—']) ?><?= $o['decided_by_name'] ? ' · ' . te('decided by :name', ['name' => $o['decided_by_name']]) : '' ?><?= $o['decision_note'] ? ' · ' . e($o['decision_note']) : '' ?></div></td>
+      <td><strong><?= e($o['reference']) ?></strong><?= (int) $o['over_budget'] === 1 ? ' <span class="tag red">' . te('Over budget') . '</span>' : '' ?><div class="small"><?= e($o['title']) ?></div><?php if (count($o['shares']) > 1): ?><div class="small" data-shares="<?= count($o['shares']) ?>"><?php foreach ($o['shares'] as $sh): ?><?= e($sh['title'] . ' ' . money($sh['amount'])) ?> · <?php endforeach; ?></div><?php endif; ?><?php foreach ($o['given'] as $g): ?><div class="small muted"><?= te('Approved as :as by :name', ['as' => $g['approver'] === 'admin' ? t('administrator') : t('budget owner'), 'name' => $g['name']]) ?></div><?php endforeach; ?><div class="small muted"><?= te('Raised by :name', ['name' => $o['created_by_name'] ?? '—']) ?><?= $o['decided_by_name'] ? ' · ' . te('decided by :name', ['name' => $o['decided_by_name']]) : '' ?><?= $o['decision_note'] ? ' · ' . e($o['decision_note']) : '' ?></div></td>
       <td><?= e($o['vendor_name']) ?><?= $o['hotel_name'] ? '<div class="small muted">' . e($o['hotel_name']) . '</div>' : '' ?></td>
       <td class="num mono"><?= e($qty($o['received'])) ?> / <?= e($qty($o['quantity'])) ?> <?= e(t((string) $o['unit_label'])) ?></td>
       <td class="num mono"><?= e(money($o['total'])) ?><div class="small muted"><?= e(money($o['unit_price'])) ?></div></td>
       <td><span class="tag <?= $otone[$o['status']] ?>"><?= e($ostat[$o['status']]) ?></span></td>
       <td>
-        <?php if ($o['status'] === 'awaiting_approval' && procurement_can_decide($o)): ?>
+        <?php if ($o['can_decide']): ?>
           <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="purchase_order_id" value="<?= (int) $o['id'] ?>"><input name="note" maxlength="500" placeholder="<?= te('Note (needed to reject)') ?>" aria-label="<?= te('Note') ?>" style="max-width:10em">
             <button class="btn sm" name="do" value="approve"><?= te('Approve') ?></button><button class="btn ghost sm" name="do" value="reject"><?= te('Reject') ?></button></form>
         <?php elseif ($o['status'] === 'awaiting_approval'): ?>
-          <span class="small muted"><?= te('Waiting for the budget owner') ?></span>
+          <span class="small muted"><?= te('Waiting for :who', ['who' => implode(' ' . t('and') . ' ', array_map(fn($n) => $n === 'admin' ? t('an administrator') : t('the budget owner'), $o['needed']))]) ?></span>
         <?php endif; ?>
         <?php if ($buy && $o['status'] === 'approved'): ?>
           <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="receive"><input type="hidden" name="purchase_order_id" value="<?= (int) $o['id'] ?>">

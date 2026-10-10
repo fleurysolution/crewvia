@@ -1429,3 +1429,71 @@ That month is not closed.	Ce mois n'est pas clôturé.	Ese mes no está cerrado.
 The month :m is closed. Date it in an open month, or have an administrator reopen :m.	Le mois :m est clôturé. Datez-le dans un mois ouvert, ou faites rouvrir :m par un administrateur.	El mes :m está cerrado. Féchelo en un mes abierto, o pida a un administrador que reabra :m.
 Trial balance of what was exported	Balance de vérification de ce qui a été exporté	Balance de comprobación de lo exportado
 for example: reconciled with QuickBooks	par exemple : rapproché avec QuickBooks	por ejemplo: conciliado con QuickBooks
+":name" has no W-9 on file.	« :name » n'a pas de W-9 au dossier.	«:name» no tiene W-9 archivado.
+":name" is :status, so it cannot be ordered from.	« :name » est :status : on ne peut pas lui commander.	«:name» está :status, así que no se le puede pedir.
+":name" is not a registered vendor. Register it under Vendors and have it approved before ordering from it.	« :name » n'est pas un fournisseur enregistré. Enregistrez-le dans Fournisseurs agréés et faites-le approuver avant de lui commander.	«:name» no es un proveedor registrado. Regístrelo en Proveedores aprobados y hágalo aprobar antes de pedirle.
+":name" is not approved to supply :category.	« :name » n'est pas agréé pour fournir : :category.	«:name» no está aprobado para suministrar :category.
+":name"'s insurance expired on :date.	L'assurance de « :name » a expiré le :date.	El seguro de «:name» venció el :date.
+A new vendor waits for an administrator other than you to approve it.	Un nouveau fournisseur attend qu'un administrateur autre que vous l'approuve.	Un proveedor nuevo espera que lo apruebe un administrador distinto de usted.
+A vendor with that name is already registered.	Un fournisseur de ce nom est déjà enregistré.	Ya hay un proveedor registrado con ese nombre.
+Above	Au-delà	Por encima
+Approved as :as by :name	Approuvé comme :as par :name	Aprobado como :as por :name
+Approved as :as. It now waits for :who.	Approuvé comme :as. Elle attend maintenant :who.	Aprobado como :as. Ahora espera a :who.
+Approved by	Approuvé par	Aprobado por
+Approved vendor	Fournisseur agréé	Proveedor aprobado
+By the order's total. An order that goes past a project's budget line also needs an administrator.	Selon le total de la commande. Une commande qui dépasse une ligne de budget d'un projet demande aussi un administrateur.	Según el total del pedido. Un pedido que supera una línea de presupuesto de un proyecto también necesita un administrador.
+Change :name	Modifier :name	Cambiar :name
+Choose who approves each tier.	Choisissez qui approuve chaque palier.	Elija quién aprueba cada tramo.
+Details changed	Détails modifiés	Datos cambiados
+Each share names a project and an amount above 0.	Chaque part nomme un projet et un montant supérieur à 0.	Cada parte nombra un proyecto y un importe mayor que 0.
+Each tier's limit is above the one before it.	Le plafond de chaque palier dépasse celui d'avant.	El límite de cada tramo supera al anterior.
+Empty, this project carries the whole order. The shares add up to the order's total.	Vide, ce projet porte toute la commande. Les parts font le total de la commande.	Vacío, este proyecto lleva todo el pedido. Las partes suman el total del pedido.
+Give the insurance expiry as a date.	Donnez l'échéance de l'assurance sous forme de date.	Indique el vencimiento del seguro como fecha.
+Insurance until	Assurance jusqu'au	Seguro hasta
+It goes past the budget of :projects.	Elle dépasse le budget de :projects.	Supera el presupuesto de :projects.
+Leave the last tier's limit empty: it covers every larger order. Orders already raised keep the rule they were raised under.	Laissez vide le plafond du dernier palier : il couvre toute commande plus grande. Les commandes déjà passées gardent leur règle.	Deje vacío el límite del último tramo: cubre todo pedido mayor. Los pedidos ya hechos conservan su regla.
+Missing	Manquant	Falta
+Name the vendor in 2 to 190 characters.	Nommez le fournisseur en 2 à 190 caractères.	Nombre el proveedor con 2 a 190 caracteres.
+Name, as on its invoices	Nom, comme sur ses factures	Nombre, como en sus facturas
+No vendor registered yet.	Aucun fournisseur enregistré pour l'instant.	Todavía no hay proveedores registrados.
+On file	Au dossier	Archivado
+Only an administrator approves or suspends a vendor.	Seul un administrateur approuve ou suspend un fournisseur.	Solo un administrador aprueba o suspende un proveedor.
+Orders	Commandes	Pedidos
+Orders and bills already made keep the name they were made with.	Les commandes et factures déjà faites gardent le nom avec lequel elles ont été faites.	Los pedidos y facturas ya hechos conservan el nombre con que se hicieron.
+Orders go only to an approved vendor, approved for what is bought, with a W-9 on file and insurance in date. Quotations stay notes on a request: there is no bid analysis.	Les commandes ne vont qu'à un fournisseur agréé, agréé pour ce qui est acheté, avec un W-9 au dossier et une assurance valide. Les devis restent des notes sur une demande : il n'y a pas d'analyse d'offres.	Los pedidos van solo a un proveedor aprobado, aprobado para lo que se compra, con W-9 archivado y seguro vigente. Las cotizaciones siguen siendo notas en una solicitud: no hay análisis de ofertas.
+Over budget	Hors budget	Fuera de presupuesto
+Propose a vendor	Proposer un fournisseur	Proponer un proveedor
+Proposed	Proposé	Propuesto
+Purchase order raised for :total. It goes to :who for approval.	Bon de commande émis pour :total. Il part à :who pour approbation.	Orden de compra emitida por :total. Va a :who para aprobación.
+Reinstate	Rétablir	Restablecer
+Reinstated	Rétabli	Restablecido
+Say what the vendor supplies.	Dites ce que fournit le fournisseur.	Diga qué suministra el proveedor.
+Share	Part	Parte
+Split across projects	Répartir entre projets	Repartir entre proyectos
+Supplies	Fournit	Suministra
+Suspend	Suspendre	Suspender
+Suspended	Suspendu	Suspendido
+That cannot be done to a vendor that is :status.	Impossible pour un fournisseur :status.	No se puede hacer con un proveedor :status.
+That vendor does not exist.	Ce fournisseur n'existe pas.	Ese proveedor no existe.
+The budget owner	Le responsable du budget	El responsable del presupuesto
+The budget owner and an administrator, two people	Le responsable du budget et un administrateur, deux personnes	El responsable del presupuesto y un administrador, dos personas
+The last tier has no limit: it covers every larger order.	Le dernier palier n'a pas de plafond : il couvre toute commande plus grande.	El último tramo no tiene límite: cubre todo pedido mayor.
+The shares add up to :sum; the order is :total.	Les parts font :sum ; la commande fait :total.	Las partes suman :sum; el pedido es :total.
+This order waits for :who.	Cette commande attend :who.	Este pedido espera a :who.
+Up to :amount	Jusqu'à :amount	Hasta :amount
+Vendors	Fournisseurs agréés	Proveedores aprobados
+W-9	W-9	W-9
+W-9 on file	W-9 au dossier	W-9 archivado
+Waiting for :who	En attente de :who	Esperando a :who
+Waiting for approval	En attente d'approbation	Esperando aprobación
+Who approves an order	Qui approuve une commande	Quién aprueba un pedido
+Whoever proposed a vendor does not approve it.	Qui propose un fournisseur ne l'approuve pas.	Quien propone un proveedor no lo aprueba.
+You have approved this order already; the other approval is somebody else's.	Vous avez déjà approuvé cette commande ; l'autre approbation revient à quelqu'un d'autre.	Ya aprobó este pedido; la otra aprobación es de otra persona.
+administrator	administrateur	administrador
+an administrator	un administrateur	un administrador
+and	et	y
+budget owner	responsable du budget	responsable del presupuesto
+expired	expirée	vencido
+no limit	sans plafond	sin límite
+the budget owner	le responsable du budget	el responsable del presupuesto
+the budget owner and an administrator	le responsable du budget et un administrateur	el responsable del presupuesto y un administrador

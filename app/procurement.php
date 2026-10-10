@@ -176,11 +176,25 @@ function procurement_next_reference(): string
 /** What was ordered, received, invoiced and is still to be billed. */
 function procurement_commitments(int $jobId): array
 {
-    return rows("SELECT o.id, o.reference, o.vendor_name, o.status, o.total, o.quantity, u.label AS unit_label, r.title, r.category,
-                        (SELECT COALESCE(SUM(x.quantity), 0) FROM purchase_receipts x WHERE x.purchase_order_id = o.id) AS received,
-                        (SELECT COALESCE(SUM(v.amount), 0) FROM vendor_invoices v WHERE v.purchase_order_id = o.id) AS invoiced
-                 FROM purchase_orders o JOIN purchase_requests r ON r.id = o.request_id
-                 JOIN procurement_units u ON u.id = o.unit_id
-                 WHERE o.job_id = ? AND o.status IN ('approved','closed')
-                 ORDER BY o.id DESC", [$jobId]);
+    // An order split across projects (P3-M06) is this project's for its
+    // share: share and invoiced_share are this project's part.
+    $split = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'purchase_order_allocations'");
+    $rows = rows("SELECT o.id, o.reference, o.vendor_name, o.status, o.total, o.quantity, u.label AS unit_label, r.title, r.category, o.job_id,
+                         (SELECT COALESCE(SUM(x.quantity), 0) FROM purchase_receipts x WHERE x.purchase_order_id = o.id) AS received,
+                         (SELECT COALESCE(SUM(v.amount), 0) FROM vendor_invoices v WHERE v.purchase_order_id = o.id) AS invoiced"
+               . ($split ? ", (SELECT SUM(a.amount) FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id AND a.job_id = ?) AS share,
+                            (SELECT COUNT(*) FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id) AS shares" : '') . "
+                  FROM purchase_orders o JOIN purchase_requests r ON r.id = o.request_id
+                  JOIN procurement_units u ON u.id = o.unit_id
+                  WHERE o.status IN ('approved','closed') AND "
+               . ($split ? "(EXISTS (SELECT 1 FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id AND a.job_id = ?)
+                             OR (o.job_id = ? AND NOT EXISTS (SELECT 1 FROM purchase_order_allocations a WHERE a.purchase_order_id = o.id)))" : 'o.job_id = ?') . "
+                  ORDER BY o.id DESC", $split ? [$jobId, $jobId, $jobId] : [$jobId]);
+    foreach ($rows as &$r) {
+        $r['share'] = $split && (int) $r['shares'] > 0 ? (float) $r['share'] : (float) $r['total'];
+        $r['invoiced_share'] = (float) $r['total'] > 0 ? round((float) $r['invoiced'] * $r['share'] / (float) $r['total'], 2) : 0.0;
+    }
+    unset($r);
+
+    return $rows;
 }
