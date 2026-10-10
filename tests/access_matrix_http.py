@@ -59,11 +59,11 @@ admin_only = ['/pay-grades', '/appraisal-templates', '/leave-types', '/settings'
 roles = {
     'admin':      ('admin@test.invalid', []),
     'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/self-service', '/benefits', '/hotels', '/travel', '/procurement', '/vendors']),
-    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/self-service', '/hr-requests', '/hr-records', '/benefits', '/performance', '/appraisals', '/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
+    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/self-service', '/hr-requests', '/hr-records', '/benefits', '/performance', '/appraisals', '/candidates', '/recruitment', '/employees', '/advances', '/change-requests', '/reports']),
     'payroll':    ('m01-payroll@test.invalid', admin_only + ['/self-service', '/assets', '/appraisals', '/performance', '/hr-records', '/hotels', '/travel', '/candidates', '/recruitment']),
-    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/self-service', '/hr-requests', '/benefits', '/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
-    'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests']),
-    'client':     ('client@test.invalid', payroll_only + admin_only + ['/self-service', '/hr-requests', '/hr-records', '/benefits', '/performance', '/vendors', '/appraisals', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
+    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/self-service', '/hr-requests', '/benefits', '/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests', '/reports']),
+    'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests', '/reports']),
+    'client':     ('client@test.invalid', payroll_only + admin_only + ['/self-service', '/hr-requests', '/hr-records', '/benefits', '/performance', '/vendors', '/appraisals', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests', '/reports']),
 }
 
 pages = 0

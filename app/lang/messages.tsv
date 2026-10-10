@@ -2115,3 +2115,81 @@ Other income received	Autres produits encaissés	Otros ingresos cobrados
 Owner contributions and draws	Apports et retraits du propriétaire	Aportes y retiros del propietario
 Loans and other liabilities	Emprunts et autres dettes	Préstamos y otros pasivos
 Other assets bought or sold	Autres actifs achetés ou vendus	Otros activos comprados o vendidos
+Read from the records the desks keep: nothing here is entered or stored. Each report you open is logged.	Tirés des dossiers tenus par les services : rien n'est saisi ni stocké ici. Chaque rapport ouvert est journalisé.	Salen de los registros que llevan los equipos: aquí no se ingresa ni se guarda nada. Cada informe que abre queda registrado.
+That report does not exist.	Ce rapport n'existe pas.	Ese informe no existe.
+This report is not open to your role.	Ce rapport n'est pas ouvert à votre rôle.	Este informe no está abierto a su rol.
+Nothing to report for these filters.	Rien à signaler pour ces filtres.	Nada que informar con estos filtros.
+Total: :n	Total : :n	Total: :n
+Year	Année	Año
+Prepared from the Crewvia records on :d by :name. Confidential: for the desks that keep these records.	Établi à partir des dossiers Crewvia le :d par :name. Confidentiel : réservé aux services qui tiennent ces dossiers.	Preparado a partir de los registros de Crewvia el :d por :name. Confidencial: para los equipos que llevan estos registros.
+Employees	Employés	Empleados
+Headcount	Effectifs	Plantilla
+Leave	Congés	Permisos
+Salaries and rates	Salaires et taux	Salarios y tarifas
+Advances and loans	Avances et prêts	Anticipos y préstamos
+Everyone placed by the agency: employee number, kind of employment, availability, current or last assignment.	Toutes les personnes placées par l'agence : matricule, type d'emploi, disponibilité, affectation actuelle ou dernière.	Todas las personas colocadas por la agencia: número de empleado, tipo de empleo, disponibilidad, asignación actual o última.
+People on assignment at the start and the end of a period, and who started and ended in it, by project.	Les personnes en affectation au début et à la fin d'une période, et celles qui ont commencé ou terminé, par projet.	Personas en asignación al inicio y al final de un período, y quiénes empezaron y terminaron en él, por proyecto.
+Days marked present and absent on the roll call, and approved leave, per person.	Jours marqués présents et absents à l'appel, et congés approuvés, par personne.	Días marcados presentes y ausentes en el pase de lista, y permisos aprobados, por persona.
+Each kind of leave per person for the year: allowed, taken, left, and requests waiting.	Chaque type de congé par personne pour l'année : accordé, pris, restant, et demandes en attente.	Cada tipo de permiso por persona para el año: concedido, tomado, restante y solicitudes pendientes.
+The pay rate or salary in force on a date for each assignment, its grade, and whether it sits outside the band.	Le taux ou le salaire en vigueur à une date pour chaque affectation, son échelon, et s'il sort de la fourchette.	La tarifa o el salario vigente en una fecha para cada asignación, su grado, y si queda fuera de la banda.
+What each pay item took or added in the approved weeks of a period, from the frozen pay.	Ce que chaque élément de paie a retenu ou ajouté sur les semaines approuvées d'une période, d'après la paie figée.	Lo que cada concepto de pago descontó o añadió en las semanas aprobadas de un período, según el pago congelado.
+Each pay period: gross, deductions, employer cost, reimbursed, net before tax, adjustments, and how many sheets are paid.	Chaque période de paie : brut, retenues, coût employeur, remboursé, net avant impôt, ajustements, et feuilles payées.	Cada período de pago: bruto, deducciones, costo patronal, reembolsado, neto antes de impuestos, ajustes y hojas pagadas.
+Each advance and loan handed over: amount, repaid, balance, how far behind its schedule, written off.	Chaque avance et prêt versé : montant, remboursé, solde, retard sur l'échéancier, passé en perte.	Cada anticipo y préstamo entregado: importe, devuelto, saldo, atraso respecto al calendario, dado de baja.
+Each plan on a date: people covered, people who waived, and the fixed cost to them and to the agency.	Chaque régime à une date : personnes couvertes, personnes ayant renoncé, et le coût fixe pour elles et pour l'agence.	Cada plan en una fecha: personas cubiertas, personas que renunciaron, y el costo fijo para ellas y para la agencia.
+Reviews approved in a period, with score and grade, and each person's goals and development actions.	Évaluations approuvées sur une période, avec note et niveau, et les objectifs et actions de développement de chacun.	Evaluaciones aprobadas en un período, con puntuación y calificación, y los objetivos y acciones de desarrollo de cada persona.
+People with an assignment that had started by the date. The pay of each is in Salaries and rates, read by payroll only.	Les personnes dont une affectation avait commencé à la date. La paie de chacun est dans Salaires et taux, lu par la paie seulement.	Personas con una asignación iniciada en la fecha. El pago de cada una está en Salarios y tarifas, que solo lee nómina.
+A person on two projects counts once on each. Ended means the assignment was completed with its end date in the period.	Une personne sur deux projets compte une fois sur chacun. Terminé veut dire que l'affectation s'est achevée avec sa date de fin dans la période.	Una persona en dos proyectos cuenta una vez en cada uno. Terminó significa que la asignación se completó con su fecha de fin en el período.
+Attendance is present days over days marked on the roll call. A day nobody marked is not counted either way.	La présence est le nombre de jours présents sur les jours marqués à l'appel. Un jour non marqué ne compte ni dans un sens ni dans l'autre.	La asistencia son los días presentes sobre los días marcados en el pase de lista. Un día sin marcar no cuenta en ningún sentido.
+Days, counted as the time-off page counts them: both ends included. Unlimited leave shows no allowance.	En jours, comptés comme sur la page des congés : les deux bornes incluses. Un congé illimité n'affiche pas de droit.	En días, contados como en la página de permisos: ambos extremos incluidos. Un permiso ilimitado no muestra derecho.
+The rate is the one in force for the pay week of the date, after recorded changes. Margin is before burden and overhead (see Project costs).	Le taux est celui en vigueur pour la semaine de paie de la date, après les changements enregistrés. La marge est avant charges et frais généraux (voir Coûts de projet).	La tarifa es la vigente para la semana de pago de la fecha, tras los cambios registrados. El margen es antes de cargas y gastos generales (vea Costos del proyecto).
+Deductions taken :d; employer contributions :e; not taken for lack of pay :s. Taxes are withheld by ADP and are not here.	Retenues prélevées :d ; cotisations employeur :e ; non prélevé faute de paie :s. Les impôts sont retenus par ADP et ne figurent pas ici.	Deducciones aplicadas :d; aportes patronales :e; no aplicado por falta de pago :s. Los impuestos los retiene ADP y no están aquí.
+Pay periods with their week ending in the range, every project. Net is before tax: ADP withholds and pays the taxes.	Les périodes de paie dont la semaine finit dans l'intervalle, tous projets. Le net est avant impôt : ADP retient et paie les impôts.	Períodos de pago cuya semana termina en el rango, todos los proyectos. El neto es antes de impuestos: ADP retiene y paga los impuestos.
+Approved, paid out, repaid and written-off advances and loans. Requests not yet approved and cancelled ones are left out.	Avances et prêts approuvés, versés, remboursés et passés en perte. Les demandes non approuvées et les annulées sont exclues.	Anticipos y préstamos aprobados, entregados, devueltos y dados de baja. Las solicitudes no aprobadas y las canceladas quedan fuera.
+Fixed amounts as enrolled. A share of pay varies with the week: what it took is in Deductions and contributions.	Montants fixes tels qu'inscrits. Une part de la paie varie selon la semaine : ce qu'elle a pris est dans Retenues et cotisations.	Importes fijos según la inscripción. Un porcentaje del pago varía con la semana: lo descontado está en Deducciones y aportes.
+Reviews counted on the day they were approved. The total score is the average of the latest scores shown.	Évaluations comptées le jour de leur approbation. La note totale est la moyenne des dernières notes affichées.	Evaluaciones contadas el día en que se aprobaron. La puntuación total es el promedio de las últimas puntuaciones mostradas.
+Started	Début	Inicio
+At the start	Au début	Al inicio
+At the end	À la fin	Al final
+Present	Présent	Presente
+Approved leave days	Jours de congé approuvés	Días de permiso aprobados
+Kind of leave	Type de congé	Tipo de permiso
+Allowed	Accordé	Concedido
+Requests waiting	Demandes en attente	Solicitudes pendientes
+Hourly rate	Taux horaire	Tarifa por hora
+Bill rate	Taux facturé	Tarifa facturada
+Salary per period	Salaire par période	Salario por período
+Outside band	Hors fourchette	Fuera de banda
+Pay item	Élément de paie	Concepto de pago
+Code	Code	Código
+Gross	Brut	Bruto
+Employer cost	Coût employeur	Costo patronal
+Reimbursed	Remboursé	Reembolsado
+Net before tax	Net avant impôt	Neto antes de impuestos
+Payable	À payer	A pagar
+Sheets paid	Feuilles payées	Hojas pagadas
+Repaid	Remboursé	Devuelto
+Behind schedule	Retard	Atraso
+Covered	Couverts	Cubiertos
+Employee cost per week	Coût salarié par semaine	Costo del empleado por semana
+Agency cost per week	Coût agence par semaine	Costo de la agencia por semana
+Paid as a share of pay	Payé en part de la paie	Pagado como porcentaje del pago
+Reviews approved	Évaluations approuvées	Evaluaciones aprobadas
+Latest score	Dernière note	Última puntuación
+Would rehire	À réembaucher	Recontrataría
+Goals open	Objectifs ouverts	Objetivos abiertos
+Goals achieved	Objectifs atteints	Objetivos logrados
+Goals missed	Objectifs manqués	Objetivos no logrados
+Development open	Développement ouvert	Desarrollo abierto
+Development overdue	Développement en retard	Desarrollo atrasado
+Hourly	Horaire	Por hora
+Salaried	Salarié	Asalariado
+Contractor	Sous-traitant	Contratista
+External	Externe	Externo
+Unavailable	Indisponible	No disponible
+Eligible	Admissible	Elegible
+Ineligible	Non admissible	No elegible
+Do not use	Ne pas employer	No emplear
+Deduction	Retenue	Deducción
+Advance	Avance	Anticipo
+Cleared	Soldé	Saldado
+Life	Vie	Vida
