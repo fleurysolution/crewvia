@@ -839,3 +839,98 @@ Week ending (Saturday)	Fin de semaine (samedi)	Fin de semana (sábado)
 Week ending :date	Semaine se terminant le :date	Semana que termina el :date
 Why it is reopened	Pourquoi elle est rouverte	Por qué se reabre
 corrects the week ending :date	corrige la semaine se terminant le :date	corrige la semana que termina el :date
+A hotel is chosen only for lodging, and from the list.	Un hôtel ne se choisit que pour l’hébergement, et dans la liste.	Un hotel solo se elige para alojamiento, y de la lista.
+A lodging order names the hotel, so the rooms it confirms reach the hotel board.	Une commande d’hébergement nomme l’hôtel, pour que les chambres confirmées arrivent au tableau des hôtels.	Un pedido de alojamiento indica el hotel, para que las habitaciones confirmadas lleguen al tablero de hoteles.
+A quantity is above 0 and at most 100,000.	Une quantité est supérieure à 0 et au plus 100 000.	Una cantidad es mayor que 0 y como máximo 100.000.
+A quotation is attached before the order is raised.	Un devis se joint avant d’émettre la commande.	Una cotización se adjunta antes de emitir el pedido.
+A quotation needs the vendor and a unit price from 0 to 1,000,000.	Un devis a besoin du fournisseur et d’un prix unitaire de 0 à 1 000 000.	Una cotización necesita el proveedor y un precio unitario de 0 a 1.000.000.
+Add quote	Ajouter un devis	Añadir cotización
+Add unit	Ajouter une unité	Añadir unidad
+An administrator	Un administrateur	Un administrador
+An estimated cost is a number from 0 to 1,000,000.	Un coût estimé est un nombre de 0 à 1 000 000.	Un coste estimado es un número de 0 a 1.000.000.
+An order needs the vendor and a unit price from 0 to 1,000,000.	Une commande a besoin du fournisseur et d’un prix unitaire de 0 à 1 000 000.	Un pedido necesita el proveedor y un precio unitario de 0 a 1.000.000.
+Approved. The order can be placed.	Approuvée. La commande peut être passée.	Aprobado. El pedido puede realizarse.
+Budget owner	Responsable du budget	Responsable del presupuesto
+Budget owner: :name	Responsable du budget : :name	Responsable del presupuesto: :name
+Cancelled: :why	Annulée : :why	Cancelada: :why
+Check the dates: the end cannot come before the start.	Vérifiez les dates : la fin ne peut pas précéder le début.	Revise las fechas: el fin no puede ser anterior al inicio.
+Choose an approved purchase order on this project, or none.	Choisissez une commande approuvée de ce projet, ou aucune.	Elija un pedido aprobado de este proyecto, o ninguno.
+Choose the budget owner from the list.	Choisissez le responsable du budget dans la liste.	Elija al responsable del presupuesto de la lista.
+Choose the unit it is counted in.	Choisissez l’unité de comptage.	Elija la unidad en que se cuenta.
+Choose what is being bought.	Choisissez ce qui est acheté.	Elija qué se compra.
+Close	Clôturer	Cerrar
+Commitments	Engagements	Compromisos
+Estimated cost per unit (optional)	Coût estimé par unité (facultatif)	Coste estimado por unidad (opcional)
+Hotel, for lodging (optional)	Hôtel, pour l’hébergement (facultatif)	Hotel, para alojamiento (opcional)
+Invoiced	Facturé	Facturado
+Lodging	Hébergement	Alojamiento
+Name the unit in 2 to 80 characters.	Nommez l’unité en 2 à 80 caractères.	Nombre la unidad con 2 a 80 caracteres.
+Needed from	Nécessaire à partir du	Necesario desde
+Needed until	Nécessaire jusqu’au	Necesario hasta
+New hires do not raise lodging requests.	Les nouvelles recrues ne déclenchent pas de demande d’hébergement.	Las nuevas contrataciones no generan solicitudes de alojamiento.
+New hires raise a lodging request automatically.	Chaque nouvelle recrue déclenche automatiquement une demande d’hébergement.	Cada nueva contratación genera automáticamente una solicitud de alojamiento.
+New request	Nouvelle demande	Nueva solicitud
+No approved order yet, so nothing is committed.	Aucune commande approuvée : rien n’est engagé.	Aún no hay pedidos aprobados, así que no hay nada comprometido.
+No budget owner named: an administrator approves its orders.	Aucun responsable du budget : un administrateur approuve ses commandes.	Sin responsable del presupuesto: un administrador aprueba sus pedidos.
+No purchase order on this project yet.	Aucune commande sur ce projet pour l’instant.	Aún no hay pedidos en este proyecto.
+No request on this project yet.	Aucune demande sur ce projet pour l’instant.	Aún no hay solicitudes en este proyecto.
+None	Aucune	Ninguno
+Not chosen yet	Pas encore choisi	Aún sin elegir
+Note (needed to reject)	Note (requise pour refuser)	Nota (necesaria para rechazar)
+Only a request not yet received is cancelled.	Seule une demande pas encore reçue s’annule.	Solo se cancela una solicitud aún no recibida.
+Only an approved order is closed.	Seule une commande approuvée se clôture.	Solo se cierra un pedido aprobado.
+Only an approved order is received.	Seule une commande approuvée se réceptionne.	Solo se recibe un pedido aprobado.
+Only the project's budget owner, or an administrator, decides its orders.	Seul le responsable du budget du projet, ou un administrateur, décide de ses commandes.	Solo el responsable del presupuesto del proyecto, o un administrador, decide sus pedidos.
+Ordered	Commandé	Pedido
+Per room per night	Par chambre et par nuit	Por habitación y noche
+Procurement	Achats	Compras
+Procurement settings saved for this project.	Réglages des achats enregistrés pour ce projet.	Ajustes de compras guardados para este proyecto.
+Purchase order (optional)	Bon de commande (facultatif)	Pedido de compra (opcional)
+Purchase order raised for :total. It goes to the budget owner for approval.	Bon de commande émis pour :total. Il part au responsable du budget pour approbation.	Pedido de compra emitido por :total. Pasa al responsable del presupuesto para su aprobación.
+Purchase orders	Bons de commande	Pedidos de compra
+Quantity	Quantité	Cantidad
+Quantity arrived	Quantité reçue	Cantidad recibida
+Quote: :vendor at :price	Devis : :vendor à :price	Cotización: :vendor a :price
+Raise a lodging request for every new hire	Déclencher une demande d’hébergement pour chaque nouvelle recrue	Generar una solicitud de alojamiento por cada nueva contratación
+Raise purchase order	Émettre le bon de commande	Emitir pedido de compra
+Raise request	Émettre la demande	Emitir solicitud
+Raised by :name	Émis par :name	Emitido por :name
+Received.	Reçu.	Recibido.
+Received. The rooms are now in the hotel's block on the hotel board.	Reçu. Les chambres sont maintenant dans le bloc de l’hôtel sur le tableau des hôtels.	Recibido. Las habitaciones ya están en el bloque del hotel en el tablero de hoteles.
+Rejected. The request is open again.	Refusée. La demande est de nouveau ouverte.	Rechazado. La solicitud vuelve a estar abierta.
+Request raised.	Demande émise.	Solicitud emitida.
+Requested	Demandé	Solicitado
+Rooms available	Chambres disponibles	Habitaciones disponibles
+Rooms confirmed	Chambres confirmées	Habitaciones confirmadas
+Safety equipment	Équipement de sécurité	Equipo de seguridad
+Say how many arrived, and when.	Indiquez combien sont arrivés, et quand.	Indique cuántos llegaron, y cuándo.
+Say what is needed, in 3 to 190 characters.	Indiquez ce qu’il faut, en 3 à 190 caractères.	Indique qué se necesita, con 3 a 190 caracteres.
+Say why it is cancelled.	Indiquez pourquoi c’est annulé.	Indique por qué se cancela.
+Say why the order is rejected.	Indiquez pourquoi la commande est refusée.	Indique por qué se rechaza el pedido.
+Something has already been received against this request. Close its order instead.	Quelque chose a déjà été reçu pour cette demande. Clôturez plutôt sa commande.	Ya se recibió algo de esta solicitud. Cierre su pedido en su lugar.
+Still to be billed	Reste à facturer	Pendiente de facturar
+That is more than was ordered: :ordered ordered, :received already received.	C’est plus que la commande : :ordered commandés, :received déjà reçus.	Es más de lo pedido: :ordered pedidos, :received ya recibidos.
+That order has already been decided.	Cette commande a déjà été décidée.	Ese pedido ya fue decidido.
+That purchase order is not on this project.	Cette commande n’est pas sur ce projet.	Ese pedido no es de este proyecto.
+That request is not on this project.	Cette demande n’est pas sur ce projet.	Esa solicitud no es de este proyecto.
+That unit already exists.	Cette unité existe déjà.	Esa unidad ya existe.
+This request already has its order.	Cette demande a déjà sa commande.	Esta solicitud ya tiene su pedido.
+Unit	Unité	Unidad
+Unit price	Prix unitaire	Precio unitario
+Units of measure	Unités de mesure	Unidades de medida
+Vehicles	Véhicules	Vehículos
+Vendor	Fournisseur	Proveedor
+Waiting for the budget owner	En attente du responsable du budget	Pendiente del responsable del presupuesto
+What approved orders commit the project to, against the vendor invoices recorded for them on Vendor payments.	Ce que les commandes approuvées engagent pour le projet, face aux factures fournisseurs enregistrées dans Paiements fournisseurs.	Lo que los pedidos aprobados comprometen al proyecto, frente a las facturas de proveedores registradas en Pagos a proveedores.
+What the job needs - rooms, vehicles, safety equipment and the rest - from the request to the purchase order, its approval by the budget owner, what arrived, and what is still to be billed. There is no bidding: a quotation can be attached, and the order is raised from it.	Ce dont le chantier a besoin - chambres, véhicules, équipement de sécurité et le reste - de la demande au bon de commande, son approbation par le responsable du budget, ce qui est arrivé, et ce qui reste à facturer. Pas d’appel d’offres : un devis peut être joint, et la commande en découle.	Lo que el trabajo necesita - habitaciones, vehículos, equipo de seguridad y lo demás - de la solicitud al pedido, su aprobación por el responsable del presupuesto, lo que llegó y lo que queda por facturar. No hay licitación: se puede adjuntar una cotización y el pedido se emite a partir de ella.
+Whoever raised an order does not approve it.	Qui a émis une commande ne l’approuve pas.	Quien emite un pedido no lo aprueba.
+Why cancelled	Pourquoi annulée	Por qué se cancela
+decided by :name	décidée par :name	decidido por :name
+for :name	pour :name	para :name
+for example: Box	par exemple : Boîte	por ejemplo: Caja
+for example: Steel-toe boots, size 10	par exemple : Bottes à embout acier, pointure 43	por ejemplo: Botas con puntera de acero, talla 42
+raised by a hire	déclenchée par une embauche	generada por una contratación
+Room-night	Nuitée	Noche de habitación
+Van-day	Jour de fourgon	Día de furgoneta
+Pair	Paire	Par
+Each	Pièce	Unidad

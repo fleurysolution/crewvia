@@ -134,6 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                $h['nightly_rate'], 'booked']);
         }
 
+        require_once __DIR__ . '/../procurement.php';
+        procurement_lodging_booked($pid);
         db()->commit();
         log_activity('booked a room', 'placement', $pid, $p['full_name'] . ' at ' . $h['name'] . ' room ' . $room);
         flash(t($room!==''?':name booked into :hotel, room :room.':':name booked into :hotel.', ['name'=>$p['full_name'],'hotel'=>$h['name'],'room'=>$room]));

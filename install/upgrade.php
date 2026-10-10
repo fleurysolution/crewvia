@@ -876,4 +876,52 @@ if (! $hadPayPeriods) {
     echo 'Pay periods: approval, locking, adjustments and payslips are in place; no period is open yet.' . PHP_EOL;
 }
 
+// ── Procurement (R41-R47) ─────────────────────────────────────────────
+// Reversed by install/rollback/procurement.sql.
+$procurementSql = __DIR__ . '/procurement.sql';
+
+if (! is_file($procurementSql)) {
+    fwrite(STDERR, "Missing install/procurement.sql\n");
+    exit(1);
+}
+
+$hadProcurement = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                             WHERE table_schema=DATABASE() AND table_name='purchase_orders'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($procurementSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach ([
+    // Who approves the project's purchase orders (R44). Unset, an
+    // administrator does.
+    'budget_owner_id' => 'INT UNSIGNED NULL',
+    // Raise a lodging request for every new hire on the project (R42).
+    // Off until somebody turns it on: not every job puts people in hotels.
+    'auto_lodging'    => 'TINYINT(1) NOT NULL DEFAULT 0',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name=?", [$column])) {
+        q('ALTER TABLE jobs ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='vendor_invoices' AND column_name='purchase_order_id'")) {
+    // The order a bill is for, so what is still owed on it is known (R46).
+    q('ALTER TABLE vendor_invoices ADD COLUMN purchase_order_id INT UNSIGNED NULL,
+       ADD CONSTRAINT fk_invoice_po FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id)');
+}
+
+if (! $hadProcurement) {
+    foreach ([['room', 'Room'], ['room_night', 'Room-night'], ['van_day', 'Van-day'], ['pair', 'Pair'], ['each', 'Each']] as [$code, $label]) {
+        q('INSERT IGNORE INTO procurement_units (code, label) VALUES (?,?)', [$code, $label]);
+    }
+    echo 'Procurement: requests, purchase orders, receipts and commitments are in place; '
+       . 'projects raise lodging requests for new hires only once turned on.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

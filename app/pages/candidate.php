@@ -372,6 +372,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         db()->commit();
 
         log_activity('placed a candidate', 'placement', $pid, $c['full_name']);
+        require_once __DIR__ . '/../procurement.php';
+        procurement_request_lodging_for($pid);
         flash(t(':name added to the roster. They now need a bed and a flight.',
                 ['name' => $c['full_name']]));
         redirect('/candidates/' . $id);

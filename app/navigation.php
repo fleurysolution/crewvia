@@ -77,6 +77,7 @@ function workspace_nav(?array $u): array
         ['/candidates',         'Candidates',                         'recruiter'],
         ['/roster',             'Roster',                             'recruiter'],
         ['/hotels',             'Hotels',                             'hotels'],
+        ['/procurement',        'Procurement',                        ['hotels','payroll','supervisor']],
         ['/travel',             'Travel',                             'hotels'],
         ['/hours',              'Hours',                              'payroll'],
         ['/billing',            'Billing',                            'payroll'],
@@ -103,7 +104,6 @@ function workspace_nav(?array $u): array
             ['/safety-plan',   'Site safety plan',  null],
             ['/timeoff',       'Time off',          null],
             ['/attendance',    'My attendance',     null],
-            ['/my-payslips',   'My pay statements', null],
             ['/comms',         'Communications',    null],
             ['/inbox',         'Gmail',             null],
             ['/notifications', 'Notifications',     null],
@@ -120,6 +120,7 @@ function workspace_nav(?array $u): array
                 ['/qualifications',     'Qualifications & expiry',            null],
                 ['/screening-workflow', 'Screening questionnaire & contacts', null],
                 ['/expenses',           'My reimbursements',                  null],
+                ['/my-payslips',        'My pay statements',                  null],
                 ['/offboarding',        'Offboarding',                        null],
             ]);
         }
@@ -127,6 +128,8 @@ function workspace_nav(?array $u): array
 
     if (($u['role'] ?? '') === 'supervisor') {
         array_unshift($nav, ['/my-team', 'My team', null]);
+        // A supervisor raises what the crew needs, and may own the budget.
+        $nav[] = ['/procurement', 'Procurement', null];
     }
 
     if (($u['role'] ?? '') === 'client') {
@@ -153,7 +156,7 @@ function workspace_sections(): array
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks',
                      '/qualifications', '/screening-workflow', '/proofs',
                      '/agreements', '/employee-folder'],
-        'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/travel', '/operations'],
+        'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/procurement', '/travel', '/operations'],
         'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/learning', '/safety-plan',
                               '/comms', '/inbox', '/notifications'],
         'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/advances', '/expenses', '/payroll-export',
