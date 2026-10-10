@@ -87,9 +87,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pending=rows("SELECT ts.*,p.candidate_id,p.pay_rate,p.bill_rate,p.per_diem_rate,e.employment_type,e.salary_per_period FROM timesheets ts JOIN placements p ON p.id=ts.placement_id LEFT JOIN employee_profiles e ON e.candidate_id=p.candidate_id WHERE p.job_id=? AND ts.week_ending=? AND ts.status IN ('draft','submitted') FOR UPDATE",[$jobId,$weekEnding]);
         foreach($pending as $sheet) {
             if(($sheet['employment_type']??'')==='salaried'&&$sheet['salary_per_period']===null){db()->rollBack();flash(t('Set the employee salary basis before approving payroll.'),'err');redirect('/hours?week='.$weekEnding);}
+            $result=week_money($sheet,$sheet,$job);
+            if(($result['method']??'')==='pay_rules') {
+                if(!empty($result['requires_provider_review'])){db()->rollBack();$why=pay_rule_review_reasons();flash(t(':name - the provider must reconcile this week before it is approved: :why',['name'=>(string)val('SELECT c.full_name FROM placements p JOIN candidates c ON c.id=p.candidate_id WHERE p.id=?',[$sheet['placement_id']]),'why'=>implode('; ',array_map(fn($r)=>$why[$r]??$r,array_intersect($result['review_reasons'],['hours_on_other_assignments','salaried_overtime'])))]),'err');redirect('/hours?week='.$weekEnding);}
+            } else {
             if(isset($job['weekly_overtime_after']) && (int)val("SELECT COUNT(*) FROM timesheets ts JOIN placements p ON p.id=ts.placement_id WHERE p.candidate_id=? AND p.job_id<>? AND ts.week_ending=? AND ts.hours_worked>0",[$sheet['candidate_id'],$jobId,$weekEnding])){db()->rollBack();flash(t('Cross-project workweek requires payroll provider reconciliation before approval.'),'err');redirect('/hours?week='.$weekEnding);}
             if(($sheet['employment_type']??'')==='salaried'&&isset($job['weekly_overtime_after'])&&(float)$sheet['hours_worked']>(float)$job['weekly_overtime_after']){db()->rollBack();flash(t('Salaried overtime requires payroll provider reconciliation.'),'err');redirect('/hours?week='.$weekEnding);}
-            $result=week_money($sheet,$sheet,$job);
+            }
             q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)',[$sheet['id'],json_encode($result,JSON_THROW_ON_ERROR)]);
             q("UPDATE timesheets SET status='approved',approved_by=?,approved_at=NOW() WHERE id=?",[uid(),$sheet['id']]);
         }
@@ -118,6 +122,8 @@ $lines  = [];
 
 foreach ($crew as $p) {
     $sheet = [
+        'placement_id'  => $p['id'],
+        'week_ending'   => $week,
         'snapshot_json' => $p['snapshot_json'] ?? null,
         'hours_worked' => $p['hours_worked']  ?? 0,
         'per_diem_days' => $p['per_diem_days'] ?? 0,
@@ -137,5 +143,8 @@ foreach ($crew as $p) {
     }
 }
 
+require_once __DIR__.'/../pay-rules.php';
+$ruleSet=pay_rule_set((int)($job['pay_rule_set_id'] ?? 0));
+$reviewReasons=pay_rule_review_reasons();
 $pageTitle = t('Hours').' · '.$config['app_name'];
-render('hours', compact('job','week','lines','totals'));
+render('hours', compact('job','week','lines','totals','ruleSet','reviewReasons'));

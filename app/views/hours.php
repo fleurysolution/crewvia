@@ -1,4 +1,4 @@
-<?php foreach($lines as $reviewLine): if(!empty($reviewLine['m']['requires_provider_review'])): ?><p class="flash err"><?= e($reviewLine['full_name']) ?>: <?= te('Salaried overtime requires payroll provider reconciliation.') ?></p><?php endif; endforeach; ?>
+<?php foreach($lines as $reviewLine): if(!empty($reviewLine['m']['requires_provider_review']) && ($reviewLine['m']['method'] ?? '') !== 'pay_rules'): ?><p class="flash err"><?= e($reviewLine['full_name']) ?>: <?= te('Salaried overtime requires payroll provider reconciliation.') ?></p><?php endif; endforeach; ?>
 <?php
 $prev = date('Y-m-d', strtotime($week . ' -7 days'));
 $next = date('Y-m-d', strtotime($week . ' +7 days'));
@@ -106,3 +106,36 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
 <?php endif; ?>
 
 <div class="grid g2"><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="import_attendance"><h2><?= te('Import approved attendance') ?></h2><label><?= te('Week ending') ?><input name="week_ending" type="date" required value="<?= e($week) ?>"></label><p><?= te('Approved weeks remain frozen. Per diem and expenses require separate review.') ?></p><button class="btn"><?= te('Import approved attendance') ?></button></form><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="policy"><h2><?= te('Gross payroll policy') ?></h2><p><?= te('Configure reviewed weekly overtime rules. Taxes, daily overtime and deductions remain with the payroll provider.') ?></p><label><?= te('Weekly overtime after hours') ?><input name="weekly_overtime_after" type="number" min="0" max="168" step="0.25" value="<?= e($job['weekly_overtime_after']??'') ?>"></label><label><?= te('Overtime multiplier') ?><input name="overtime_multiplier" type="number" min="1" max="5" step="0.01" value="<?= e($job['overtime_multiplier']??1.5) ?>"></label><button class="btn ghost"><?= te('Save policy') ?></button></form></div>
+
+<?php
+// Under a pay rule set: who earns more than regular time this week, and why
+// a week needs the provider. Only lines with something to say are listed.
+$ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules' && ($l['hours_worked'] ?? null) !== null);
+?>
+<div class="card" id="pay-rules-week">
+  <h2><?= te('Pay rules this week') ?></h2>
+  <?php if (! $ruleSet): ?>
+    <p class="muted"><?= te('This project has no pay rule set. Overtime follows the weekly line in the policy above. Choose a confirmed rule set on the Pay rules page to apply daily overtime, double time, holidays and shift premiums.') ?></p>
+  <?php else: ?>
+    <p class="muted"><?= te('Rule set: :name (:jurisdiction). Weeks already approved keep the figures they were approved with.', ['name' => $ruleSet['name'], 'jurisdiction' => $ruleSet['jurisdiction']]) ?><?php if ($ruleSet['status'] === 'retired'): ?> <span class="tag amber"><?= te('Retired - choose a current rule set') ?></span><?php endif; ?></p>
+    <?php if (! $ruled): ?>
+      <p class="muted"><?= te('No hours entered for this week yet.') ?></p>
+    <?php else: ?>
+    <div class="scroll"><table>
+      <tr><th><?= te('Worker') ?></th><th class="num"><?= te('Regular') ?></th><th class="num"><?= te('Daily overtime') ?></th><th class="num"><?= te('Weekly overtime') ?></th><th class="num"><?= te('Double time') ?></th><th class="num"><?= te('Holiday') ?></th><th class="num"><?= te('Shift premium') ?></th><th><?= te('Needs a look') ?></th></tr>
+      <?php foreach ($ruled as $l): $m = $l['m']; ?>
+      <tr data-placement="<?= (int) $l['id'] ?>">
+        <td><?= e($l['full_name']) ?></td>
+        <td class="num mono" data-k="regular"><?= e((string) (float) $m['regular_hours']) ?></td>
+        <td class="num mono" data-k="daily"><?= e((string) (float) $m['daily_overtime_hours']) ?></td>
+        <td class="num mono" data-k="weekly"><?= e((string) (float) $m['weekly_overtime_hours']) ?></td>
+        <td class="num mono" data-k="double"><?= e((string) (float) $m['double_hours']) ?></td>
+        <td class="num mono" data-k="holiday"><?= e((string) (float) $m['holiday_hours']) ?></td>
+        <td class="num mono"><?= (float) $m['shift_premium'] > 0 ? e(money($m['shift_premium'])) . '/h' : '—' ?></td>
+        <td class="small"><?= e(implode('; ', array_map(fn($r) => $reviewReasons[$r] ?? $r, $m['review_reasons']))) ?: '—' ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table></div>
+    <?php endif; ?>
+  <?php endif; ?>
+</div>

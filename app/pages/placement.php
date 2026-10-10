@@ -7,7 +7,7 @@ $id = (int) ($_GET['id'] ?? 0);
 
 $p = row(
     "SELECT p.*, c.full_name, c.phone, c.email, c.discipline, c.city, c.state, c.degree,
-            j.title AS job_title, j.strike_live
+            j.title AS job_title, j.strike_live, j.pay_rule_set_id
      FROM placements p
      JOIN candidates c ON c.id = p.candidate_id
      JOIN jobs j       ON j.id = p.job_id
@@ -40,6 +40,8 @@ $job = [
     'guarantee_hours' => $line['guarantee_hours'] ?? null,
     'strike_hours'    => $line['strike_guarantee_hours'] ?? null,
     'strike_live'     => $p['strike_live'],
+    // Weeks on this page are paid under the project's pay rules, as on Hours.
+    'pay_rule_set_id' => $p['pay_rule_set_id'],
 ];
 
 // The views read these the way they always did.

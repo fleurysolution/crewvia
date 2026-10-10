@@ -373,6 +373,12 @@ function week_money(array $t, array $p, array $job): array
 
     require_once __DIR__.'/payroll-calculation.php';
     $gross=payroll_gross($worked,(float)$guarantee,$pay,isset($job['weekly_overtime_after'])?(float)$job['weekly_overtime_after']:null,(float)($job['overtime_multiplier']??1.5),($p['employment_type']??'')==='salaried'&&isset($p['salary_per_period'])?(float)$p['salary_per_period']:null);
+    // A project given a confirmed pay rule set is paid under it: daily and
+    // weekly lines, double time, holidays, shift premiums, the person's
+    // other assignments. A project without one is paid exactly as above.
+    require_once __DIR__.'/pay-rules.php';
+    $ruled = pay_rules_week_for($t, $p, $job);
+    if ($ruled !== null) { $gross = $ruled; }
     $labourCost = $gross['labour_cost'];
     $payTotal   = $labourCost + $perDiemAmt + $expenses;
 

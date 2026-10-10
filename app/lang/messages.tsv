@@ -580,3 +580,86 @@ Present, last 30 days	Présents, 30 derniers jours	Presentes, últimos 30 días
 Recently placed	Affectés récemment	Asignados recientemente
 Starts :date	Début le :date	Empieza el :date
 Workforce at a glance	L’effectif en un coup d’œil	La plantilla de un vistazo
+:name - the provider must reconcile this week before it is approved: :why	:name - le prestataire de paie doit rapprocher cette semaine avant son approbation : :why	:name - el proveedor de nómina debe conciliar esta semana antes de aprobarla: :why
+A draft. An administrator activates it once the values are confirmed.	Un brouillon. Un administrateur l’active une fois les valeurs confirmées.	Un borrador. Un administrador lo activa una vez confirmados los valores.
+A holiday needs a date and a name.	Un jour férié a besoin d’une date et d’un nom.	Un día festivo necesita una fecha y un nombre.
+A multiplier is a number from 1 to 5, for example 1.5.	Un multiplicateur est un nombre de 1 à 5, par exemple 1,5.	Un multiplicador es un número de 1 a 5, por ejemplo 1,5.
+A retired rule set is not changed.	Un jeu de règles retiré n’est pas modifié.	Un conjunto de reglas retirado no se modifica.
+A shift premium needs the shift name, as written on assignments, and an amount per hour up to 100.	Une prime de poste a besoin du nom du poste, tel qu’écrit sur les affectations, et d’un montant horaire jusqu’à 100.	Una prima de turno necesita el nombre del turno, tal como figura en las asignaciones, y un importe por hora de hasta 100.
+Activate	Activer	Activar
+Activated. Projects can now be paid under it.	Activé. Les projets peuvent désormais être payés selon ces règles.	Activado. Los proyectos ya pueden pagarse con estas reglas.
+Add holiday	Ajouter un jour férié	Añadir festivo
+Add premium	Ajouter une prime	Añadir prima
+An amount per hour added for a shift, matched on the shift written on the assignment. Overtime is paid on it.	Un montant horaire ajouté pour un poste, rapproché du poste écrit sur l’affectation. Les heures supplémentaires sont payées dessus.	Un importe por hora añadido para un turno, según el turno escrito en la asignación. Las horas extra se pagan sobre él.
+Another rule set already has that name.	Un autre jeu de règles porte déjà ce nom.	Otro conjunto de reglas ya tiene ese nombre.
+Change this draft	Modifier ce brouillon	Modificar este borrador
+Confirmed by :who on :date	Confirmé par :who le :date	Confirmado por :who el :date
+Contractor or another company's employee - no overtime computed	Indépendant ou employé d’une autre société - aucune heure supplémentaire calculée	Contratista o empleado de otra empresa - no se calculan horas extra
+Copied into a new draft. Change it, then ask an administrator to activate it.	Copié dans un nouveau brouillon. Modifiez-le, puis demandez à un administrateur de l’activer.	Copiado en un nuevo borrador. Modifíquelo y pida a un administrador que lo active.
+Copy into a new draft	Copier dans un nouveau brouillon	Copiar en un nuevo borrador
+Daily overtime	Heures supplémentaires journalières	Horas extra diarias
+Daily overtime after (hours, blank for none)	Heures supplémentaires journalières après (heures, vide si aucune)	Horas extra diarias después de (horas, vacío si no hay)
+Daily overtime multiplier	Multiplicateur des heures supplémentaires journalières	Multiplicador de horas extra diarias
+Double time	Temps double	Tiempo doble
+Double time after (hours in a day, blank for none)	Temps double après (heures dans la journée, vide si aucun)	Tiempo doble después de (horas en un día, vacío si no hay)
+Double time multiplier	Multiplicateur du temps double	Multiplicador del tiempo doble
+Double time starts after more hours than daily overtime does.	Le temps double commence après plus d’heures que les heures supplémentaires journalières.	El tiempo doble empieza después de más horas que las horas extra diarias.
+Double-time and holiday hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.	Les heures en temps double et de jour férié n’ont pas encore de code de gain ADP. Utilisez l’export de contrôle et saisissez-les à la main dans ADP.	Las horas de tiempo doble y de festivo aún no tienen código de ingreso ADP. Use la exportación de revisión e introdúzcalas a mano en ADP.
+Draft saved. It is applied to nobody until an administrator activates it.	Brouillon enregistré. Il ne s’applique à personne tant qu’un administrateur ne l’a pas activé.	Borrador guardado. No se aplica a nadie hasta que un administrador lo active.
+Give the rule set a name of 3 to 120 characters.	Donnez au jeu de règles un nom de 3 à 120 caractères.	Dé al conjunto de reglas un nombre de 3 a 120 caracteres.
+Holiday	Jour férié	Festivo
+Holiday multiplier (blank for none)	Multiplicateur de jour férié (vide si aucun)	Multiplicador de festivo (vacío si no hay)
+Holiday rate	Taux de jour férié	Tarifa de festivo
+Holidays	Jours fériés	Festivos
+Hour lines are blank, or a number of hours: up to 168 for the week, up to 24 for a day.	Les seuils d’heures sont vides ou un nombre d’heures : jusqu’à 168 pour la semaine, jusqu’à 24 pour une journée.	Los umbrales de horas están vacíos o son un número de horas: hasta 168 por semana, hasta 24 por día.
+Hours on another assignment this week - the provider blends the overtime rate	Des heures sur une autre affectation cette semaine - le prestataire calcule le taux combiné	Horas en otra asignación esta semana - el proveedor combina la tarifa de horas extra
+Jurisdiction	Juridiction	Jurisdicción
+Needs a look	À vérifier	Por revisar
+New rule set	Nouveau jeu de règles	Nuevo conjunto de reglas
+No approved days behind the sheet - only the weekly line was applied	Aucun jour approuvé derrière la feuille - seul le seuil hebdomadaire a été appliqué	Ningún día aprobado respalda la hoja - solo se aplicó el umbral semanal
+No holiday in this rule set: no day is paid at the holiday rate.	Aucun jour férié dans ce jeu de règles : aucun jour n’est payé au taux férié.	Ningún festivo en este conjunto de reglas: ningún día se paga a tarifa de festivo.
+No hours entered for this week yet.	Aucune heure saisie pour cette semaine.	Aún no hay horas registradas esta semana.
+No rule set yet. Create one below.	Aucun jeu de règles pour l’instant. Créez-en un ci-dessous.	Aún no hay conjuntos de reglas. Cree uno abajo.
+No rule set: overtime follows the weekly line in the Hours policy, as before.	Aucun jeu de règles : les heures supplémentaires suivent le seuil hebdomadaire de la politique Heures, comme avant.	Sin conjunto de reglas: las horas extra siguen el umbral semanal de la política de Horas, como antes.
+No shift premium in this rule set.	Aucune prime de poste dans ce jeu de règles.	Ninguna prima de turno en este conjunto de reglas.
+Only a draft can be changed. Copy an active rule set to change it.	Seul un brouillon peut être modifié. Copiez un jeu de règles actif pour le changer.	Solo se puede modificar un borrador. Copie un conjunto activo para cambiarlo.
+Only a draft is activated.	Seul un brouillon s’active.	Solo se activa un borrador.
+Only an active rule set is given to a project. A draft is applied to nobody until it is activated.	Seul un jeu de règles actif est attribué à un projet. Un brouillon ne s’applique à personne avant son activation.	Solo se asigna a un proyecto un conjunto activo. Un borrador no se aplica a nadie hasta que se active.
+Only an active rule set is retired.	Seul un jeu de règles actif est retiré.	Solo se retira un conjunto de reglas activo.
+Open a project first.	Ouvrez d’abord un projet.	Abra primero un proyecto.
+Open a project to choose its rule set.	Ouvrez un projet pour choisir son jeu de règles.	Abra un proyecto para elegir su conjunto de reglas.
+Overtime status not yet decided - paid as non-exempt meanwhile	Statut des heures supplémentaires non décidé - payé comme non exempté en attendant	Estado de horas extra aún sin decidir - se paga como no exento mientras tanto
+Overtime, double time, holidays and shift premiums, set per jurisdiction. A rule set is applied to nobody until an administrator activates it, naming who confirmed the values. Crewvia applies the rules; it does not decide what the law requires.	Heures supplémentaires, temps double, jours fériés et primes de poste, par juridiction. Un jeu de règles ne s’applique à personne tant qu’un administrateur ne l’a pas activé en nommant qui a confirmé les valeurs. Crewvia applique les règles ; il ne décide pas de ce qu’exige la loi.	Horas extra, tiempo doble, festivos y primas de turno, por jurisdicción. Un conjunto de reglas no se aplica a nadie hasta que un administrador lo active indicando quién confirmó los valores. Crewvia aplica las reglas; no decide lo que exige la ley.
+Pay rules	Règles de paie	Reglas de pago
+Pay rules this week	Règles de paie cette semaine	Reglas de pago esta semana
+Regular	Normal	Normal
+Retired - choose a current rule set	Retiré - choisissez un jeu de règles en vigueur	Retirado - elija un conjunto vigente
+Retired. Projects still using it keep it until they are moved to another.	Retiré. Les projets qui l’utilisent le gardent jusqu’à ce qu’on les passe à un autre.	Retirado. Los proyectos que lo usan lo conservan hasta que se cambien a otro.
+Rule set: :name (:jurisdiction). Weeks already approved keep the figures they were approved with.	Jeu de règles : :name (:jurisdiction). Les semaines déjà approuvées gardent les montants de leur approbation.	Conjunto de reglas: :name (:jurisdiction). Las semanas ya aprobadas conservan las cifras con que se aprobaron.
+Rule sets	Jeux de règles	Conjuntos de reglas
+Salaried with overtime - the provider reconciles it	Salarié au forfait avec heures supplémentaires - le prestataire les rapproche	Asalariado con horas extra - el proveedor lo concilia
+Save draft	Enregistrer le brouillon	Guardar borrador
+Say which jurisdiction the rules are for, for example a state.	Indiquez pour quelle juridiction sont ces règles, par exemple un État.	Indique para qué jurisdicción son las reglas, por ejemplo un estado.
+Say who confirmed these values for the jurisdiction - the payroll provider, counsel - before activating.	Indiquez qui a confirmé ces valeurs pour la juridiction - le prestataire de paie, un avocat - avant d’activer.	Indique quién confirmó estos valores para la jurisdicción - el proveedor de nómina, un abogado - antes de activar.
+Shift premium	Prime de poste	Prima de turno
+Shift premiums	Primes de poste	Primas de turno
+Shift, e.g. Night shift	Poste, ex. Poste de nuit	Turno, p. ej. Turno de noche
+That date is already a holiday in this rule set.	Cette date est déjà un jour férié dans ce jeu de règles.	Esa fecha ya es festivo en este conjunto de reglas.
+That holiday is not in this rule set.	Ce jour férié n’est pas dans ce jeu de règles.	Ese festivo no está en este conjunto de reglas.
+That rule set does not exist.	Ce jeu de règles n’existe pas.	Ese conjunto de reglas no existe.
+That shift already has a premium in this rule set.	Ce poste a déjà une prime dans ce jeu de règles.	Ese turno ya tiene una prima en este conjunto de reglas.
+The notes are too long.	Les notes sont trop longues.	Las notas son demasiado largas.
+This project	Ce projet	Este proyecto
+This project has no pay rule set. Overtime follows the weekly line in the policy above. Choose a confirmed rule set on the Pay rules page to apply daily overtime, double time, holidays and shift premiums.	Ce projet n’a pas de jeu de règles de paie. Les heures supplémentaires suivent le seuil hebdomadaire de la politique ci-dessus. Choisissez un jeu de règles confirmé dans Règles de paie pour appliquer heures supplémentaires journalières, temps double, jours fériés et primes de poste.	Este proyecto no tiene conjunto de reglas de pago. Las horas extra siguen el umbral semanal de la política anterior. Elija un conjunto confirmado en Reglas de pago para aplicar horas extra diarias, tiempo doble, festivos y primas de turno.
+This project is now paid under :name. Weeks already approved keep their figures.	Ce projet est désormais payé selon :name. Les semaines déjà approuvées gardent leurs montants.	Este proyecto ahora se paga según :name. Las semanas ya aprobadas conservan sus cifras.
+Unknown action.	Action inconnue.	Acción desconocida.
+Use for this project	Utiliser pour ce projet	Usar para este proyecto
+Weekly overtime	Heures supplémentaires hebdomadaires	Horas extra semanales
+Weekly overtime after (hours, blank for none)	Heures supplémentaires hebdomadaires après (heures, vide si aucune)	Horas extra semanales después de (horas, vacío si no hay)
+Weekly overtime multiplier	Multiplicateur des heures supplémentaires hebdomadaires	Multiplicador de horas extra semanales
+Who confirmed these values for the jurisdiction	Qui a confirmé ces valeurs pour la juridiction	Quién confirmó estos valores para la jurisdicción
+after :h h at ×:m	après :h h à ×:m	después de :h h a ×:m
+copy	copie	copia
+for example: Michigan	par exemple : Michigan	por ejemplo: Michigan
+for example: our payroll provider, 9 Oct 2026	par exemple : notre prestataire de paie, 9 oct. 2026	por ejemplo: nuestro proveedor de nómina, 9 oct. 2026
+none	aucun	ninguno

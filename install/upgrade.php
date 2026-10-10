@@ -743,4 +743,41 @@ if ($attendanceChanged) {
        . (int) val('SELECT COUNT(*) FROM attendance_records') . ' existing day(s) kept as entered by the worker.' . PHP_EOL;
 }
 
+// ── P1-M03: pay rules ──────────────────────────────────────────────────
+// Reversed by install/rollback/p1-m03.sql.
+$payRulesSql = __DIR__ . '/pay-rules.sql';
+
+if (! is_file($payRulesSql)) {
+    fwrite(STDERR, "Missing install/pay-rules.sql\n");
+    exit(1);
+}
+
+$hadPayRules = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='pay_rule_sets'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($payRulesSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name='pay_rule_set_id'")) {
+    // No default: a project uses pay rules only once somebody chooses a
+    // confirmed set for it. Until then it is paid exactly as before.
+    q('ALTER TABLE jobs ADD COLUMN pay_rule_set_id INT UNSIGNED NULL, ADD INDEX ix_job_pay_rule_set (pay_rule_set_id)');
+    echo 'Pay rules: projects can now be given a confirmed pay rule set; none is assigned.' . PHP_EOL;
+}
+
+if (! $hadPayRules) {
+    // A starting point, not a ruling: the federal weekly line, as a draft
+    // that cannot be used until a person confirms it for a jurisdiction.
+    q("INSERT INTO pay_rule_sets (name, jurisdiction, weekly_overtime_after, weekly_overtime_multiplier, notes, status)
+       VALUES ('US federal baseline', 'United States (federal)', 40, 1.50,
+               'Federal weekly overtime only. Many states add daily overtime, double time or a seventh-day rule. Confirm with the payroll provider before activating, and copy it for each state that differs.',
+               'draft')");
+    echo 'Pay rules: a draft federal baseline was added; it is not active until confirmed.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
