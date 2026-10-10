@@ -1495,4 +1495,28 @@ if (! $hadHrRecords) {
        . 'only administrators see cases and separations until they grant HR access.' . PHP_EOL;
 }
 
+// ── P2-M07: HR requests and employment letters ────────────────────────────
+// Reversed by install/rollback/p2-m07.sql.
+$hrRequestsSql = __DIR__ . '/hr-requests.sql';
+
+if (! is_file($hrRequestsSql)) {
+    fwrite(STDERR, "Missing install/hr-requests.sql\n");
+    exit(1);
+}
+
+$hadHrRequests = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='hr_requests'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($hrRequestsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadHrRequests) {
+    echo 'Self-service: workers have one home for their details, time off, pay, benefits, reviews, goals and HR record, '
+       . 'and can send HR requests; ' . (int) val('SELECT COUNT(*) FROM worker_accounts') . ' worker account(s) see it.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

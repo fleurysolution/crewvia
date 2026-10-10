@@ -39,6 +39,7 @@ function workspace_nav(?array $u): array
         ['/appraisals',         'Performance reviews',                'recruiter'],
         ['/performance',        'Goals and development',              'recruiter'],
         ['/hr-records',         'HR records',                         'recruiter'],
+        ['/hr-requests',        'HR requests',                        ['recruiter','payroll']],
         ['/contracts',          'Contracts & signatures',             'recruiter'],
         ['/agreements',         'Documents',                          'recruiter'],
         ['/checks',             'Background & drug',                  'recruiter'],
@@ -110,7 +111,9 @@ function workspace_nav(?array $u): array
         $nav = [['/activity', 'Activity', null]];
 
         if ($crew) {
+            $nav[] = ['/self-service', 'My self-service', null];
             $nav[] = ['/portal', 'My portal', null];
+            $nav[] = ['/hr-requests', 'My HR requests', null];
         }
 
         $nav = array_merge($nav, [
@@ -175,7 +178,7 @@ function workspace_sections(): array
                      '/qualifications', '/screening-workflow', '/proofs',
                      '/agreements', '/employee-folder', '/change-requests'],
         'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/procurement', '/vendors', '/travel', '/operations', '/assets'],
-        'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/appraisals', '/performance', '/learning', '/safety-plan',
+        'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/hr-requests', '/appraisals', '/performance', '/learning', '/safety-plan',
                               '/comms', '/inbox', '/notifications'],
         'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/benefits', '/advances', '/expenses', '/payroll-export',
                               '/accounts-payable', '/billing', '/project-costs', '/client-invoices', '/balances', '/bill-matching', '/accounting', '/periods'],
