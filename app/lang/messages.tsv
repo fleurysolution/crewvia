@@ -1116,3 +1116,98 @@ Fall protection	Protection antichute	Protección contra caídas
 Gas detection	Détection de gaz	Detección de gases
 Tools	Outils	Herramientas
 Radios and electronics	Radios et électronique	Radios y electrónica
+:grade from (%)	:grade à partir de (%)	:grade desde (%)
+A review moves from the worker's own view, to the reviewer's scores, to approval by somebody else.	Une évaluation passe de l'avis du travailleur, aux notes de l'évaluateur, à l'approbation par quelqu'un d'autre.	Una evaluación pasa de la opinión del trabajador, a las notas del evaluador, a la aprobación por otra persona.
+A score of 1 on :criterion needs a comment.	Une note de 1 sur :criterion demande un commentaire.	Una nota de 1 en :criterion requiere un comentario.
+A template with that name already exists.	Un modèle de ce nom existe déjà.	Ya existe una plantilla con ese nombre.
+A weight is from 0 (left out) to 10.	Un poids va de 0 (exclu) à 10.	Un peso va de 0 (excluido) a 10.
+Add a criterion	Ajouter un critère	Añadir un criterio
+Anything you want the reviewer to know	Ce que vous voulez que l'évaluateur sache	Lo que quiera que sepa el evaluador
+Appraisal templates	Modèles d'évaluation	Plantillas de evaluación
+Awaiting approval	En attente d'approbation	Pendiente de aprobación
+Cancel the review	Annuler l'évaluation	Cancelar la evaluación
+Change :template	Modifier :template	Cambiar :template
+Check the period: a start, an end, the start first.	Vérifiez la période : un début, une fin, le début d'abord.	Revise el periodo: un inicio, un fin, el inicio primero.
+Choose a template in use, with at least one criterion.	Choisissez un modèle en usage, avec au moins un critère.	Elija una plantilla en uso, con al menos un criterio.
+Choose somebody on this project.	Choisissez quelqu'un sur ce projet.	Elija a alguien de este proyecto.
+Choose what kind of review it is.	Choisissez le type d'évaluation.	Elija el tipo de evaluación.
+Choose who reviews: the assignment has no supervisor.	Choisissez l'évaluateur : l'affectation n'a pas de superviseur.	Elija quién evalúa: la asignación no tiene supervisor.
+Criteria	Critères	Criterios
+Criteria and weights · 0 leaves it out	Critères et poids · 0 l'exclut	Criterios y pesos · 0 lo excluye
+Criteria are shared with the roster's end-of-assignment review.	Les critères sont partagés avec l'évaluation de fin d'affectation de l'effectif.	Los criterios se comparten con la evaluación de fin de asignación de la plantilla.
+Criterion	Critère	Criterio
+Criterion added. It can now be put on a template, and it appears on the roster's review.	Critère ajouté. Il peut figurer sur un modèle et apparaît dans l'évaluation de l'effectif.	Criterio añadido. Puede ponerse en una plantilla y aparece en la evaluación de la plantilla de personal.
+End of assignment	Fin d'affectation	Fin de asignación
+End of probation	Fin de période d'essai	Fin del periodo de prueba
+Give at least one criterion a weight.	Donnez un poids à au moins un critère.	Dé un peso a al menos un criterio.
+Go on without the worker's view	Continuer sans l'avis du travailleur	Seguir sin la opinión del trabajador
+Grade thresholds are percentages, A above B above C above D.	Les seuils sont des pourcentages, A au-dessus de B, de C, de D.	Los umbrales son porcentajes, A por encima de B, de C, de D.
+Name the criterion in 3 to 90 characters.	Nommez le critère en 3 à 90 caractères.	Nombre el criterio con 3 a 90 caracteres.
+Name the template in 3 to 120 characters.	Nommez le modèle en 3 à 120 caractères.	Nombre la plantilla con 3 a 120 caracteres.
+New template	Nouveau modèle	Nueva plantilla
+No review yet.	Aucune évaluation pour l'instant.	Todavía no hay evaluaciones.
+No template in use. An administrator sets them up under Appraisal templates.	Aucun modèle en usage. Un administrateur les crée dans Modèles d'évaluation.	Ninguna plantilla en uso. Un administrador las crea en Plantillas de evaluación.
+Nobody reviews themself.	Personne ne s'évalue soi-même.	Nadie se evalúa a sí mismo.
+Note · required to return it	Note · obligatoire pour la renvoyer	Nota · obligatoria para devolverla
+Only an open review can be cancelled.	Seule une évaluation ouverte peut être annulée.	Solo se puede cancelar una evaluación abierta.
+Only the reviewer, or a recruiter, scores this review.	Seul l'évaluateur, ou un recruteur, note cette évaluation.	Solo el evaluador, o un reclutador, califica esta evaluación.
+Open a review	Ouvrir une évaluation	Abrir una evaluación
+Overall comment · required if you would not have them back	Commentaire général · obligatoire si vous ne le reprendriez pas	Comentario general · obligatorio si no lo volvería a contratar
+Performance review	Évaluation de performance	Evaluación de desempeño
+Performance reviews	Évaluations de performance	Evaluaciones de desempeño
+Periodic	Périodique	Periódica
+Person on this project	Personne sur ce projet	Persona de este proyecto
+Put back in use	Remettre en usage	Volver a usar
+Return to the reviewer	Renvoyer à l'évaluateur	Devolver al evaluador
+Returned to the reviewer	Renvoyée à l'évaluateur	Devuelta al evaluador
+Review opened.	Évaluation ouverte.	Evaluación abierta.
+Reviewer	Évaluateur	Evaluador
+Reviewer · empty for the assignment's supervisor	Évaluateur · vide pour le superviseur de l'affectation	Evaluador · vacío para el supervisor de la asignación
+Reviewer's comment	Commentaire de l'évaluateur	Comentario del evaluador
+Reviews	Évaluations	Evaluaciones
+Reviews already use this template, so it cannot change. Create a new version and retire this one.	Des évaluations utilisent déjà ce modèle : il ne peut pas changer. Créez une nouvelle version et retirez celui-ci.	Ya hay evaluaciones con esta plantilla, así que no puede cambiar. Cree una nueva versión y retire esta.
+Say what the reviewer should look at again.	Dites ce que l'évaluateur doit revoir.	Diga qué debe revisar de nuevo el evaluador.
+Say whether you would have them back.	Dites si vous le reprendriez.	Diga si lo volvería a contratar.
+Say why the worker's view is skipped.	Dites pourquoi l'avis du travailleur est sauté.	Diga por qué se omite la opinión del trabajador.
+Scale	Échelle	Escala
+Scale: 1 to	Échelle : 1 à	Escala: 1 a
+Score	Note	Nota
+Score every criterion from 1 to :max.	Notez chaque critère de 1 à :max.	Califique cada criterio de 1 a :max.
+Score from 1 to :max on each point. A score of 1 needs a comment. Only your scores make the grade.	Notez de 1 à :max chaque point. Une note de 1 demande un commentaire. Seules vos notes font la cote.	Califique de 1 a :max cada punto. Una nota de 1 requiere un comentario. Solo sus notas forman la calificación.
+Score yourself from 1 to :max on each point. The reviewer sees it before scoring.	Notez-vous de 1 à :max sur chaque point. L'évaluateur le voit avant de noter.	Califíquese de 1 a :max en cada punto. El evaluador lo ve antes de calificar.
+Scored by the reviewer	Notée par l'évaluateur	Calificada por el evaluador
+Scores	Notes	Notas
+Self-review	Auto-évaluation	Autoevaluación
+Self-review skipped	Auto-évaluation sautée	Autoevaluación omitida
+Self-review submitted	Auto-évaluation envoyée	Autoevaluación enviada
+Send my view	Envoyer mon avis	Enviar mi opinión
+Skip the self-review	Sauter l'auto-évaluation	Omitir la autoevaluación
+Somebody other than the reviewer approves a review.	Quelqu'un d'autre que l'évaluateur approuve une évaluation.	Alguien distinto del evaluador aprueba una evaluación.
+Supervisor review	Évaluation du superviseur	Evaluación del supervisor
+Template	Modèle	Plantilla
+Template back in use.	Modèle remis en usage.	Plantilla de nuevo en uso.
+Template retired. Reviews already open on it carry on.	Modèle retiré. Les évaluations déjà ouvertes continuent.	Plantilla retirada. Las evaluaciones ya abiertas continúan.
+Template saved.	Modèle enregistré.	Plantilla guardada.
+That criterion already exists.	Ce critère existe déjà.	Ese criterio ya existe.
+That review does not exist.	Cette évaluation n'existe pas.	Esa evaluación no existe.
+That review is not waiting for the worker.	Cette évaluation n'attend pas le travailleur.	Esa evaluación no espera al trabajador.
+That review is not yours.	Cette évaluation n'est pas la vôtre.	Esa evaluación no es suya.
+That template does not exist.	Ce modèle n'existe pas.	Esa plantilla no existe.
+The assignment's supervisor	Le superviseur de l'affectation	El supervisor de la asignación
+The scale runs from 1 to between 3 and 10.	L'échelle va de 1 à une valeur entre 3 et 10.	La escala va de 1 a un valor entre 3 y 10.
+The score is each mark over the scale, weighted, as a percentage. Only the reviewer's marks count.	Le score est chaque note sur l'échelle, pondérée, en pourcentage. Seules les notes de l'évaluateur comptent.	La puntuación es cada nota sobre la escala, ponderada, en porcentaje. Solo cuentan las notas del evaluador.
+The worker gives their own view first	Le travailleur donne d'abord son avis	El trabajador da primero su opinión
+This person already has that appraisal open on this assignment.	Cette personne a déjà cette évaluation ouverte sur cette affectation.	Esta persona ya tiene esa evaluación abierta en esta asignación.
+This review is not awaiting approval.	Cette évaluation n'attend pas d'approbation.	Esta evaluación no está pendiente de aprobación.
+This review is not waiting for scores.	Cette évaluation n'attend pas de notes.	Esta evaluación no espera notas.
+Weighted score	Score pondéré	Puntuación ponderada
+What a review scores, how much each point counts, the scale and the grades. Once a review uses a template it is fixed; a new version is a new template.	Ce qu'une évaluation note, le poids de chaque point, l'échelle et les cotes. Dès qu'une évaluation utilise un modèle, il est figé ; une nouvelle version est un nouveau modèle.	Lo que califica una evaluación, cuánto cuenta cada punto, la escala y las calificaciones. Cuando una evaluación usa una plantilla queda fija; una nueva versión es una nueva plantilla.
+Worker's comment	Commentaire du travailleur	Comentario del trabajador
+Worker's view	Avis du travailleur	Opinión del trabajador
+Would have them back	Le reprendrait	Lo volvería a contratar
+Would you have them back?	Le reprendriez-vous ?	¿Lo volvería a contratar?
+Your own view	Votre avis	Su opinión
+Your part of this review is closed.	Votre partie de cette évaluation est close.	Su parte de esta evaluación está cerrada.
+Your reviews: the ones waiting for your own view, and those approved.	Vos évaluations : celles qui attendent votre avis, et celles approuvées.	Sus evaluaciones: las que esperan su opinión y las aprobadas.
+Your scores	Vos notes	Sus notas
+for example: Kept the work area clean	par exemple : A gardé la zone de travail propre	por ejemplo: Mantuvo limpia la zona de trabajo

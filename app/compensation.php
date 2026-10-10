@@ -284,6 +284,15 @@ function employment_history(int $candidateId, bool $withPay): array
         }
     }
 
+    try {
+        foreach (rows("SELECT a.decided_at, a.score_percent, a.grade, t.label, j.title FROM appraisals a JOIN appraisal_templates t ON t.id = a.template_id
+                       JOIN placements p ON p.id = a.placement_id JOIN jobs j ON j.id = p.job_id
+                       WHERE a.candidate_id = ? AND a.status = 'approved'", [$candidateId]) as $r) {
+            $add($r['decided_at'], t('Performance review'), t($r['label']) . ' · ' . $r['title'] . ' · ' . number_format((float) $r['score_percent'], 1) . '% · ' . $r['grade']);
+        }
+    } catch (Throwable $e) {
+    }
+
     usort($events, fn($a, $b) => strcmp($b['date'], $a['date']));
 
     return $events;

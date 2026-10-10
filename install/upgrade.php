@@ -1028,4 +1028,36 @@ if (! $hadAssets) {
        . (int) val('SELECT COUNT(*) FROM equipment') . ' existing item(s) start as available, uncategorised.' . PHP_EOL;
 }
 
+// ── P2-M02: performance appraisals ───────────────────────────────────────
+// Reversed by install/rollback/p2-m02.sql.
+$appraisalsSql = __DIR__ . '/appraisals.sql';
+
+if (! is_file($appraisalsSql)) {
+    fwrite(STDERR, "Missing install/appraisals.sql\n");
+    exit(1);
+}
+
+$hadAppraisals = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='appraisal_templates'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($appraisalsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadAppraisals) {
+    // The end-of-assignment review as a template: the same criteria, on the
+    // same 1-5 scale, safety counting double.
+    q("INSERT IGNORE INTO appraisal_templates (code, label, kind, scale_max, self_review) VALUES ('end_of_assignment', 'End of assignment', 'end_of_assignment', 5, 1)");
+    $template = (int) val("SELECT id FROM appraisal_templates WHERE code = 'end_of_assignment'");
+    foreach (rows('SELECT slug, sort_order FROM assignment_review_criteria WHERE is_active = 1 ORDER BY sort_order') as $c) {
+        q('INSERT IGNORE INTO appraisal_template_criteria (template_id, criterion_slug, weight, sort_order) VALUES (?,?,?,?)',
+          [$template, $c['slug'], $c['slug'] === 'safety' ? 2 : 1, (int) $c['sort_order']]);
+    }
+    echo 'Appraisals: templates, self and supervisor scoring, approval and history are in place; the end-of-assignment template scores '
+       . (int) val('SELECT COUNT(*) FROM appraisal_template_criteria WHERE template_id = ?', [$template]) . ' criteria.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

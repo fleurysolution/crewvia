@@ -54,16 +54,16 @@ def check(label, condition, detail=''):
 # Who may open what. Anything not listed for a role must not render for it.
 payroll_only = ['/hours', '/payroll-export', '/pay-rules', '/pay-items', '/payroll-runs', '/attendance-week', '/billing',
                 '/accounts-payable', '/client-invoices']
-admin_only = ['/pay-grades', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
+admin_only = ['/pay-grades', '/appraisal-templates', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
               '/agency-setup', '/client-access', '/subscription', '/email-delivery', '/job']
 roles = {
     'admin':      ('admin@test.invalid', []),
     'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/hotels', '/travel', '/procurement']),
-    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
-    'payroll':    ('m01-payroll@test.invalid', admin_only + ['/assets', '/hotels', '/travel', '/candidates', '/recruitment']),
+    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/appraisals', '/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
+    'payroll':    ('m01-payroll@test.invalid', admin_only + ['/assets', '/appraisals', '/hotels', '/travel', '/candidates', '/recruitment']),
     'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
     'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests']),
-    'client':     ('client@test.invalid', payroll_only + admin_only + ['/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
+    'client':     ('client@test.invalid', payroll_only + admin_only + ['/appraisals', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
 }
 
 pages = 0
@@ -83,7 +83,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 for path, do in [('/attendance', 'correct'), ('/hours', 'approve_week'), ('/pay-rules', 'create'), ('/pay-items', 'create'),
                  ('/payroll-runs', 'open'), ('/leave-types', 'create'), ('/employee-folder', 'classification'),
-                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue')]:
+                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save')]:
     status, _, _ = admin.post(path, {'do': do}, csrf=False)
     check('CSRF: %s %s without its token is refused' % (path, do), status == 419, status)
 
