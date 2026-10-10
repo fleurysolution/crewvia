@@ -72,7 +72,7 @@ if ($fresh['role']==='client' && !in_array($path,['/client-portal','/account','/
     http_response_code(403);render('403',['need'=>['client']]);exit;
 }
 if ($fresh['role'] === 'supervisor' && !in_array($path,['/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
-if ($fresh['role'] === 'worker' && !in_array($path, ['/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
+if ($fresh['role'] === 'worker' && !in_array($path, ['/my-payslips','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
 
 if ($fresh['must_change_pw'] && $path !== '/account') redirect('/account');
 if (($config['commercial_mode'] ?? 'demo')==='subscription' && !empty($config['saas_enforce_subscription'])
@@ -173,6 +173,9 @@ $routes = [
     '/pay-rules' => 'pay-rules',
     '/leave-types' => 'leave-types',
     '/pay-items' => 'pay-items',
+    '/payroll-runs' => 'payroll-runs',
+    '/payslip' => 'payslip',
+    '/my-payslips' => 'my-payslips',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',

@@ -112,6 +112,11 @@ foreach (['adp_company_code' => 'M03CO', 'adp_hours_code' => 'REG', 'adp_overtim
     q('INSERT INTO platform_settings(setting_key,setting_value) VALUES (?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)', [$k, $v]);
 }
 
+// Its own administrator: the shared one is limited to 10 sign-ins in 15
+// minutes (BACKLOG Q1), and every suite signing in as it ran it out.
+q("INSERT INTO users(name,email,password_hash,role,must_change_pw) VALUES (?,?,?,'admin',0)",
+  ['M03 administrator', 'm03-admin@test.invalid', password_hash('TestPassword123!', PASSWORD_DEFAULT)]);
+
 file_put_contents(__DIR__ . '/m03.json', json_encode([
     'job' => $job, 'week' => $week, 'week2' => $week2, 'holiday' => $day($week, 3),
     'p_long' => $pLong, 'p_split' => $pSplit,

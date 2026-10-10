@@ -63,7 +63,7 @@ def act(client, values, page='/pay-rules'):
 
 payroll = Client(); check('M03 payroll login', payroll.login('m01-payroll@test.invalid')[0] == 200)
 payroll.post('/select-project', {'job_id': m03['job']})
-admin = Client(); check('M03 admin login', admin.login('admin@test.invalid')[0] == 200)
+admin = Client(); check('M03 admin login', admin.login('m03-admin@test.invalid')[0] == 200)
 admin.post('/select-project', {'job_id': m03['job']})
 hotels = Client(); check('M03 hotels login', hotels.login('m01-hotels@test.invalid')[0] == 200)
 recruiter = Client(); check('M03 recruiter login', recruiter.login('m01-recruiter@test.invalid')[0] == 200)

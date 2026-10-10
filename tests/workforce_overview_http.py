@@ -58,10 +58,12 @@ def links(body):
 expected = json.loads(subprocess.run([php, 'work/workforce_overview_probe.php', str(fixture['a'])],
                                      check=True, capture_output=True, text=True).stdout)
 
+signed_in = {}
 for email, desk in [('admin@test.invalid', 'admin'), ('m01-recruiter@test.invalid', 'recruiter'),
                     ('m01-payroll@test.invalid', 'payroll'), ('m01-hotels@test.invalid', 'hotels')]:
     c = Client()
     check('Overview: %s signs in' % desk, c.login(email)[0] == 200)
+    signed_in[desk] = c
     c.post('/select-project', {'job_id': fixture['a']})
     status, body = c.get('/activity')
     check('Overview: %s sees the four tiles' % desk, status == 200 and len(tiles(body)) == 4, tiles(body))
@@ -79,7 +81,7 @@ for email, who in [('worker@test.invalid', 'a worker'), ('supervisor@test.invali
     status, body = c.get('/activity')
     check('Overview: %s does not see the workforce figures' % who, 'wf-tiles' not in body and 'Present today' not in body)
 
-c = Client(); c.login('admin@test.invalid'); c.post('/select-project', {'job_id': fixture['a']})
+c = signed_in['admin']  # the same sign-in: every extra one counts against the throttle
 status, body = c.get('/activity?lang=fr')
 check('Overview: translated into French', 'Présents aujourd’hui' in body and 'Affectés récemment' in body)
 status, body = c.get('/activity?lang=es')

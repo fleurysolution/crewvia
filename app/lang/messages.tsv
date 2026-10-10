@@ -760,3 +760,82 @@ Worked out as	Calculé comme	Se calcula como
 for example: Uniform	par exemple : Uniforme	por ejemplo: Uniforme
 pre-tax	avant impôts	antes de impuestos
 Advance repayment	Remboursement d’avance	Reembolso de anticipo
+:n weekly sheet(s) in this week are not approved yet. Approve them on Hours, or set their hours to zero, first.	:n feuille(s) de la semaine ne sont pas encore approuvées. Approuvez-les dans Heures, ou mettez leurs heures à zéro, d’abord.	:n hoja(s) de esta semana aún no están aprobadas. Apruébelas en Horas, o ponga sus horas a cero, primero.
+:paid h paid, :days h approved	:paid h payées, :days h approuvées	:paid h pagadas, :days h aprobadas
+A locked period is final. Correct it with an adjustment in an open period.	Une période verrouillée est définitive. Corrigez-la par un ajustement dans une période ouverte.	Un periodo cerrado es definitivo. Corríjalo con un ajuste en un periodo abierto.
+A period for the week ending :date already exists.	Une période pour la semaine se terminant le :date existe déjà.	Ya existe un periodo para la semana que termina el :date.
+Adjustment recorded	Ajustement enregistré	Ajuste registrado
+Adjustment recorded in this period.	Ajustement enregistré dans cette période.	Ajuste registrado en este periodo.
+Adjustments	Ajustements	Ajustes
+Adjustments go into an open period. This one is :status.	Les ajustements vont dans une période ouverte. Celle-ci est :status.	Los ajustes van en un periodo abierto. Este está :status.
+Adjustments in this period	Ajustements de cette période	Ajustes de este periodo
+An adjustment corrects a week already approved for this person.	Un ajustement corrige une semaine déjà approuvée pour cette personne.	Un ajuste corrige una semana ya aprobada para esta persona.
+An adjustment is an amount above 0 and at most 100,000; a recovery is entered positive and taken back.	Un ajustement est un montant supérieur à 0 et au plus 100 000 ; une récupération se saisit en positif et est reprise.	Un ajuste es un importe mayor que 0 y como máximo 100.000; una recuperación se introduce en positivo y se descuenta.
+An adjustment is paid in a later period than the week it corrects.	Un ajustement est payé dans une période postérieure à la semaine qu’il corrige.	Un ajuste se paga en un periodo posterior a la semana que corrige.
+Approved before deductions were recorded: no deduction is shown for this week.	Approuvée avant l’enregistrement des retenues : aucune retenue n’est affichée pour cette semaine.	Aprobada antes de registrar deducciones: no se muestra ninguna deducción para esta semana.
+Approved. Lock it once it has been paid.	Approuvée. Verrouillez-la une fois payée.	Aprobado. Ciérrelo una vez pagado.
+Attendance corrected after the week was paid	Présences corrigées après le paiement de la semaine	Asistencia corregida después de pagar la semana
+Audit trail	Piste d’audit	Registro de auditoría
+Back	Retour	Volver
+Back pay	Rappel de salaire	Atrasos
+Choose the week ending of the period.	Choisissez la fin de semaine de la période.	Elija el fin de semana del periodo.
+Choose what kind of adjustment this is.	Choisissez le type d’ajustement.	Elija el tipo de ajuste.
+Choose who the adjustment is for.	Choisissez la personne concernée par l’ajustement.	Elija para quién es el ajuste.
+Correction of a paid week	Correction d’une semaine payée	Corrección de una semana pagada
+Employer contributions this week: :amount. Taxes are withheld by the payroll provider and are not in these figures.	Cotisations employeur cette semaine : :amount. Les impôts sont retenus par le prestataire de paie et ne figurent pas ici.	Contribuciones del empleador esta semana: :amount. Los impuestos los retiene el proveedor de nómina y no están en estas cifras.
+Found by the week check. Each can be settled here; the amount suggested is the hours difference at the person's rate.	Trouvées par le contrôle de la semaine. Chacune peut être réglée ici ; le montant proposé est l’écart d’heures au taux de la personne.	Detectadas por el control de la semana. Cada una puede resolverse aquí; el importe sugerido es la diferencia de horas a la tarifa de la persona.
+Hours (optional)	Heures (facultatif)	Horas (opcional)
+Hours, if given, are a number up to 168.	Les heures, si indiquées, sont un nombre jusqu’à 168.	Las horas, si se indican, son un número de hasta 168.
+How each week was worked out, before taxes. Taxes are withheld by the payroll provider, whose statement is the official one.	Comment chaque semaine a été calculée, avant impôts. Les impôts sont retenus par le prestataire de paie, dont le relevé fait foi.	Cómo se calculó cada semana, antes de impuestos. Los impuestos los retiene el proveedor de nómina, cuyo comprobante es el oficial.
+Lock as paid	Verrouiller comme payée	Cerrar como pagado
+Locked	Verrouillée	Cerrado
+Locked. It is final; corrections go into an open period as adjustments.	Verrouillée. C’est définitif ; les corrections vont dans une période ouverte comme ajustements.	Cerrado. Es definitivo; las correcciones van a un periodo abierto como ajustes.
+My pay statements	Mes relevés de paie	Mis comprobantes de pago
+No approved week and no adjustment in this period yet.	Aucune semaine approuvée ni aucun ajustement dans cette période pour l’instant.	Aún no hay semanas aprobadas ni ajustes en este periodo.
+No pay period yet. Weeks are approved project by project, as before, until one is opened.	Aucune période de paie pour l’instant. Les semaines s’approuvent projet par projet, comme avant, jusqu’à l’ouverture d’une période.	Aún no hay periodos de pago. Las semanas se aprueban proyecto por proyecto, como antes, hasta que se abra uno.
+No pay statement yet. One appears here once a week you worked has been approved for pay.	Aucun relevé de paie pour l’instant. Il apparaît ici dès qu’une semaine travaillée est approuvée pour la paie.	Aún no hay comprobantes de pago. Aparecerá aquí cuando una semana trabajada se apruebe para pago.
+None.	Aucun.	Ninguno.
+Not approved yet	Pas encore approuvé	Aún no aprobado
+Not recorded	Non enregistré	No registrado
+One period per week, across every project. Payroll submits it once every sheet is approved, an administrator who did not submit it approves it, and it is locked once paid. From submission on, nothing in the week changes: a later difference is an adjustment in an open period.	Une période par semaine, pour tous les projets. La paie la soumet une fois toutes les feuilles approuvées, un administrateur qui ne l’a pas soumise l’approuve, et elle est verrouillée une fois payée. Dès la soumission, rien ne change dans la semaine : un écart ultérieur est un ajustement dans une période ouverte.	Un periodo por semana, para todos los proyectos. Nómina lo envía cuando todas las hojas están aprobadas, un administrador que no lo envió lo aprueba, y se cierra una vez pagado. Desde el envío, nada cambia en la semana: una diferencia posterior es un ajuste en un periodo abierto.
+Only a submitted period is approved.	Seule une période soumise s’approuve.	Solo se aprueba un periodo enviado.
+Only an approved period is locked.	Seule une période approuvée se verrouille.	Solo se cierra un periodo aprobado.
+Only an open period is submitted.	Seule une période ouverte se soumet.	Solo se envía un periodo abierto.
+Open a pay period	Ouvrir une période de paie	Abrir un periodo de pago
+Opened	Ouverte	Abierto
+Paid leave	Congé payé	Permiso pagado
+Paid weeks that no longer match their days	Semaines payées qui ne correspondent plus à leurs jours	Semanas pagadas que ya no coinciden con sus días
+Pay period	Période de paie	Periodo de pago
+Pay periods	Périodes de paie	Periodos de pago
+Pay statement	Relevé de paie	Comprobante de pago
+Pay the difference	Payer l’écart	Pagar la diferencia
+Payslip	Bulletin	Comprobante
+Periods	Périodes	Periodos
+Print	Imprimer	Imprimir
+Reconciliation	Rapprochement	Conciliación
+Record	Enregistrer	Registrar
+Record an adjustment	Enregistrer un ajustement	Registrar un ajuste
+Recover the difference	Récupérer l’écart	Recuperar la diferencia
+Recovery of an overpayment	Récupération d’un trop-perçu	Recuperación de un pago en exceso
+Reopen	Rouvrir	Reabrir
+Reopened	Rouverte	Reabierto
+Reopened. The week can be changed again.	Rouverte. La semaine peut à nouveau être modifiée.	Reabierto. La semana puede modificarse de nuevo.
+Say why the adjustment is made, in up to 500 characters.	Indiquez la raison de l’ajustement, en 500 caractères au plus.	Indique por qué se hace el ajuste, en hasta 500 caracteres.
+Say why the period is reopened.	Indiquez pourquoi la période est rouverte.	Indique por qué se reabre el periodo.
+Submit for approval	Soumettre pour approbation	Enviar para aprobación
+Submitted for approval	Soumise pour approbation	Enviado para aprobación
+Submitted. The week is frozen until an administrator approves or reopens it.	Soumise. La semaine est figée jusqu’à ce qu’un administrateur l’approuve ou la rouvre.	Enviado. La semana queda congelada hasta que un administrador la apruebe o la reabra.
+Summary	Récapitulatif	Resumen
+Taxes are withheld by the payroll provider and are not shown here. The provider's statement is the official record of your pay; this one shows how your week was worked out before taxes.	Les impôts sont retenus par le prestataire de paie et ne figurent pas ici. Le relevé du prestataire fait foi ; celui-ci montre comment votre semaine a été calculée avant impôts.	Los impuestos los retiene el proveedor de nómina y no se muestran aquí. El comprobante del proveedor es el registro oficial de su pago; este muestra cómo se calculó su semana antes de impuestos.
+That pay period does not exist.	Cette période de paie n’existe pas.	Ese periodo de pago no existe.
+That pay statement is not available.	Ce relevé de paie n’est pas disponible.	Ese comprobante de pago no está disponible.
+That period is already open.	Cette période est déjà ouverte.	Ese periodo ya está abierto.
+The pay period for the week ending :date is :status. Nothing in it changes; record an adjustment in an open period instead.	La période de paie de la semaine se terminant le :date est :status. Rien n’y change ; enregistrez plutôt un ajustement dans une période ouverte.	El periodo de pago de la semana que termina el :date está :status. Nada cambia en él; registre un ajuste en un periodo abierto.
+The period is submitted once these are approved on Hours, on their projects.	La période se soumet une fois celles-ci approuvées dans Heures, sur leurs projets.	El periodo se envía cuando estas estén aprobadas en Horas, en sus proyectos.
+The person who submitted a period does not approve it. Another administrator does.	La personne qui a soumis une période ne l’approuve pas. Un autre administrateur le fait.	Quien envía un periodo no lo aprueba. Lo hace otro administrador.
+To be paid, before taxes	À payer, avant impôts	A pagar, antes de impuestos
+To pay	À payer	A pagar
+Week ending (Saturday)	Fin de semaine (samedi)	Fin de semana (sábado)
+Week ending :date	Semaine se terminant le :date	Semana que termina el :date
+Why it is reopened	Pourquoi elle est rouverte	Por qué se reabre
+corrects the week ending :date	corrige la semaine se terminant le :date	corrige la semana que termina el :date

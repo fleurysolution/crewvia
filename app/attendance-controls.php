@@ -56,7 +56,12 @@ function attendance_placement_in_scope(int $placementId): ?array
 /** The pay week a day belongs to is approved or paid, so the day is frozen. */
 function attendance_week_frozen(int $placementId, string $date): bool
 {
-    return (bool) val("SELECT COUNT(*) FROM timesheets
+    // Frozen when its own sheet is approved, or when the week's pay
+    // period has gone past open for everybody (P1-M06).
+    require_once __DIR__ . '/pay-periods.php';
+
+    return payroll_week_locked(week_ending($date))
+        || (bool) val("SELECT COUNT(*) FROM timesheets
                        WHERE placement_id = ? AND week_ending = ? AND status IN ('approved','paid')",
                       [$placementId, week_ending($date)]);
 }

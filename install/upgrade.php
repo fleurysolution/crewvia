@@ -851,4 +851,29 @@ if (! $hadPayItems) {
     echo 'Pay: deductions and employer contributions are in place; open advances are now repaid from approved weeks.' . PHP_EOL;
 }
 
+// ── P1-M06: pay periods, adjustments, payroll audit ───────────────────
+// Reversed by install/rollback/p1-m06.sql. No period is created here: a
+// week without one behaves exactly as before, so nothing already being
+// worked on is frozen by the upgrade.
+$payPeriodsSql = __DIR__ . '/pay-periods.sql';
+
+if (! is_file($payPeriodsSql)) {
+    fwrite(STDERR, "Missing install/pay-periods.sql\n");
+    exit(1);
+}
+
+$hadPayPeriods = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='payroll_runs'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($payPeriodsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadPayPeriods) {
+    echo 'Pay periods: approval, locking, adjustments and payslips are in place; no period is open yet.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

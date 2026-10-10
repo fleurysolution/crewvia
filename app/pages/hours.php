@@ -17,6 +17,18 @@ $week  = week_ending($_GET['week'] ?? null);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = $_POST['do'] ?? '';
 
+    // A week whose pay period has been submitted is frozen: no hours, no
+    // import, no approval. What is wrong is corrected with an adjustment.
+    if (in_array($do, ['save', 'import_attendance', 'approve_week'], true)) {
+        require_once __DIR__ . '/../pay-periods.php';
+        $lockedWeek = week_ending((string) ($_POST['week_ending'] ?? ''));
+
+        if (payroll_week_locked($lockedWeek)) {
+            refuse(422, t('The pay period for the week ending :date is :status. Nothing in it changes; record an adjustment in an open period instead.',
+                          ['date' => d($lockedWeek), 'status' => payroll_run_statuses()[payroll_run_for($lockedWeek)['status']] ?? '']));
+        }
+    }
+
     if($do==='policy') {
         $threshold=trim((string)($_POST['weekly_overtime_after']??''));$multiplier=(float)($_POST['overtime_multiplier']??1.5);
         if(!$jobId||($threshold!==''&&(!is_numeric($threshold)||(float)$threshold<0||(float)$threshold>168))||!is_finite($multiplier)||$multiplier<1||$multiplier>5){refuse(422, t('Invalid weekly payroll policy.'));}

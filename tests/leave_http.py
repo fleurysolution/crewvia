@@ -71,7 +71,7 @@ def ask(client, placement, slug, starts, ends):
     return client.post('/timeoff', {'do': 'request', 'placement_id': placement, 'leave_type': slug, 'starts_on': starts, 'ends_on': ends, 'reason': 'Test'})
 
 
-admin = Client(); check('M04 admin login', admin.login('admin@test.invalid')[0] == 200)
+admin = Client(); check('M04 admin login', admin.login('m04-admin@test.invalid')[0] == 200)
 payroll = Client(); check('M04 payroll login', payroll.login('m01-payroll@test.invalid')[0] == 200)
 recruiter = Client(); check('M04 recruiter login', recruiter.login('m01-recruiter@test.invalid')[0] == 200)
 recruiter.post('/select-project', {'job_id': fixture['a']})

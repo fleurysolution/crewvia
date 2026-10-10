@@ -105,6 +105,11 @@ $leave($pPaid, $uPaid, 'sick', $day(2), $day(1));
 $leave($pBoth, $uBoth, 'sick', $day(3), $day(3));
 $attend($pBoth, $day(3), 8.0);
 
+// Its own administrator: the shared one is limited to 10 sign-ins in 15
+// minutes (BACKLOG Q1), and every suite signing in as it ran it out.
+q("INSERT INTO users(name,email,password_hash,role,must_change_pw) VALUES (?,?,?,'admin',0)",
+  ['M04 administrator', 'm04-admin@test.invalid', password_hash('TestPassword123!', PASSWORD_DEFAULT)]);
+
 file_put_contents(__DIR__ . '/m04.json', json_encode([
     'year' => $year, 'week' => $week, 'job_d' => $jobD, 'p_paid' => $pPaid, 'p_both' => $pBoth,
     'c_accrual' => $cAccrual, 'p_accrual' => $pAccrual, 'p_new' => $pNew, 'p_contractor' => $pContractor,
