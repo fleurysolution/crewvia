@@ -1097,4 +1097,58 @@ if (! $hadCosting) {
        . (int) val('SELECT COUNT(*) FROM jobs') . ' project(s) start with no budget and no rates.' . PHP_EOL;
 }
 
+// ── P3-M02: chart-of-accounts mapping, QuickBooks export ─────────────────
+// Reversed by install/rollback/p3-m02.sql.
+$accountingSql = __DIR__ . '/accounting.sql';
+
+if (! is_file($accountingSql)) {
+    fwrite(STDERR, "Missing install/accounting.sql\n");
+    exit(1);
+}
+
+$hadAccounting = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='accounting_accounts'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($accountingSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// When an invoice went out and when it was paid. Unknown for invoices
+// issued before this: the export then uses the date it was created.
+foreach (['issued_at' => 'DATETIME NULL', 'paid_at' => 'DATETIME NULL'] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='client_invoices' AND column_name=?", [$column])) {
+        q('ALTER TABLE client_invoices ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+if (! $hadAccounting) {
+    // Usual QuickBooks Online names, unconfirmed: an administrator checks
+    // each against the company's chart before anything is exported.
+    $order = 0;
+    foreach ([
+        ['accounts_receivable', 'Client invoices owed', 'asset', 'Accounts Receivable (A/R)'],
+        ['bank', 'Bank account payments go through', 'asset', 'Checking'],
+        ['accounts_payable', 'Vendor bills owed', 'liability', 'Accounts Payable (A/P)'],
+        ['net_pay_payable', 'Net pay owed to workers', 'liability', 'Payroll Clearing'],
+        ['deductions_payable', 'Deductions withheld from pay', 'liability', 'Payroll Liabilities'],
+        ['employer_payable', 'Employer contributions owed', 'liability', 'Payroll Liabilities'],
+        ['revenue', 'Staffing revenue', 'income', 'Services'],
+        ['wages_expense', 'Wages', 'expense', 'Cost of Labor'],
+        ['employer_expense', 'Employer contributions', 'expense', 'Payroll Expenses:Taxes'],
+        ['per_diem_expense', 'Per diem and reimbursed expenses', 'expense', 'Travel Meals'],
+        ['hotels_expense', 'Hotels', 'expense', 'Travel'],
+        ['transportation_expense', 'Transportation', 'expense', 'Travel'],
+        ['equipment_expense', 'Equipment', 'expense', 'Supplies & Materials'],
+        ['other_expense', 'Other costs', 'expense', 'Other Business Expenses'],
+    ] as [$key, $label, $side, $qb]) {
+        q('INSERT IGNORE INTO accounting_accounts (account_key, label, side, qb_account, sort_order) VALUES (?,?,?,?,?)', [$key, $label, $side, $qb, ++$order]);
+    }
+    echo 'Accounting: chart-of-accounts mapping and QuickBooks export are in place; '
+       . (int) val('SELECT COUNT(*) FROM accounting_accounts') . ' accounts await confirmation, payroll export is off.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

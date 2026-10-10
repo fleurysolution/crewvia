@@ -1271,3 +1271,61 @@ Wages and paid leave	Salaires et congés payés	Salarios y permisos pagados
 Week by week	Semaine par semaine	Semana a semana
 not set	non défini	sin definir
 project to date, from approved weeks and approved or paid invoices and claims. Nothing here creates a transaction.	projet à ce jour, à partir des semaines approuvées et des factures et demandes approuvées ou payées. Rien ici ne crée de transaction.	proyecto hasta la fecha, a partir de semanas aprobadas y facturas y reclamaciones aprobadas o pagadas. Nada aquí crea una transacción.
+:n entries	:n écritures	:n asientos
+:source does not balance: debits :dr, credits :cr.	:source n'est pas équilibrée : débits :dr, crédits :cr.	:source no cuadra: débitos :dr, créditos :cr.
+ADP posts payroll; Crewvia does not	ADP comptabilise la paie ; Crewvia non	ADP registra la nómina; Crewvia no
+Account mapping saved. Exports already made keep the names they were sent with.	Correspondance enregistrée. Les exports déjà faits gardent les noms avec lesquels ils sont partis.	Correspondencia guardada. Las exportaciones ya hechas conservan los nombres con que se enviaron.
+Another export took some of these records first. Nothing was exported; look again.	Un autre export a pris certaines de ces pièces avant. Rien n'a été exporté ; regardez de nouveau.	Otra exportación tomó antes algunos de estos registros. No se exportó nada; vuelva a mirar.
+Chart of accounts	Plan comptable	Plan de cuentas
+Checked	Vérifié	Verificado
+Class	Classe	Clase
+Credit	Crédit	Crédito
+Crewvia exports approved payroll periods	Crewvia exporte les périodes de paie approuvées	Crewvia exporta los periodos de nómina aprobados
+Crewvia keeps no ledger. It sends what it records to QuickBooks Online as journal entries, each record once. A batch is never edited: a mistake is cancelled by a reversal.	Crewvia ne tient pas de grand livre. Il envoie ce qu'il enregistre à QuickBooks Online en écritures de journal, chaque pièce une seule fois. Un lot n'est jamais modifié : une erreur s'annule par une contre-passation.	Crewvia no lleva libro mayor. Envía lo que registra a QuickBooks Online como asientos de diario, cada registro una sola vez. Un lote nunca se edita: un error se anula con una reversión.
+Date the reversal today or earlier.	Datez la contre-passation d'aujourd'hui ou avant.	Feche la reversión hoy o antes.
+Debit	Débit	Débito
+Entries	Écritures	Asientos
+Export	Export	Exportación
+Export :n made. Download its file and import it into QuickBooks as journal entries.	Export :n fait. Téléchargez son fichier et importez-le dans QuickBooks en écritures de journal.	Exportación :n hecha. Descargue su archivo e impórtelo en QuickBooks como asientos de diario.
+Export these :n entries	Exporter ces :n écritures	Exportar estos :n asientos
+Export up to a date that has passed, today at the latest.	Exportez jusqu'à une date passée, aujourd'hui au plus tard.	Exporte hasta una fecha pasada, hoy como máximo.
+Exports	Exports	Exportaciones
+Give each account its QuickBooks name, as the chart of accounts spells it.	Donnez à chaque compte son nom QuickBooks, tel que l'écrit le plan comptable.	Dé a cada cuenta su nombre de QuickBooks, como lo escribe el plan de cuentas.
+In Crewvia	Dans Crewvia	En Crewvia
+Nothing exported yet.	Rien d'exporté pour l'instant.	Todavía no se ha exportado nada.
+Nothing is waiting to be exported up to that date.	Rien n'attend d'être exporté jusqu'à cette date.	Nada espera ser exportado hasta esa fecha.
+Payroll	Paie	Nómina
+Payroll is no longer exported.	La paie n'est plus exportée.	La nómina ya no se exporta.
+Payroll periods will be exported from now on.	Les périodes de paie seront exportées désormais.	Los periodos de nómina se exportarán a partir de ahora.
+QuickBooks account	Compte QuickBooks	Cuenta de QuickBooks
+QuickBooks export	Export QuickBooks	Exportación a QuickBooks
+RSS runs payroll through ADP, and ADP can post it to QuickBooks itself. Turn this on only if it does not: both would count the same pay.	RSS fait sa paie avec ADP, et ADP peut la comptabiliser lui-même dans QuickBooks. N'activez ceci que s'il ne le fait pas : les deux compteraient la même paie.	RSS hace su nómina con ADP, y ADP puede registrarla en QuickBooks. Active esto solo si no lo hace: ambos contarían la misma paga.
+Reversal :n made. Import its file into QuickBooks to cancel the export; its records can be exported again.	Contre-passation :n faite. Importez son fichier dans QuickBooks pour annuler l'export ; ses pièces peuvent être réexportées.	Reversión :n hecha. Importe su archivo en QuickBooks para anular la exportación; sus registros pueden exportarse de nuevo.
+Reversal of :n	Contre-passation de :n	Reversión de :n
+Reverse	Contre-passer	Revertir
+Reversed by :n	Contre-passé par :n	Revertida por :n
+Say why payroll goes out from Crewvia. If ADP posts payroll to QuickBooks, both would count it.	Dites pourquoi la paie part de Crewvia. Si ADP la comptabilise dans QuickBooks, les deux la compteraient.	Diga por qué la nómina sale de Crewvia. Si ADP la registra en QuickBooks, ambos la contarían.
+Say why the export is reversed.	Dites pourquoi l'export est contre-passé.	Diga por qué se revierte la exportación.
+Standing	En vigueur	Vigente
+That export does not exist.	Cet export n'existe pas.	Esa exportación no existe.
+That export is already reversed.	Cet export est déjà contre-passé.	Esa exportación ya está revertida.
+The account ":label" is not confirmed against the QuickBooks chart.	Le compte « :label » n'est pas vérifié par rapport au plan QuickBooks.	La cuenta «:label» no está verificada con el plan de QuickBooks.
+The first 100 are shown; the export takes them all.	Les 100 premières sont affichées ; l'export les prend toutes.	Se muestran los 100 primeros; la exportación los toma todos.
+This export no longer matches its recorded fingerprint. Nothing was downloaded.	Cet export ne correspond plus à son empreinte enregistrée. Rien n'a été téléchargé.	Esta exportación ya no coincide con su huella registrada. No se descargó nada.
+Type each QuickBooks account exactly as your chart spells it, sub-accounts as Parent:Child, and tick it once checked. Nothing goes to an unchecked account.	Saisissez chaque compte QuickBooks exactement comme votre plan l'écrit, les sous-comptes en Parent:Enfant, et cochez-le une fois vérifié. Rien ne va à un compte non coché.	Escriba cada cuenta de QuickBooks tal como la escribe su plan, las subcuentas como Padre:Hijo, y márquela una vez verificada. Nada va a una cuenta sin marcar.
+Up to	Jusqu'au	Hasta
+Waiting to be exported	En attente d'export	Pendiente de exportar
+Why it is reversed	Pourquoi il est contre-passé	Por qué se revierte
+credits	crédits	créditos
+debits	débits	débitos
+payroll included	paie incluse	nómina incluida
+payroll not included: ADP posts it	paie non incluse : ADP la comptabilise	nómina no incluida: la registra ADP
+Client invoices owed	Factures clients dues	Facturas de clientes por cobrar
+Bank account payments go through	Compte bancaire des paiements	Cuenta bancaria de los pagos
+Vendor bills owed	Factures fournisseurs dues	Facturas de proveedores por pagar
+Net pay owed to workers	Salaire net dû aux travailleurs	Pago neto adeudado a los trabajadores
+Deductions withheld from pay	Retenues sur la paie	Deducciones retenidas de la paga
+Employer contributions owed	Cotisations patronales dues	Aportes del empleador por pagar
+Staffing revenue	Revenu de placement	Ingresos por personal
+Wages	Salaires	Salarios
+Per diem and reimbursed expenses	Indemnités et frais remboursés	Viáticos y gastos reembolsados

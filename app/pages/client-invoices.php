@@ -15,8 +15,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   foreach($lines as $line) q('INSERT INTO invoice_timesheets(invoice_id,timesheet_id) VALUES (?,?)',[$id,$line['timesheet_id']]);
   db()->commit();log_activity('generated client invoice','invoice',$id,$ref);redirect('/client-invoices?id='.$id);
  }
- if($do==='issue') q("UPDATE client_invoices SET status='issued' WHERE id=? AND job_id=? AND status='draft'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
- if($do==='paid') q("UPDATE client_invoices SET status='paid' WHERE id=? AND job_id=? AND status='issued'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
+ if($do==='issue') q("UPDATE client_invoices SET status='issued',issued_at=NOW() WHERE id=? AND job_id=? AND status='draft'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
+ if($do==='paid') q("UPDATE client_invoices SET status='paid',paid_at=NOW() WHERE id=? AND job_id=? AND status='issued'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
  redirect('/client-invoices');
 }
 $invoices=rows('SELECT * FROM client_invoices WHERE job_id=? ORDER BY id DESC',[$jobId]);
