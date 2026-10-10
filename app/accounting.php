@@ -7,9 +7,17 @@
  * QuickBooks journal entries, in batches:
  *
  *   client invoice issued     Dr A/R (client)          Cr revenue
- *   client invoice paid       Dr bank                  Cr A/R (client)
+ *   payment received (P3-M04) Dr bank                  Cr A/R (client)
+ *   credit note to a client   Dr revenue               Cr A/R (client)
  *   vendor bill approved      Dr cost by category      Cr A/P (vendor)
- *   vendor bill paid          Dr A/P (vendor)          Cr bank
+ *   payment made (P3-M04)     Dr A/P (vendor)          Cr bank
+ *   credit note from a vendor Dr A/P (vendor)          Cr cost by category
+ *   a reversal of any of these posts the same lines the other way, dated
+ *   when it was reversed
+ *
+ * An invoice marked paid before payments were recorded still sends its
+ * one payment entry; an invoice with recorded payments never does, so the
+ * money is not counted twice.
  *   agency-paid claim paid    Dr cost by category      Cr bank
  *   payroll period approved   Dr wages, employer contributions, per diem
  *                             Cr deductions, employer contributions owed,
@@ -70,29 +78,65 @@ function accounting_pending(string $through): array
         }
     };
 
-    foreach (rows("SELECT i.*, c.name AS client, j.title FROM client_invoices i JOIN jobs j ON j.id = i.job_id JOIN clients c ON c.id = j.client_id
+    foreach (rows("SELECT i.*, c.name AS client, j.title,
+                          (SELECT COUNT(*) FROM ar_allocations a WHERE a.invoice_id = i.id) + (SELECT COUNT(*) FROM ar_credits x WHERE x.invoice_id = i.id) AS recorded
+                   FROM client_invoices i JOIN jobs j ON j.id = i.job_id JOIN clients c ON c.id = j.client_id
                    WHERE i.status IN ('issued','paid')") as $i) {
         $total = (float) $i['total'];
         $issued = substr((string) ($i['issued_at'] ?? $i['created_at']), 0, 10);
         $push('client_invoice:' . $i['id'] . ':issue', $issued, 'Invoice ' . $i['reference'] . ' ' . $i['starts_on'] . ' to ' . $i['ends_on'],
               [$line('accounts_receivable', $total, 0, $i['client'], $i['title']), $line('revenue', 0, $total, $i['client'], $i['title'])]);
-        if ($i['status'] === 'paid') {
+        if ($i['status'] === 'paid' && (int) $i['recorded'] === 0) {
             $push('client_invoice:' . $i['id'] . ':payment', substr((string) ($i['paid_at'] ?? $i['issued_at'] ?? $i['created_at']), 0, 10), 'Payment of invoice ' . $i['reference'],
                   [$line('bank', $total, 0, $i['client'], $i['title']), $line('accounts_receivable', 0, $total, $i['client'], $i['title'])]);
         }
     }
 
-    foreach (rows("SELECT v.*, j.title, r.category FROM vendor_invoices v JOIN jobs j ON j.id = v.job_id
+    foreach (rows("SELECT v.*, j.title, r.category,
+                          (SELECT COUNT(*) FROM ap_allocations a WHERE a.invoice_id = v.id) + (SELECT COUNT(*) FROM ap_credits x WHERE x.invoice_id = v.id) AS recorded
+                   FROM vendor_invoices v JOIN jobs j ON j.id = v.job_id
                    LEFT JOIN purchase_orders o ON o.id = v.purchase_order_id LEFT JOIN purchase_requests r ON r.id = o.request_id
                    WHERE v.status IN ('approved','paid')") as $v) {
         $amount = (float) $v['amount'];
         $cost = $v['hotel_id'] ? 'hotels_expense' : accounting_cost_account((string) ($v['category'] ?? ''));
         $push('vendor_invoice:' . $v['id'] . ':bill', (string) $v['due_on'], 'Bill ' . $v['reference'],
               [$line($cost, $amount, 0, $v['vendor_name'], $v['title']), $line('accounts_payable', 0, $amount, $v['vendor_name'], $v['title'])]);
-        if ($v['status'] === 'paid') {
+        if ($v['status'] === 'paid' && (int) $v['recorded'] === 0) {
             $push('vendor_invoice:' . $v['id'] . ':payment', substr((string) ($v['paid_at'] ?? $v['due_on']), 0, 10), 'Payment of bill ' . $v['reference'],
                   [$line('accounts_payable', $amount, 0, $v['vendor_name'], $v['title']), $line('bank', 0, $amount, $v['vendor_name'], $v['title'])]);
         }
+    }
+
+    // ── payments and credit notes (P3-M04), and their reversals ──
+    $twice = static function (string $key, array $row, string $date, string $memo, array $lines) use ($push): void {
+        $push($key . ':post', $date, $memo, $lines);
+        if (! empty($row['reversed_at'])) {
+            $swapped = array_map(fn($l) => ['debit' => $l['credit'], 'credit' => $l['debit']] + $l, $lines);
+            $push($key . ':reversal', substr((string) $row['reversed_at'], 0, 10), 'Reversal: ' . $memo . ' · ' . $row['reversal_reason'], $swapped);
+        }
+    };
+    foreach (rows('SELECT p.*, c.name AS client FROM ar_payments p JOIN clients c ON c.id = p.client_id') as $p) {
+        $a = (float) $p['amount'];
+        $twice('ar_payment:' . $p['id'], $p, (string) $p['received_on'], 'Payment received ' . $p['reference'],
+               [$line('bank', $a, 0, $p['client'], null), $line('accounts_receivable', 0, $a, $p['client'], null)]);
+    }
+    foreach (rows('SELECT x.*, i.reference AS invoice_ref, c.name AS client, j.title FROM ar_credits x JOIN client_invoices i ON i.id = x.invoice_id
+                   JOIN jobs j ON j.id = i.job_id JOIN clients c ON c.id = j.client_id') as $x) {
+        $a = (float) $x['amount'];
+        $twice('ar_credit:' . $x['id'], $x, (string) $x['issued_on'], 'Credit note on ' . $x['invoice_ref'],
+               [$line('revenue', $a, 0, $x['client'], $x['title']), $line('accounts_receivable', 0, $a, $x['client'], $x['title'])]);
+    }
+    foreach (rows('SELECT * FROM ap_payments') as $p) {
+        $a = (float) $p['amount'];
+        $twice('ap_payment:' . $p['id'], $p, (string) $p['received_on'], 'Payment made ' . $p['reference'],
+               [$line('accounts_payable', $a, 0, $p['vendor_name'], null), $line('bank', 0, $a, $p['vendor_name'], null)]);
+    }
+    foreach (rows('SELECT x.*, v.reference AS bill_ref, v.vendor_name, v.hotel_id, j.title, r.category FROM ap_credits x JOIN vendor_invoices v ON v.id = x.invoice_id
+                   JOIN jobs j ON j.id = v.job_id LEFT JOIN purchase_orders o ON o.id = v.purchase_order_id LEFT JOIN purchase_requests r ON r.id = o.request_id') as $x) {
+        $a = (float) $x['amount'];
+        $cost = $x['hotel_id'] ? 'hotels_expense' : accounting_cost_account((string) ($x['category'] ?? ''));
+        $twice('ap_credit:' . $x['id'], $x, (string) $x['issued_on'], 'Vendor credit on ' . $x['bill_ref'],
+               [$line('accounts_payable', $a, 0, $x['vendor_name'], $x['title']), $line($cost, 0, $a, $x['vendor_name'], $x['title'])]);
     }
 
     foreach (rows("SELECT e.*, j.title FROM expense_claims e JOIN placements p ON p.id = e.placement_id JOIN jobs j ON j.id = p.job_id

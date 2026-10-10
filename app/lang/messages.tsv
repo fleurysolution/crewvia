@@ -1329,3 +1329,71 @@ Employer contributions owed	Cotisations patronales dues	Aportes del empleador po
 Staffing revenue	Revenu de placement	Ingresos por personal
 Wages	Salaires	Salarios
 Per diem and reimbursed expenses	Indemnités et frais remboursés	Viáticos y gastos reembolsados
+1–30 days	1 à 30 jours	1 a 30 días
+31–60 days	31 à 60 jours	31 a 60 días
+61–90 days	61 à 90 jours	61 a 90 días
+:ref has been paid or credited :over more than it asks.	:ref a été payée ou créditée de :over de plus que son montant.	:ref se pagó o acreditó :over más de lo que pide.
+:ref has nothing left to pay but is not marked paid.	:ref n'a plus rien à payer mais n'est pas marquée payée.	:ref no tiene nada pendiente pero no está marcada como pagada.
+:ref is marked paid but :left is still open.	:ref est marquée payée mais :left reste dû.	:ref está marcada como pagada pero quedan :left pendientes.
+A payment is recorded once and applied to invoices; what is not applied stays on account. Nothing is deleted: it is reversed, with a reason.	Un paiement est saisi une fois et imputé aux factures ; ce qui n'est pas imputé reste en compte. Rien n'est supprimé : on annule, avec un motif.	Un pago se registra una vez y se aplica a facturas; lo no aplicado queda a cuenta. Nada se borra: se revierte, con un motivo.
+A payment with that reference is already recorded for them.	Un paiement avec cette référence est déjà enregistré pour eux.	Ya hay un pago con esa referencia para ellos.
+ACH	ACH	ACH
+Aging	Ancienneté	Antigüedad
+An amount is more than 0, in dollars and cents.	Un montant est supérieur à 0, en dollars et cents.	Un importe es mayor que 0, en dólares y centavos.
+Apply a payment only to the same party's open invoices.	Imputez un paiement seulement aux factures ouvertes du même tiers.	Aplique un pago solo a facturas abiertas de la misma parte.
+Apply to	Imputer à	Aplicar a
+Balance	Solde	Saldo
+Card	Carte	Tarjeta
+Cash	Espèces	Efectivo
+Change terms	Modifier les conditions	Cambiar condiciones
+Choose an open invoice.	Choisissez une facture ouverte.	Elija una factura abierta.
+Choose how it was paid.	Choisissez le mode de paiement.	Elija cómo se pagó.
+Choose who the payment is from or to.	Choisissez de qui vient ou à qui va le paiement.	Elija de quién es o a quién va el pago.
+Credit note on :ref	Avoir sur :ref	Nota de crédito sobre :ref
+Credit note reversed	Avoir annulé	Nota de crédito revertida
+Credit notes	Avoirs	Notas de crédito
+Date the credit note today or earlier.	Datez l'avoir d'aujourd'hui ou avant.	Feche la nota de crédito hoy o antes.
+Date the payment today or earlier.	Datez le paiement d'aujourd'hui ou avant.	Feche el pago hoy o antes.
+Due	Échéance	Vencimiento
+Every invoice's status matches its balance, and no payment has sat on account for over 30 days.	Le statut de chaque facture correspond à son solde, et aucun paiement n'est resté en compte plus de 30 jours.	El estado de cada factura coincide con su saldo, y ningún pago lleva más de 30 días a cuenta.
+Give the payment's reference: the check number, the transfer reference.	Donnez la référence du paiement : le numéro de chèque, la référence du virement.	Indique la referencia del pago: el número de cheque, la referencia de la transferencia.
+How	Comment	Cómo
+Invoice :ref	Facture :ref	Factura :ref
+Issue the credit note	Émettre l'avoir	Emitir la nota de crédito
+Leave an invoice empty to keep that part on account.	Laissez une facture vide pour garder cette part en compte.	Deje una factura vacía para dejar esa parte a cuenta.
+Net	Net	Neto
+No payment recorded.	Aucun paiement enregistré.	Ningún pago registrado.
+Not yet due	Pas encore échu	Aún no vencido
+Nothing applied yet.	Rien d'imputé pour l'instant.	Nada aplicado todavía.
+Nothing open.	Rien d'ouvert.	Nada abierto.
+On account	En compte	A cuenta
+Only an administrator issues a credit note.	Seul un administrateur émet un avoir.	Solo un administrador emite una nota de crédito.
+Only an approved bill with something left to pay can be paid.	Seule une facture fournisseur approuvée avec un reste à payer peut être payée.	Solo se puede pagar una factura aprobada con saldo pendiente.
+Only an issued invoice with something left to pay can be marked paid.	Seule une facture émise avec un reste à payer peut être marquée payée.	Solo una factura emitida con saldo pendiente puede marcarse como pagada.
+Open the statement	Ouvrir le relevé	Abrir el estado de cuenta
+Over 90 days	Plus de 90 jours	Más de 90 días
+Part payment	Paiement partiel	Pago parcial
+Payables	Fournisseurs	Cuentas por pagar
+Payment :ref	Paiement :ref	Pago :ref
+Payment :ref has had :left on account for over 30 days.	Le paiement :ref a :left en compte depuis plus de 30 jours.	El pago :ref tiene :left a cuenta desde hace más de 30 días.
+Payment reversed	Paiement annulé	Pago revertido
+Payment terms are 0 to 365 days.	Les conditions de paiement vont de 0 à 365 jours.	Las condiciones de pago son de 0 a 365 días.
+Payments	Paiements	Pagos
+Pays within :n days	Paie sous :n jours	Paga en :n días
+Receivables	Clients	Cuentas por cobrar
+Receivables and payables	Clients et fournisseurs	Cobros y pagos
+Record a payment made	Saisir un paiement effectué	Registrar un pago hecho
+Record a payment received	Saisir un paiement reçu	Registrar un pago recibido
+Reversed	Annulé	Revertido
+Say why the invoice is credited.	Dites pourquoi la facture est créditée.	Diga por qué se acredita la factura.
+Settled before payments were recorded	Réglée avant la saisie des paiements	Liquidada antes de registrar pagos
+Statement	Relevé	Estado de cuenta
+Take back	Reprendre	Retirar
+That application does not exist or was already taken back.	Cette imputation n'existe pas ou a déjà été reprise.	Esa aplicación no existe o ya se retiró.
+That credit note does not exist or was reversed.	Cet avoir n'existe pas ou a été annulé.	Esa nota de crédito no existe o se revirtió.
+That payment does not exist or was reversed.	Ce paiement n'existe pas ou a été annulé.	Ese pago no existe o se revirtió.
+The invoice :ref asks only :left.	La facture :ref ne demande que :left.	La factura :ref solo pide :left.
+The payment has :left left to apply.	Il reste :left à imputer sur ce paiement.	Al pago le quedan :left por aplicar.
+What clients owe	Ce que les clients doivent	Lo que deben los clientes
+What we owe vendors	Ce que nous devons aux fournisseurs	Lo que debemos a proveedores
+Wire transfer	Virement	Transferencia

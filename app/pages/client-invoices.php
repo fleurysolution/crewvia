@@ -1,5 +1,5 @@
 <?php
-require_role('payroll');$job=current_job();$jobId=(int)($job['id'] ?? 0);
+require_once __DIR__.'/../balances.php';require_role('payroll');$job=current_job();$jobId=(int)($job['id'] ?? 0);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  if($do==='generate') {
@@ -15,8 +15,15 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   foreach($lines as $line) q('INSERT INTO invoice_timesheets(invoice_id,timesheet_id) VALUES (?,?)',[$id,$line['timesheet_id']]);
   db()->commit();log_activity('generated client invoice','invoice',$id,$ref);redirect('/client-invoices?id='.$id);
  }
- if($do==='issue') q("UPDATE client_invoices SET status='issued',issued_at=NOW() WHERE id=? AND job_id=? AND status='draft'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
- if($do==='paid') q("UPDATE client_invoices SET status='paid',paid_at=NOW() WHERE id=? AND job_id=? AND status='issued'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
+ if($do==='issue') q("UPDATE client_invoices i JOIN jobs j ON j.id=i.job_id JOIN clients c ON c.id=j.client_id SET i.status='issued',i.issued_at=NOW(),i.due_on=DATE_ADD(CURDATE(),INTERVAL c.payment_terms_days DAY) WHERE i.id=? AND i.job_id=? AND i.status='draft'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
+ if($do==='paid') {
+  // Received in full: recorded as a payment applied to the invoice, so the balance, the statement and the export agree (P3-M04).
+  require_once __DIR__.'/../balances.php';$iid=(int)($_POST['invoice_id'] ?? 0);
+  $inv=row("SELECT i.id,j.client_id FROM client_invoices i JOIN jobs j ON j.id=i.job_id WHERE i.id=? AND i.job_id=? AND i.status='issued'",[$iid,$jobId]);$open=$inv?bal_invoice('ar',$iid):null;
+  if(!$inv || !$open || $open['balance']<=0) { refuse(422, t('Only an issued invoice with something left to pay can be marked paid.')); }
+  db()->beginTransaction();[$pid,$why]=bal_record('ar',(int)$inv['client_id'],date('Y-m-d'),number_format($open['balance'],2,'.',''),(string)($_POST['payment_method'] ?? 'transfer'),(string)($_POST['payment_reference'] ?? ''),'',[$iid=>number_format($open['balance'],2,'.','')]);
+  if($why!==null) { db()->rollBack();refuse(422,$why); } db()->commit();
+ }
  redirect('/client-invoices');
 }
 $invoices=rows('SELECT * FROM client_invoices WHERE job_id=? ORDER BY id DESC',[$jobId]);

@@ -11,8 +11,12 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  }
  if($do==='approve') q("UPDATE vendor_invoices SET status='approved' WHERE id=? AND job_id=? AND status='received'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
  if($do==='pay') {
-  $method=$_POST['payment_method'] ?? '';$ref=trim((string)($_POST['payment_reference'] ?? ''));
-  if($ref && in_array($method,['transfer','check','cash','card'],true)) q("UPDATE vendor_invoices SET status='paid',payment_method=?,payment_reference=?,paid_at=NOW() WHERE id=? AND job_id=? AND status='approved'",[$method,$ref,(int)($_POST['invoice_id'] ?? 0),$jobId]);
+  // Paid in full: recorded as a payment applied to the bill (P3-M04). Part payments are made under Payables.
+  require_once __DIR__.'/../balances.php';$iid=(int)($_POST['invoice_id'] ?? 0);
+  $bill=row("SELECT id,vendor_name FROM vendor_invoices WHERE id=? AND job_id=? AND status='approved'",[$iid,$jobId]);$open=$bill?bal_invoice('ap',$iid):null;
+  if(!$bill || !$open || $open['balance']<=0) { refuse(422, t('Only an approved bill with something left to pay can be paid.')); }
+  db()->beginTransaction();[$pid,$why]=bal_record('ap',(string)$bill['vendor_name'],date('Y-m-d'),number_format($open['balance'],2,'.',''),(string)($_POST['payment_method'] ?? ''),(string)($_POST['payment_reference'] ?? ''),'',[$iid=>number_format($open['balance'],2,'.','')]);
+  if($why!==null) { db()->rollBack();refuse(422,$why); } db()->commit();
  }
  log_activity('vendor invoice workflow','project',$jobId,$do);redirect('/accounts-payable');
 }

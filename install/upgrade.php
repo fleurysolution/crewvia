@@ -1151,4 +1151,48 @@ if (! $hadAccounting) {
        . (int) val('SELECT COUNT(*) FROM accounting_accounts') . ' accounts await confirmation, payroll export is off.' . PHP_EOL;
 }
 
+// ── P3-M04: receivables and payables ─────────────────────────────────────
+// Reversed by install/rollback/p3-m04.sql.
+$balancesSql = __DIR__ . '/balances.sql';
+
+if (! is_file($balancesSql)) {
+    fwrite(STDERR, "Missing install/balances.sql\n");
+    exit(1);
+}
+
+$hadBalances = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='ar_payments'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($balancesSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='clients' AND column_name='payment_terms_days'")) {
+    // Days a client has to pay an invoice. 30 unless agreed otherwise.
+    q('ALTER TABLE clients ADD COLUMN payment_terms_days SMALLINT UNSIGNED NOT NULL DEFAULT 30');
+}
+
+$dueAdded = false;
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='client_invoices' AND column_name='due_on'")) {
+    q('ALTER TABLE client_invoices ADD COLUMN due_on DATE NULL');
+    $dueAdded = true;
+}
+
+if (! $hadBalances) {
+    // Invoices already out are due 30 days after they went out, or after
+    // they were created when that is not known.
+    $dated = 0;
+    if ($dueAdded) {
+        $dated = (int) q("UPDATE client_invoices SET due_on = DATE_ADD(DATE(COALESCE(issued_at, created_at)), INTERVAL 30 DAY)
+                          WHERE status IN ('issued','paid') AND due_on IS NULL")->rowCount();
+    }
+    echo 'Receivables and payables: payments, applications, credit notes and aging are in place; '
+       . $dated . ' invoice(s) given a due date 30 days after issue; invoices already paid stay paid.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
