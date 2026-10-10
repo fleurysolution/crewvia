@@ -1195,4 +1195,27 @@ if (! $hadBalances) {
        . $dated . ' invoice(s) given a due date 30 days after issue; invoices already paid stay paid.' . PHP_EOL;
 }
 
+// ── P3-M05: financial periods ────────────────────────────────────────────
+// Reversed by install/rollback/p3-m05.sql.
+$periodsSql = __DIR__ . '/periods.sql';
+
+if (! is_file($periodsSql)) {
+    fwrite(STDERR, "Missing install/periods.sql\n");
+    exit(1);
+}
+
+$hadPeriods = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name='financial_periods'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($periodsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadPeriods) {
+    echo 'Financial periods: months can be closed against new entries and exports; every month starts open.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

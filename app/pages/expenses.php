@@ -14,7 +14,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if(in_array($status,['approved','rejected'],true)) q("UPDATE expense_claims e JOIN placements p ON p.id=e.placement_id SET e.status=?,e.reviewed_by=?,e.reviewed_at=NOW() WHERE e.id=? AND p.job_id=? AND e.status='submitted' AND e.user_id<>?",[$status,uid(),(int)($_POST['claim_id'] ?? 0),$jobId,uid()]);
  }
  if($do==='pay') {
-  require_role('payroll');$method=$_POST['payment_method'] ?? '';$ref=trim((string)($_POST['payment_reference'] ?? ''));
+  require_role('payroll');require_once __DIR__.'/../periods.php';if($why=period_guard(date('Y-m-d'))) { refuse(422,$why); }$method=$_POST['payment_method'] ?? '';$ref=trim((string)($_POST['payment_reference'] ?? ''));
   if($ref && in_array($method,['direct_deposit','check','cash'],true)) q("UPDATE expense_claims e JOIN placements p ON p.id=e.placement_id SET e.status='paid',e.payment_method=?,e.payment_reference=?,e.paid_at=NOW() WHERE e.id=? AND p.job_id=? AND e.status='approved'",[$method,$ref,(int)($_POST['claim_id'] ?? 0),$jobId]);
  }
  log_activity('expense workflow','project',$jobId,$do);redirect('/expenses');

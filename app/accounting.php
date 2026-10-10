@@ -214,9 +214,13 @@ function accounting_payroll_lines(array $run, callable $line): array
 /** What stops an export: unbalanced entries, unconfirmed or unmapped accounts. */
 function accounting_blockers(array $entries): array
 {
+    require_once __DIR__ . '/periods.php';
     $accounts = accounting_accounts();
     $problems = [];
     foreach ($entries as $e) {
+        if (period_closed($e['date'])) {
+            $problems['closed:' . period_of($e['date'])] = t(':source is dated in :m, a closed month. Reopen the month, or reverse and record it again in an open one.', ['source' => $e['source'], 'm' => period_of($e['date'])]);
+        }
         $dr = round(array_sum(array_column($e['lines'], 'debit')), 2);
         $cr = round(array_sum(array_column($e['lines'], 'credit')), 2);
         if (abs($dr - $cr) >= 0.005) {
@@ -286,6 +290,10 @@ function accounting_reverse(int $batchId, string $date, string $reason): array
     }
     if (! valid_date($date) || $date > date('Y-m-d')) {
         return [0, t('Date the reversal today or earlier.')];
+    }
+    require_once __DIR__ . '/periods.php';
+    if ($why = period_guard($date)) {
+        return [0, $why];
     }
 
     q("INSERT INTO accounting_batches (kind, through_date, journal_count, total, file_sha256, reverses_batch_id, reason, created_by) VALUES ('reversal', ?, ?, ?, '', ?, ?, ?)",

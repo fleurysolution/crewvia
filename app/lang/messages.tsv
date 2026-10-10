@@ -1397,3 +1397,35 @@ The payment has :left left to apply.	Il reste :left à imputer sur ce paiement.	
 What clients owe	Ce que les clients doivent	Lo que deben los clientes
 What we owe vendors	Ce que nous devons aux fournisseurs	Lo que debemos a proveedores
 Wire transfer	Virement	Transferencia
+:m is closed.	:m est clôturé.	:m está cerrado.
+:m is open again.	:m est rouvert.	:m está abierto de nuevo.
+:n entries dated in :m are still waiting to be exported. Export them first.	:n écritures datées de :m attendent encore l'export. Exportez-les d'abord.	:n asientos fechados en :m aún esperan exportarse. Expórtelos primero.
+:n entries dated in this month are still waiting to be exported.	:n écritures datées de ce mois attendent encore l'export.	:n asientos de este mes aún esperan exportarse.
+:source is dated in :m, a closed month. Reopen the month, or reverse and record it again in an open one.	:source est daté de :m, un mois clôturé. Rouvrez le mois, ou annulez et ressaisissez dans un mois ouvert.	:source está fechado en :m, un mes cerrado. Reabra el mes, o revierta y registre de nuevo en uno abierto.
+A closed month takes nothing new dated in it: no payment, credit note, issued invoice, approved bill, paid claim or QuickBooks entry. Corrections go in an open month. The full statements are QuickBooks's; this is what Crewvia sent it.	Un mois clôturé n'accepte rien de nouveau daté de lui : ni paiement, avoir, facture émise, facture fournisseur approuvée, note de frais payée ni écriture QuickBooks. Les corrections vont dans un mois ouvert. Les états complets sont ceux de QuickBooks ; ceci est ce que Crewvia lui a envoyé.	Un mes cerrado no admite nada nuevo fechado en él: ni pagos, notas de crédito, facturas emitidas, facturas aprobadas, gastos pagados ni asientos de QuickBooks. Las correcciones van en un mes abierto. Los estados completos son los de QuickBooks; esto es lo que Crewvia le envió.
+A month closes once it has ended.	Un mois se clôture une fois terminé.	Un mes se cierra cuando ha terminado.
+Choose a month.	Choisissez un mois.	Elija un mes.
+Close the month	Clôturer le mois	Cerrar el mes
+Closes and reopens	Clôtures et réouvertures	Cierres y reaperturas
+Closing credit	Solde créditeur	Saldo acreedor
+Closing debit	Solde débiteur	Saldo deudor
+Credits	Crédits	Créditos
+Debits	Débits	Débitos
+Debits and credits differ: an export is incomplete. Do not close the month.	Débits et crédits diffèrent : un export est incomplet. Ne clôturez pas le mois.	Débitos y créditos difieren: una exportación está incompleta. No cierre el mes.
+Debits equal credits.	Les débits égalent les crédits.	Los débitos igualan los créditos.
+Each account as Crewvia's exports and reversals left it. Compare it with the same accounts in QuickBooks: a difference is an entry missing on one side.	Chaque compte tel que l'ont laissé les exports et contre-passations de Crewvia. Comparez avec les mêmes comptes dans QuickBooks : un écart est une écriture manquante d'un côté.	Cada cuenta como la dejaron las exportaciones y reversiones de Crewvia. Compárela con las mismas cuentas en QuickBooks: una diferencia es un asiento que falta en un lado.
+Export them	Les exporter	Exportarlos
+Financial periods	Périodes comptables	Periodos contables
+Months	Mois	Meses
+No month closed yet.	Aucun mois clôturé pour l'instant.	Todavía no hay meses cerrados.
+Nothing dated in this month is waiting to be exported.	Rien de daté de ce mois n'attend l'export.	Nada de este mes espera exportarse.
+Nothing exported up to the end of this month.	Rien d'exporté jusqu'à la fin de ce mois.	Nada exportado hasta el fin de este mes.
+Opening	Ouverture	Apertura
+Reopen the month	Rouvrir le mois	Reabrir el mes
+Say why the month is closed: for example, reconciled with QuickBooks.	Dites pourquoi le mois est clôturé : par exemple, rapproché avec QuickBooks.	Diga por qué se cierra el mes: por ejemplo, conciliado con QuickBooks.
+Say why the month is reopened.	Dites pourquoi le mois est rouvert.	Diga por qué se reabre el mes.
+That month is already closed.	Ce mois est déjà clôturé.	Ese mes ya está cerrado.
+That month is not closed.	Ce mois n'est pas clôturé.	Ese mes no está cerrado.
+The month :m is closed. Date it in an open month, or have an administrator reopen :m.	Le mois :m est clôturé. Datez-le dans un mois ouvert, ou faites rouvrir :m par un administrateur.	El mes :m está cerrado. Féchelo en un mes abierto, o pida a un administrador que reabra :m.
+Trial balance of what was exported	Balance de vérification de ce qui a été exporté	Balance de comprobación de lo exportado
+for example: reconciled with QuickBooks	par exemple : rapproché avec QuickBooks	por ejemplo: conciliado con QuickBooks

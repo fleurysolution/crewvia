@@ -15,6 +15,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   foreach($lines as $line) q('INSERT INTO invoice_timesheets(invoice_id,timesheet_id) VALUES (?,?)',[$id,$line['timesheet_id']]);
   db()->commit();log_activity('generated client invoice','invoice',$id,$ref);redirect('/client-invoices?id='.$id);
  }
+ if($do==='issue' && ($why=period_guard(date('Y-m-d')))) { refuse(422,$why); }
  if($do==='issue') q("UPDATE client_invoices i JOIN jobs j ON j.id=i.job_id JOIN clients c ON c.id=j.client_id SET i.status='issued',i.issued_at=NOW(),i.due_on=DATE_ADD(CURDATE(),INTERVAL c.payment_terms_days DAY) WHERE i.id=? AND i.job_id=? AND i.status='draft'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
  if($do==='paid') {
   // Received in full: recorded as a payment applied to the invoice, so the balance, the statement and the export agree (P3-M04).

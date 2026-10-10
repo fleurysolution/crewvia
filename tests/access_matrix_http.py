@@ -52,7 +52,7 @@ def check(label, condition, detail=''):
 
 
 # Who may open what. Anything not listed for a role must not render for it.
-payroll_only = ['/balances', '/accounting', '/project-costs', '/hours', '/payroll-export', '/pay-rules', '/pay-items', '/payroll-runs', '/attendance-week', '/billing',
+payroll_only = ['/periods', '/balances', '/accounting', '/project-costs', '/hours', '/payroll-export', '/pay-rules', '/pay-items', '/payroll-runs', '/attendance-week', '/billing',
                 '/accounts-payable', '/client-invoices']
 admin_only = ['/pay-grades', '/appraisal-templates', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
               '/agency-setup', '/client-access', '/subscription', '/email-delivery', '/job']
@@ -83,7 +83,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 for path, do in [('/attendance', 'correct'), ('/hours', 'approve_week'), ('/pay-rules', 'create'), ('/pay-items', 'create'),
                  ('/payroll-runs', 'open'), ('/leave-types', 'create'), ('/employee-folder', 'classification'),
-                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit')]:
+                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close')]:
     status, _, _ = admin.post(path, {'do': do}, csrf=False)
     check('CSRF: %s %s without its token is refused' % (path, do), status == 419, status)
 

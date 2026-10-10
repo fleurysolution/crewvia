@@ -20,6 +20,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/periods.php';
+
 function bal_side(string $side): array
 {
     return $side === 'ap'
@@ -198,6 +200,9 @@ function bal_record(string $side, $party, string $date, string $amount, string $
     if (! valid_date($date) || $date > date('Y-m-d')) {
         return [0, t('Date the payment today or earlier.')];
     }
+    if ($why = period_guard($date)) {
+        return [0, $why];
+    }
     if (! isset(bal_methods()[$method])) {
         return [0, t('Choose how it was paid.')];
     }
@@ -255,6 +260,9 @@ function bal_reverse_payment(string $side, int $paymentId, string $reason): ?str
     if (mb_strlen(trim($reason)) < 3) {
         return t('Say why.');
     }
+    if ($why = period_guard(date('Y-m-d'))) {
+        return $why;
+    }
     $invoices = array_map('intval', array_column(rows("SELECT invoice_id FROM {$s['alloc']} WHERE payment_id = ? AND reversed_at IS NULL", [$paymentId]), 'invoice_id'));
     q("UPDATE {$s['alloc']} SET reversed_at = NOW(), reversed_by = ?, reversal_reason = ? WHERE payment_id = ? AND reversed_at IS NULL", [uid() ?: null, 'Payment reversed: ' . trim($reason), $paymentId]);
     q("UPDATE {$s['payments']} SET reversed_at = NOW(), reversed_by = ?, reversal_reason = ? WHERE id = ?", [uid() ?: null, trim($reason), $paymentId]);
@@ -290,6 +298,9 @@ function bal_credit(string $side, int $invoiceId, string $amount, string $reason
     if (! valid_date($date) || $date > date('Y-m-d')) {
         return [0, t('Date the credit note today or earlier.')];
     }
+    if ($why = period_guard($date)) {
+        return [0, $why];
+    }
 
     q("INSERT INTO {$s['credits']} (invoice_id, amount, issued_on, reason, created_by) VALUES (?,?,?,?,?)", [$invoiceId, $value, $date, mb_substr(trim($reason), 0, 500), uid() ?: null]);
     $id = (int) db()->lastInsertId();
@@ -310,6 +321,9 @@ function bal_reverse_credit(string $side, int $creditId, string $reason): ?strin
     }
     if (mb_strlen(trim($reason)) < 3) {
         return t('Say why.');
+    }
+    if ($why = period_guard(date('Y-m-d'))) {
+        return $why;
     }
     q("UPDATE {$s['credits']} SET reversed_at = NOW(), reversed_by = ?, reversal_reason = ? WHERE id = ?", [uid() ?: null, trim($reason), $creditId]);
     bal_sync($side, (int) $c['invoice_id']);
