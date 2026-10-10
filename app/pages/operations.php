@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/../offboarding.php';require_role('recruiter','hotels'); $job=current_job(); $jobId=(int)($job['id'] ?? 0);
+require_once __DIR__.'/../offboarding.php';require_once __DIR__.'/../assets.php';require_role('recruiter','hotels'); $job=current_job(); $jobId=(int)($job['id'] ?? 0);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=(string)($_POST['do'] ?? ''); $pid=(int)($_POST['placement_id'] ?? 0);
  $placement=$pid?row('SELECT * FROM placements WHERE id=? AND job_id=?',[$pid,$jobId]):null;
@@ -21,22 +21,17 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if($placement && row('SELECT id FROM project_departments WHERE id=? AND job_id=?',[$did,$jobId])) q('INSERT INTO placement_departments(placement_id,department_id) VALUES (?,?) ON DUPLICATE KEY UPDATE department_id=VALUES(department_id)',[$pid,$did]);
  }
  if($do==='asset') {
-  require_role('admin'); $name=trim((string)($_POST['name'] ?? '')); $tag=trim((string)($_POST['asset_tag'] ?? ''));
-  if($name && $tag && !row('SELECT id FROM equipment WHERE asset_tag=?',[$tag])) {
-   $owner=$_POST['owner_type'] ?? 'agency';$client=(int)($_POST['owner_client_id'] ?? 0);
-   if(!in_array($owner,['agency','client'],true) || ($owner==='client' && !row('SELECT id FROM clients WHERE id=?',[$client]))) {refuse(422, t('Select a valid equipment owner.'));}
-   db()->beginTransaction();q('INSERT INTO equipment(name,asset_tag) VALUES (?,?)',[$name,$tag]);$equipmentId=(int)db()->lastInsertId();
-   q('INSERT INTO equipment_ownership(equipment_id,owner_type,client_id,serial_number) VALUES (?,?,?,?)',[$equipmentId,$owner,$owner==='client'?$client:null,mb_substr(trim((string)($_POST['serial_number'] ?? '')),0,190)]);db()->commit();
-  }
+  require_role('admin'); db()->beginTransaction(); [$equipmentId,$why]=asset_register($_POST);
+  if($why!==null){db()->rollBack(); refuse(422,$why);} db()->commit();
  }
  if($do==='issue') {
-  $eid=(int)($_POST['equipment_id'] ?? 0); db()->beginTransaction();
-  $asset=row('SELECT e.id,o.owner_type,o.client_id FROM equipment e LEFT JOIN equipment_ownership o ON o.equipment_id=e.id WHERE e.id=? FOR UPDATE',[$eid]);
-  if($asset && $asset['owner_type']==='client' && (int)$asset['client_id']!==(int)val('SELECT client_id FROM jobs WHERE id=?',[$jobId])) $asset=null;
-  if($asset && !row('SELECT id FROM equipment_issues WHERE equipment_id=? AND returned_at IS NULL',[$eid])) q('INSERT INTO equipment_issues(equipment_id,placement_id) VALUES (?,?)',[$eid,$pid]);
-  else flash(t('Equipment is unavailable.'),'err'); db()->commit();
+  db()->beginTransaction(); $why=asset_issue((int)($_POST['equipment_id'] ?? 0),$pid,$jobId,(string)($_POST['issue_condition'] ?? 'good'));
+  if($why!==null){db()->rollBack(); refuse(422,$why);} db()->commit();
  }
- if($do==='return') q('UPDATE equipment_issues i JOIN placements p ON p.id=i.placement_id SET i.returned_at=NOW(),i.return_note=? WHERE i.id=? AND p.job_id=? AND i.returned_at IS NULL',[trim((string)($_POST['return_note'] ?? '')),(int)($_POST['issue_id'] ?? 0),$jobId]);
+ if($do==='return') {
+  db()->beginTransaction(); $why=asset_return((int)($_POST['issue_id'] ?? 0),$jobId,(string)($_POST['return_condition'] ?? 'good'),(string)($_POST['return_note'] ?? ''));
+  if($why!==null){db()->rollBack(); refuse(422,$why);} db()->commit();
+ }
  if($do==='passenger') {
   $rid=(int)($_POST['run_id'] ?? 0); $stop=trim((string)($_POST['pickup_stop'] ?? '')); db()->beginTransaction();
   $run=row('SELECT * FROM shuttle_runs WHERE id=? AND job_id=? FOR UPDATE',[$rid,$jobId]);
@@ -68,7 +63,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  log_activity('operations update','project',$jobId,$do); redirect('/operations');
 }
 $crew=rows("SELECT p.id,c.full_name,d.trade,d.shift_label,u.name supervisor FROM placements p JOIN candidates c ON c.id=p.candidate_id LEFT JOIN assignment_details d ON d.placement_id=p.id LEFT JOIN users u ON u.id=d.supervisor_id WHERE p.job_id=? AND p.status NOT IN ('cancelled','completed')",[$jobId]);
-$assets=rows('SELECT e.*,o.owner_type,o.serial_number,c.name owner_client FROM equipment e LEFT JOIN equipment_ownership o ON o.equipment_id=e.id LEFT JOIN clients c ON c.id=o.client_id ORDER BY e.name');
+$assets=rows("SELECT e.*,o.owner_type,o.serial_number,c.name owner_client FROM equipment e LEFT JOIN equipment_ownership o ON o.equipment_id=e.id LEFT JOIN clients c ON c.id=o.client_id WHERE e.status='available' AND (e.inspection_due IS NULL OR e.inspection_due>=CURDATE()) AND (o.owner_type IS NULL OR o.owner_type='agency' OR o.client_id=?) AND NOT EXISTS (SELECT 1 FROM equipment_issues x WHERE x.equipment_id=e.id AND x.returned_at IS NULL) ORDER BY e.name",[(int)($job['client_id'] ?? 0)]);
 $clients=rows('SELECT id,name FROM clients ORDER BY name');
 $departments=rows('SELECT * FROM project_departments WHERE job_id=? ORDER BY name',[$jobId]);
 $issues=rows('SELECT i.*,e.name,e.asset_tag,c.full_name FROM equipment_issues i JOIN equipment e ON e.id=i.equipment_id JOIN placements p ON p.id=i.placement_id JOIN candidates c ON c.id=p.candidate_id WHERE p.job_id=? AND i.returned_at IS NULL',[$jobId]);

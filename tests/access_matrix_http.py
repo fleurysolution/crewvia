@@ -60,10 +60,10 @@ roles = {
     'admin':      ('admin@test.invalid', []),
     'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/hotels', '/travel', '/procurement']),
     'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
-    'payroll':    ('m01-payroll@test.invalid', admin_only + ['/hotels', '/travel', '/candidates', '/recruitment']),
-    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
-    'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests']),
-    'client':     ('client@test.invalid', payroll_only + admin_only + ['/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
+    'payroll':    ('m01-payroll@test.invalid', admin_only + ['/assets', '/hotels', '/travel', '/candidates', '/recruitment']),
+    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
+    'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests']),
+    'client':     ('client@test.invalid', payroll_only + admin_only + ['/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
 }
 
 pages = 0
@@ -83,7 +83,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 for path, do in [('/attendance', 'correct'), ('/hours', 'approve_week'), ('/pay-rules', 'create'), ('/pay-items', 'create'),
                  ('/payroll-runs', 'open'), ('/leave-types', 'create'), ('/employee-folder', 'classification'),
-                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review')]:
+                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue')]:
     status, _, _ = admin.post(path, {'do': do}, csrf=False)
     check('CSRF: %s %s without its token is refused' % (path, do), status == 419, status)
 

@@ -1044,3 +1044,75 @@ for example: Journeyman welder	par exemple : Soudeur qualifié	por ejemplo: Sold
 hourly :rate · salary :salary	horaire :rate · salaire :salary	por hora :rate · salario :salary
 outside the band	hors fourchette	fuera de la banda
 rate from the scope of work	taux du cahier des charges	tarifa del alcance del trabajo
+:n item(s) registered from :ref.	:n article(s) enregistré(s) depuis :ref.	:n artículo(s) registrado(s) desde :ref.
+:n to register	:n à enregistrer	:n por registrar
+A cost is a number from 0 to 1,000,000.	Un coût est un nombre de 0 à 1 000 000.	Un costo es un número de 0 a 1.000.000.
+A tag prefix is 2 to 31 letters, digits or dashes.	Un préfixe d'étiquette compte 2 à 31 lettres, chiffres ou tirets.	Un prefijo de etiqueta tiene de 2 a 31 letras, dígitos o guiones.
+All assets	Tout le matériel	Todos los equipos
+Any category	Toute catégorie	Cualquier categoría
+Any state	Tout état	Cualquier estado
+Assets	Matériel	Equipos
+Available	Disponible	Disponible
+Back from repair	Revenu de réparation	Volvió de reparación
+Bought	Acheté	Comprado
+Bought on	Acheté le	Comprado el
+Check the purchase date and cost.	Vérifiez la date et le coût d'achat.	Revise la fecha y el costo de compra.
+Choose a category from the list.	Choisissez une catégorie dans la liste.	Elija una categoría de la lista.
+Condition	État	Condición
+Damaged	Endommagé	Dañado
+Each item gets the prefix and a number, and the order's unit price as its cost.	Chaque article reçoit le préfixe et un numéro, et le prix unitaire de la commande comme coût.	Cada artículo recibe el prefijo y un número, y el precio unitario de la orden como costo.
+Every item the agency issues: where it is, its state and its next inspection. Items are issued and taken back on Operations.	Chaque article que l'agence remet : où il est, son état et sa prochaine inspection. Les articles sont remis et repris dans Opérations.	Cada artículo que entrega la agencia: dónde está, su estado y su próxima inspección. Los artículos se entregan y se recogen en Operaciones.
+Found or put back in service	Retrouvé ou remis en service	Encontrado o devuelto al servicio
+Give the asset tag written on the item.	Indiquez l'étiquette inscrite sur l'article.	Indique la etiqueta escrita en el artículo.
+In repair	En réparation	En reparación
+Inspected	Inspecté	Inspeccionado
+Inspection overdue	Inspection en retard	Inspección vencida
+Issued	Remis	Entregado
+Item registered.	Article enregistré.	Artículo registrado.
+Left empty, the next inspection is set from the category.	Laissée vide, la prochaine inspection est fixée selon la catégorie.	Si se deja vacía, la próxima inspección se fija según la categoría.
+Lost	Perdu	Perdido
+Name the item in 2 to 190 characters.	Nommez l'article en 2 à 190 caractères.	Nombre el artículo con 2 a 190 caracteres.
+Name, tag or serial	Nom, étiquette ou numéro de série	Nombre, etiqueta o número de serie
+Never issued.	Jamais remis.	Nunca entregado.
+Next inspection	Prochaine inspection	Próxima inspección
+Next inspection · after an inspection	Prochaine inspection · après une inspection	Próxima inspección · tras una inspección
+No approved equipment order has items received and not yet registered.	Aucune commande de matériel approuvée n'a d'articles reçus et non encore enregistrés.	Ninguna orden de equipo aprobada tiene artículos recibidos sin registrar.
+No item matches.	Aucun article ne correspond.	Ningún artículo coincide.
+Note · required if damaged or lost	Note · obligatoire si endommagé ou perdu	Nota · obligatoria si está dañado o perdido
+Note · required to repair, lose or retire	Note · obligatoire pour réparer, déclarer perdu ou retirer	Nota · obligatoria para reparar, dar por perdido o retirar
+Only an approved order for equipment can be registered.	Seule une commande de matériel approuvée peut être enregistrée.	Solo se puede registrar una orden de equipo aprobada.
+Only available items, inspected and belonging to the agency or this client, are listed.	Seuls les articles disponibles, inspectés et appartenant à l'agence ou à ce client sont listés.	Solo se listan los artículos disponibles, inspeccionados y de la agencia o de este cliente.
+Out	Sorti	Fuera
+Recorded.	Enregistré.	Registrado.
+Register	Enregistrer	Registrar
+Register an item	Enregistrer un article	Registrar un artículo
+Register what an order delivered	Enregistrer ce qu'une commande a livré	Registrar lo que entregó una orden
+Registered	Enregistré	Registrado
+Say what happened to it.	Dites ce qui lui est arrivé.	Diga qué le pasó.
+Say why.	Dites pourquoi.	Diga por qué.
+Sent for repair	Envoyé en réparation	Enviado a reparación
+Tag	Étiquette	Etiqueta
+Tag prefix	Préfixe d'étiquette	Prefijo de etiqueta
+Take the item back first.	Reprenez d'abord l'article.	Recoja primero el artículo.
+That asset tag is already on another item.	Cette étiquette est déjà sur un autre article.	Esa etiqueta ya está en otro artículo.
+That cannot be done to an item that is :state.	Impossible pour un article :state.	No se puede hacer con un artículo :state.
+That item belongs to another client.	Cet article appartient à un autre client.	Ese artículo pertenece a otro cliente.
+That item does not exist.	Cet article n'existe pas.	Ese artículo no existe.
+That item is not out on this project.	Cet article n'est pas sorti sur ce projet.	Ese artículo no está fuera en este proyecto.
+That item is past its inspection date (:date). Inspect it before it is issued.	Cet article a dépassé sa date d'inspection (:date). Inspectez-le avant de le remettre.	Ese artículo pasó su fecha de inspección (:date). Inspecciónelo antes de entregarlo.
+That order has :n item(s) received and not yet registered.	Cette commande a :n article(s) reçu(s) et non encore enregistré(s).	Esa orden tiene :n artículo(s) recibido(s) sin registrar.
+The next inspection is a date after today.	La prochaine inspection est une date après aujourd'hui.	La próxima inspección es una fecha posterior a hoy.
+Uncategorised	Sans catégorie	Sin categoría
+What happened	Ce qui s'est passé	Qué pasó
+Who had it	Qui l'a eu	Quién lo tuvo
+With	Chez	Con
+Worn	Usé	Desgastado
+every :n days	tous les :n jours	cada :n días
+next due :date	prochaine le :date	próxima el :date
+overdue	en retard	vencida
+with :name on :project since :date	chez :name sur :project depuis le :date	con :name en :project desde el :date
+Protective equipment	Équipement de protection	Equipo de protección
+Fall protection	Protection antichute	Protección contra caídas
+Gas detection	Détection de gaz	Detección de gases
+Tools	Outils	Herramientas
+Radios and electronics	Radios et électronique	Radios y electrónica

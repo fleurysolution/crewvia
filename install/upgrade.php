@@ -976,4 +976,56 @@ if (! $hadGrades) {
     echo 'Compensation: grades with pay bands and dated pay changes are in place; nobody has a grade yet.' . PHP_EOL;
 }
 
+// ── Assets: categories, lifecycle, condition, repairs, inspections ────
+// Reversed by install/rollback/assets.sql.
+$assetsSql = __DIR__ . '/assets.sql';
+
+if (! is_file($assetsSql)) {
+    fwrite(STDERR, "Missing install/assets.sql\n");
+    exit(1);
+}
+
+$hadAssets = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='asset_categories'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($assetsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach (['equipment' => [
+              'category_id'       => 'INT UNSIGNED NULL',
+              // Issued is not stored: it is an open line in equipment_issues.
+              'status'            => "ENUM('available','in_repair','lost','retired') NOT NULL DEFAULT 'available'",
+              'purchase_date'     => 'DATE NULL',
+              'purchase_cost'     => 'DECIMAL(10,2) NULL',
+              'purchase_order_id' => 'INT UNSIGNED NULL',
+              'inspection_due'    => 'DATE NULL',
+              'notes'             => 'VARCHAR(500) NULL',
+          ],
+          'equipment_issues' => [
+              'issue_condition'  => "ENUM('good','worn','damaged') NULL",
+              'return_condition' => "ENUM('good','worn','damaged','lost') NULL",
+              'issued_by'        => 'INT UNSIGNED NULL',
+              'returned_by'      => 'INT UNSIGNED NULL',
+          ]] as $table => $columns) {
+    foreach ($columns as $column => $definition) {
+        if (! val("SELECT COUNT(*) FROM information_schema.columns
+                   WHERE table_schema=DATABASE() AND table_name=? AND column_name=?", [$table, $column])) {
+            q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+        }
+    }
+}
+
+if (! $hadAssets) {
+    foreach ([['ppe', 'Protective equipment', 365], ['fall_protection', 'Fall protection', 180], ['gas_detection', 'Gas detection', 30],
+              ['tools', 'Tools', null], ['radios', 'Radios and electronics', null], ['other', 'Other', null]] as [$code, $label, $days]) {
+        q('INSERT IGNORE INTO asset_categories (code, label, inspection_days) VALUES (?,?,?)', [$code, $label, $days]);
+    }
+    echo 'Assets: categories, status, condition, repairs and inspections are in place; '
+       . (int) val('SELECT COUNT(*) FROM equipment') . ' existing item(s) start as available, uncategorised.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

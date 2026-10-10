@@ -179,6 +179,7 @@ $routes = [
     '/procurement' => 'procurement',
     '/change-requests' => 'change-requests',
     '/pay-grades' => 'pay-grades',
+    '/assets' => 'assets',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',
