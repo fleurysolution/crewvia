@@ -1211,3 +1211,63 @@ Your part of this review is closed.	Votre partie de cette évaluation est close.
 Your reviews: the ones waiting for your own view, and those approved.	Vos évaluations : celles qui attendent votre avis, et celles approuvées.	Sus evaluaciones: las que esperan su opinión y las aprobadas.
 Your scores	Vos notes	Sus notas
 for example: Kept the work area clean	par exemple : A gardé la zone de travail propre	por ejemplo: Mantuvo limpia la zona de trabajo
+A budget is an amount from 0 to 100,000,000.	Un budget est un montant de 0 à 100 000 000.	Un presupuesto es un importe de 0 a 100.000.000.
+A rate is a percentage from 0 to 100, or empty.	Un taux est un pourcentage de 0 à 100, ou vide.	Una tasa es un porcentaje de 0 a 100, o vacía.
+A variance in red is over a cost budget, or under the revenue budget.	Un écart en rouge dépasse un budget de coût, ou reste sous le budget de revenu.	Una variación en rojo supera un presupuesto de costo o queda por debajo del presupuesto de ingresos.
+Actual	Réel	Real
+After overhead	Après frais de structure	Después de gastos generales
+Amount for the whole project	Montant pour tout le projet	Importe para todo el proyecto
+Approved weeks	Semaines approuvées	Semanas aprobadas
+Bills for what is already counted above. Shown to compare, never added.	Factures de ce qui est déjà compté plus haut. Affichées pour comparer, jamais ajoutées.	Facturas de lo que ya se cuenta arriba. Se muestran para comparar, nunca se suman.
+Budget	Budget	Presupuesto
+Budget against actual	Budget comparé au réel	Presupuesto frente a real
+Budget changed.	Budget modifié.	Presupuesto modificado.
+Budget history	Historique du budget	Historial del presupuesto
+Burden	Charges	Cargas
+Burden and overhead	Charges et frais de structure	Cargas y gastos generales
+Burden on wages (%) · employer taxes and insurance	Charges sur salaires (%) · taxes et assurances employeur	Cargas sobre salarios (%) · impuestos y seguros del empleador
+Burden rate	Taux de charges	Tasa de cargas
+Burden rate on wages	Taux de charges sur salaires	Tasa de cargas sobre salarios
+Change a budget line	Modifier une ligne du budget	Cambiar una línea del presupuesto
+Choose a budget line from the list.	Choisissez une ligne de budget dans la liste.	Elija una línea de presupuesto de la lista.
+Cost of the overtime hours	Coût des heures supplémentaires	Costo de las horas extra
+Difference	Différence	Diferencia
+Direct cost	Coût direct	Costo directo
+Expenses on the weekly sheet	Frais sur la feuille hebdomadaire	Gastos en la hoja semanal
+Hotel invoices	Factures d'hôtel	Facturas de hotel
+Hours worked x bill rate	Heures travaillées x taux facturé	Horas trabajadas x tarifa facturada
+Invoiced to the client	Facturé au client	Facturado al cliente
+Labour	Main-d'œuvre	Mano de obra
+Labour, burden and per diem	Main-d'œuvre, charges et indemnités	Mano de obra, cargas y viáticos
+Line	Ligne	Línea
+Made of	Composé de	Compuesto de
+Nights booked x nightly rate	Nuits réservées x tarif par nuit	Noches reservadas x tarifa por noche
+No approved week yet.	Aucune semaine approuvée pour l'instant.	Todavía no hay semanas aprobadas.
+No budget set yet.	Aucun budget pour l'instant.	Todavía no hay presupuesto.
+Ordered and not yet invoiced	Commandé et pas encore facturé	Pedido y aún no facturado
+Other costs	Autres coûts	Otros costos
+Overhead	Frais de structure	Gastos generales
+Overhead on revenue (%)	Frais de structure sur le revenu (%)	Gastos generales sobre ingresos (%)
+Overhead rate	Taux de frais de structure	Tasa de gastos generales
+Overhead rate on revenue	Taux de frais de structure sur le revenu	Tasa de gastos generales sobre ingresos
+Overtime hours	Heures supplémentaires	Horas extra
+Payroll adjustments	Ajustements de paie	Ajustes de nómina
+Project costs	Coûts du projet	Costos del proyecto
+Rates saved. The report uses them for every week, past and future.	Taux enregistrés. Le rapport les applique à toutes les semaines, passées et futures.	Tasas guardadas. El informe las aplica a todas las semanas, pasadas y futuras.
+Reimbursed claims	Demandes remboursées	Reclamaciones reembolsadas
+Reimbursements paid in a pay period	Remboursements payés dans une période de paie	Reembolsos pagados en un periodo de pago
+Revenue	Revenu	Ingresos
+Say why the budget changes.	Dites pourquoi le budget change.	Diga por qué cambia el presupuesto.
+Select a project first.	Choisissez d'abord un projet.	Seleccione primero un proyecto.
+That is already the budget.	C'est déjà le budget.	Ese ya es el presupuesto.
+The last column is the invoices less what was earned or booked.	La dernière colonne est la facturation moins ce qui a été gagné ou réservé.	La última columna es lo facturado menos lo ganado o reservado.
+To reconcile	À rapprocher	Por conciliar
+Transportation	Transport	Transporte
+Travel bookings	Réservations de voyage	Reservas de viaje
+Used	Utilisé	Usado
+Variance	Écart	Variación
+Vendor invoices	Factures fournisseurs	Facturas de proveedores
+Wages and paid leave	Salaires et congés payés	Salarios y permisos pagados
+Week by week	Semaine par semaine	Semana a semana
+not set	non défini	sin definir
+project to date, from approved weeks and approved or paid invoices and claims. Nothing here creates a transaction.	projet à ce jour, à partir des semaines approuvées et des factures et demandes approuvées ou payées. Rien ici ne crée de transaction.	proyecto hasta la fecha, a partir de semanas aprobadas y facturas y reclamaciones aprobadas o pagadas. Nada aquí crea una transacción.

@@ -182,6 +182,7 @@ $routes = [
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',
     '/appraisal-templates' => 'appraisal-templates',
+    '/project-costs' => 'project-costs',
     '/client-invoices' => 'client-invoices',
     '/imports' => 'imports',
     '/employees' => 'employees',

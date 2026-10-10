@@ -86,6 +86,7 @@ function workspace_nav(?array $u): array
         ['/travel',             'Travel',                             'hotels'],
         ['/hours',              'Hours',                              'payroll'],
         ['/billing',            'Billing',                            'payroll'],
+        ['/project-costs',      'Project costs',                      'payroll'],
         ['/people',             'Team',                               'admin'],
         ['/job',                'Job setup',                          'admin'],
     ];
@@ -166,7 +167,7 @@ function workspace_sections(): array
         'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/appraisals', '/learning', '/safety-plan',
                               '/comms', '/inbox', '/notifications'],
         'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/advances', '/expenses', '/payroll-export',
-                              '/accounts-payable', '/billing', '/client-invoices'],
+                              '/accounts-payable', '/billing', '/project-costs', '/client-invoices'],
         'Clients' => ['/client-orders', '/client-access', '/client-portal'],
         'Administration' => ['/people', '/leave-types', '/pay-grades', '/appraisal-templates', '/organization', '/job', '/employees', '/personnel',
                              '/offboarding', '/imports', '/settings', '/agency-setup',

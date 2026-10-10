@@ -1060,4 +1060,41 @@ if (! $hadAppraisals) {
        . (int) val('SELECT COUNT(*) FROM appraisal_template_criteria WHERE template_id = ?', [$template]) . ' criteria.' . PHP_EOL;
 }
 
+// ── P3-M01: project costing, budgets ──────────────────────────────────────
+// Reversed by install/rollback/p3-m01.sql.
+$costingSql = __DIR__ . '/project-costing.sql';
+
+if (! is_file($costingSql)) {
+    fwrite(STDERR, "Missing install/project-costing.sql\n");
+    exit(1);
+}
+
+$hadCosting = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name='project_budget_changes'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($costingSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach ([
+    // Employer taxes and insurance ADP charges on top of wages, as a
+    // percentage. Unset, the report shows no estimate and says so.
+    'burden_percent'   => 'DECIMAL(5,2) NULL',
+    // The share of revenue the project carries for the agency's overhead.
+    'overhead_percent' => 'DECIMAL(5,2) NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name=?", [$column])) {
+        q('ALTER TABLE jobs ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+if (! $hadCosting) {
+    echo 'Project costing: budgets with their history, burden and overhead rates are in place; '
+       . (int) val('SELECT COUNT(*) FROM jobs') . ' project(s) start with no budget and no rates.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
