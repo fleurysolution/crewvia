@@ -1471,4 +1471,28 @@ if (! $hadLoans) {
        . (int) val("SELECT COUNT(*) FROM wage_advances WHERE status = 'paid_out'") . ' advance(s) being repaid keep their weekly amount; above $1,000 an administrator approves.' . PHP_EOL;
 }
 
+// ── P2-M06: recognition, disciplinary cases, separations, HR access ───────
+// Reversed by install/rollback/p2-m06.sql.
+$hrRecordsSql = __DIR__ . '/hr-records.sql';
+
+if (! is_file($hrRecordsSql)) {
+    fwrite(STDERR, "Missing install/hr-records.sql\n");
+    exit(1);
+}
+
+$hadHrRecords = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                           WHERE table_schema=DATABASE() AND table_name='disciplinary_cases'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($hrRecordsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadHrRecords) {
+    echo 'HR records: recognition, disciplinary cases, separation records and controlled access are in place; '
+       . 'only administrators see cases and separations until they grant HR access.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

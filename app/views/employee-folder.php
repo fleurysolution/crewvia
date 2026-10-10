@@ -68,6 +68,7 @@
 <?php endif; ?>
 <?php if (! $own && (can('recruiter') || can('payroll'))): ?>
 <?php if (can('recruiter')): ?><div class="card" id="progress-summary"><h2><?= te('Goals and development') ?></h2><?php if (! $progress): ?><p class="muted"><?= te('No goal or development action yet.') ?></p><?php endif; ?><?php foreach ($progress as $ev): ?><div class="small"><?= e(d(substr($ev['at'], 0, 10))) ?> · <strong><?= e($ev['what']) ?></strong> · <?= e($ev['detail']) ?></div><?php endforeach; ?><p><a href="/performance?candidate=<?= (int) $cid ?>"><?= te('Open the goals and development plan') ?></a></p></div><?php endif; ?>
+<?php if (can('recruiter') && ! $own): ?><p id="hr-records-link"><a href="/hr-records?candidate=<?= (int) $cid ?>"><?= te('Recognition and HR records') ?></a></p><?php endif; ?>
 <?php if (can('payroll') && ! $own): ?><p id="benefits-link"><a href="/benefits?candidate=<?= (int) $cid ?>"><?= te('Benefits: enrollments and waivers') ?></a></p><?php endif; ?>
 <div class="card" id="employment-history">
   <h2><?= te('Employment history') ?></h2>

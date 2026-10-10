@@ -1807,3 +1807,110 @@ Written off: :amount	Passé en perte : :amount	Cancelado: :amount
 e.g. No hours while the plant is down	ex. pas d'heures pendant l'arrêt de l'usine	p. ej. sin horas mientras la planta está parada
 repaid from the week ending :date	remboursée à partir de la semaine se terminant le :date	reembolsado desde la semana que termina el :date
 until the week of	jusqu'à la semaine du	hasta la semana del
+A case is closed once its outcome is recorded.	Un dossier se clôt une fois sa décision enregistrée.	Un caso se cierra cuando su resultado está registrado.
+A termination is decided by an administrator. Whoever opened the case does not decide a final warning, a suspension or a termination on it.	Un licenciement est décidé par un administrateur. Qui a ouvert le dossier ne décide pas d'un dernier avertissement, d'une suspension ou d'un licenciement.	Un despido lo decide un administrador. Quien abrió el caso no decide una última advertencia, una suspensión ni un despido.
+A termination refers to the case that decided it.	Un licenciement renvoie au dossier qui l'a décidé.	Un despido remite al caso que lo decidió.
+About	Objet	Asunto
+Acknowledged by the person on :date	Pris connaissance par la personne le :date	Leído por la persona el :date
+Acknowledging means you read it, not that you agree.	En prendre connaissance veut dire l'avoir lu, pas être d'accord.	Darse por enterado significa haberlo leído, no estar de acuerdo.
+Add a note	Ajouter une note	Añadir una nota
+Administrators always have it. Anyone else sees cases and separations only once granted here.	Les administrateurs l'ont toujours. Les autres ne voient dossiers et départs qu'une fois l'accès accordé ici.	Los administradores siempre lo tienen. Los demás ven casos y salidas solo cuando se les concede aquí.
+Assignment completed	Affectation terminée	Asignación terminada
+Award	Prix	Premio
+Cases you reported	Dossiers que vous avez signalés	Casos que usted reportó
+Choose the outcome.	Choisissez la décision.	Elija el resultado.
+Choose what the case is about.	Choisissez l'objet du dossier.	Elija el asunto del caso.
+Choose why it ended and whether to rehire.	Choisissez pourquoi elle a pris fin et s'il faut réembaucher.	Elija por qué terminó y si se volvería a contratar.
+Close the assignment on Operations first; the separation records why it ended.	Clôturez d'abord l'affectation dans Opérations ; le départ enregistre pourquoi elle a pris fin.	Cierre primero la asignación en Operaciones; la salida registra por qué terminó.
+Close the case	Clore le dossier	Cerrar el caso
+Commendation	Félicitations	Felicitación
+Conduct	Comportement	Conducta
+Date it today or earlier.	Datez-le d'aujourd'hui ou avant.	Féchelo hoy o antes.
+Date the separation today or earlier.	Datez le départ d'aujourd'hui ou avant.	Feche la salida hoy o antes.
+Date what happened today or earlier.	Datez les faits d'aujourd'hui ou avant.	Feche lo ocurrido hoy o antes.
+Disciplinary cases	Dossiers disciplinaires	Casos disciplinarios
+Ended assignments with no separation recorded	Affectations terminées sans départ enregistré	Asignaciones terminadas sin salida registrada
+Explain the outcome: at least 10 characters.	Expliquez la décision : au moins 10 caractères.	Explique el resultado: al menos 10 caracteres.
+Final warning	Dernier avertissement	Última advertencia
+Give your account, or acknowledge that you have read it.	Donnez votre version, ou indiquez que vous l'avez lu.	Dé su versión, o indique que lo leyó.
+Grant	Accorder	Conceder
+HR access	Accès RH	Acceso de RR. HH.
+HR access is granted to an active recruiter, payroll or logistics user.	L'accès RH s'accorde à un utilisateur actif recrutement, paie ou logistique.	El acceso de RR. HH. se concede a un usuario activo de reclutamiento, nómina o logística.
+HR records	Dossiers RH	Expedientes de RR. HH.
+I have read this outcome	J'ai lu cette décision	He leído este resultado
+Laid off	Licencié économique	Despedido por reducción
+My HR record	Mon dossier RH	Mi expediente de RR. HH.
+No action	Aucune mesure	Sin medida
+No assignment has ended.	Aucune affectation n'est terminée.	Ninguna asignación ha terminado.
+No show	Absent sans prévenir	No se presentó
+None yet.	Aucune pour l'instant.	Ninguna todavía.
+Not yet acknowledged by the person.	Pas encore lue par la personne.	Aún no leído por la persona.
+Only HR adds to a case.	Seuls les RH complètent un dossier.	Solo RR. HH. añade a un caso.
+Only HR closes a case.	Seuls les RH clôturent un dossier.	Solo RR. HH. cierra un caso.
+Only HR records a separation.	Seuls les RH enregistrent un départ.	Solo RR. HH. registra una salida.
+Only HR records an outcome.	Seuls les RH enregistrent une décision.	Solo RR. HH. registra un resultado.
+Only HR, or this person's supervisor, opens a case.	Seuls les RH, ou le superviseur de cette personne, ouvrent un dossier.	Solo RR. HH., o el supervisor de esta persona, abre un caso.
+Only a recruiter, or this person's supervisor, records recognition.	Seul un recruteur, ou le superviseur de cette personne, enregistre une reconnaissance.	Solo un reclutador, o el supervisor de esta persona, registra un reconocimiento.
+Only an administrator decides a termination.	Seul un administrateur décide d'un licenciement.	Solo un administrador decide un despido.
+Only an administrator grants HR access.	Seul un administrateur accorde l'accès RH.	Solo un administrador concede el acceso de RR. HH.
+Only the person, once the outcome is recorded, answers a case.	Seule la personne, une fois la décision enregistrée, répond à un dossier.	Solo la persona, una vez registrado el resultado, responde a un caso.
+Open a case	Ouvrir un dossier	Abrir un caso
+Open a person from their employee folder to record recognition. Cases and separations need HR access, granted by an administrator.	Ouvrez une personne depuis son dossier salarié pour enregistrer une reconnaissance. Dossiers et départs demandent l'accès RH, accordé par un administrateur.	Abra a una persona desde su expediente para registrar un reconocimiento. Casos y salidas requieren acceso de RR. HH., concedido por un administrador.
+Open cases	Dossiers ouverts	Casos abiertos
+Open the case	Ouvrir le dossier	Abrir el caso
+Outcome recorded	Décision enregistrée	Resultado registrado
+Policy	Règlement	Política
+Recognition	Reconnaissance	Reconocimiento
+Recognition and HR records	Reconnaissance et dossiers RH	Reconocimientos y expedientes de RR. HH.
+Recognition, disciplinary cases and why assignments ended. Cases and separations are seen only by administrators and those granted HR access; every opening is logged. A case is never edited: notes, the outcome and the person's own account are added to it.	Reconnaissance, dossiers disciplinaires et raisons de fin d'affectation. Dossiers et départs ne sont vus que par les administrateurs et ceux qui ont l'accès RH ; chaque consultation est journalisée. Un dossier n'est jamais modifié : notes, décision et version de la personne s'y ajoutent.	Reconocimientos, casos disciplinarios y por qué terminaron las asignaciones. Casos y salidas solo los ven los administradores y quienes tienen acceso de RR. HH.; cada consulta queda registrada. Un caso nunca se edita: se le añaden notas, el resultado y la versión de la persona.
+Record the outcome	Enregistrer la décision	Registrar el resultado
+Record the recognition	Enregistrer la reconnaissance	Registrar el reconocimiento
+Record the separation	Enregistrer le départ	Registrar la salida
+Rehire	Réembauche	Recontratación
+Resigned	Démission	Renuncia
+Revoke	Retirer	Revocar
+Safety incident, if any	Incident de sécurité, le cas échéant	Incidente de seguridad, si lo hay
+Safety recognition	Reconnaissance sécurité	Reconocimiento de seguridad
+Say what happened: at least 10 characters.	Dites ce qui s'est passé : au moins 10 caractères.	Diga qué pasó: al menos 10 caracteres.
+Say what it is, in 3 to 190 characters.	Dites ce que c'est, en 3 à 190 caractères.	Diga qué es, con 3 a 190 caracteres.
+Say why it closes.	Dites pourquoi il se clôt.	Diga por qué se cierra.
+Say why they need it.	Dites pourquoi il leur faut.	Diga por qué lo necesitan.
+Send	Envoyer	Enviar
+Separations	Départs	Salidas
+Set out the facts: what happened, when, who saw it. At least 20 characters.	Exposez les faits : ce qui s'est passé, quand, qui l'a vu. Au moins 20 caractères.	Exponga los hechos: qué pasó, cuándo, quién lo vio. Al menos 20 caracteres.
+Suspension	Mise à pied	Suspensión
+Terminated	Licencié	Despedido
+Termination	Licenciement	Despido
+That assignment does not exist.	Cette affectation n'existe pas.	Esa asignación no existe.
+That assignment's separation is already recorded.	Le départ de cette affectation est déjà enregistré.	La salida de esa asignación ya está registrada.
+That case already has its outcome.	Ce dossier a déjà sa décision.	Ese caso ya tiene su resultado.
+That case did not end in this person's termination.	Ce dossier ne s'est pas conclu par le licenciement de cette personne.	Ese caso no terminó en el despido de esta persona.
+That case does not exist.	Ce dossier n'existe pas.	Ese caso no existe.
+That case is closed.	Ce dossier est clos.	Ese caso está cerrado.
+That safety incident does not exist.	Cet incident de sécurité n'existe pas.	Ese incidente de seguridad no existe.
+That user already has HR access.	Cet utilisateur a déjà l'accès RH.	Ese usuario ya tiene acceso de RR. HH.
+That user has no HR access.	Cet utilisateur n'a pas l'accès RH.	Ese usuario no tiene acceso de RR. HH.
+The case that decided it, for a termination	Le dossier qui l'a décidé, pour un licenciement	El caso que lo decidió, para un despido
+The facts	Les faits	Los hechos
+The facts are not edited once the case is open.	Les faits ne se modifient plus une fois le dossier ouvert.	Los hechos no se editan una vez abierto el caso.
+The facts: what happened, when, who saw it	Les faits : ce qui s'est passé, quand, qui l'a vu	Los hechos: qué pasó, cuándo, quién lo vio
+The person's account	La version de la personne	La versión de la persona
+Verbal warning	Avertissement oral	Advertencia verbal
+What happened on	Date des faits	Fecha de los hechos
+What happened on :date · opened by :name on :when	Faits du :date · ouvert par :name le :when	Hechos del :date · abierto por :name el :when
+What happened · required unless the assignment simply finished	Ce qui s'est passé · obligatoire sauf fin normale de l'affectation	Qué pasó · obligatorio salvo que la asignación simplemente terminara
+What you want on record, in your own words	Ce que vous voulez au dossier, avec vos mots	Lo que quiere que conste, con sus palabras
+Who opened what	Qui a consulté quoi	Quién consultó qué
+Whoever opened a case does not decide a final warning, a suspension or a termination on it.	Qui a ouvert un dossier n'y décide pas d'un dernier avertissement, d'une mise à pied ou d'un licenciement.	Quien abrió un caso no decide en él una última advertencia, una suspensión ni un despido.
+Why :project ended	Pourquoi :project a pris fin	Por qué terminó :project
+Why they need it	Pourquoi il leur faut	Por qué lo necesitan
+Why this outcome	Pourquoi cette décision	Por qué este resultado
+Write the note.	Écrivez la note.	Escriba la nota.
+Written warning	Avertissement écrit	Advertencia escrita
+Years of service	Ancienneté	Años de servicio
+Your account	Votre version	Su versión
+Your account is already recorded; it is not changed.	Votre version est déjà enregistrée ; elle ne se modifie pas.	Su versión ya está registrada; no se cambia.
+for example: 1,000 hours without a recordable incident	par exemple : 1 000 heures sans incident déclarable	por ejemplo: 1.000 horas sin incidente registrable
+not voluntary	non volontaire	no voluntaria
+safety incident #:n	incident de sécurité n° :n	incidente de seguridad n.º :n
+voluntary	volontaire	voluntaria
