@@ -2063,3 +2063,55 @@ Built in: stays active	Intégré : reste actif	Integrada: sigue activa
 Add the account	Ajouter le compte	Añadir la cuenta
 A new account is mapped to QuickBooks on the QuickBooks export page before a journal using it can be exported.	Un nouveau compte est mis en correspondance avec QuickBooks sur la page d'export QuickBooks avant qu'une écriture qui l'utilise puisse être exportée.	Una cuenta nueva se asocia a QuickBooks en la página de exportación a QuickBooks antes de poder exportar un asiento que la use.
 Drawn from the Crewvia ledger: each journal goes to QuickBooks Online once, so nothing is keyed twice. A batch is never edited: a mistake is cancelled by a reversal.	Tiré du grand livre Crewvia : chaque écriture part une seule fois vers QuickBooks Online, donc rien n'est saisi deux fois. Un lot n'est jamais modifié : une erreur s'annule par une contre-passation.	Sale del libro mayor de Crewvia: cada asiento va una sola vez a QuickBooks Online, así que nada se ingresa dos veces. Un lote nunca se edita: un error se anula con una reversión.
+Budgets are set on active income and expense accounts.	Les budgets se fixent sur des comptes de produits et de charges actifs.	Los presupuestos se fijan en cuentas activas de ingresos y gastos.
+Choose the first and last month.	Choisissez le premier et le dernier mois.	Elija el primer y el último mes.
+Set at most 24 months at once.	Fixez au plus 24 mois à la fois.	Fije como máximo 24 meses a la vez.
+A budget is a positive amount, with at most two decimals.	Un budget est un montant positif, avec au plus deux décimales.	Un presupuesto es un importe positivo, con dos decimales como máximo.
+A note is at most 500 characters.	Une note fait au plus 500 caractères.	Una nota tiene como máximo 500 caracteres.
+Budget saved.	Budget enregistré.	Presupuesto guardado.
+Income statement	Compte de résultat	Estado de resultados
+Balance sheet	Bilan	Balance general
+Cash flow	Flux de trésorerie	Flujo de efectivo
+Budgets	Budgets	Presupuestos
+Financial statements	États financiers	Estados financieros
+Read from the Crewvia ledger: what Crewvia records, and the journals typed for the rest. Nothing here is entered. They are not audited statements.	Tirés du grand livre Crewvia : ce que Crewvia enregistre, et les écritures saisies pour le reste. Rien n'est saisi ici. Ce ne sont pas des états audités.	Salen del libro mayor de Crewvia: lo que Crewvia registra, y los asientos escritos para lo demás. Aquí no se ingresa nada. No son estados auditados.
+The ledger integrity check fails: these figures cannot be trusted until it is resolved.	Le contrôle d'intégrité du grand livre échoue : ces chiffres ne sont pas fiables tant qu'il n'est pas résolu.	La verificación de integridad del libro mayor falla: estas cifras no son fiables hasta que se resuelva.
+at :d	au :d	al :d
+:a to :b	du :a au :b	del :a al :b
+At	Au	Al
+Every project	Tous les projets	Todos los proyectos
+One project: only the lines that carry its name. Costs not booked to a project are not in it.	Un seul projet : seulement les lignes qui portent son nom. Les coûts non affectés à un projet n'y sont pas.	Un solo proyecto: solo las líneas que llevan su nombre. Los costos no asignados a un proyecto no están incluidos.
+Direct method: every journal that moves the bank account, by the account on its other side.	Méthode directe : chaque écriture qui fait bouger le compte bancaire, selon le compte de contrepartie.	Método directo: cada asiento que mueve la cuenta bancaria, según la cuenta de contrapartida.
+Budget and actual	Budget et réalisé	Presupuesto y real
+No budget and nothing posted in these months.	Aucun budget et rien de comptabilisé sur ces mois.	Ningún presupuesto y nada contabilizado en estos meses.
+Each month shows the actual, with the budget beneath. A positive variance is favourable: more income than budgeted, or a cost under its budget.	Chaque mois montre le réalisé, avec le budget en dessous. Un écart positif est favorable : plus de produits que prévu, ou une charge sous son budget.	Cada mes muestra lo real, con el presupuesto debajo. Una variación positiva es favorable: más ingresos de lo presupuestado, o un gasto por debajo de su presupuesto.
+Set a budget	Fixer un budget	Fijar un presupuesto
+Amount for each month	Montant pour chaque mois	Importe para cada mes
+Changes	Modifications	Cambios
+Total :what	Total :what	Total :what
+Net income	Résultat net	Utilidad neta
+Net loss	Perte nette	Pérdida neta
+Retained earnings of earlier years	Résultats des exercices antérieurs	Utilidades de años anteriores
+Earnings this year to date	Résultat de l'exercice à ce jour	Utilidad del año a la fecha
+Total liabilities and equity	Total du passif et des capitaux propres	Total de pasivo y patrimonio
+Assets equal liabilities and equity.	L'actif est égal au passif et aux capitaux propres.	El activo es igual al pasivo más el patrimonio.
+Assets and liabilities with equity differ: check the ledger integrity.	L'actif et le passif avec les capitaux propres diffèrent : vérifiez l'intégrité du grand livre.	El activo y el pasivo con el patrimonio difieren: revise la integridad del libro mayor.
+Cash at the start	Trésorerie au début	Efectivo al inicio
+Net cash from :what	Trésorerie nette des :what	Efectivo neto de :what
+Cash at the end	Trésorerie à la fin	Efectivo al final
+The movements explain the bank balance to the cent.	Les mouvements expliquent le solde bancaire au centime près.	Los movimientos explican el saldo bancario al centavo.
+The movements do not explain the bank balance: check the ledger integrity.	Les mouvements n'expliquent pas le solde bancaire : vérifiez l'intégrité du grand livre.	Los movimientos no explican el saldo bancario: revise la integridad del libro mayor.
+Prepared from the Crewvia ledger on :d. Not an audited statement.	Établi à partir du grand livre Crewvia le :d. Ce n'est pas un état audité.	Preparado a partir del libro mayor de Crewvia el :d. No es un estado auditado.
+A closed month takes nothing new dated in it: no payment, credit note, issued invoice, approved bill, paid claim, journal or QuickBooks entry. Corrections go in an open month.	Un mois clôturé n'accepte rien de nouveau daté de lui : ni paiement, avoir, facture émise, facture fournisseur approuvée, note de frais payée, écriture ni export QuickBooks. Les corrections vont dans un mois ouvert.	Un mes cerrado no admite nada nuevo fechado en él: ni pagos, notas de crédito, facturas emitidas, facturas aprobadas, gastos pagados, asientos ni entradas de QuickBooks. Las correcciones van en un mes abierto.
+Liabilities	Passif	Pasivo
+Operating activities	Activités opérationnelles	Actividades de operación
+Investing activities	Activités d'investissement	Actividades de inversión
+Financing activities	Activités de financement	Actividades de financiamiento
+Received from clients	Encaissé des clients	Cobrado a clientes
+Paid to vendors	Payé aux fournisseurs	Pagado a proveedores
+Payroll and payroll liabilities paid	Paie et charges de paie payées	Nómina y obligaciones de nómina pagadas
+Costs paid directly	Charges payées directement	Gastos pagados directamente
+Other income received	Autres produits encaissés	Otros ingresos cobrados
+Owner contributions and draws	Apports et retraits du propriétaire	Aportes y retiros del propietario
+Loans and other liabilities	Emprunts et autres dettes	Préstamos y otros pasivos
+Other assets bought or sold	Autres actifs achetés ou vendus	Otros activos comprados o vendidos

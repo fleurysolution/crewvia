@@ -185,6 +185,7 @@ $routes = [
     '/project-costs' => 'project-costs',
     '/accounting' => 'accounting',
     '/ledger' => 'ledger',
+    '/statements' => 'statements',
     '/balances' => 'balances',
     '/periods' => 'periods',
     '/vendors' => 'vendors',

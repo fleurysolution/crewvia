@@ -3,11 +3,8 @@
  * Financial periods and the trial balance of what Crewvia sent to
  * QuickBooks (P3-M05).
  *
- * The books are in QuickBooks Online (P3-M02): its trial balance, income
- * statement, balance sheet and cash flow cover everything RSS records,
- * most of which never passes through Crewvia. Crewvia does not draw those
- * statements from its share of the figures, which would look complete and
- * not be. What it does:
+ * The statements are read from Crewvia's own ledger (P3-M03,
+ * app/statements.php). What this file does:
  *
  *   - a month closes. Nothing new is then recorded or exported with a date
  *     in it: payments, credit notes, issued invoices, approved bills, paid

@@ -1601,4 +1601,27 @@ if (! $hadLedger) {
        . 'and the QuickBooks export is drawn from it; ' . (int) val('SELECT COUNT(*) FROM accounting_accounts') . ' accounts are numbered.' . PHP_EOL;
 }
 
+// ── P3-M05: financial statements and budgets ─────────────────────────────
+// Reversed by install/rollback/p3-m05-statements.sql.
+$statementsSql = __DIR__ . '/statements.sql';
+
+if (! is_file($statementsSql)) {
+    fwrite(STDERR, "Missing install/statements.sql\n");
+    exit(1);
+}
+
+$hadBudgets = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name='gl_budgets'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($statementsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadBudgets) {
+    echo 'Statements: income statement, balance sheet and cash flow are read from the ledger; budgets by account and month, none set yet.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -3,7 +3,7 @@ $closed = static fn(string $m): bool => ($statuses[$m]['status'] ?? 'open') === 
 $amount = static fn(float $v): string => abs($v) < 0.005 ? '' : money($v);
 ?>
 <h1><?= te('Financial periods') ?></h1>
-<p class="sub"><?= te('A closed month takes nothing new dated in it: no payment, credit note, issued invoice, approved bill, paid claim or QuickBooks entry. Corrections go in an open month. The full statements are QuickBooks\'s; this is what Crewvia sent it.') ?></p>
+<p class="sub"><?= te('A closed month takes nothing new dated in it: no payment, credit note, issued invoice, approved bill, paid claim, journal or QuickBooks entry. Corrections go in an open month.') ?> <a href="/statements"><?= te('Financial statements') ?></a></p>
 
 <div class="grid g2">
   <div class="card scroll" id="period-list"><h2><?= te('Months') ?></h2>

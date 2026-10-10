@@ -11,7 +11,9 @@
 --
 -- Run:  mysql <database> < install/rollback/p3-m02.sql
 
--- The ledger (P3-M03) posts to these accounts: it goes first.
+-- The ledger (P3-M03) and the budgets (P3-M05) use these accounts: they go first.
+DROP TABLE IF EXISTS gl_budget_events;
+DROP TABLE IF EXISTS gl_budgets;
 DROP TABLE IF EXISTS gl_lines;
 DROP TABLE IF EXISTS gl_journals;
 DROP TABLE IF EXISTS accounting_sources;
