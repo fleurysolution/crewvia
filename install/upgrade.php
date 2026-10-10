@@ -1395,4 +1395,34 @@ if (! $hadPerformance) {
        . (int) val('SELECT COUNT(*) FROM appraisals') . ' existing review(s) belong to no cycle.' . PHP_EOL;
 }
 
+// ── P2-M04: benefits ─────────────────────────────────────────────────────
+// Reversed by install/rollback/p2-m04.sql.
+$benefitsSql = __DIR__ . '/benefits.sql';
+
+if (! is_file($benefitsSql)) {
+    fwrite(STDERR, "Missing install/benefits.sql\n");
+    exit(1);
+}
+
+$hadBenefits = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='benefit_plans'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($benefitsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='employee_pay_items' AND column_name='benefit_enrollment_id'")) {
+    // A pay item an enrollment put on the person: it is changed through the enrollment, not by hand.
+    q('ALTER TABLE employee_pay_items ADD COLUMN benefit_enrollment_id INT UNSIGNED NULL,
+       ADD CONSTRAINT fk_pay_item_enrollment FOREIGN KEY (benefit_enrollment_id) REFERENCES benefit_enrollments(id)');
+}
+
+if (! $hadBenefits) {
+    echo 'Benefits: plans, eligibility, enrollment and waivers are in place; enrollments feed payroll as deductions and employer contributions. No plan yet.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

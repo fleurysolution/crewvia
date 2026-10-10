@@ -140,6 +140,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   $item=row("SELECT * FROM pay_items WHERE id=? AND is_active=1 AND method<>'advance_repayment'",[(int)($_POST['pay_item_id'] ?? 0)]);
   $amount=trim((string)($_POST['amount'] ?? ''));$from=(string)($_POST['starts_on'] ?? '');
   if(!$item) refuse(422,t('Choose a pay item from the list.'));
+  require_once __DIR__.'/../benefits.php';if(benefit_owns_pay_item((int)$item['id'])) refuse(422,t('That pay item belongs to a benefit plan. Enroll the person under Benefits.'));
   $max=$item['method']==='percent_of_gross'?100.0:10000.0;
   if(!is_numeric($amount)||(float)$amount<=0||(float)$amount>$max) refuse(422,$item['method']==='percent_of_gross'?t('A percentage is above 0 and at most 100.'):t('An amount a week is above 0 and at most 10,000.'));
   if(!valid_date($from)) refuse(422,t('Give the date it starts.'));
@@ -152,6 +153,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   $entry=row('SELECT * FROM employee_pay_items WHERE id=? AND candidate_id=? AND ends_on IS NULL',[(int)($_POST['employee_pay_item_id'] ?? 0),$cid]);
   $to=(string)($_POST['ends_on'] ?? '');
   if(!$entry) refuse(404,t('That item is not running for this person.'));
+  if(!empty($entry['benefit_enrollment_id'])) refuse(422,t('That item comes from a benefit enrollment. End or change it under Benefits.'));
   if(!valid_date($to)||$to<$entry['starts_on']) refuse(422,t('Give an end date on or after the day it started.'));
   q('UPDATE employee_pay_items SET ends_on=? WHERE id=?',[$to,(int)$entry['id']]);
   log_activity('ended a pay item','candidate',$cid,'#'.$entry['id'].' to '.$to);

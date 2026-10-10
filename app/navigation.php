@@ -89,6 +89,7 @@ function workspace_nav(?array $u): array
         ['/hours',              'Hours',                              'payroll'],
         ['/billing',            'Billing',                            'payroll'],
         ['/project-costs',      'Project costs',                      'payroll'],
+        ['/benefits',           'Benefits',                           'payroll'],
         ['/balances',           'Receivables and payables',           'payroll'],
         ['/bill-matching',      'Bill matching',                      'payroll'],
         ['/accounting',         'QuickBooks export',                  'payroll'],
@@ -135,6 +136,7 @@ function workspace_nav(?array $u): array
                 ['/screening-workflow', 'Screening questionnaire & contacts', null],
                 ['/expenses',           'My reimbursements',                  null],
                 ['/my-payslips',        'My pay statements',                  null],
+                ['/benefits',           'My benefits',                        null],
                 ['/offboarding',        'Offboarding',                        null],
             ]);
         }
@@ -173,7 +175,7 @@ function workspace_sections(): array
         'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/procurement', '/vendors', '/travel', '/operations', '/assets'],
         'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/appraisals', '/performance', '/learning', '/safety-plan',
                               '/comms', '/inbox', '/notifications'],
-        'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/advances', '/expenses', '/payroll-export',
+        'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/benefits', '/advances', '/expenses', '/payroll-export',
                               '/accounts-payable', '/billing', '/project-costs', '/client-invoices', '/balances', '/bill-matching', '/accounting', '/periods'],
         'Clients' => ['/client-orders', '/client-access', '/client-portal'],
         'Administration' => ['/people', '/leave-types', '/pay-grades', '/appraisal-templates', '/organization', '/job', '/employees', '/personnel',

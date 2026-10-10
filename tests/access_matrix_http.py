@@ -58,12 +58,12 @@ admin_only = ['/pay-grades', '/appraisal-templates', '/leave-types', '/settings'
               '/agency-setup', '/client-access', '/subscription', '/email-delivery', '/job']
 roles = {
     'admin':      ('admin@test.invalid', []),
-    'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/hotels', '/travel', '/procurement', '/vendors']),
-    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/performance', '/appraisals', '/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
+    'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/benefits', '/hotels', '/travel', '/procurement', '/vendors']),
+    'hotels':     ('m01-hotels@test.invalid', payroll_only + admin_only + ['/benefits', '/performance', '/appraisals', '/candidates', '/recruitment', '/employees', '/advances', '/change-requests']),
     'payroll':    ('m01-payroll@test.invalid', admin_only + ['/assets', '/appraisals', '/performance', '/hotels', '/travel', '/candidates', '/recruitment']),
-    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
+    'supervisor': ('supervisor@test.invalid', payroll_only + admin_only + ['/benefits', '/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/change-requests']),
     'worker':     ('worker@test.invalid', payroll_only + admin_only + ['/vendors', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/my-team', '/change-requests']),
-    'client':     ('client@test.invalid', payroll_only + admin_only + ['/performance', '/vendors', '/appraisals', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
+    'client':     ('client@test.invalid', payroll_only + admin_only + ['/benefits', '/performance', '/vendors', '/appraisals', '/assets', '/candidates', '/employees', '/hotels', '/advances', '/roster', '/procurement', '/attendance', '/timeoff', '/change-requests']),
 }
 
 pages = 0
@@ -83,7 +83,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 for path, do in [('/attendance', 'correct'), ('/hours', 'approve_week'), ('/pay-rules', 'create'), ('/pay-items', 'create'),
                  ('/payroll-runs', 'open'), ('/leave-types', 'create'), ('/employee-folder', 'classification'),
-                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close'), ('/vendors', 'save'), ('/vendors', 'thresholds'), ('/procurement', 'rfq'), ('/procurement', 'revise'), ('/bill-matching', 'clear'), ('/performance', 'goal_add'), ('/performance', 'cycle_create')]:
+                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close'), ('/vendors', 'save'), ('/vendors', 'thresholds'), ('/procurement', 'rfq'), ('/procurement', 'revise'), ('/bill-matching', 'clear'), ('/performance', 'goal_add'), ('/performance', 'cycle_create'), ('/benefits', 'enroll')]:
     status, _, _ = admin.post(path, {'do': do}, csrf=False)
     check('CSRF: %s %s without its token is refused' % (path, do), status == 419, status)
 

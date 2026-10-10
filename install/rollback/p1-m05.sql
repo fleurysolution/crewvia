@@ -14,4 +14,8 @@
 ALTER TABLE wage_advance_payments DROP INDEX uq_advance_sheet, DROP COLUMN timesheet_id;
 
 DROP TABLE IF EXISTS employee_pay_items;
+-- P2-M04's benefit plans own pay items: they go before the pay items.
+DROP TABLE IF EXISTS benefit_enrollments;
+DROP TABLE IF EXISTS benefit_plan_tiers;
+DROP TABLE IF EXISTS benefit_plans;
 DROP TABLE IF EXISTS pay_items;
