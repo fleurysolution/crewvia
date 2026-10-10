@@ -1,5 +1,5 @@
 <?php
-require_role('payroll');$jobId=(int)(current_job()['id'] ?? 0);
+require_once __DIR__.'/../matching.php';require_role('payroll');$jobId=(int)(current_job()['id'] ?? 0);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  if($do==='invoice') {
@@ -7,7 +7,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if(!$jobId || !$vendor || !$ref || !is_numeric($amount) || (float)$amount<=0 || !valid_date($due)) { refuse(422, t('Valid vendor invoice details required.')); }
   $po=(int)($_POST['purchase_order_id'] ?? 0);
   if($po && !row("SELECT id FROM purchase_orders WHERE id=? AND job_id=? AND status IN ('approved','closed')",[$po,$jobId])) { refuse(422, t('Choose an approved purchase order on this project, or none.')); }
-  if(!row('SELECT id FROM vendor_invoices WHERE job_id=? AND vendor_name=? AND reference=?',[$jobId,$vendor,$ref])) q('INSERT INTO vendor_invoices(job_id,vendor_name,reference,amount,due_on,purchase_order_id) VALUES (?,?,?,?,?,?)',[$jobId,$vendor,$ref,(float)$amount,$due,$po?:null]);
+  $billQty=trim((string)($_POST['quantity'] ?? ''));if($billQty!=='' && (!is_numeric($billQty) || (float)$billQty<=0)) { refuse(422, t('A billed quantity is above 0, or left empty.')); }
+  if(!row('SELECT id FROM vendor_invoices WHERE job_id=? AND vendor_name=? AND reference=?',[$jobId,$vendor,$ref])) q('INSERT INTO vendor_invoices(job_id,vendor_name,reference,amount,due_on,purchase_order_id,quantity) VALUES (?,?,?,?,?,?,?)',[$jobId,$vendor,$ref,(float)$amount,$due,$po?:null,$billQty!==''?round((float)$billQty,2):null]);
  }
  if($do==='approve') { require_once __DIR__.'/../periods.php';$due=(string)val('SELECT due_on FROM vendor_invoices WHERE id=? AND job_id=?',[(int)($_POST['invoice_id'] ?? 0),$jobId]);if($why=period_guard($due)) { refuse(422,$why); } }
  if($do==='approve') q("UPDATE vendor_invoices SET status='approved' WHERE id=? AND job_id=? AND status='received'",[(int)($_POST['invoice_id'] ?? 0),$jobId]);
@@ -23,4 +24,5 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 }
 $invoices=rows('SELECT v.*,o.reference AS po_reference FROM vendor_invoices v LEFT JOIN purchase_orders o ON o.id=v.purchase_order_id WHERE v.job_id=? ORDER BY v.id DESC',[$jobId]);
 $orders=rows("SELECT id,reference,vendor_name,total FROM purchase_orders WHERE job_id=? AND status IN ('approved','closed') ORDER BY id DESC",[$jobId]);
+foreach($invoices as &$inv) { $inv['match']=in_array($inv['status'],['received','approved'],true)?bill_match($inv):null; } unset($inv);
 render('accounts-payable',compact('invoices','orders'));

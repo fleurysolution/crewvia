@@ -1546,3 +1546,45 @@ reply by :date	réponse avant le :date	responder antes del :date
 rev :n	rév. :n	rev. :n
 revision :n	révision :n	revisión :n
 valid until :date	valable jusqu'au :date	válida hasta el :date
+A bill against an order is paid only when it matches the order and what was received, within the tolerance, or when an administrator has cleared its exceptions with a reason.	Une facture liée à une commande n'est payée que si elle correspond à la commande et à ce qui a été reçu, dans la tolérance, ou si un administrateur a levé ses écarts avec un motif.	Una factura de un pedido solo se paga si coincide con el pedido y lo recibido, dentro de la tolerancia, o si un administrador levantó sus excepciones con un motivo.
+A billed quantity is above 0, or left empty.	Une quantité facturée est supérieure à 0, ou laissée vide.	Una cantidad facturada es mayor que 0, o se deja vacía.
+A difference up to the larger of the two is not an exception.	Un écart jusqu'au plus grand des deux n'est pas une exception.	Una diferencia hasta el mayor de los dos no es una excepción.
+A rejected quantity is 0 or more.	Une quantité refusée est de 0 ou plus.	Una cantidad rechazada es 0 o más.
+Bill :ref is not ready to pay: :why. Clear it under Bill matching first.	La facture :ref n'est pas prête à payer : :why. Levez l'écart dans Rapprochement des factures d'abord.	La factura :ref no está lista para pagar: :why. Levántela primero en Conciliación de facturas.
+Bill matching	Rapprochement des factures	Conciliación de facturas
+Billed beyond the order	Facturé au-delà de la commande	Facturado más allá del pedido
+Billed beyond what was received	Facturé au-delà de ce qui a été reçu	Facturado más allá de lo recibido
+Exception	Écart	Excepción
+Exception cleared	Écart levé	Excepción levantada
+Exceptions	Écarts	Excepciones
+Exceptions to clear	Écarts à lever	Excepciones por levantar
+Held	Bloquée	Retenida
+Match	Rapprochement	Conciliación
+Matched	Rapprochée	Conciliada
+No bill is held by an exception.	Aucune facture n'est bloquée par un écart.	Ninguna factura está retenida por una excepción.
+No open bill.	Aucune facture ouverte.	Ninguna factura abierta.
+No order: approval only	Sans commande : approbation seule	Sin pedido: solo aprobación
+Not ready to pay	Pas prête à payer	No lista para pagar
+Nothing received yet	Rien de reçu	Nada recibido aún
+Only an administrator clears an exception.	Seul un administrateur lève un écart.	Solo un administrador levanta una excepción.
+Open bills	Factures ouvertes	Facturas abiertas
+Ordered :o · received :r · billed so far :b	Commandé :o · reçu :r · facturé à ce jour :b	Pedido :o · recibido :r · facturado hasta ahora :b
+Payment	Paiement	Pago
+Percent	Pourcentage	Porcentaje
+Quantity billed (optional)	Quantité facturée (facultatif)	Cantidad facturada (opcional)
+Ready to pay	Prêt à payer	Lista para pagar
+Ready to pay, in all	Prêt à payer, au total	Lista para pagar, en total
+Say why it was rejected.	Dites pourquoi c'est refusé.	Diga por qué se rechazó.
+Say why the bill is paid despite its exceptions.	Dites pourquoi la facture est payée malgré ses écarts.	Diga por qué se paga la factura pese a sus excepciones.
+That bill has no exception to clear.	Cette facture n'a pas d'écart à lever.	Esa factura no tiene excepción que levantar.
+That bill is not open.	Cette facture n'est pas ouverte.	Esa factura no está abierta.
+The order is not approved	La commande n'est pas approuvée	El pedido no está aprobado
+The tolerance is 0 to 25 %, and 0 to 10,000.	La tolérance va de 0 à 25 %, et de 0 à 10 000.	La tolerancia es de 0 a 25 %, y de 0 a 10.000.
+The vendor is not the order's	Le fournisseur n'est pas celui de la commande	El proveedor no es el del pedido
+Those exceptions are already cleared.	Ces écarts sont déjà levés.	Esas excepciones ya están levantadas.
+Tolerance	Tolérance	Tolerancia
+Tolerance: :p % or :a, whichever is more.	Tolérance : :p % ou :a, le plus grand des deux.	Tolerancia: :p % o :a, lo que sea mayor.
+Unit price differs from the order	Le prix unitaire diffère de la commande	El precio unitario difiere del pedido
+What does not match	Ce qui ne correspond pas	Lo que no coincide
+Why it is paid anyway	Pourquoi elle est payée quand même	Por qué se paga de todos modos
+Why rejected	Pourquoi refusé	Por qué se rechazó

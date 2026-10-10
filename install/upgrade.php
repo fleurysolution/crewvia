@@ -1324,4 +1324,44 @@ if (! $hadRfq) {
        . (int) val('SELECT COUNT(*) FROM purchase_orders') . ' existing order(s) start at revision 0.' . PHP_EOL;
 }
 
+// ── P3-M08: receiving, three-way matching, payment readiness ─────────────
+// Reversed by install/rollback/p3-m08.sql.
+$matchingSql = __DIR__ . '/matching.sql';
+
+if (! is_file($matchingSql)) {
+    fwrite(STDERR, "Missing install/matching.sql\n");
+    exit(1);
+}
+
+$hadMatching = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='bill_match_clearances'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($matchingSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach ([
+    // What arrived and was refused: damaged, wrong, short. Not received.
+    ['purchase_receipts', 'rejected_quantity', 'DECIMAL(10,2) NOT NULL DEFAULT 0'],
+    ['purchase_receipts', 'rejection_reason', 'VARCHAR(500) NULL'],
+    // What the bill charges for, when it says: checked against what arrived.
+    ['vendor_invoices', 'quantity', 'DECIMAL(10,2) NULL'],
+] as [$table, $column, $definition]) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name=? AND column_name=?", [$table, $column])) {
+        q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+if (! $hadMatching) {
+    // The difference allowed before a bill is an exception: 2 %, or $10, whichever is more.
+    q("INSERT IGNORE INTO platform_settings (setting_key, setting_value) VALUES ('match_tolerance_percent', '2'), ('match_tolerance_amount', '10')");
+    $open = (int) val("SELECT COUNT(*) FROM vendor_invoices WHERE status IN ('received','approved') AND purchase_order_id IS NOT NULL");
+    echo 'Three-way matching: bills against an order are matched to it and to what was received before they are paid; '
+       . $open . ' open bill(s) against an order are now checked; tolerance 2% or $10.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

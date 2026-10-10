@@ -252,15 +252,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             q('SELECT id FROM purchase_orders WHERE id = ? FOR UPDATE', [(int) $o['id']]);
             $qty = trim((string) ($_POST['quantity'] ?? ''));
             $on = (string) ($_POST['received_on'] ?? '');
+            // What arrived and was refused (P3-M08): recorded, never counted as received.
+            $rejected = trim((string) ($_POST['rejected_quantity'] ?? '')) ?: '0';
+            $rejectWhy = trim((string) ($_POST['rejection_reason'] ?? ''));
+            if (! is_numeric($rejected) || (float) $rejected < 0) { db()->rollBack(); refuse(422, t('A rejected quantity is 0 or more.')); }
+            if ((float) $rejected > 0 && mb_strlen($rejectWhy) < 3) { db()->rollBack(); refuse(422, t('Say why it was rejected.')); }
+            if ($qty === '' && (float) $rejected > 0) { $qty = '0'; }
             $already = (float) val('SELECT COALESCE(SUM(quantity), 0) FROM purchase_receipts WHERE purchase_order_id = ?', [(int) $o['id']]);
             if ($o['status'] !== 'approved') { db()->rollBack(); refuse(422, t('Only an approved order is received.')); }
-            if (! is_numeric($qty) || (float) $qty <= 0 || ! valid_date($on)) { db()->rollBack(); refuse(422, t('Say how many arrived, and when.')); }
+            if (! is_numeric($qty) || (float) $qty < 0 || ((float) $qty <= 0 && (float) $rejected <= 0) || ! valid_date($on)) { db()->rollBack(); refuse(422, t('Say how many arrived, and when.')); }
             if ($already + (float) $qty > (float) $o['quantity'] + 0.001) {
                 db()->rollBack();
                 refuse(422, t('That is more than was ordered: :ordered ordered, :received already received.', ['ordered' => (string) (float) $o['quantity'], 'received' => (string) $already]));
             }
-            q('INSERT INTO purchase_receipts (purchase_order_id, quantity, received_on, note, received_by) VALUES (?,?,?,?,?)',
-              [(int) $o['id'], round((float) $qty, 2), $on, mb_substr(trim((string) ($_POST['note'] ?? '')), 0, 500) ?: null, uid()]);
+            q('INSERT INTO purchase_receipts (purchase_order_id, quantity, received_on, note, received_by, rejected_quantity, rejection_reason) VALUES (?,?,?,?,?,?,?)',
+              [(int) $o['id'], round((float) $qty, 2), $on, mb_substr(trim((string) ($_POST['note'] ?? '')), 0, 500) ?: null, uid(),
+               round((float) $rejected, 2), (float) $rejected > 0 ? mb_substr($rejectWhy, 0, 500) : null]);
             $r = row('SELECT * FROM purchase_requests WHERE id = ?', [(int) $o['request_id']]);
             if ($r['category'] === 'lodging' && $o['hotel_id']) {
                 // The rooms the hotel confirmed join its block: one count,

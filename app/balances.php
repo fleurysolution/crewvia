@@ -179,6 +179,13 @@ function bal_apply(string $side, int $paymentId, int $invoiceId, string $amount)
     if ($value > $inv['balance'] + 0.004) {
         return t('The invoice :ref asks only :left.', ['ref' => $inv['reference'], 'left' => money($inv['balance'])]);
     }
+    // A bill is paid only when it is ready: matched, or its exceptions cleared (P3-M08).
+    if ($side === 'ap') {
+        require_once __DIR__ . '/matching.php';
+        if ($why = bill_payment_refusal($invoiceId)) {
+            return $why;
+        }
+    }
 
     q("INSERT INTO {$s['alloc']} (payment_id, invoice_id, amount, created_by) VALUES (?,?,?,?)", [$paymentId, $invoiceId, $value, uid() ?: null]);
     bal_sync($side, $invoiceId);
