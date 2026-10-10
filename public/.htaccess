@@ -17,6 +17,11 @@ RewriteRule ^ index.php [L]
 <FilesMatch "\.(sql|json|md|log)$">
   Require all denied
 </FilesMatch>
+# PHP writes its own log here as "error_log", with no extension, so the
+# rule above never matched it. It holds paths and failing queries.
+<Files "error_log">
+  Require all denied
+</Files>
 
 <FilesMatch "^\.ht">
   Require all denied
