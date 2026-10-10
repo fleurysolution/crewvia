@@ -29,6 +29,7 @@ function workspace_nav(?array $u): array
         ['/client-access',      'Client access',                      'admin'],
         ['/overview',           'Executive overview',                 'admin'],
         ['/reports',            'Reports',                            ['recruiter','payroll']],
+        ['/analytics',          'Dashboards',                         ['recruiter','payroll','hotels']],
         ['/',                   'Project dashboard',                  null],
         ['/projects',           'Projects',                           'admin'],
         ['/manning',            'Manning',                            ['recruiter','hotels','payroll']],
@@ -173,7 +174,7 @@ function workspace_nav(?array $u): array
 function workspace_sections(): array
 {
     return [
-        'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/', '/projects',
+        'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/', '/projects',
                        '/my-team', '/portal'],
         'Recruiting' => ['/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels'],

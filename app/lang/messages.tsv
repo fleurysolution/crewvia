@@ -2193,3 +2193,86 @@ Deduction	Retenue	Deducción
 Advance	Avance	Anticipo
 Cleared	Soldé	Saldado
 Life	Vie	Vida
+Dashboards	Tableaux de bord	Paneles
+Measures read from the records and the ledger each time they are opened. Nothing here is entered or stored. Each dashboard you open is logged.	Des mesures tirées des dossiers et du grand livre à chaque ouverture. Rien n'est saisi ni stocké ici. Chaque tableau de bord ouvert est journalisé.	Medidas tomadas de los registros y del libro mayor cada vez que se abren. Aquí no se ingresa ni se guarda nada. Cada panel que abre queda registrado.
+That dashboard does not exist.	Ce tableau de bord n'existe pas.	Ese panel no existe.
+This dashboard is not open to your role.	Ce tableau de bord n'est pas ouvert à votre rôle.	Este panel no está abierto a su rol.
+An application counts at every stage it reached, even if it was later rejected or withdrawn.	Une candidature compte à chaque étape atteinte, même si elle a ensuite été refusée ou retirée.	Una solicitud cuenta en cada etapa que alcanzó, aunque luego se rechazara o retirara.
+Expected hours are the assignment guarantee each week it ran in the period, or 40 when it has none. Worked hours are from approved sheets.	Les heures prévues sont la garantie de l'affectation pour chaque semaine où elle a couru dans la période, ou 40 sans garantie. Les heures travaillées viennent des feuilles approuvées.	Las horas previstas son la garantía de la asignación cada semana que estuvo vigente en el período, o 40 si no tiene. Las horas trabajadas salen de las hojas aprobadas.
+From the ledger, as the financial statements read it. Receivables and payables are open today, from Receivables and payables.	Tiré du grand livre, comme le lisent les états financiers. Les créances et dettes sont celles ouvertes aujourd'hui, d'après Créances et dettes.	Del libro mayor, como lo leen los estados financieros. Las cuentas por cobrar y por pagar son las abiertas hoy, según Cuentas por cobrar y por pagar.
+From the ledger: revenue net of credit notes, posted in the period. Overdue is as of today, from Receivables and payables.	Tiré du grand livre : revenus nets des avoirs, comptabilisés dans la période. L'échu est à ce jour, d'après Créances et dettes.	Del libro mayor: ingresos netos de notas de crédito, contabilizados en el período. Lo vencido es a hoy, según Cuentas por cobrar y por pagar.
+Marked available on their employee profile, with no assignment running at the end of the period.	Marqués disponibles sur leur fiche, sans affectation en cours à la fin de la période.	Marcados como disponibles en su perfil, sin asignación vigente al final del período.
+Ordered is the scope of work, or the headcount target when the project has no scope lines. Take-up counts answered offers only.	Le commandé est l'étendue des travaux, ou l'effectif cible quand le projet n'a pas de lignes. L'acceptation ne compte que les offres ayant reçu une réponse.	Lo pedido es el alcance del trabajo, o la plantilla objetivo cuando el proyecto no tiene líneas. La aceptación solo cuenta ofertas respondidas.
+Orders approved in the period, on the project that raised them.	Commandes approuvées dans la période, sur le projet qui les a émises.	Pedidos aprobados en el período, en el proyecto que los emitió.
+To date, as the Project costs page computes each project: labour with burden from approved sheets, purchases, hotels, claims, and overhead at its rate.	À ce jour, comme la page Coûts de projet calcule chaque projet : main-d'œuvre et charges des feuilles approuvées, achats, hôtels, notes de frais, et frais généraux à leur taux.	A la fecha, como la página Costos del proyecto calcula cada proyecto: mano de obra con cargas de las hojas aprobadas, compras, hoteles, gastos y gastos generales a su tasa.
+Recruitment conversion	Conversion du recrutement	Conversión del reclutamiento
+Placement rates	Taux de placement	Tasas de colocación
+Worker utilization	Utilisation des travailleurs	Utilización de trabajadores
+Client revenue	Revenus par client	Ingresos por cliente
+Project profitability	Rentabilité des projets	Rentabilidad de proyectos
+Financial dashboard	Tableau de bord financier	Panel financiero
+Procurement dashboard	Tableau de bord des achats	Panel de compras
+Applications made in the period and how far each got: screening, interview, offer, acceptance.	Les candidatures de la période et jusqu'où chacune est allée : présélection, entretien, offre, acceptation.	Las solicitudes del período y hasta dónde llegó cada una: preselección, entrevista, oferta, aceptación.
+Positions ordered against people on assignment, and how many assignments offered were taken up.	Les postes commandés face aux personnes en affectation, et combien d'affectations offertes ont été acceptées.	Puestos pedidos frente a personas en asignación, y cuántas asignaciones ofrecidas se aceptaron.
+Hours worked on approved sheets against the hours each assignment was expected to give, and who is on the bench.	Les heures travaillées sur feuilles approuvées face aux heures prévues de chaque affectation, et qui est sans affectation.	Horas trabajadas en hojas aprobadas frente a las horas previstas de cada asignación, y quién está sin asignación.
+Revenue, cash received and receivables per client, from the ledger.	Revenus, encaissements et créances par client, d'après le grand livre.	Ingresos, cobros y cuentas por cobrar por cliente, del libro mayor.
+Each project to date: revenue, direct cost, margins, budget and open commitments, as Project costs computes them.	Chaque projet à ce jour : revenus, coût direct, marges, budget et engagements ouverts, comme les calcule Coûts de projet.	Cada proyecto a la fecha: ingresos, costo directo, márgenes, presupuesto y compromisos abiertos, como los calcula Costos del proyecto.
+Cash, results for the month and the year, receivables and payables, and the last twelve months.	Trésorerie, résultats du mois et de l'année, créances et dettes, et les douze derniers mois.	Efectivo, resultados del mes y del año, cuentas por cobrar y por pagar, y los últimos doce meses.
+Requests and orders: waiting for approval, approved, delivered, billed, held; by category and vendor.	Demandes et commandes : en attente d'approbation, approuvées, livrées, facturées, bloquées ; par catégorie et fournisseur.	Solicitudes y pedidos: pendientes de aprobación, aprobados, entregados, facturados, retenidos; por categoría y proveedor.
+Applied to accepted	De la candidature à l'acceptation	De solicitud a aceptación
+Still open	Encore ouvertes	Aún abiertas
+Median days to acceptance	Jours médians jusqu'à l'acceptation	Días medianos hasta la aceptación
+Funnel	Entonnoir	Embudo
+Of applications	Des candidatures	De las solicitudes
+Of the stage before	De l'étape précédente	De la etapa anterior
+Interview	Entretien	Entrevista
+By source	Par source	Por fuente
+By project	Par projet	Por proyecto
+Positions ordered	Postes commandés	Puestos pedidos
+On assignment at the end	En affectation à la fin	En asignación al final
+Fill rate	Taux de pourvoi	Tasa de cobertura
+Assignments offered	Affectations offertes	Asignaciones ofrecidas
+Taken up	Acceptées	Aceptadas
+Still to fill	Encore à pourvoir	Por cubrir
+Offered in the period	Offertes dans la période	Ofrecidas en el período
+Fell through	Échouées	Fallidas
+Take-up	Acceptation	Aceptación
+Hours expected	Heures prévues	Horas previstas
+Utilization	Utilisation	Utilización
+Available, not on assignment	Disponibles, sans affectation	Disponibles, sin asignación
+By assignment	Par affectation	Por asignación
+Paid leave hours	Heures de congé payé	Horas de permiso pagado
+On the bench	Sans affectation	Sin asignación
+Receivables at the end	Créances à la fin	Cuentas por cobrar al final
+Overdue today	Échu aujourd'hui	Vencido hoy
+Largest client	Premier client	Cliente principal
+Days of sales outstanding	Délai moyen d'encaissement (jours)	Días de venta pendientes
+By client	Par client	Por cliente
+Revenue to date	Revenus à ce jour	Ingresos a la fecha
+Net after overhead	Net après frais généraux	Neto tras gastos generales
+Projects losing money	Projets déficitaires	Proyectos con pérdidas
+Gross %	Brut %	Bruto %
+Net %	Net %	Neto %
+Budgeted revenue	Revenus budgétés	Ingresos presupuestados
+Budgeted cost	Coût budgété	Costo presupuestado
+Committed, not billed	Engagé, non facturé	Comprometido, no facturado
+Revenue this month	Revenus du mois	Ingresos del mes
+Net this month	Net du mois	Neto del mes
+Revenue this year	Revenus de l'année	Ingresos del año
+Net this year	Net de l'année	Neto del año
+Receivables overdue	Créances échues	Cuentas por cobrar vencidas
+Payables overdue	Dettes échues	Cuentas por pagar vencidas
+The last twelve months	Les douze derniers mois	Los últimos doce meses
+Requests waiting for an order	Demandes en attente de commande	Solicitudes esperando pedido
+Orders waiting for approval	Commandes en attente d'approbation	Pedidos esperando aprobación
+Value waiting for approval	Valeur en attente d'approbation	Valor esperando aprobación
+Orders approved	Commandes approuvées	Pedidos aprobados
+Value approved	Valeur approuvée	Valor aprobado
+Average days to approve	Jours moyens d'approbation	Días promedio de aprobación
+Delivered	Livré	Entregado
+Quantity rejected	Quantité refusée	Cantidad rechazada
+Billed	Facturé	Facturado
+Bills on hold	Factures bloquées	Facturas retenidas
+By category	Par catégorie	Por categoría
+By vendor	Par fournisseur	Por proveedor
+Value	Valeur	Valor
