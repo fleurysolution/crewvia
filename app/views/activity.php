@@ -26,6 +26,8 @@ $progress  = $target > 0 ? min(100, (int) round($filled / $target * 100)) : 0;
   </div>
 </div>
 
+<?php if (! empty($wf)) { require __DIR__ . '/_workforce-overview.php'; } ?>
+
 <?php if ($job && $target > 0): ?>
 <section class="card headcount">
   <div class="headcount-top">

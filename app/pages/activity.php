@@ -28,6 +28,20 @@ $recent = rows('SELECT message, target, created_at, read_at
                 FROM notifications WHERE user_id = ?
                 ORDER BY id DESC LIMIT 12', [uid()]);
 
+// The workforce at a glance, for staff on the working project.
+require_once __DIR__ . '/../workforce-overview.php';
+$wf = null;
+
+if ($job && workforce_overview_visible()) {
+    $jobId = (int) $job['id'];
+    $wf = [
+        'today'   => workforce_today($jobId),
+        'present' => workforce_daily($jobId, 30, true),
+        'absent'  => workforce_daily($jobId, 15, false),
+        'recent'  => workforce_recently_placed($jobId),
+    ];
+}
+
 $pageTitle = t('Activity') . ' · ' . $config['app_name'];
 
-render('activity', compact('items', 'total', 'job', 'target', 'filled', 'recent'));
+render('activity', compact('items', 'total', 'job', 'target', 'filled', 'recent', 'wf'));

@@ -142,6 +142,12 @@ q("INSERT INTO timesheets(placement_id,week_ending,hours_worked,status) VALUES (
 
 check('The test week is in the past', $week < date('Y-m-d'));
 
+// Today, for the overview on Activity: one present, one absent, one on leave.
+q('INSERT INTO assignment_checkins(placement_id,work_date,present,marked_by) VALUES (?,CURDATE(),1,?)', [$p, $admin]);
+q('INSERT INTO assignment_checkins(placement_id,work_date,present,marked_by) VALUES (?,CURDATE(),0,?)', [$qp, $admin]);
+q("INSERT INTO time_off_requests(placement_id,user_id,starts_on,ends_on,request_type,status,reviewed_by,reviewed_at)
+   VALUES (?,?,DATE_SUB(CURDATE(),INTERVAL 1 DAY),DATE_ADD(CURDATE(),INTERVAL 1 DAY),'Personal','approved',?,NOW())", [$rp, $uR, $admin]);
+
 file_put_contents(__DIR__ . '/m02.json', json_encode([
     'week' => $week, 'days' => array_map($day, [6, 5, 4, 3, 2, 1, 0]), 'start' => $start,
     'p' => $p, 'pb' => $pb, 'q' => $qp, 'r' => $rp,
