@@ -2857,3 +2857,97 @@ What each agency-owned item is worth on a date: straight-line depreciation of it
 blocks issue when overdue	bloque la remise si en retard	bloquea la entrega si está vencido
 in service :date	en service le :date	en servicio el :date
 residual :amount	résiduelle :amount	residual :amount
+:n assignment(s) made from the requirements.	:n attribution(s) faite(s) d'après les exigences.	:n asignación(es) hecha(s) según los requisitos.
+:n assignment(s) made; anyone who has it open or still current was left as they are.	:n attribution(s) faite(s) ; qui l'avait en cours ou encore valide est resté tel quel.	:n asignación(es) hecha(s); quien la tenía abierta o aún vigente quedó igual.
+A completion counts for 1 to 120 months, or for good when left empty.	Une réussite compte de 1 à 120 mois, ou définitivement si vide.	Una finalización cuenta de 1 a 120 meses, o para siempre si se deja vacío.
+A course in a plan is due 1 to 365 days after the plan is given.	Un cours d'un plan est dû 1 à 365 jours après l'attribution du plan.	Un curso de un plan vence de 1 a 365 días después de asignar el plan.
+Administrator	Administrateur	Administrador
+Agency courses, their assessments, plans, and the training required of each desk role, trade or project. Project briefings stay under Safety & learning.	Les cours de l'agence, leurs évaluations, les plans, et la formation requise de chaque rôle, métier ou projet. Les consignes de projet restent sous Sécurité et formation.	Los cursos de la agencia, sus evaluaciones, los planes y la formación requerida a cada rol, oficio o proyecto. Las instrucciones de proyecto siguen en Seguridad y aprendizaje.
+An answer is at most 300 characters.	Une réponse fait au plus 300 caractères.	Una respuesta tiene como máximo 300 caracteres.
+Answer :n	Réponse :n	Respuesta :n
+Answer every question.	Répondez à chaque question.	Responda todas las preguntas.
+Ask the question in 5 to 500 characters.	Posez la question en 5 à 500 caractères.	Formule la pregunta en 5 a 500 caracteres.
+Assessment	Évaluation	Evaluación
+Assign	Attribuer	Asignar
+Assign it	L'attribuer	Asignarlo
+Assign what is required now	Attribuer maintenant ce qui est requis	Asignar ahora lo requerido
+Certifies	Certifie	Certifica
+Choose a course in use.	Choisissez un cours utilisé.	Elija un curso en uso.
+Choose a desk role.	Choisissez un rôle.	Elija un rol.
+Choose a project.	Choisissez un projet.	Elija un proyecto.
+Choose a qualification from the list, or none.	Choisissez une qualification de la liste, ou aucune.	Elija una calificación de la lista, o ninguna.
+Choose who the plan is for.	Choisissez à qui va le plan.	Elija para quién es el plan.
+Compliance	Conformité	Cumplimiento
+Confirm that you have read and understood it.	Confirmez l'avoir lu et compris.	Confirme que lo leyó y entendió.
+Counts for	Compte pour	Cuenta por
+Counts for (months) · empty: for good	Compte pour (mois) · vide : définitivement	Cuenta por (meses) · vacío: para siempre
+Counts until	Compte jusqu'au	Cuenta hasta
+Course	Cours	Curso
+Courses	Cours	Cursos
+Courses, in order	Cours, dans l'ordre	Cursos, en orden
+Create	Créer	Crear
+Desk role	Rôle	Rol
+Done.	Fait.	Hecho.
+Due after	Dû après	Vence después de
+Due after (days)	Dû après (jours)	Vence después de (días)
+Due within	Dû sous	Vence en
+Due within (days)	Dû sous (jours)	Vence en (días)
+Each course is due its days from today. Anyone who has a course open, or done and still current, keeps it as it is.	Chaque cours est dû ses jours à partir d'aujourd'hui. Qui a un cours en cours, ou fait et encore valide, le garde tel quel.	Cada curso vence sus días desde hoy. Quien tiene un curso abierto, o hecho y aún vigente, lo conserva igual.
+Every worker of a trade	Chaque travailleur d'un métier	Cada trabajador de un oficio
+Every worker on a project	Chaque travailleur d'un projet	Cada trabajador de un proyecto
+Everyone of a desk role	Chacun d'un rôle	Cada persona de un rol
+Give 2 to 6 answers.	Donnez 2 à 6 réponses.	Dé de 2 a 6 respuestas.
+Give a due date, today or later.	Donnez une échéance, aujourd'hui ou plus tard.	Indique un vencimiento, hoy o más tarde.
+Give the course a title of 3 to 190 characters.	Donnez au cours un titre de 3 à 190 caractères.	Dé al curso un título de 3 a 190 caracteres.
+Give the plan	Attribuer le plan	Asignar el plan
+Give the plan a name of 3 to 190 characters.	Donnez au plan un nom de 3 à 190 caractères.	Dé al plan un nombre de 3 a 190 caracteres.
+Give the trade as it is written on assignments.	Indiquez le métier tel qu'il est écrit sur les affectations.	Indique el oficio tal como figura en las asignaciones.
+Hand it in	Remettre	Entregar
+I have read and understood it.	Je l'ai lu et compris.	Lo he leído y entendido.
+In short	En bref	En resumen
+Logistics	Logistique	Logística
+My training	Ma formation	Mi formación
+New course	Nouveau cours	Nuevo curso
+No course yet.	Aucun cours pour l'instant.	Aún no hay cursos.
+No training is assigned to you.	Aucune formation ne vous est attribuée.	No tiene formación asignada.
+Nobody for these filters.	Personne pour ces filtres.	Nadie para estos filtros.
+Nobody yet.	Personne pour l'instant.	Nadie aún.
+Not assigned	Non attribué	No asignado
+Not in use	Non utilisé	No en uso
+Not passed	Non réussi	No superado
+Not passed: :score%. Read the course again and try once more.	Non réussi : :score %. Relisez le cours et réessayez.	No superado: :score %. Lea el curso de nuevo e inténtelo otra vez.
+Nothing	Rien	Nada
+Nothing is required yet.	Rien n'est requis pour l'instant.	Aún no se requiere nada.
+Open the course material	Ouvrir le support du cours	Abrir el material del curso
+Pass mark (%)	Note de réussite (%)	Nota para aprobar (%)
+Pass mark: :n%.	Note de réussite : :n %.	Nota para aprobar: :n %.
+Passed with :score%. Done.	Réussi avec :score %. Fait.	Superado con :score %. Hecho.
+Passing it certifies	Sa réussite certifie	Superarlo certifica
+Questions	Questions	Preguntas
+Required of	Requis de	Requerido a
+Required training	Formation requise	Formación requerida
+Required training is due 1 to 365 days after it is assigned.	Une formation requise est due 1 à 365 jours après son attribution.	La formación requerida vence de 1 a 365 días después de asignarse.
+Required. :n assignment(s) made.	Requis. :n attribution(s) faite(s).	Requerido. :n asignación(es) hecha(s).
+Resource link (HTTPS)	Lien de ressource (HTTPS)	Enlace de recurso (HTTPS)
+Say which answer is right.	Dites quelle réponse est la bonne.	Diga cuál respuesta es la correcta.
+Say who the training is required of.	Dites de qui la formation est requise.	Diga a quién se requiere la formación.
+That course does not exist.	Ce cours n'existe pas.	Ese curso no existe.
+That course is already in the plan.	Ce cours est déjà dans le plan.	Ese curso ya está en el plan.
+That course is not in the plan.	Ce cours n'est pas dans le plan.	Ese curso no está en el plan.
+That question does not exist.	Cette question n'existe pas.	Esa pregunta no existe.
+That requirement does not exist or is already stopped.	Cette exigence n'existe pas ou est déjà arrêtée.	Ese requisito no existe o ya está detenido.
+That training is already complete.	Cette formation est déjà terminée.	Esa formación ya está completa.
+That training is not yours.	Cette formation n'est pas la vôtre.	Esa formación no es suya.
+The course	Le cours	El curso
+The pass mark is 1 to 100%.	La note de réussite va de 1 à 100 %.	La nota para aprobar va de 1 a 100 %.
+The plan has no course yet.	Le plan n'a encore aucun cours.	El plan aún no tiene cursos.
+This also runs with the scheduled workflows.	Ceci passe aussi avec les tâches planifiées.	Esto también se ejecuta con las tareas programadas.
+Training to do by :date: :title	Formation à faire avant le :date : :title	Formación por hacer antes del :date: :title
+Two answers are the same.	Deux réponses sont identiques.	Dos respuestas son iguales.
+What to learn	Ce qu'il faut apprendre	Qué aprender
+What you have to take and by when, and what you have done, until it needs renewing.	Ce que vous devez suivre et pour quand, et ce que vous avez fait, jusqu'à son renouvellement.	Lo que debe tomar y para cuándo, y lo que ha hecho, hasta que haya que renovarlo.
+Who has it	Qui l'a	Quién lo tiene
+With questions, the course is passed at the pass mark; without, the person confirms they read and understood it.	Avec des questions, le cours est réussi à la note de réussite ; sans, la personne confirme l'avoir lu et compris.	Con preguntas, el curso se supera con la nota para aprobar; sin ellas, la persona confirma que lo leyó y entendió.
+for good	définitivement	para siempre
+right	bonne	correcta
+right answer	bonne réponse	respuesta correcta

@@ -57,6 +57,8 @@ function workspace_nav(?array $u): array
         ['/mining',             'Talent search',                      'recruiter'],
         ['/resumes',            'Candidate resumes',                  'recruiter'],
         ['/learning',           'Safety & learning',                  null],
+        ['/training',           'Training',                           'recruiter'],
+        ['/my-training',        'My training',                        null],
         ['/safety-plan',        'Site safety plan',                   ['recruiter','hotels','supervisor']],
         ['/offboarding',        'Offboarding',                        'recruiter'],
         ['/comms',              'Communications',                     null],
@@ -122,7 +124,7 @@ function workspace_nav(?array $u): array
     if (in_array($u['role'] ?? '', ['worker', 'supervisor'], true)) {
         $crew = is_worker_account();
 
-        $nav = [['/activity', 'Activity', null], ['/my-tasks', 'My tasks', null]];
+        $nav = [['/activity', 'Activity', null], ['/my-tasks', 'My tasks', null], ['/my-training', 'My training', null]];
 
         if ($crew) {
             $nav[] = ['/self-service', 'My self-service', null];
@@ -196,7 +198,7 @@ function workspace_sections(): array
                      '/qualifications', '/screening-workflow', '/proofs',
                      '/agreements', '/employee-folder', '/change-requests'],
         'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/procurement', '/vendors', '/travel', '/operations', '/assets', '/asset-valuation'],
-        'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/hr-requests', '/appraisals', '/performance', '/learning', '/safety-plan',
+        'Running the job' => ['/attendance', '/attendance-week', '/timeoff', '/hr-requests', '/appraisals', '/performance', '/learning', '/training', '/my-training', '/safety-plan',
                               '/comms', '/inbox', '/notifications'],
         'Pay and billing' => ['/hours', '/payroll-runs', '/pay-rules', '/pay-items', '/benefits', '/advances', '/expenses', '/payroll-export',
                               '/accounts-payable', '/billing', '/project-costs', '/client-invoices', '/balances', '/bill-matching', '/ledger', '/statements', '/accounting', '/periods'],

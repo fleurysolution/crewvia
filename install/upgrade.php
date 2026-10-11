@@ -1918,4 +1918,28 @@ if (! $hadAssetLifecycle) {
        . $carried . ' past repair(s) carried into the service history. No item has a useful life until its category or the item is given one.' . PHP_EOL;
 }
 
+// ── P5-M04: training courses, assessments, plans, requirements ──
+// Reversed by install/rollback/p5-m04.sql.
+$trainingSql = __DIR__ . '/training.sql';
+
+if (! is_file($trainingSql)) {
+    fwrite(STDERR, "Missing install/training.sql\n");
+    exit(1);
+}
+
+$hadTraining = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='training_courses'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($trainingSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadTraining) {
+    echo 'Training: agency courses with assessments, plans, requirements by desk role, trade or project, renewals and a compliance matrix; '
+       . 'no course exists yet (recruiters and administrators write them under Training). Project briefings stay under Safety & learning.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
