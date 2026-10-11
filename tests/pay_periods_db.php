@@ -94,7 +94,7 @@ q("INSERT INTO timesheets(placement_id,week_ending,hours_worked,status) VALUES (
 $attend($pDiff, $day($older, 3), 10.0);
 q("INSERT INTO timesheets(placement_id,week_ending,hours_worked,status,approved_by,approved_at) VALUES (?,?,8,'approved',?,NOW())", [$pDiff, $older, $admin]);
 $diffSheet = (int) db()->lastInsertId();
-q("INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)", [$diffSheet, json_encode(['labour_cost' => 160, 'pay_total' => 160, 'worked' => 8])]);
+q("INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)", [$diffSheet, json_encode(array_merge(['worked' => 0, 'paid_hours' => 0, 'pay_rate' => 0, 'pay_total' => 0, 'labour_cost' => 0, 'leave_pay' => 0, 'paid_leave_hours' => 0, 'per_diem' => 0, 'expenses' => 0, 'bill_rate' => 0, 'bill_total' => 0, 'margin' => 0, 'guarantee' => 0, 'short_by' => 0], ['labour_cost' => 160, 'pay_total' => 160, 'worked' => 8]))]);
 q("INSERT INTO attendance_payroll_sources(timesheet_id,attendance_json,imported_by) VALUES (?,?,?)", [$diffSheet, json_encode([['hours' => 8]]), $admin]);
 
 // Its own administrator: the shared one is limited to 10 sign-ins in 15

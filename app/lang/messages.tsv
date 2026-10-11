@@ -2427,3 +2427,58 @@ Google OAuth for each user's mailbox: read and send.	OAuth Google pour la boîte
 Contracts signed through DocuSign envelopes, confirmed by Connect.	Contrats signés par enveloppes DocuSign, confirmés par Connect.	Contratos firmados mediante sobres de DocuSign, confirmados por Connect.
 The workspace subscription, checkout and billing portal.	L'abonnement de l'espace, le paiement et le portail de facturation.	La suscripción del espacio, el pago y el portal de facturación.
 This message was already sent, or its form expired. Open the form again.	Ce message a déjà été envoyé, ou son formulaire a expiré. Rouvrez le formulaire.	Este mensaje ya se envió, o su formulario caducó. Abra el formulario de nuevo.
+:m matched, :d to look into	:m concordant(s), :d à examiner	:m coinciden, :d por revisar
+A sandbox trial must pass before this connector goes live.	Un essai en bac à sable doit réussir avant que ce connecteur passe en production.	Una prueba en sandbox debe superarse antes de que este conector pase a producción.
+ADP batch reference	Référence du lot ADP	Referencia del lote de ADP
+ADP connector	Connecteur ADP	Conector ADP
+ADP files are for the real payroll. Record what ADP says when each is imported.	Les fichiers ADP sont pour la paie réelle. Notez ce que dit ADP à chaque import.	Los archivos de ADP son para la nómina real. Registre lo que dice ADP en cada importación.
+ADP import	Import ADP	Importación ADP
+ADP import recorded.	Import ADP enregistré.	Importación de ADP registrada.
+ADP live	ADP réel	ADP real
+ADP register compared with Crewvia.	Registre ADP comparé à Crewvia.	Registro de ADP comparado con Crewvia.
+ADP test	ADP test	ADP prueba
+Applicant tracking	Suivi des candidatures	Seguimiento de candidatos
+At most 5,000 employees in one register.	Au plus 5 000 employés par registre.	Como máximo 5.000 empleados por registro.
+Authorized	Autorisé	Autorizado
+Authorized by (for live)	Autorisé par (pour la production)	Autorizado por (para producción)
+Background screening	Vérification des antécédents	Verificación de antecedentes
+Choose disabled, sandbox or live.	Choisissez désactivé, bac à sable ou production.	Elija desactivado, sandbox o producción.
+Choose the Saturday the pay week ends on.	Choisissez le samedi où finit la semaine de paie.	Elija el sábado en que termina la semana de pago.
+Compare	Comparer	Comparar
+Compare with ADP's payroll register	Comparer avec le registre de paie d'ADP	Comparar con el registro de nómina de ADP
+Connector	Connecteur	Conector
+Connector saved.	Connecteur enregistré.	Conector guardado.
+Each connector runs in sandbox before it goes live: test files and test events, nothing made real. Live needs a sandbox trial that passed and the reference of who at RSS authorized it.	Chaque connecteur passe par le bac à sable avant la production : fichiers et événements de test, rien de réel. La production exige un essai réussi et la référence de qui, chez RSS, l'a autorisée.	Cada conector pasa por sandbox antes de producción: archivos y eventos de prueba, nada real. Producción requiere una prueba superada y la referencia de quién en RSS la autorizó.
+Export the payroll register for this week from ADP as CSV and give the names of its employee ID and gross pay columns. Each employee is compared with the gross pay Crewvia froze, every project together.	Exportez d'ADP le registre de paie de la semaine en CSV et donnez les noms de ses colonnes d'identifiant employé et de salaire brut. Chaque employé est comparé au brut figé par Crewvia, tous projets confondus.	Exporte desde ADP el registro de nómina de la semana en CSV e indique los nombres de sus columnas de ID de empleado y pago bruto. Cada empleado se compara con el bruto congelado por Crewvia, todos los proyectos juntos.
+Give the batch or confirmation reference ADP showed for the import.	Donnez la référence de lot ou de confirmation affichée par ADP pour l'import.	Indique la referencia de lote o confirmación que mostró ADP para la importación.
+Line :n: the gross pay ":v" is not an amount.	Ligne :n : le brut « :v » n'est pas un montant.	Línea :n: el bruto ":v" no es un importe.
+Mode	Mode	Modo
+No file produced for this week yet.	Aucun fichier produit pour cette semaine.	Todavía no hay archivos para esta semana.
+No screening provider is authorized. Cases are run by hand on Checks; a provider is connected only once RSS chooses and authorizes one.	Aucun prestataire de vérification n'est autorisé. Les dossiers sont traités à la main dans Vérifications ; un prestataire n'est connecté qu'une fois choisi et autorisé par RSS.	No hay ningún proveedor de verificación autorizado. Los casos se llevan a mano en Verificaciones; un proveedor solo se conecta cuando RSS lo elige y autoriza.
+Not connected	Non connecté	No conectado
+Payroll files for this week	Fichiers de paie de la semaine	Archivos de nómina de esta semana
+Payroll, applicant tracking and screening connectors	Connecteurs de paie, de suivi des candidatures et de vérification	Conectores de nómina, seguimiento de candidatos y verificación
+Record who at RSS authorized going live: an agreement, a ticket or an email reference.	Indiquez qui, chez RSS, a autorisé la production : un accord, un ticket ou la référence d'un courriel.	Indique quién en RSS autorizó la producción: un acuerdo, un ticket o la referencia de un correo.
+Sandbox trial	Essai en bac à sable	Prueba en sandbox
+Sandbox: the ADP file is marked TEST. Import it into ADP's preview or a test company, then record that ADP accepted it; an administrator can then switch ADP live under Integrations.	Bac à sable : le fichier ADP est marqué TEST. Importez-le dans l'aperçu d'ADP ou une société de test, puis notez qu'ADP l'a accepté ; un administrateur peut alors passer ADP en production dans Intégrations.	Sandbox: el archivo de ADP se marca TEST. Impórtelo en la vista previa de ADP o en una empresa de prueba y registre que ADP lo aceptó; un administrador puede entonces pasar ADP a producción en Integraciones.
+Say what ADP rejected, so it can be corrected.	Dites ce qu'ADP a refusé, pour le corriger.	Diga qué rechazó ADP, para corregirlo.
+Say whether ADP accepted the file.	Dites si ADP a accepté le fichier.	Diga si ADP aceptó el archivo.
+Switched off: no ADP file is produced. The review file is still available.	Désactivé : aucun fichier ADP n'est produit. Le fichier de revue reste disponible.	Desactivado: no se produce archivo de ADP. El archivo de revisión sigue disponible.
+That ADP file does not exist.	Ce fichier ADP n'existe pas.	Ese archivo de ADP no existe.
+That connector does not exist.	Ce connecteur n'existe pas.	Ese conector no existe.
+That file's import is already recorded.	L'import de ce fichier est déjà enregistré.	La importación de ese archivo ya está registrada.
+That payroll file does not exist.	Ce fichier de paie n'existe pas.	Ese archivo de nómina no existe.
+The ADP connector is switched off. An administrator turns it on under Integrations.	Le connecteur ADP est désactivé. Un administrateur l'active dans Intégrations.	El conector de ADP está desactivado. Un administrador lo activa en Integraciones.
+The file has no column named ":id" or ":gross". Give the names exactly as in its first line.	Le fichier n'a pas de colonne nommée « :id » ou « :gross ». Donnez les noms tels qu'à sa première ligne.	El archivo no tiene columna llamada ":id" o ":gross". Indique los nombres tal como en su primera línea.
+This connector is not configured on the server: it cannot go live.	Ce connecteur n'est pas configuré sur le serveur : il ne peut pas passer en production.	Este conector no está configurado en el servidor: no puede pasar a producción.
+This payroll file no longer matches its recorded fingerprint. Nothing was downloaded.	Ce fichier de paie ne correspond plus à son empreinte enregistrée. Rien n'a été téléchargé.	Este archivo de nómina ya no coincide con su huella registrada. No se descargó nada.
+Upload ADP's payroll register as a CSV file of at most 2 MB.	Envoyez le registre de paie d'ADP en CSV de 2 Mo au plus.	Suba el registro de nómina de ADP en CSV de 2 MB como máximo.
+What ADP reported	Ce qu'ADP a signalé	Lo que informó ADP
+not configured on the server	non configuré sur le serveur	no configurado en el servidor
+not yet	pas encore	todavía no
+Sandbox	Bac à sable	Sandbox
+Live	Production	Producción
+Different	Différent	Diferente
+In ADP only	Dans ADP seulement	Solo en ADP
+In Crewvia only	Dans Crewvia seulement	Solo en Crewvia
+ADP RUN import file	Fichier d'import ADP RUN	Archivo de importación de ADP RUN

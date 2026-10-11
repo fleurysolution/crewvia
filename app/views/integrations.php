@@ -1,5 +1,5 @@
 <?php
-$names = ['gmail' => 'Gmail', 'docusign' => 'DocuSign', 'stripe' => 'Stripe'];
+$names = ['gmail' => 'Gmail', 'docusign' => 'DocuSign', 'stripe' => 'Stripe', 'adp' => 'ADP', 'ats' => t('Applicant tracking')];
 $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' => 'amber', 'failed' => 'red', 'refused' => 'red'];
 ?>
 <h1><?= te('Integrations') ?></h1>
@@ -13,6 +13,23 @@ $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' =
     <?php if ($k === 'gmail'): ?><p class="small" id="gmail-counts" data-total="<?= (int) $gmail['total'] ?>" data-reconnect="<?= (int) $gmail['reconnect'] ?>"><?= te(':n connected mailbox(es), :r to reconnect', ['n' => (int) $gmail['total'], 'r' => (int) $gmail['reconnect']]) ?></p><?php endif; ?>
   </div>
   <?php endforeach; ?>
+</div>
+
+<div class="card scroll" id="connectors"><h2><?= te('Payroll, applicant tracking and screening connectors') ?></h2>
+  <p class="muted"><?= te('Each connector runs in sandbox before it goes live: test files and test events, nothing made real. Live needs a sandbox trial that passed and the reference of who at RSS authorized it.') ?></p>
+  <table><tr><th><?= te('Connector') ?></th><th><?= te('Mode') ?></th><th><?= te('Sandbox trial') ?></th><th><?= te('Authorized') ?></th><th></th></tr>
+  <?php foreach ($connectors as $k => $c): ?><tr data-connector="<?= e($k) ?>" data-mode="<?= e($c['mode']) ?>" data-sandbox="<?= $c['sandbox_passed_at'] ? '1' : '0' ?>">
+    <td><?= te($c['name']) ?><?= $c['configured'] ? '' : ' <span class="tag grey">' . te('not configured on the server') . '</span>' ?><?= $c['note'] ? '<div class="small muted">' . e($c['note']) . '</div>' : '' ?></td>
+    <td><span class="tag <?= $c['mode'] === 'live' ? 'green' : ($c['mode'] === 'sandbox' ? 'amber' : 'grey') ?>"><?= te(ucfirst($c['mode'])) ?></span></td>
+    <td class="small"><?= $c['sandbox_passed_at'] ? e($c['sandbox_passed_at'] . ' · ' . (string) $c['sandbox_note']) : te('not yet') ?></td>
+    <td class="small"><?= $c['authorization_ref'] ? e($c['authorization_ref'] . ' · ' . (string) $c['authorized_name'] . ' · ' . (string) $c['authorized_at']) : '–' ?></td>
+    <td><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="mode"><input type="hidden" name="connector" value="<?= e($k) ?>">
+      <select name="mode"><?php foreach (['disabled', 'sandbox', 'live'] as $mo): ?><option value="<?= $mo ?>"<?= $c['mode'] === $mo ? ' selected' : '' ?>><?= te(ucfirst($mo)) ?></option><?php endforeach; ?></select>
+      <input name="authorization" maxlength="190" placeholder="<?= te('Authorized by (for live)') ?>"><input name="note" maxlength="500" placeholder="<?= te('Note') ?>"><button class="btn sm ghost"><?= te('Save') ?></button></form></td></tr>
+  <?php endforeach; ?>
+    <tr data-connector="screening"><td><?= te('Background screening') ?></td><td><span class="tag grey"><?= te('Not connected') ?></span></td>
+      <td colspan="3" class="small muted"><?= te('No screening provider is authorized. Cases are run by hand on Checks; a provider is connected only once RSS chooses and authorizes one.') ?></td></tr>
+  </table>
 </div>
 
 <?php if ($reconnect): ?>

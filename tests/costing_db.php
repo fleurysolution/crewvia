@@ -76,7 +76,7 @@ $sheet = static function (int $pid, string $week, string $status, array $snap) u
     q('INSERT INTO timesheets(placement_id,week_ending,hours_worked,per_diem_days,expenses,status,approved_by,approved_at) VALUES (?,?,?,?,?,?,?,NOW())',
       [$pid, $week, $snap['worked'], (int) ($snap['per_diem'] / 30), $snap['expenses'], $status, $admin]);
     $id = (int) db()->lastInsertId();
-    q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)', [$id, json_encode($snap)]);
+    q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)', [$id, json_encode(array_merge(['worked' => 0, 'paid_hours' => 0, 'pay_rate' => 0, 'pay_total' => 0, 'labour_cost' => 0, 'leave_pay' => 0, 'paid_leave_hours' => 0, 'per_diem' => 0, 'expenses' => 0, 'bill_rate' => 0, 'bill_total' => 0, 'margin' => 0, 'guarantee' => 0, 'short_by' => 0], $snap))]);
     return $id;
 };
 $base = ['guarantee' => 0, 'short_by' => 0, 'leave_pay' => 0, 'paid_leave_hours' => 0, 'overtime_multiplier' => 1.5, 'salary_basis' => null, 'pay_rate' => 30, 'bill_rate' => 95];

@@ -1686,4 +1686,47 @@ if (! $hadIntegrations) {
        . (int) val("SELECT COUNT(*) FROM docusign_connect_events WHERE status='pending'") . ' Connect event(s) pending; every provider stays off until configured.' . PHP_EOL;
 }
 
+// ── P4-M05: payroll and applicant-tracking connectors, sandbox first ─────
+// Reversed by install/rollback/p4-m05.sql.
+$connectorsSql = __DIR__ . '/connectors.sql';
+
+if (! is_file($connectorsSql)) {
+    fwrite(STDERR, "Missing install/connectors.sql\n");
+    exit(1);
+}
+
+$hadConnectors = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='connector_modes'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($connectorsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// The audit trail now covers ADP and applicant tracking too.
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns
+                                 WHERE table_schema=DATABASE() AND table_name='integration_events' AND column_name='provider'"), "'ats'")) {
+    q("ALTER TABLE integration_events MODIFY provider ENUM('gmail','docusign','stripe','adp','ats') NOT NULL");
+}
+
+if (! $hadConnectors) {
+    // What already worked keeps working: an ADP setup already filled in, and
+    // each partner channel already enabled, are recorded live. Anything new
+    // starts in sandbox.
+    $adpLive = trim((string) val("SELECT setting_value FROM platform_settings WHERE setting_key = 'adp_company_code'")) !== '';
+    q("INSERT IGNORE INTO connector_modes (connector, kind, mode, note) VALUES ('adp_run', 'payroll', ?, ?)",
+      [$adpLive ? 'live' : 'sandbox', $adpLive ? 'ADP codes were set up before sandbox gating (P4-M05)' : 'Starts in sandbox: ADP files are marked TEST until a test import is accepted']);
+    $channels = 0;
+    foreach (($config['recruiting_webhooks'] ?? []) as $channel => $entry) {
+        if (is_string($channel) && preg_match('/^[a-z0-9_-]{1,60}$/', $channel) && ! empty($entry['enabled'])) {
+            q("INSERT IGNORE INTO connector_modes (connector, kind, mode, note) VALUES (?, 'ats', 'live', 'Enabled before sandbox gating (P4-M05)')", ['ats:' . $channel]);
+            $channels++;
+        }
+    }
+    echo 'Connectors: ADP ' . ($adpLive ? 'live (its codes were set up)' : 'in sandbox (files marked TEST until ADP accepts one)') . ', ' . $channels
+       . ' applicant-tracking channel(s) live as before; new channels start in sandbox; no background-screening provider is connected.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

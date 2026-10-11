@@ -93,7 +93,7 @@ q("INSERT INTO time_off_requests(placement_id,user_id,starts_on,ends_on,request_
 $sheet = static function (int $placement, string $week, array $g) use ($admin): int {
     q("INSERT INTO timesheets(placement_id,week_ending,hours_worked,status,approved_by,approved_at) VALUES (?,?,40,'approved',?,NOW())", [$placement, $week, $admin]);
     $id = (int) db()->lastInsertId();
-    q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)', [$id, json_encode(['labour_cost' => $g['gross_wages'], 'gross_to_net' => $g])]);
+    q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)', [$id, json_encode(array_merge(['worked' => 0, 'paid_hours' => 0, 'pay_rate' => 0, 'pay_total' => 0, 'labour_cost' => 0, 'leave_pay' => 0, 'paid_leave_hours' => 0, 'per_diem' => 0, 'expenses' => 0, 'bill_rate' => 0, 'bill_total' => 0, 'margin' => 0, 'guarantee' => 0, 'short_by' => 0], ['labour_cost' => $g['gross_wages'], 'gross_to_net' => $g]))]);
     return $id;
 };
 $union = ['code' => 'P4UNION', 'label' => 'P4 union dues', 'pre_tax' => false];

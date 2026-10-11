@@ -8,8 +8,20 @@
 
 require_once __DIR__ . '/../integrations.php';
 require_once __DIR__ . '/../docusign.php';
+require_once __DIR__ . '/../connectors.php';
 
 require_role('admin');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'mode') {
+    $connector = (string) ($_POST['connector'] ?? '');
+    $why = connector_set_mode($connector, (string) ($_POST['mode'] ?? ''), (string) ($_POST['authorization'] ?? ''), (string) ($_POST['note'] ?? ''));
+    if ($why !== null) {
+        refuse(422, $why);
+    }
+    log_activity('changed a connector mode', 'integration', 0, $connector . ' ' . $_POST['mode']);
+    flash(t('Connector saved.'));
+    redirect('/integrations#connectors');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (($_POST['do'] ?? '') !== 'requeue') {
@@ -23,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('/integrations#connect');
 }
 
-$provider = in_array($_GET['provider'] ?? '', ['gmail', 'docusign', 'stripe'], true) ? (string) $_GET['provider'] : '';
+$provider = in_array($_GET['provider'] ?? '', ['gmail', 'docusign', 'stripe', 'adp', 'ats'], true) ? (string) $_GET['provider'] : '';
 $outcome = in_array($_GET['outcome'] ?? '', ['ok', 'duplicate', 'ignored', 'retry', 'failed', 'refused'], true) ? (string) $_GET['outcome'] : '';
 $where = [];
 $args = [];
@@ -37,4 +49,5 @@ $connect = rows("SELECT payload_hash, envelope_id, status, attempts, next_attemp
                  WHERE status IN ('pending','failed') OR processed_at > DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY FIELD(status, 'failed', 'pending', 'processed'), created_at DESC LIMIT 100");
 $stripe = rows('SELECT event_id, event_type, processed_at FROM saas_webhook_events ORDER BY processed_at DESC LIMIT 20');
 
-render('integrations', compact('provider', 'outcome', 'events', 'status', 'gmail', 'reconnect', 'connect', 'stripe'));
+$connectors = connector_list();
+render('integrations', compact('provider', 'outcome', 'events', 'status', 'gmail', 'reconnect', 'connect', 'stripe', 'connectors'));

@@ -120,7 +120,7 @@ $run = (int) db()->lastInsertId();
 $sheet = static function (int $pid, array $snap) use ($admin): int {
     q("INSERT INTO timesheets(placement_id,week_ending,hours_worked,status,approved_by,approved_at) VALUES (?,'2024-05-11',40,'approved',?,NOW())", [$pid, $admin]);
     $id = (int) db()->lastInsertId();
-    q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)', [$id, json_encode($snap)]);
+    q('INSERT INTO pay_snapshots(timesheet_id,result_json) VALUES (?,?)', [$id, json_encode(array_merge(['worked' => 0, 'paid_hours' => 0, 'pay_rate' => 0, 'pay_total' => 0, 'labour_cost' => 0, 'leave_pay' => 0, 'paid_leave_hours' => 0, 'per_diem' => 0, 'expenses' => 0, 'bill_rate' => 0, 'bill_total' => 0, 'margin' => 0, 'guarantee' => 0, 'short_by' => 0], $snap))]);
     return $id;
 };
 $t1 = $sheet($p1, ['labour_cost' => 1425, 'per_diem' => 150, 'expenses' => 20,
