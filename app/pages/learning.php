@@ -13,7 +13,9 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  if($do==='complete') { q('UPDATE learning_assignments SET completed_at=NOW() WHERE content_id=? AND user_id=? AND completed_at IS NULL',[(int)($_POST['content_id'] ?? 0),uid()]); log_activity('completed learning','content',(int)($_POST['content_id'] ?? 0)); }
  if($do==='incident') {
   $incidentJob=(int)($_POST['job_id'] ?? $jobId);
-  $allowed=$isWorker?row('SELECT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=? AND p.job_id=?',[uid(),$incidentJob]):row('SELECT id FROM jobs WHERE id=?',[$incidentJob]);
+  // P4-M06: a supervisor reports on a project they supervise a crew on; a worker on their own project.
+  $allowed=$isWorker?row('SELECT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=? AND p.job_id=?',[uid(),$incidentJob])
+   :((user()['role']??'')==='supervisor'?row('SELECT p.id FROM placements p JOIN assignment_details d ON d.placement_id=p.id WHERE d.supervisor_id=? AND p.job_id=? LIMIT 1',[uid(),$incidentJob]):row('SELECT id FROM jobs WHERE id=?',[$incidentJob]));
   $severity=$_POST['severity'] ?? 'low';$desc=trim((string)($_POST['description'] ?? ''));
   if($allowed && $desc && in_array($severity,['low','medium','high'],true)) q('INSERT INTO safety_incidents(job_id,reported_by,description,severity) VALUES (?,?,?,?)',[$incidentJob,uid(),$desc,$severity]);
  }

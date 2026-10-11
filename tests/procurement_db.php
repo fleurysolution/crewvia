@@ -72,6 +72,10 @@ $hire = static function (string $name): int {
 $h1 = $hire('Procurement hire');
 $h2 = $hire('Procurement second hire');
 
+// The supervisor supervises a crew member here (P4-M06: procurement is open to a project's crew supervisors).
+q('INSERT INTO candidates(full_name,email) VALUES (?,?)', ['Procurement crew member', 'procurement-crew@test.invalid']);
+q("INSERT INTO placements(candidate_id,job_id,status,start_date,pay_rate,bill_rate) VALUES (?,?,'on_site',CURDATE(),20,35)", [(int) db()->lastInsertId(), $job]);
+q('INSERT INTO assignment_details(placement_id,trade,supervisor_id) VALUES (?,?,?)', [(int) db()->lastInsertId(), 'Supervised crew', $super]);
 file_put_contents(__DIR__ . '/proc.json', json_encode(['job' => $job, 'hotel' => $hotel, 'super' => $super, 'hire1' => $h1, 'hire2' => $h2,
     'from' => date('Y-m-d', strtotime('+7 days')), 'to' => date('Y-m-d', strtotime('+11 days'))]));
 file_put_contents(__DIR__ . '/proc-db-results.json', json_encode($results, JSON_PRETTY_PRINT));

@@ -28,7 +28,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
      if($start&&$end&&$end<$start)throw new InvalidArgumentException('Invalid assignment date interval.');
      $pay=import_amount_value($item['pay_rate']);$bill=import_amount_value($item['bill_rate']);$diem=import_amount_value($item['per_diem_rate']);$salary=import_amount_value($item['salary_per_period']);
      $employment=$item['employment_type']?:'hourly';$payment=$item['payment_method']?:'direct_deposit';
-     if(!in_array($employment,['hourly','salaried','contractor','external'],true)||!in_array($payment,['direct_deposit','check','cash'],true)||mb_strlen($item['adp_employee_id'])>120||mb_strlen($item['shift'])>120)throw new InvalidArgumentException('Invalid imported employee setup.');
+     if(!in_array($employment,['hourly','salaried','contractor','external'],true)||!in_array($payment,['direct_deposit','check','cash'],true)||($item['adp_employee_id']!==''&&!preg_match('/^[A-Za-z0-9_-]{1,40}$/D',$item['adp_employee_id']))||mb_strlen($item['shift'])>120)throw new InvalidArgumentException('Invalid imported employee setup.');
     }catch(InvalidArgumentException $e){q('INSERT INTO import_records(batch_id,row_number,encrypted_source,status,note) VALUES (?,?,?,?,?)',[$batch,$i+2,token_encrypt(['headers'=>$input['headers'],'values'=>$source]),'invalid',$e->getMessage()]);continue;}
 
     if($name && strlen($name)<=190 && strlen($item['email'])<=190 && strlen($item['phone'])<=40 && strlen($item['city'])<=120 && strlen($item['state'])<=40 && strlen($item['employee_number'])<=120) {

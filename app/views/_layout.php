@@ -576,8 +576,23 @@ tbody tr:hover{background:#F8FAFD}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 </style>
 <link rel="stylesheet" href="/assets/fleury-brand.css?v=20261008">
+<style>
+/* P4-M06 accessibility: a way past the menu, focus that can be seen, and
+   text that reaches 4.5:1 (borders of fields 3:1) against its background. */
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:1000;background:#fff;color:#0d2137;padding:8px 14px;border:2px solid #0d2137;border-radius:8px;font-weight:600}
+.skip-link:focus{left:8px}
+a:focus-visible,button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #1d4f8c;outline-offset:2px}
+.top .nav .nav-group>summary{color:#c3cfdc}
+.top .nav .nav-group>summary:hover{color:var(--navy)}
+.top .nav .nav-group>summary:focus-visible{outline-color:#fff}
+.tag.amber{color:#8a5600}
+.tag.grey{color:#4f5b6b}
+.trade-split .short{color:#8a5600}
+input,select,textarea{border-color:#8a96a6}
+</style>
 </head>
 <body>
+<a class="skip-link" href="#main"><?= te('Skip to the content') ?></a>
 
 <header class="top">
   <div><div class="brand"><?= e($appName) ?></div><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
@@ -626,18 +641,18 @@ tbody tr:hover{background:#F8FAFD}
       <?= csrf_field() ?>
       <input type="hidden" name="back" value="<?= e($_SERVER['REQUEST_URI'] ?? $here) ?>">
       <label class="sr-only" for="lang-pick"><?= te('Language') ?></label>
-      <select id="lang-pick" name="locale" onchange="this.form.submit()" aria-label="<?= te('Language') ?>">
+      <select id="lang-pick" name="locale">
         <?php foreach (WORKFORCE_LOCALES as $code => $name): ?>
           <option value="<?= e($code) ?>" <?= locale() === $code ? 'selected' : '' ?>><?= e($name) ?></option>
         <?php endforeach; ?>
       </select>
-      <noscript><button class="btn ghost sm"><?= te('Show') ?></button></noscript>
+      <button class="btn ghost sm"><?= te('Change') ?></button>
     </form>
     <?php if($u): ?><a href="/account"><?= te('Account') ?></a><form method="post" action="/logout"><?= csrf_field() ?><button class="btn sm"><?= te('Sign out') ?></button></form><?php else: ?><a href="/login"><?= te('Sign in') ?></a><?php endif; ?>
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="main" tabindex="-1">
 <?php
 $working = $u ? current_job() : null;
 $unread  = $u ? (int) val('SELECT COUNT(*) FROM notifications
@@ -650,18 +665,19 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
       <form method="post" action="/select-project" class="workbar-project">
         <?= csrf_field() ?>
         <label for="working-project"><?= te('Working project') ?></label>
-        <select id="working-project" name="job_id" required onchange="this.form.requestSubmit()">
+        <select id="working-project" name="job_id" required>
           <?php if (! $working): ?>
             <option value=""><?= te('Select project') ?></option>
           <?php endif; ?>
-          <?php foreach (rows('SELECT id,title,status FROM jobs ORDER BY id DESC') as $choice): ?>
+          <?php $supervisedJobs = ($u['role'] ?? '') === 'supervisor' ? supervised_job_ids((int) $u['id']) : null; ?>
+          <?php foreach (rows('SELECT id,title,status FROM jobs' . ($supervisedJobs !== null ? ' WHERE id IN (' . ($supervisedJobs ? implode(',', $supervisedJobs) : '0') . ')' : '') . ' ORDER BY id DESC') as $choice): ?>
             <option value="<?= (int) $choice['id'] ?>"
               <?= (int) ($working['id'] ?? 0) === (int) $choice['id'] ? 'selected' : '' ?>>
               <?= e($choice['title']) ?> &middot; <?= te(ucfirst((string) $choice['status'])) ?>
             </option>
           <?php endforeach; ?>
         </select>
-        <noscript><button class="btn sm"><?= te('Open project') ?></button></noscript>
+        <button class="btn sm"><?= te('Open project') ?></button>
       </form>
     <?php endif; ?>
     <?php if ($unread): ?>
@@ -673,7 +689,7 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
 <?php endif; ?>
 
   <?php if ($f): ?>
-    <div class="flash <?= $f['kind'] === 'err' ? 'err' : 'ok' ?>"><?= e($f['msg']) ?></div>
+    <div class="flash <?= $f['kind'] === 'err' ? 'err' : 'ok' ?>" role="<?= $f['kind'] === 'err' ? 'alert' : 'status' ?>"><?= e($f['msg']) ?></div>
   <?php endif; ?>
   <?php require $viewPath; ?>
 </main>

@@ -45,14 +45,30 @@ ini_set('log_errors', '1');
 
 // ── Session ──────────────────────────────────────────────────────────────
 if (session_status() === PHP_SESSION_NONE) {
+    // P4-M06: an id the server did not issue is never adopted, and behind a
+    // proxy that ends TLS the request still counts as HTTPS for the cookie
+    // (a forged header can only make the cookie stricter).
+    ini_set('session.use_strict_mode', '1');
     session_set_cookie_params([
         'httponly' => true,
         'samesite' => 'Lax',
         'secure'   => (($_SERVER['HTTPS'] ?? '') === 'on')
+                      || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
                       || !empty($config['secure_cookies']),
     ]);
     session_name(workforce_session_name($config));
     session_start();
+
+    // P4-M06: a session belongs to the workspace that started it. Tenants
+    // share PHP's session store, so an id carried to another workspace,
+    // under that workspace's cookie name, would otherwise be read there as
+    // the user with the same number. It is emptied and given a new id.
+    $sessionTenant = (string) ($config['tenant_id'] ?? '');
+    if ($_SESSION && ($_SESSION['_workspace'] ?? null) !== $sessionTenant) {
+        $_SESSION = [];
+        session_regenerate_id(true);
+    }
+    $_SESSION['_workspace'] = $sessionTenant;
 }
 
 // ── Idle sessions ────────────────────────────────────────────────────────
@@ -63,10 +79,17 @@ if (session_status() === PHP_SESSION_NONE) {
 // is carried to the sign-in screen.
 $idleMinutes = (int) ($config['idle_timeout_minutes'] ?? 30);
 
+// P4-M06: and however busy, a sign-in lasts at most a working day (12
+// hours by default): a session kept alive by the notification poller, or
+// taken, does not last for ever.
+$absoluteHours = (int) ($config['session_absolute_hours'] ?? 12);
+
 if ($idleMinutes > 0 && ! empty($_SESSION['user'])) {
     $seen = (int) ($_SESSION['last_seen'] ?? 0);
+    $since = (int) ($_SESSION['authenticated_at'] ?? 0);
+    $tooOld = $absoluteHours > 0 && $since > 0 && time() - $since > $absoluteHours * 3600;
 
-    if ($seen > 0 && time() - $seen > $idleMinutes * 60) {
+    if (($seen > 0 && time() - $seen > $idleMinutes * 60) || $tooOld) {
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {
@@ -76,7 +99,7 @@ if ($idleMinutes > 0 && ! empty($_SESSION['user'])) {
         }
 
         session_regenerate_id(true);
-        $_SESSION['flash'] = ['msg' => 'You were signed out after a while without activity.',
+        $_SESSION['flash'] = ['msg' => $tooOld ? 'Your sign-in reached its time limit. Sign in again.' : 'You were signed out after a while without activity.',
                               'kind' => 'err'];
 
         header('Location: /login');
@@ -333,12 +356,18 @@ function render(string $view, array $data = []): void
 
 function log_activity(string $action, string $entity = '', int $entityId = 0, string $detail = ''): void
 {
+    // P4-M06: with the address the request came from. Until the upgrade has
+    // added that column, the entry is kept without it rather than lost.
+    $args = [uid() ?: null, $action, $entity ?: null, $entityId ?: null, mb_substr($detail, 0, 500)];
     try {
-        q('INSERT INTO activity (user_id, action, entity, entity_id, detail)
-           VALUES (?,?,?,?,?)',
-          [uid() ?: null, $action, $entity ?: null, $entityId ?: null, mb_substr($detail, 0, 500)]);
+        q('INSERT INTO activity (user_id, action, entity, entity_id, detail, ip) VALUES (?,?,?,?,?,?)',
+          [...$args, mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45) ?: null]);
     } catch (Throwable $e) {
-        error_log('[rss-ops] activity: ' . $e->getMessage());
+        try {
+            q('INSERT INTO activity (user_id, action, entity, entity_id, detail) VALUES (?,?,?,?,?)', $args);
+        } catch (Throwable $e2) {
+            error_log('[rss-ops] activity: ' . $e2->getMessage());
+        }
     }
 }
 
@@ -685,7 +714,9 @@ function current_job(): ?array {
     // project that is running, or failing that the newest being set up.
     if (! $id && $live && user()
         && ! in_array(user()['role'] ?? '', ['worker', 'client'], true)) {
-        $id = (int) val("SELECT id FROM jobs
+        // A supervisor opens one of their own projects (P4-M06).
+        $own = (user()['role'] ?? '') === 'supervisor' ? supervised_job_ids(uid()) : null;
+        $id = (int) val("SELECT id FROM jobs" . ($own !== null ? ' WHERE id IN (' . ($own ? implode(',', $own) : '0') . ')' : '') . "
                          ORDER BY FIELD(status,'active','planning','closed'), id DESC
                          LIMIT 1");
 
@@ -693,6 +724,11 @@ function current_job(): ?array {
     }
 
     return $id ? row('SELECT j.*, c.name AS client_name, pp.weekly_overtime_after,pp.overtime_multiplier FROM jobs j LEFT JOIN clients c ON c.id=j.client_id LEFT JOIN project_pay_policies pp ON pp.job_id=j.id WHERE j.id=?', [$id]) : null;
+}
+/** P4-M06: the projects a supervisor works on: a crew they supervise there, or its budget. */
+function supervised_job_ids(int $userId): array {
+    return array_map('intval', array_column(rows('SELECT DISTINCT p.job_id AS id FROM placements p JOIN assignment_details d ON d.placement_id = p.id WHERE d.supervisor_id = ?
+                                                  UNION SELECT id FROM jobs WHERE budget_owner_id = ?', [$userId, $userId]), 'id'));
 }
 function valid_date(string $date): bool {
     $d = DateTimeImmutable::createFromFormat('!Y-m-d', $date);

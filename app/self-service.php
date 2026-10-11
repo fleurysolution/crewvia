@@ -60,7 +60,7 @@ function self_service_notify(string $role, string $message): void
        SELECT id, ?, '/change-requests' FROM users WHERE is_active = 1 AND role IN (?, 'admin')", [$message, $role]);
 }
 
-function self_bank_submit(int $candidateId, array $in, int $userId): ?string
+function self_bank_submit(int $candidateId, array $in, int $userId, bool $byStaff = false): ?string
 {
     $account = preg_replace('/\s+/', '', (string) ($in['account_number'] ?? ''));
     $routing = preg_replace('/\s+/', '', (string) ($in['routing_number'] ?? ''));
@@ -76,13 +76,16 @@ function self_bank_submit(int $candidateId, array $in, int $userId): ?string
     }
 
     if (val("SELECT COUNT(*) FROM worker_bank_change_requests WHERE candidate_id = ? AND status = 'pending'", [$candidateId])) {
-        return t('Your last bank details are still being checked. Wait for payroll before sending new ones.');
+        return $byStaff ? t('Bank details for this person are already waiting to be checked on Change requests.') : t('Your last bank details are still being checked. Wait for payroll before sending new ones.');
     }
 
     q('INSERT INTO worker_bank_change_requests (candidate_id, encrypted_details, last_four, bank_label, submitted_by) VALUES (?,?,?,?,?)',
       [$candidateId, token_encrypt(['account_number' => $account, 'routing_number' => $routing, 'bank_name' => $bank, 'account_holder' => $holder]),
        substr($account, -4), $bank, $userId]);
-    q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)', [$candidateId, $userId, 'proposed by the worker']);
+    q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)', [$candidateId, $userId, $byStaff ? 'proposed by payroll' : 'proposed by the worker']);
+    if (! $byStaff) {
+        log_activity('proposed own bank details', 'candidate', $candidateId, 'ending ' . substr($account, -4));
+    }
     self_service_notify('payroll', 'Bank details waiting to be checked');
 
     return null;

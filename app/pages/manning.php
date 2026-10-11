@@ -48,7 +48,7 @@ $roomCount=(int)val("SELECT COUNT(*) FROM lodging l JOIN placements p ON p.id=l.
 $flights=(int)val("SELECT COUNT(*) FROM travel t JOIN placements p ON p.id=t.placement_id WHERE p.job_id=? AND t.mode='flight' AND t.status IN ('booked','completed')",[$jobId]);
 $onSite=(int)val("SELECT COUNT(*) FROM placements WHERE job_id=? AND status='on_site'",[$jobId]);
 if(isset($_GET['export'])) {
- header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="manning.csv"');$out=fopen('php://output','w');
+ log_activity('exported the crew list','job',(int)(current_job()['id'] ?? 0));header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="manning.csv"');$out=fopen('php://output','w');
  fputcsv($out,['Employee','Job','Trade','Status','Location','State','Supervisor','Shift','Hotel','Room','In','Out','Hired','Released']);
  foreach($crew as $c) {
   $line=[];foreach(['full_name','job_title','trade','status','site_city','site_state','supervisor','shift_label','hotel','room_number','hotel_in','hotel_out','start_date','end_date'] as $key) { $value=(string)($c[$key] ?? '');$line[]=preg_match('/^[=+@\-\t\r]/',$value)?"'".$value:$value; }fputcsv($out,$line);

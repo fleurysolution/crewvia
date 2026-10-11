@@ -180,7 +180,7 @@ $days = static fn (array $r): int =>
                     <?= csrf_field() ?>
                     <input type="hidden" name="do" value="review">
                     <input type="hidden" name="request_id" value="<?= (int) $r['id'] ?>">
-                    <select name="status" class="move-select">
+                    <select name="status" class="move-select" aria-label="<?= te('Decision') ?>">
                       <option value="approved"><?= te('Approve') ?></option>
                       <option value="rejected"><?= te('Refuse') ?></option>
                     </select>

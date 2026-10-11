@@ -312,7 +312,8 @@ function separation_record(int $placementId, array $in): array
     q('INSERT IGNORE INTO employee_profiles (candidate_id) VALUES (?)', [(int) $p['candidate_id']]);
     if ($rehire === 'ineligible') {
         q("UPDATE employee_profiles SET rehire_status = 'ineligible', exclusion_reason = ?, excluded_by = ?, excluded_at = NOW() WHERE candidate_id = ?",
-          [mb_substr(separation_reasons()[$reason] . ' on ' . $on . ' - ' . $detail, 0, 1000), uid() ?: null, (int) $p['candidate_id']]);
+          // P4-M06: the register every recruiter reads carries the reason and the date only; what happened stays in the HR record.
+          [mb_substr(separation_reasons()[$reason] . ' on ' . $on . ' - the account is in the HR record', 0, 1000), uid() ?: null, (int) $p['candidate_id']]);
     } elseif ($rehire === 'review') {
         q("UPDATE employee_profiles SET rehire_status = 'review' WHERE candidate_id = ? AND rehire_status NOT IN ('ineligible','do_not_use')", [(int) $p['candidate_id']]);
     }

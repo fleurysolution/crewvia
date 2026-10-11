@@ -27,6 +27,14 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
         $_SESSION['auth_version']=(int)val('SELECT session_version FROM account_security WHERE user_id=?',[uid()]);
         log_activity('disabled authenticator');flash(t('Two-step verification disabled.'));
     }
+    // P4-M06: an administrator decides whether administrators and payroll must use two-step verification.
+    if($action==='require_two_step') {
+        require_role('admin');$on=($_POST['required']??'')==='1';
+        if($on&&!($state['encrypted_totp']??null)){flash(t('Turn on two-step verification for your own account first, or you would lock yourself out.'),'err');redirect('/account-security');}
+        q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('require_two_step_privileged',?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)",[$on?'1':'0']);
+        log_activity($on?'required two-step verification for administrators and payroll':'stopped requiring two-step verification','setting',0);
+        flash($on?t('Administrators and payroll now need two-step verification to work.'):t('Two-step verification is no longer required.'));
+    }
     if($action==='revoke') {
         q('INSERT INTO account_security(user_id,session_version) VALUES (?,1) ON DUPLICATE KEY UPDATE session_version=session_version+1',[uid()]);
         $_SESSION['auth_version']=(int)val('SELECT session_version FROM account_security WHERE user_id=?',[uid()]);
@@ -39,4 +47,5 @@ if($setup&&time()-$setup['started']>=600){unset($_SESSION['totp_setup']);$setup=
 $enabled=!empty($state['encrypted_totp']);
 $encryptionReady=strlen((string)base64_decode($config['encryption_key']??'',true))===32;
 $recoveryCodes=$_SESSION['mfa_recovery_codes']??[];unset($_SESSION['mfa_recovery_codes']);
-render('account-security',compact('enabled','setup','encryptionReady','recoveryCodes'));
+$twoStepRequired=(string)val("SELECT setting_value FROM platform_settings WHERE setting_key='require_two_step_privileged'")==='1';
+render('account-security',compact('enabled','setup','encryptionReady','recoveryCodes','twoStepRequired'));

@@ -73,6 +73,8 @@ function workspace_nav(?array $u): array
         ['/client-invoices',    'Client invoices',                    'payroll'],
         ['/imports',            'Import spreadsheets',                'admin'],
         ['/settings',           'Settings',                           'admin'],
+        ['/audit-log',          'Audit log',                          'admin'],
+        ['/privacy-requests',   'Privacy',                            'admin'],
         ['/agency-setup',       'Agency configuration',               'admin'],
         ['/subscription',       'Subscription & workspace',           'admin'],
         ['/recruitment',        'Application screening',              'recruiter'],
@@ -191,7 +193,7 @@ function workspace_sections(): array
         'Clients' => ['/client-orders', '/client-access', '/client-portal'],
         'Administration' => ['/people', '/hr-records', '/leave-types', '/pay-grades', '/appraisal-templates', '/organization', '/job', '/employees', '/personnel',
                              '/offboarding', '/imports', '/settings', '/agency-setup',
-                             '/email-delivery', '/integrations', '/subscription', '/approval-chains'],
+                             '/email-delivery', '/integrations', '/audit-log', '/privacy-requests', '/subscription', '/approval-chains'],
     ];
 }
 

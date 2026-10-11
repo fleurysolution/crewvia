@@ -2482,3 +2482,65 @@ Different	Différent	Diferente
 In ADP only	Dans ADP seulement	Solo en ADP
 In Crewvia only	Dans Crewvia seulement	Solo en Crewvia
 ADP RUN import file	Fichier d'import ADP RUN	Archivo de importación de ADP RUN
+(details for payroll only)	(détails réservés à la paie)	(detalles solo para nómina)
+:n people in Crewvia have no consent recorded: entered by hand, imported, or received before consent was recorded.	:n personnes dans Crewvia n'ont aucun consentement enregistré : saisies à la main, importées, ou reçues avant l'enregistrement du consentement.	:n personas en Crewvia no tienen consentimiento registrado: ingresadas a mano, importadas o recibidas antes de que se registrara el consentimiento.
+A person asks to be removed	Une personne demande à être effacée	Una persona pide ser eliminada
+A person asks what is held about them	Une personne demande ce qui est conservé à son sujet	Una persona pregunta qué se guarda sobre ella
+A privacy notice is 200 to 60,000 characters: who the agency is, what it keeps, why, for how long, and how to ask for it.	Un avis de confidentialité fait de 200 à 60 000 caractères : qui est l'agence, ce qu'elle conserve, pourquoi, combien de temps, et comment le demander.	Un aviso de privacidad tiene de 200 a 60.000 caracteres: quién es la agencia, qué guarda, por qué, durante cuánto tiempo y cómo solicitarlo.
+Action contains	L'action contient	La acción contiene
+Administrators and payroll must have two-step verification on to work. Until they set it up, only this page opens for them.	Les administrateurs et la paie doivent avoir activé la vérification en deux étapes pour travailler. Tant qu'ils ne l'ont pas configurée, seule cette page s'ouvre pour eux.	Los administradores y nómina deben tener activada la verificación en dos pasos para trabajar. Hasta que la configuren, solo se abre esta página para ellos.
+Administrators and payroll now need two-step verification to work.	Les administrateurs et la paie ont désormais besoin de la vérification en deux étapes pour travailler.	Los administradores y nómina ahora necesitan la verificación en dos pasos para trabajar.
+An ADP employee ID is letters, digits, dashes or underscores, at most 40.	Un identifiant employé ADP se compose de lettres, chiffres, tirets ou tirets bas, 40 au plus.	Un ID de empleado de ADP tiene letras, dígitos, guiones o guiones bajos, 40 como máximo.
+Any record	Tout enregistrement	Cualquier registro
+Audit log	Journal d'audit	Registro de auditoría
+Bank details for this person are already waiting to be checked on Change requests.	Des coordonnées bancaires de cette personne attendent déjà d'être vérifiées dans Demandes de modification.	Ya hay datos bancarios de esta persona esperando verificación en Solicitudes de cambio.
+Bank details recorded for :name. Another person checks them on Change requests before they are used.	Coordonnées bancaires enregistrées pour :name. Une autre personne les vérifie dans Demandes de modification avant leur utilisation.	Datos bancarios registrados para :name. Otra persona los verifica en Solicitudes de cambio antes de usarlos.
+Consents	Consentements	Consentimientos
+Consents recorded	Consentements enregistrés	Consentimientos registrados
+Download the file	Télécharger le fichier	Descargar el archivo
+Every action recorded, with who did it, on what, and from which address. Nobody can change or delete an entry, here or in the database.	Chaque action enregistrée, avec qui l'a faite, sur quoi, et depuis quelle adresse. Personne ne peut modifier ni supprimer une entrée, ici ou dans la base de données.	Cada acción registrada, con quién la hizo, sobre qué y desde qué dirección. Nadie puede cambiar ni borrar una entrada, aquí ni en la base de datos.
+Expenses for :name	Dépenses de :name	Gastos de :name
+Hours worked by :name	Heures travaillées par :name	Horas trabajadas por :name
+Newer	Plus récentes	Más recientes
+No notice published yet: the public forms say so.	Aucun avis publié pour l'instant : les formulaires publics l'indiquent.	Aún no se ha publicado ningún aviso: los formularios públicos lo indican.
+No person with that email or number.	Aucune personne avec ce courriel ou ce numéro.	Ninguna persona con ese correo o número.
+Not required: each person decides. Requiring it protects pay, bank details and the accounts that can change everything.	Non exigée : chacun décide. L'exiger protège la paie, les coordonnées bancaires et les comptes qui peuvent tout modifier.	No requerida: cada persona decide. Exigirla protege la nómina, los datos bancarios y las cuentas que pueden cambiarlo todo.
+Nothing recorded for these filters.	Rien d'enregistré pour ces filtres.	Nada registrado para estos filtros.
+Notice version	Version de l'avis	Versión del aviso
+Older	Plus anciennes	Más antiguas
+One file of everything held about them. Bank details and identity documents are listed, not decrypted; send those through the usual pages if they are asked for.	Un fichier de tout ce qui est conservé à son sujet. Les coordonnées bancaires et pièces d'identité sont listées, non déchiffrées ; transmettez-les par les pages habituelles si elles sont demandées.	Un archivo con todo lo que se guarda sobre la persona. Los datos bancarios y documentos de identidad se listan, no se descifran; envíelos por las páginas habituales si se piden.
+Only an applicant never placed is removed: name, contact details, notes and résumé go. Anyone placed keeps their record, because pay, tax and employment records must be kept.	Seul un candidat jamais placé est effacé : nom, coordonnées, notes et CV disparaissent. Toute personne placée garde son dossier, car les registres de paie, fiscaux et d'emploi doivent être conservés.	Solo se elimina a un candidato nunca colocado: nombre, contacto, notas y currículum desaparecen. Quien fue colocado conserva su expediente, porque los registros de nómina, impuestos y empleo deben conservarse.
+Per diem days for :name	Jours d'indemnité de :name	Días de viáticos de :name
+Privacy	Confidentialité	Privacidad
+Privacy notice	Avis de confidentialité	Aviso de privacidad
+Privacy notice published. Consents from now on refer to this version.	Avis de confidentialité publié. Les consentements renvoient désormais à cette version.	Aviso de privacidad publicado. Los consentimientos se refieren desde ahora a esta versión.
+Procurement is open to the supervisors of this project's crews.	Les achats sont ouverts aux superviseurs des équipes de ce projet.	Las compras están abiertas a los supervisores de las cuadrillas de este proyecto.
+Publish this version	Publier cette version	Publicar esta versión
+Published	Publié	Publicado
+Read the privacy notice	Lire l'avis de confidentialité	Leer el aviso de privacidad
+Remove the applicant	Effacer le candidat	Eliminar al candidato
+Require it	L'exiger	Exigirla
+Required for administrators and payroll	Exigée pour les administrateurs et la paie	Requerida para administradores y nómina
+Say why: for example, the person asked to be removed on a date.	Dites pourquoi : par exemple, la personne a demandé à être effacée à une date.	Diga por qué: por ejemplo, la persona pidió ser eliminada en una fecha.
+See it as the public sees it	Le voir comme le public	Verlo como lo ve el público
+Skip to the content	Aller au contenu	Ir al contenido
+Stop requiring it	Ne plus l'exiger	Dejar de exigirla
+Text of the notice	Texte de l'avis	Texto del aviso
+That is the notice already published.	C'est l'avis déjà publié.	Ese es el aviso ya publicado.
+The agency has not published its privacy notice here yet. Ask the agency how it uses and keeps your information before you apply.	L'agence n'a pas encore publié son avis de confidentialité ici. Demandez-lui comment elle utilise et conserve vos informations avant de postuler.	La agencia aún no ha publicado aquí su aviso de privacidad. Pregúntele cómo usa y guarda su información antes de postularse.
+The agency's privacy notice, the consents given to it, and the requests people make about their information. Every action here is logged.	L'avis de confidentialité de l'agence, les consentements donnés, et les demandes des personnes au sujet de leurs informations. Chaque action ici est journalisée.	El aviso de privacidad de la agencia, los consentimientos dados y las solicitudes de las personas sobre su información. Cada acción aquí queda registrada.
+The applicant was removed. Their record now holds no name, contact details or résumé.	Le candidat a été effacé. Son dossier ne contient plus ni nom, ni coordonnées, ni CV.	El candidato fue eliminado. Su expediente ya no tiene nombre, datos de contacto ni currículum.
+Their email, or their number	Son courriel, ou son numéro	Su correo o su número
+This person has a worker account: switch it off on Team first.	Cette personne a un compte travailleur : désactivez-le d'abord dans Équipe.	Esta persona tiene una cuenta de trabajador: desactívela primero en Equipo.
+This person was placed: their pay, tax and employment records must be kept. Correct their details instead.	Cette personne a été placée : ses registres de paie, fiscaux et d'emploi doivent être conservés. Corrigez plutôt ses informations.	Esta persona fue colocada: sus registros de nómina, impuestos y empleo deben conservarse. Corrija sus datos en su lugar.
+Turn on two-step verification for your own account first, or you would lock yourself out.	Activez d'abord la vérification en deux étapes sur votre propre compte, sinon vous vous bloqueriez.	Active primero la verificación en dos pasos en su propia cuenta, o se quedaría bloqueado.
+Two-step verification is no longer required.	La vérification en deux étapes n'est plus exigée.	La verificación en dos pasos ya no es obligatoria.
+Two-step verification is required for your role. Turn it on here to continue.	La vérification en deux étapes est exigée pour votre rôle. Activez-la ici pour continuer.	La verificación en dos pasos es obligatoria para su rol. Actívela aquí para continuar.
+Use at least 12 characters. Length beats cleverness.	Utilisez au moins 12 caractères. La longueur vaut mieux que l'astuce.	Use al menos 12 caracteres. La longitud vale más que el ingenio.
+Use at most 72 characters.	Utilisez au plus 72 caractères.	Use como máximo 72 caracteres.
+Version :n, published :d.	Version :n, publiée le :d.	Versión :n, publicada el :d.
+Versions	Versions	Versiones
+Why, and when they asked	Pourquoi, et quand la personne l'a demandé	Por qué, y cuándo lo pidió
+Write it with the agency's adviser: who the agency is, what it keeps about applicants and workers, why, for how long, who it shares it with, and how to ask for a copy or a correction. Crewvia shows it at /privacy and links it from every public form; it does not write it.	Rédigez-le avec le conseiller de l'agence : qui est l'agence, ce qu'elle conserve sur les candidats et les travailleurs, pourquoi, combien de temps, avec qui elle le partage, et comment en demander une copie ou une correction. Crewvia l'affiche sur /privacy et le relie depuis chaque formulaire public ; il ne le rédige pas.	Redáctelo con el asesor de la agencia: quién es la agencia, qué guarda de candidatos y trabajadores, por qué, durante cuánto tiempo, con quién lo comparte y cómo pedir una copia o una corrección. Crewvia lo muestra en /privacy y lo enlaza desde cada formulario público; no lo redacta.
+none published	aucun publié	ninguno publicado
+Choose a project you supervise a crew on.	Choisissez un projet où vous supervisez une équipe.	Elija un proyecto en el que supervise una cuadrilla.

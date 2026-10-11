@@ -53,8 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (row('SELECT user_id FROM worker_accounts WHERE user_id=?', [$uidT])) { flash(t('Worker identity cannot be converted to a staff account.'), 'err'); redirect('/people'); }
+        $before = (string) val('SELECT role FROM users WHERE id = ?', [$uidT]);
         q('UPDATE users SET role = ? WHERE id = ?', [$role, $uidT]);
-        log_activity('changed a desk', 'user', $uidT, $role);
+        log_activity('changed a desk', 'user', $uidT, $before . ' -> ' . $role);
         flash(t('Desk changed.'));
         redirect('/people');
     }
@@ -70,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $target=row('SELECT role,is_active FROM users WHERE id=?',[$uidT]);
         if ($target && $target['role']==='admin' && $target['is_active'] && !(int)val("SELECT COUNT(*) FROM users WHERE role='admin' AND is_active=1 AND id<>?",[$uidT])) { flash(t('Keep at least one active administrator.'),'err'); redirect('/people'); }
         q('UPDATE users SET is_active = 1 - is_active WHERE id = ?', [$uidT]);
+        log_activity((int) val('SELECT is_active FROM users WHERE id = ?', [$uidT]) ? 'switched an account on' : 'switched an account off', 'user', $uidT);
         flash(t('Account updated.'));
         redirect('/people');
     }

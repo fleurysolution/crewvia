@@ -54,7 +54,7 @@ def check(label, condition, detail=''):
 # Who may open what. Anything not listed for a role must not render for it.
 payroll_only = ['/ledger', '/statements', '/bill-matching', '/periods', '/balances', '/accounting', '/project-costs', '/hours', '/payroll-export', '/pay-rules', '/pay-items', '/payroll-runs', '/attendance-week', '/billing',
                 '/accounts-payable', '/client-invoices']
-admin_only = ['/integrations', '/pay-grades', '/appraisal-templates', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
+admin_only = ['/integrations', '/privacy-requests', '/audit-log', '/pay-grades', '/appraisal-templates', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
               '/agency-setup', '/client-access', '/subscription', '/email-delivery', '/job']
 roles = {
     'admin':      ('admin@test.invalid', []),
@@ -83,7 +83,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 for path, do in [('/attendance', 'correct'), ('/hours', 'approve_week'), ('/pay-rules', 'create'), ('/pay-items', 'create'),
                  ('/payroll-runs', 'open'), ('/leave-types', 'create'), ('/employee-folder', 'classification'),
-                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close'), ('/vendors', 'save'), ('/vendors', 'thresholds'), ('/procurement', 'rfq'), ('/procurement', 'revise'), ('/bill-matching', 'clear'), ('/performance', 'goal_add'), ('/performance', 'cycle_create'), ('/benefits', 'enroll'), ('/advances', 'pause'), ('/hr-records', 'case_open'), ('/hr-records', 'grant'), ('/hr-requests', 'create'), ('/ledger', 'draft'), ('/ledger', 'account_add'), ('/statements', 'budget'), ('/report-builder', 'save'), ('/report-builder', 'policy'), ('/report-builder', 'run_due'), ('/integrations', 'requeue'), ('/integrations', 'mode'), ('/payroll-export', 'confirm_import'), ('/payroll-export', 'reconcile')]:
+                 ('/procurement', 'request'), ('/accounts-payable', 'invoice'), ('/timeoff', 'review'), ('/assets', 'register'), ('/operations', 'issue'), ('/appraisals', 'open'), ('/appraisal-templates', 'save'), ('/project-costs', 'budget'), ('/accounting', 'export'), ('/accounting', 'reverse'), ('/balances', 'record'), ('/balances', 'credit'), ('/periods', 'close'), ('/vendors', 'save'), ('/vendors', 'thresholds'), ('/procurement', 'rfq'), ('/procurement', 'revise'), ('/bill-matching', 'clear'), ('/performance', 'goal_add'), ('/performance', 'cycle_create'), ('/benefits', 'enroll'), ('/advances', 'pause'), ('/hr-records', 'case_open'), ('/hr-records', 'grant'), ('/hr-requests', 'create'), ('/ledger', 'draft'), ('/ledger', 'account_add'), ('/statements', 'budget'), ('/report-builder', 'save'), ('/report-builder', 'policy'), ('/report-builder', 'run_due'), ('/integrations', 'requeue'), ('/integrations', 'mode'), ('/payroll-export', 'confirm_import'), ('/payroll-export', 'reconcile'), ('/privacy-requests', 'publish'), ('/privacy-requests', 'anonymise'), ('/account-security', 'require_two_step')]:
     status, _, _ = admin.post(path, {'do': do}, csrf=False)
     check('CSRF: %s %s without its token is refused' % (path, do), status == 419, status)
 

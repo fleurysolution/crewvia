@@ -129,6 +129,7 @@ check('Charlie\'s termination is recorded with its case, not to be rehired', sep
       and probe()['separations'][-1]['case_id'] == k2['id'] and probe()['separations'][-1]['voluntary'] == 0)
 reg = next(r for r in probe()['register'] if int(r['candidate_id']) == C['cid'])
 check('Charlie is on the do-not-rehire register, with the reason', reg['rehire_status'] == 'ineligible' and 'Terminated' in reg['exclusion_reason'])
+check("The register gives the reason and date, not the separation's detail (P4-M06)", 'see the case' not in reg['exclusion_reason'] and 'the account is in the HR record' in reg['exclusion_reason'])
 check('A recruiter without HR access does not see separations', 'id="separations"' not in rec2.get('/hr-records?candidate=%d' % C['cid'])[1])
 
 # ── revoking ─────────────────────────────────────────────────────────────

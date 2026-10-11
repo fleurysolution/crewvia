@@ -47,7 +47,7 @@ $clientEquipment=$project?rows('SELECT e.name,e.asset_tag,o.serial_number,c.full
 // Download the complete selected date range, not merely the screen's latest 300 rows.
 // No email, tax, pay rate or screening details.
 if(($_GET['export'] ?? '')==='attendance' && $project){
-    header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="client-attendance.csv"');
+    log_activity('exported attendance from the client portal','client',0);header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="client-attendance.csv"');
     $from=(string)($_GET['from'] ?? date('Y-m-01'));$to=(string)($_GET['to'] ?? date('Y-m-d'));
     if(!valid_date($from)||!valid_date($to)||$to<$from||strtotime($to)-strtotime($from)>366*86400){refuse(422, t('Choose a reporting period of no more than 366 days.'));}
     $attendance=rows("SELECT r.work_date,r.hours,c.full_name,v.decision FROM attendance_records r JOIN placements p ON p.id=r.placement_id JOIN candidates c ON c.id=p.candidate_id LEFT JOIN client_attendance_reviews v ON v.attendance_id=r.id WHERE p.job_id=? AND r.status='approved' AND r.work_date BETWEEN ? AND ? ORDER BY r.work_date,c.full_name",[$jobId,$from,$to]);

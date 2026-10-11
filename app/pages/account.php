@@ -15,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/account');
     }
 
-    if (strlen($new) < 10) {
-        flash(t('Use at least 10 characters. Length beats cleverness.'), 'err');
+    require_once __DIR__ . '/../security.php';
+    if (($why = security_password_refusal($new)) !== null) {
+        flash($why, 'err');
         redirect('/account');
     }
 

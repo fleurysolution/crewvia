@@ -21,6 +21,14 @@ if (! procurement_can_use()) {
 $job   = current_job();
 $jobId = (int) ($job['id'] ?? 0);
 
+// P4-M06: a supervisor sees the purchasing of a project they supervise a
+// crew on, or own the budget of; not of any project that happens to be live.
+if ((user()['role'] ?? '') === 'supervisor'
+    && ! val('SELECT COUNT(*) FROM placements p JOIN assignment_details d ON d.placement_id = p.id WHERE d.supervisor_id = ? AND p.job_id = ?', [uid(), $jobId])
+    && (int) val('SELECT budget_owner_id FROM jobs WHERE id = ?', [$jobId]) !== uid()) {
+    refuse(403, t('Procurement is open to the supervisors of this project\'s crews.'));
+}
+
 // A request for quotation or an order, on paper (P3-M07).
 if (isset($_GET['print'])) {
     $kind = (string) $_GET['print'];

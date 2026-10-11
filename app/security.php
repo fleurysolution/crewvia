@@ -67,3 +67,34 @@ function security_begin_login(array $account,string $to='/'): never
     }
     security_finish_login($account,$to);
 }
+
+
+/**
+ * P4-M06: one rule for every password chosen: at least 12 characters, and
+ * at most 72 bytes, the length bcrypt reads (anything past it would be
+ * silently ignored). Returns the refusal, or null.
+ */
+function security_password_refusal(string $password): ?string
+{
+    if (mb_strlen($password) < 12) {
+        return t('Use at least 12 characters. Length beats cleverness.');
+    }
+    if (strlen($password) > 72) {
+        return t('Use at most 72 characters.');
+    }
+
+    return null;
+}
+
+/**
+ * P4-M06: an event about an account before anyone is signed in (a failed
+ * sign-in, a recovery). Kept for the account it names; an unknown sender
+ * cannot fill the log, as only 120 are kept per address in 15 minutes.
+ */
+function security_log_attempt(string $action, int $userId, string $detail): void
+{
+    $sender = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+    if (security_rate_limit('auth-log', $sender, 120, 900)) {
+        log_activity($action, 'user', $userId, mb_substr($detail, 0, 400));
+    }
+}

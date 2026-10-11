@@ -408,6 +408,8 @@ function worker_bank_details(int $candidateId, string $why = 'viewed'): ?array
 
     q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)',
       [$candidateId, uid(), mb_substr($why, 0, 40)]);
+    // P4-M06: a full account number shown is in the main audit log too (never the number).
+    log_activity('revealed bank details', 'candidate', $candidateId, mb_substr($why, 0, 40));
 
     $row['details'] = $plain;
     $row['unreadable'] = false;

@@ -74,62 +74,13 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  // with somebody's account number.
  if($do==='bank') {
   require_role('payroll');
-
-  $account = preg_replace('/\s+/', '', (string) ($_POST['account_number'] ?? ''));
-  $routing = preg_replace('/\s+/', '', (string) ($_POST['routing_number'] ?? ''));
-  $bank    = trim((string) ($_POST['bank_name'] ?? ''));
-  $holder  = trim((string) ($_POST['account_holder'] ?? ''));
-
-  if (! preg_match('/^[0-9]{4,20}$/D', $account)) {
-   flash(t('An account number is 4 to 20 digits.'), 'err');
-   redirect('/employee-folder?id=' . $cid);
-  }
-
-  // Nine digits, and the ABA checksum. A transposed digit that still
-  // passes the length test is how money reaches the wrong bank.
-  if (! preg_match('/^[0-9]{9}$/D', $routing)) {
-   flash(t('A routing number is exactly 9 digits.'), 'err');
-   redirect('/employee-folder?id=' . $cid);
-  }
-
-  $d = array_map('intval', str_split($routing));
-  $sum = 3 * ($d[0] + $d[3] + $d[6]) + 7 * ($d[1] + $d[4] + $d[7]) + ($d[2] + $d[5] + $d[8]);
-
-  if ($sum % 10 !== 0) {
-   flash(t('That routing number fails its checksum. Check the digits against the cheque.'), 'err');
-   redirect('/employee-folder?id=' . $cid);
-  }
-
-  if ($bank === '' || mb_strlen($bank) > 90) {
-   flash(t('Name the bank.'), 'err');
-   redirect('/employee-folder?id=' . $cid);
-  }
-
-  q('INSERT INTO worker_bank_details
-      (candidate_id, encrypted_details, last_four, bank_label, status,
-       submitted_by, reviewed_by, reviewed_at)
-     VALUES (?,?,?,?,?,?,?,NOW())
-     ON DUPLICATE KEY UPDATE encrypted_details = VALUES(encrypted_details),
-                             last_four = VALUES(last_four),
-                             bank_label = VALUES(bank_label),
-                             status = VALUES(status),
-                             reviewed_by = VALUES(reviewed_by),
-                             reviewed_at = NOW()',
-    [$cid,
-     token_encrypt(['account_number' => $account, 'routing_number' => $routing,
-                    'bank_name' => $bank, 'account_holder' => $holder]),
-     substr($account, -4), $bank, 'verified', uid(), uid()]);
-
-  q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)',
-    [$cid, uid(), 'recorded']);
-
-  // The number itself never reaches the activity log.
-  log_activity('recorded bank details', 'candidate', $cid,
-               $c['full_name'] . ' - ' . $bank . ' ****' . substr($account, -4));
-
-  flash(t('Bank details saved for :name, ending :last.',
-          ['name' => $c['full_name'], 'last' => substr($account, -4)]));
-
+  // P4-M06: bank details payroll types are a proposal like the worker's own,
+  // checked on Change requests by someone else (payroll or an administrator):
+  // one person alone cannot send somebody's pay to another account.
+  require_once __DIR__ . '/../self-service.php';
+  if(($why=self_bank_submit($cid,$_POST,uid(),true))!==null){flash($why,'err');redirect('/employee-folder?id='.$cid);}
+  log_activity('proposed bank details', 'candidate', $cid, 'ending '.substr(preg_replace('/\s+/', '', (string) ($_POST['account_number'] ?? '')), -4).', waiting for a second person');
+  flash(t('Bank details recorded for :name. Another person checks them on Change requests before they are used.', ['name' => $c['full_name']]));
   redirect('/employee-folder?id=' . $cid);
  }
 
@@ -178,6 +129,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if(!in_array($method,['direct_deposit','check','cash'],true)) { refuse(422, t('Invalid payment setup.')); }
   // The salary is not typed over here any more: it changes through a dated
   // change with a reason, under "Pay and grade" (P2-M01).
+  $adpId=trim((string)($_POST['adp_employee_id'] ?? ''));if($adpId!==''&&!preg_match('/^[A-Za-z0-9_-]{1,40}$/D',$adpId)){refuse(422,t('An ADP employee ID is letters, digits, dashes or underscores, at most 40.'));}
   q('UPDATE employee_profiles SET payment_method=?,adp_employee_id=? WHERE candidate_id=?',[$method,trim((string)($_POST['adp_employee_id'] ?? ''))?:null,$cid]);
  }
  if($do==='credential') {

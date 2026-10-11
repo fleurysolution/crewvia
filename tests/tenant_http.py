@@ -23,6 +23,18 @@ check('Bravo tenant login',bravo.login('admin@bravo.test')[0]==200)
 body=alpha.call('/projects')[1];check('Alpha database records scoped','alpha private project' in body and 'bravo private project' not in body)
 body=bravo.call('/projects')[1];check('Bravo database records scoped','bravo private project' in body and 'alpha private project' not in body)
 body=alpha.call('/projects',host='bravo.test')[1];check('Alpha session cannot authenticate to Bravo','name="password"' in body)
+# P4-M06: Alpha's session id presented under Bravo's own cookie name must not sign anyone in at Bravo.
+alphaId=None
+for h in alpha.opener.handlers:
+ if hasattr(h,'cookiejar'):
+  for c in h.cookiejar:
+   if c.name==headerA['Set-Cookie'].split('=')[0]:alphaId=c.value
+bravoName=headerB['Set-Cookie'].split('=')[0]
+request=urllib.request.Request(base+'/projects',headers={'Host':'bravo.test','Cookie':bravoName+'='+str(alphaId)})
+try:
+ with urllib.request.urlopen(request) as response:replayed=response.read().decode()
+except urllib.error.HTTPError as error:replayed=error.read().decode()
+check('An Alpha session id replayed under Bravo\'s cookie name is not signed in at Bravo',alphaId is not None and 'bravo private project' not in replayed and 'name="password"' in replayed)
 check('Unknown tenant host rejected',alpha.call('/login',host='unknown.test')[0]==404)
 check('Alpha cannot see Bravo candidate', 'bravo private candidate' not in alpha.call('/employees')[1])
 json.dump({'separate_databases':True,'checks':checks,'https_production_tested':False,'concurrent_load_tested':False},open('work/tenant-runtime-results.json','w'),indent=2)

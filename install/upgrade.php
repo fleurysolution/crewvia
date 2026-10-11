@@ -1729,4 +1729,47 @@ if (! $hadConnectors) {
        . ' applicant-tracking channel(s) live as before; new channels start in sandbox; no background-screening provider is connected.' . PHP_EOL;
 }
 
+// ── P4-M06: privacy notices and consent, audit log address, append-only ──
+// Reversed by install/rollback/p4-m06.sql.
+$securityReviewSql = __DIR__ . '/security-review.sql';
+
+if (! is_file($securityReviewSql)) {
+    fwrite(STDERR, "Missing install/security-review.sql\n");
+    exit(1);
+}
+
+$hadSecurityReview = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                                WHERE table_schema=DATABASE() AND table_name='privacy_notices'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($securityReviewSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// The audit log keeps the address each entry came from.
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='activity' AND column_name='ip'")) {
+    q('ALTER TABLE activity ADD COLUMN ip VARCHAR(45) NULL');
+}
+
+// And nobody changes or deletes an entry, the application included.
+$auditWarning = null;
+foreach (['activity_no_update' => 'BEFORE UPDATE', 'activity_no_delete' => 'BEFORE DELETE'] as $name => $when) {
+    try {
+        db()->exec("CREATE TRIGGER IF NOT EXISTS $name $when ON activity FOR EACH ROW BEGIN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The audit log cannot be changed'; END");
+    } catch (Throwable $e) {
+        $auditWarning = $e->getMessage();
+    }
+}
+if ($auditWarning !== null) {
+    echo 'Audit log: WARNING, the database refused the triggers that keep it append-only (' . $auditWarning . '). Grant TRIGGER and run the upgrade again.' . PHP_EOL;
+}
+
+if (! $hadSecurityReview) {
+    echo 'Security review: sessions bound to their workspace, the audit log append-only with addresses, consent recorded against the privacy notice; '
+       . 'no privacy notice is published yet (an administrator writes it under Privacy) and two-step verification is not required until an administrator requires it.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -19,10 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hash=$u['password_hash']??'$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi';
     $valid=password_verify($pass,$hash);
     if($u&&$valid){
+        // P4-M06: a hash made with an older cost or algorithm is renewed while the password is at hand.
+        if(password_needs_rehash($hash,PASSWORD_DEFAULT))q('UPDATE users SET password_hash=? WHERE id=?',[password_hash($pass,PASSWORD_DEFAULT),$u['id']]);
         $to=$_SESSION['intended']??'/';unset($_SESSION['intended']);
         security_begin_login($u,is_string($to)?$to:'/');
     }
 
+    security_log_attempt(!$emailAllowed||!$ipAllowed?'sign-in throttled':'failed sign-in',(int)($u['id']??0),mb_substr($email,0,190).(!$emailAllowed||!$ipAllowed?' (too many attempts)':''));
     $error = t('That email and password do not match an account.');
 }
 
@@ -117,7 +120,7 @@ button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(52,110,182,.4)}
   <h1 class="brand"><?= e($config['app_name']) ?></h1>
   <p class="tag"><?= te('Placement, lodging, travel and payroll — in one place.') ?></p>
 
-  <?php if ($error): ?><div class="err"><?= e($error) ?></div><?php endif; ?>
+  <?php if ($error): ?><div class="err" role="alert"><?= e($error) ?></div><?php endif; ?>
 
   <label for="email"><?= te('Email') ?></label>
   <input id="email" name="email" type="email" required autofocus autocomplete="username"

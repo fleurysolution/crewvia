@@ -6,7 +6,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     $allowed=security_rate_limit('recover-ip',(string)($_SERVER['REMOTE_ADDR']??''),15,900);
     if($token!=='') {
         $password=(string)($_POST['password']??'');
-        if(!$allowed||!$reset||strlen($password)<10||strlen($password)>200){http_response_code(422);$message=t('Recovery link expired or password invalid.');}
+        if(!$allowed||!$reset||security_password_refusal($password)!==null){http_response_code(422);$message=$reset&&$allowed&&security_password_refusal($password)!==null?security_password_refusal($password):t('Recovery link expired or password invalid.');}
         else {
             db()->beginTransaction();
             $locked=row('SELECT * FROM password_resets WHERE id=? AND used_at IS NULL AND expires_at>NOW() FOR UPDATE',[$reset['id']]);
@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
                 q('UPDATE users SET password_hash=?,must_change_pw=0 WHERE id=?',[password_hash($password,PASSWORD_DEFAULT),$reset['user_id']]);
                 q('UPDATE password_resets SET used_at=NOW() WHERE user_id=? AND used_at IS NULL',[$reset['user_id']]);
                 q('INSERT INTO account_security(user_id,session_version) VALUES (?,1) ON DUPLICATE KEY UPDATE session_version=session_version+1',[$reset['user_id']]);
-                db()->commit();unset($_SESSION['user'],$_SESSION['mfa_pending']);flash(t('Password reset. Sign in with your new password.'));redirect('/login');
+                db()->commit();security_log_attempt('reset a password by recovery link',(int)$reset['user_id'],'');unset($_SESSION['user'],$_SESSION['mfa_pending']);flash(t('Password reset. Sign in with your new password.'));redirect('/login');
             }
         }
     } else {
@@ -30,6 +30,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
             q('UPDATE password_resets SET used_at=NOW() WHERE user_id=? AND used_at IS NULL',[$account['id']]);
             q('INSERT INTO password_resets(user_id,token_hash,expires_at) VALUES (?,?,DATE_ADD(NOW(),INTERVAL 30 MINUTE))',[$account['id'],hash('sha256',$private)]);$rid=(int)db()->lastInsertId();
             q('INSERT INTO account_mail_outbox(reset_id,recipient,encrypted_message) VALUES (?,?,?)',[$rid,$account['email'],token_encrypt($body)]);db()->commit();
+            security_log_attempt('requested a recovery link',(int)$account['id'],'');
         }
         $message=t('If this account exists, a recovery message has been queued.');
     }

@@ -45,5 +45,5 @@
   <?php endforeach; ?>
 <?php endif; ?>
 
-<label><input type="checkbox" name="consent" required style="width:auto"> <?= te('I authorize the hiring agency to review my application and contact me about opportunities.') ?></label><button class="btn"><?= te('Apply') ?></button></form>
+<label><input type="checkbox" name="consent" required style="width:auto"> <?= te('I authorize the hiring agency to review my application and contact me about opportunities.') ?></label> <a href="/privacy" target="_blank" rel="noopener"><?= te('Read the privacy notice') ?></a><button class="btn"><?= te('Apply') ?></button></form>
 <?php if($jobSchema): ?><script type="application/ld+json"><?= json_encode($jobSchema,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_SLASHES) ?></script><?php endif; ?>

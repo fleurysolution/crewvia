@@ -50,7 +50,7 @@ if(isset($_GET['export'])) {
    if(($m['overtime_hours']??0)>0)fputcsv($out,[...$prefix,$otCode,$m['overtime_hours'],'','','',1]);
    if($m['per_diem']>0) fputcsv($out,[...$prefix,$diemCode,'',$m['per_diem'],'','','']);
    foreach(($m['gross_to_net']['deductions']??[]) as $d) fputcsv($out,[...$prefix,$itemCodes[$d['code']]??$d['provider_code'],'',number_format(-(float)$d['amount'],2,'.',''),'','','']);
-  }else { $name=preg_match('/^[=+@-]/',$sheet['full_name'])?"'".$sheet['full_name']:$sheet['full_name'];fputcsv($out,[$name,$sheet['adp_employee_id'],$sheet['employment_type'],$sheet['payment_method'],$m['worked'],$m['paid_hours'],$m['pay_total'],$m['per_diem'],$m['expenses'],$sheet['status'],$m['gross_to_net']['gross_wages']??'',$m['gross_to_net']['total_deductions']??'',$m['gross_to_net']['net_before_tax']??'',$m['gross_to_net']['total_employer']??'']); }
+  }else { $name=preg_match('/^[=+@-]/',$sheet['full_name'])?"'".$sheet['full_name']:$sheet['full_name'];fputcsv($out,[$name,csv_cell((string)$sheet['adp_employee_id']),$sheet['employment_type'],$sheet['payment_method'],$m['worked'],$m['paid_hours'],$m['pay_total'],$m['per_diem'],$m['expenses'],$sheet['status'],$m['gross_to_net']['gross_wages']??'',$m['gross_to_net']['total_deductions']??'',$m['gross_to_net']['net_before_tax']??'',$m['gross_to_net']['total_employer']??'']); }
  }
  rewind($out);$csvFile=(string)stream_get_contents($out);fclose($out);
  $kind=!$adp?'review':($mode==='live'?'adp_live':'adp_test');

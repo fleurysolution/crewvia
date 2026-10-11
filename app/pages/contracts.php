@@ -9,12 +9,12 @@ if(isset($_GET['receipt'])){
  $c=scoped_contract((int)$_GET['receipt'],$isWorker,$candidate,$jobId);if(!$c||$c['status']!=='signed'){refuse(404, t('Contract unavailable.'));}
  $files=rows('SELECT kind,file_hash,created_at FROM contract_files WHERE contract_id=?',[$c['id']]);
  $record=['schema'=>'workforce.contract.signature.v1','contract_id'=>$c['id'],'revision'=>$c['revision'],'application_id'=>$c['application_id'],'title'=>$c['title'],'terms'=>$c['terms'],'content_hash'=>$c['content_hash'],'signature_method'=>$c['method'],'signed_at'=>$c['signed_at'],'signer_name'=>$c['signer_name'],'signer_user_id'=>$c['signer_user_id'],'envelope_id'=>$c['envelope_id'],'files'=>$files,'events'=>rows("SELECT action,details_json,created_at FROM contract_events WHERE contract_id=? AND action IN ('electronic_consent','signed','provider_completion_verified') ORDER BY id",[$c['id']])];
- header('Content-Type: application/json; charset=utf-8');header('Content-Disposition: attachment; filename="contract-'.$c['id'].'-signature-record.json"');echo json_encode($record,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);exit;
+ log_activity('downloaded a contract signature record','contract',(int)$c['id']);header('Content-Type: application/json; charset=utf-8');header('Content-Disposition: attachment; filename="contract-'.$c['id'].'-signature-record.json"');echo json_encode($record,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);exit;
 }
 if(isset($_GET['download'])){
  $file=row('SELECT * FROM contract_files WHERE id=?',[(int)$_GET['download']]);$c=$file?scoped_contract((int)$file['contract_id'],$isWorker,$candidate,$jobId):null;
  if(!$c||($isWorker&&in_array($c['status'],['draft','approved'],true))){refuse(404, t('Contract unavailable.'));}
- header('Content-Type: application/pdf');header('Content-Disposition: attachment; filename="contract-'.(int)$c['id'].'-'.$file['kind'].'.pdf"');echo contract_read_pdf($file);exit;
+ log_activity('downloaded a contract','contract',(int)$c['id'],$file['kind']);header('Content-Type: application/pdf');header('Content-Disposition: attachment; filename="contract-'.(int)$c['id'].'-'.$file['kind'].'.pdf"');echo contract_read_pdf($file);exit;
 }
 if($_SERVER['REQUEST_METHOD']==='POST'){
  $do=$_POST['do']??'';$id=(int)($_POST['contract_id']??0);
@@ -82,7 +82,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     }elseif($do==='decline'){q("UPDATE employment_contracts SET status='declined' WHERE id=?",[$id]);contract_event($id,'declined',['reason'=>mb_substr(trim((string)($_POST['reason']??'')),0,2000)]);
     }else{
      if($locked['method']!=='internal')throw new RuntimeException('Use the provider signing flow for this contract.');$f=$_FILES['signed_pdf']??null;
-     if(!$f||$f['error']!==UPLOAD_ERR_OK||$f['size']>15*1024*1024)throw new RuntimeException('A PDF up to 15 MB is required.');
+     if(!$f||$f['error']!==UPLOAD_ERR_OK||$f['size']>15*1024*1024||(new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name'])!=='application/pdf')throw new RuntimeException('A PDF up to 15 MB is required.');
      contract_store_pdf($id,'uploaded_signed',file_get_contents($f['tmp_name']));q("UPDATE employment_contracts SET status='uploaded_review' WHERE id=?",[$id]);contract_event($id,'signed_upload_pending_review');
     }
    }elseif($do==='approve_upload'){

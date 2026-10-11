@@ -48,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $wanted = (array) ($_POST['grant'] ?? []);
 
         db()->beginTransaction();
+        // P4-M06: the log says what changed, not only that something did.
+        $before = array_map(fn($r) => $r['role_name'] . '>' . $r['desk'], rows('SELECT role_name, desk FROM role_permissions'));
         q('DELETE FROM role_permissions');
 
         foreach (SETTINGS_DESKS as $role) {
@@ -63,8 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        $after = array_map(fn($r) => $r['role_name'] . '>' . $r['desk'], rows('SELECT role_name, desk FROM role_permissions'));
         db()->commit();
-        log_activity('changed role permissions');
+        $granted = array_values(array_diff($after, $before));
+        $revoked = array_values(array_diff($before, $after));
+        log_activity('changed role permissions', 'setting', 0, 'granted: ' . (implode(', ', $granted) ?: 'none') . '; revoked: ' . (implode(', ', $revoked) ?: 'none'));
         flash(t('Permissions saved.'));
         redirect('/settings#permissions');
     }

@@ -55,13 +55,13 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
           <strong><?= e($l['full_name']) ?></strong>
           <div class="small muted"><?= e(ucfirst($l['discipline'])) ?> &middot; <?= money($m['pay_rate']) ?>/h</div>
         </td>
-        <td><input type="number" step="0.25" min="0" max="168" name="hours[<?= (int) $l['id'] ?>]"
+        <td><input type="number" step="0.25" min="0" max="168" name="hours[<?= (int) $l['id'] ?>]" aria-label="<?= te('Hours worked by :name', ['name' => $l['full_name']]) ?>"
                    value="<?= $l['hours_worked'] !== null ? e((float) $l['hours_worked']) : '' ?>"
                    placeholder="0" style="padding:5px 8px"></td>
-        <td><input type="number" step="1" min="0" max="7" name="per_diem[<?= (int) $l['id'] ?>]"
+        <td><input type="number" step="1" min="0" max="7" name="per_diem[<?= (int) $l['id'] ?>]" aria-label="<?= te('Per diem days for :name', ['name' => $l['full_name']]) ?>"
                    value="<?= $l['per_diem_days'] !== null ? (int) $l['per_diem_days'] : '' ?>"
                    placeholder="0" style="padding:5px 8px"></td>
-        <td><input type="number" step="0.01" min="0" name="expenses[<?= (int) $l['id'] ?>]"
+        <td><input type="number" step="0.01" min="0" name="expenses[<?= (int) $l['id'] ?>]" aria-label="<?= te('Expenses for :name', ['name' => $l['full_name']]) ?>"
                    value="<?= $l['expenses'] !== null && (float) $l['expenses'] > 0 ? e((float) $l['expenses']) : '' ?>"
                    placeholder="0.00" style="padding:5px 8px"></td>
         <td class="num mono"><?= rtrim(rtrim(number_format($m['paid_hours'], 1), '0'), '.') ?></td>

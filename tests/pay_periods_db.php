@@ -51,9 +51,11 @@ check('A second upgrade is silent for P1-M06', $code === 0 && ! str_contains($se
 $fixture  = json_decode((string) file_get_contents(__DIR__ . '/fixture.json'), true, 512, JSON_THROW_ON_ERROR);
 $password = password_hash('TestPassword123!', PASSWORD_DEFAULT);
 $admin    = (int) val("SELECT id FROM users WHERE email = 'admin@test.invalid'");
-$week     = week_ending(date('Y-m-d', strtotime('-28 days')));   // the period that is locked
+// Weeks no other suite touches: a week 7 days back is, on a Sunday, the week of another
+// suite's "yesterday", whose unapproved sheet would stop this period's submission.
+$week     = week_ending(date('Y-m-d', strtotime('-56 days')));   // the period that is locked
 $older    = date('Y-m-d', strtotime($week . ' -7 days'));          // a paid week with a difference
-$later    = week_ending(date('Y-m-d', strtotime('-7 days')));      // the open period for adjustments
+$later    = week_ending(date('Y-m-d', strtotime('-49 days')));     // the open period for adjustments
 $day      = static fn(string $we, int $back): string => date('Y-m-d', strtotime($we . ' -' . $back . ' days'));
 
 q("INSERT INTO users(name,email,password_hash,role,must_change_pw) VALUES ('M06 second admin','m06-admin2@test.invalid',?,'admin',0)", [$password]);

@@ -9,7 +9,7 @@ if(isset($_GET['download'])) {
     if(!is_file($path)){refuse(404, t('Document unavailable.'));}
     $raw=file_get_contents($path);$plain=openssl_decrypt(substr($raw,28),'aes-256-gcm',$key,OPENSSL_RAW_DATA,substr($raw,0,12),substr($raw,12,16));
     if($plain===false||!hash_equals($doc['file_hash'],hash('sha256',$plain))){refuse(500, t('Document integrity check failed.'));}
-    header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="resume-'.(int)$doc['id'].'.'.$doc['extension'].'"');echo $plain;exit;
+    log_activity('downloaded a CV','resume',(int)$doc['id']);header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="resume-'.(int)$doc['id'].'.'.$doc['extension'].'"');echo $plain;exit;
 }
 $resumes=$cid?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE r.candidate_id=? ORDER BY r.id DESC',[$cid]):(!$own?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id ORDER BY r.id DESC LIMIT 100'):[]);
 render('resumes',compact('resumes'));
