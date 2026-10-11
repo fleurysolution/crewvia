@@ -178,7 +178,7 @@ for a dated rate change, almost always finding none. `/roster` sent
 |---|---|---|
 | `/hours` | 0.4 s, 39 queries | 7.2 s for all 40 |
 | `/roster` | 0.4 s, 39 queries | 12.5 s for all 40 |
-| the 600-request mixed burst (all pages) | | median 1.7 s, 95th percentile 14.1 s, slowest 25.6 s (before: 57 s and 105 s) |
+| the 600-request mixed burst (all pages) | | two runs: median 1.7 and 2.6 s, 95th percentile 14.1 and 23.6 s, slowest 25.6 and 42.7 s (before: 57 s and 105 s) |
 
 **The rest is this machine.** On XAMPP for Windows:
 
@@ -274,7 +274,7 @@ The access matrix covers `/system-health` for every role.
 
 ### Results
 
-Full isolated run: **2157 PASS, 0 FAIL** (browser step skipped).
+Full isolated run: **2157 PASS, 0 FAIL** (browser step skipped), and again on the pushed commit 8f45023: **2157 PASS, 0 FAIL**, with backup 3.6 s, drill 12.7 s, recovery 7.5 s.
 
 Measured in that run, on this machine:
 
@@ -283,7 +283,7 @@ Measured in that run, on this machine:
 | backup | 3.5 s |
 | restore drill | 11.3 s |
 | recovery from total loss | 7.2 s (203 tables, 7 documents) |
-| 600 requests, 40 people at once | 9.6 a second; median 1.7 s, 95th percentile 14.1 s, slowest 25.6 s |
+| 600 requests, 40 people at once | 9.6 a second; median 1.7 s, 95th percentile 14.1 s, slowest 25.6 s. The run on the pushed commit: 6.1 a second; median 2.6 s, 95th percentile 23.6 s, slowest 42.7 s. The spread is this machine's, from run to run |
 | slowest pages under that load (median) | `/overview` 13.9 s, `/organization` 11.7 s, `/roster` 6.9 s, `/hours` 5.2 s |
 
 `/organization` sends 10.6 MB of HTML for the 10,000-worker fixture, and
