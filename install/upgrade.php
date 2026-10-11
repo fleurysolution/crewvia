@@ -1772,4 +1772,28 @@ if (! $hadSecurityReview) {
        . 'no privacy notice is published yet (an administrator writes it under Privacy) and two-step verification is not required until an administrator requires it.' . PHP_EOL;
 }
 
+// ── P4-M07: operations - the record of backups, drills and job runs ──
+// Reversed by install/rollback/p4-m07.sql.
+$operationsSql = __DIR__ . '/operations.sql';
+
+if (! is_file($operationsSql)) {
+    fwrite(STDERR, "Missing install/operations.sql\n");
+    exit(1);
+}
+
+$hadOperations = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='ops_runs'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($operationsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadOperations) {
+    echo 'Operations: errors logged privately with a reference, health at /health and under System health; '
+       . 'no backup is taken until install/backup.php runs (by cron, see docs/OPERATIONS.md).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

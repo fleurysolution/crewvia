@@ -47,6 +47,38 @@ function compensation_latest(string $kind, string $column, int $id, string $onDa
 }
 
 /**
+ * P4-M07: the ids that have at least one change of a kind not cancelled,
+ * read once per web request. Without it, the week of a 1,000-person project
+ * asked the database twice per person whether a change existed (2,000
+ * queries for one view of the hours), and under load those round trips
+ * queued behind each other. An id outside this set has no change: both
+ * lookups below would find nothing. Null means "not known, ask": on the
+ * command line, where a script may write a change and read it back, and
+ * before the table exists. $reset empties it after a change is written.
+ */
+function compensation_ids_with_changes(string $kind, string $column, bool $reset = false): ?array
+{
+    static $known = [];
+    if ($reset) {
+        $known = [];
+        return null;
+    }
+    if (PHP_SAPI === 'cli') {
+        return null;
+    }
+    $key = $kind . '|' . $column;
+    if (! array_key_exists($key, $known)) {
+        try {
+            $known[$key] = array_flip(array_map('intval', array_column(rows("SELECT DISTINCT `$column` AS id FROM compensation_changes
+                WHERE kind = ? AND cancelled_at IS NULL AND `$column` IS NOT NULL", [$kind]), 'id')));
+        } catch (Throwable $e) {
+            $known[$key] = null;
+        }
+    }
+    return $known[$key];
+}
+
+/**
  * The amount in effect for a week, from the dated changes alone, or null
  * when no change says anything about it.
  *
@@ -56,6 +88,11 @@ function compensation_latest(string $kind, string $column, int $id, string $onDa
  */
 function compensation_amount_on(string $kind, string $column, int $id, string $weekEnding): ?float
 {
+    $ids = compensation_ids_with_changes($kind, $column);
+    if ($ids !== null && ! isset($ids[$id])) {
+        return null;
+    }
+
     $c = compensation_latest($kind, $column, $id, $weekEnding);
 
     if ($c) {
@@ -215,6 +252,7 @@ function compensation_record(int $candidateId, array $in, int $userId, bool $isA
     q('INSERT INTO compensation_changes (candidate_id, placement_id, kind, old_amount, new_amount, grade_id, effective_from, reason, outside_band, recorded_by)
        VALUES (?,?,?,?,?,?,?,?,?,?)',
       [$candidateId, $placementId ?: null, $kind, $old, $amount, $gradeId, $effective, $reason, $outside ? 1 : 0, $userId]);
+    compensation_ids_with_changes('', '', true);
 
     compensation_apply_due($candidateId);
 
@@ -235,6 +273,7 @@ function compensation_cancel(int $changeId, int $candidateId, int $userId): ?str
     }
 
     q('UPDATE compensation_changes SET cancelled_by = ?, cancelled_at = NOW() WHERE id = ?', [$userId, $changeId]);
+    compensation_ids_with_changes('', '', true);
 
     return null;
 }

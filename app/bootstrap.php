@@ -42,6 +42,9 @@ try {
 error_reporting(E_ALL);
 ini_set('display_errors', $config['debug'] ? '1' : '0');
 ini_set('log_errors', '1');
+// P4-M07: uncaught errors go to storage/logs with a reference the person is shown.
+require_once __DIR__ . '/operations.php';
+ops_install_handlers();
 
 // ── Session ──────────────────────────────────────────────────────────────
 if (session_status() === PHP_SESSION_NONE) {
@@ -132,6 +135,8 @@ function db(): PDO
         ]);
     } catch (PDOException $e) {
         error_log('[rss-ops] database: ' . $e->getMessage());
+        // The operator's log says the database was down, not how to reach it.
+        ops_log_error('database', 'PDOException', 'Database not reachable (SQLSTATE ' . $e->getCode() . ')', __FILE__, __LINE__);
         http_response_code(500);
         exit('The database is not reachable. Check config.php.');
     }

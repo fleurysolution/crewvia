@@ -2544,3 +2544,26 @@ Why, and when they asked	Pourquoi, et quand la personne l'a demandé	Por qué, y
 Write it with the agency's adviser: who the agency is, what it keeps about applicants and workers, why, for how long, who it shares it with, and how to ask for a copy or a correction. Crewvia shows it at /privacy and links it from every public form; it does not write it.	Rédigez-le avec le conseiller de l'agence : qui est l'agence, ce qu'elle conserve sur les candidats et les travailleurs, pourquoi, combien de temps, avec qui elle le partage, et comment en demander une copie ou une correction. Crewvia l'affiche sur /privacy et le relie depuis chaque formulaire public ; il ne le rédige pas.	Redáctelo con el asesor de la agencia: quién es la agencia, qué guarda de candidatos y trabajadores, por qué, durante cuánto tiempo, con quién lo comparte y cómo pedir una copia o una corrección. Crewvia lo muestra en /privacy y lo enlaza desde cada formulario público; no lo redacta.
 none published	aucun publié	ninguno publicado
 Choose a project you supervise a crew on.	Choisissez un projet où vous supervisez une équipe.	Elija un proyecto en el que supervise una cuadrilla.
+Backups	Sauvegardes	Copias de seguridad
+Backups, drills and scheduled jobs	Sauvegardes, exercices et tâches planifiées	Copias de seguridad, simulacros y tareas programadas
+Checks	Contrôles	Controles
+Database	Base de données	Base de datos
+Error	Erreur	Error
+Errors in the last 7 days	Erreurs des 7 derniers jours	Errores de los últimos 7 días
+Failing	En échec	Fallando
+Finished	Terminé	Terminado
+Found	Constaté	Encontrado
+Kept in :dir on this server. A copy must also leave the server: a backup on the same machine does not survive losing the machine.	Conservées dans :dir sur ce serveur. Une copie doit aussi quitter le serveur : une sauvegarde sur la même machine ne survit pas à la perte de la machine.	Guardadas en :dir en este servidor. Una copia también debe salir del servidor: una copia en la misma máquina no sobrevive a la pérdida de la máquina.
+Last	Dernière	Última
+Look at it	À examiner	Revisar
+No backup folder is configured.	Aucun dossier de sauvegarde n'est configuré.	No hay carpeta de copias configurada.
+No backup found.	Aucune sauvegarde trouvée.	No se encontró ninguna copia.
+No error recorded.	Aucune erreur enregistrée.	Ningún error registrado.
+OK	OK	OK
+Pages	Pages	Páginas
+Seconds	Secondes	Segundos
+System health	État du système	Estado del sistema
+Tables	Tables	Tablas
+The checks cron runs every hour, the backups, the scheduled jobs and the errors people met. A failing line here is also mailed by cron, if the health check is scheduled.	Les contrôles que cron lance chaque heure, les sauvegardes, les tâches planifiées et les erreurs rencontrées. Une ligne en échec est aussi envoyée par cron, si le contrôle de santé est planifié.	Los controles que cron ejecuta cada hora, las copias, las tareas programadas y los errores encontrados. Una línea fallando también la envía cron, si el control de salud está programado.
+Times	Fois	Veces
+files	fichiers	archivos

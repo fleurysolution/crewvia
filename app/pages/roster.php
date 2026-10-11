@@ -150,15 +150,23 @@ $crew = rows(
 
 // How each closed assignment was graded, so the roster can show which
 // ones nobody has said anything about yet.
+// P4-M07: one query for the project's reviews (one per assignment at most),
+// not one per person: a 1,000-person crew made 1,000 lookups per view.
 $reviews = [];
 
-foreach ($crew as $member) {
-    $found = assignment_review((int) $member['id']);
+try {
+    $projectReviews = rows('SELECT r.*, u.name AS reviewer
+                            FROM assignment_reviews r
+                            JOIN placements p ON p.id = r.placement_id
+                            LEFT JOIN users u ON u.id = r.reviewed_by
+                            WHERE p.job_id = ?', [$jobId]);
+} catch (Throwable $e) {
+    $projectReviews = [];
+}
 
-    if ($found) {
-        $found['scores'] = assignment_review_scores((int) $found['id']);
-        $reviews[(int) $member['id']] = $found;
-    }
+foreach ($projectReviews as $found) {
+    $found['scores'] = assignment_review_scores((int) $found['id']);
+    $reviews[(int) $found['placement_id']] = $found;
 }
 
 // What stands between each person and the site, for the only status where

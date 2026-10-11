@@ -31,6 +31,15 @@ $path   = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $path   = '/' . trim($path, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
+// P4-M07: for an uptime monitor. Up or down, nothing more: no version, no detail.
+if ($path === '/health') {
+    $health = ops_health(false);
+    $up = ! in_array('fail', array_column($health, 0), true);
+    http_response_code($up ? 200 : 503);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => $up ? 'ok' : 'down']);
+    exit;
+}
 // Stripe authenticates the raw POST with its signature, not a browser CSRF token.
 if ($path === '/stripe-webhook') { require __DIR__.'/../app/pages/saas-webhook.php'; exit; }
 if ($path === '/job-feed') { if($method!=='GET'){http_response_code(405);exit('GET required.');} require __DIR__.'/../app/pages/job-feed.php'; exit; }
@@ -164,6 +173,7 @@ $routes = [
     '/settings' => 'settings',
     '/privacy-requests' => 'privacy-requests',
     '/audit-log' => 'audit-log',
+    '/system-health' => 'system-health',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',

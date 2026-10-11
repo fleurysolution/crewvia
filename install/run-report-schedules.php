@@ -19,5 +19,7 @@ if (PHP_SAPI !== 'cli') {
 require __DIR__ . '/../app/bootstrap.php';
 require_once __DIR__ . '/../app/report-builder.php';
 
+$opsStarted = microtime(true);
 $done = rb_run_due(date('Y-m-d H:i:s'));
+ops_record('report_schedules', 'ok', ['delivered' => count($done)], $opsStarted);
 echo $done ? implode(PHP_EOL, $done) . PHP_EOL : "Report schedules: nothing due.\n";

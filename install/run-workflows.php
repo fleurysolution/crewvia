@@ -1,7 +1,7 @@
 <?php
 /** Schedule per tenant. Idempotent internal alerts; no external emails or decisions. */
 declare(strict_types=1);if(PHP_SAPI!=='cli')exit('CLI only');
-require __DIR__.'/../app/bootstrap.php';
+require __DIR__.'/../app/bootstrap.php';$opsStarted=microtime(true);
 function workflow_notify(int $userId,string $key,string $message,string $target): void {
     db()->beginTransaction();
     try {
@@ -20,4 +20,7 @@ q('DELETE FROM auth_rate_limits WHERE window_start<?',[time()-86400]);
 // recovery link a week after it expired, a form key two days after it was made.
 try{q('DELETE o FROM account_mail_outbox o JOIN password_resets r ON r.id=o.reset_id WHERE r.expires_at<DATE_SUB(NOW(),INTERVAL 7 DAY)');q('DELETE FROM password_resets WHERE expires_at<DATE_SUB(NOW(),INTERVAL 7 DAY)');}catch(Throwable $e){error_log('[rss-ops] retention: recovery links not purged');}
 try{q('DELETE FROM integration_nonces WHERE created_at<DATE_SUB(NOW(),INTERVAL 2 DAY)');}catch(Throwable $e){}
+// P4-M07: error logs past their retention, then the record that this pass ran.
+$purgedLogs=ops_purge_logs();
+ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs],$opsStarted);
 echo "Workflow alert pass complete. No external messages sent.\n";
