@@ -20,18 +20,16 @@ function gmail_configured(): bool {
  global $config;
  return !empty($config['google_client_id']) && !empty($config['google_client_secret']) && !empty($config['google_redirect_uri']) && strlen((string)base64_decode($config['encryption_key'] ?? '',true))===32;
 }
+// GAP-1002: the key handling lives in crypto.php, so a key can be rotated.
+require_once __DIR__.'/crypto.php';
 function token_encrypt(array $tokens): string {
- global $config;$key=base64_decode($config['encryption_key'] ?? '',true);
- if(!$key || strlen($key)!==32) throw new RuntimeException('Configure a 32-byte encryption key.');
- $iv=random_bytes(12);$tag='';$cipher=openssl_encrypt(json_encode($tokens,JSON_THROW_ON_ERROR),'aes-256-gcm',$key,OPENSSL_RAW_DATA,$iv,$tag);
- if($cipher===false) throw new RuntimeException('Token encryption failed.');
- return base64_encode($iv.$tag.$cipher);
+ return base64_encode(crypto_seal(json_encode($tokens,JSON_THROW_ON_ERROR)));
 }
 function token_decrypt(string $encrypted): array {
- global $config;$raw=base64_decode($encrypted,true);$key=base64_decode($config['encryption_key'] ?? '',true);
- if(!$raw || strlen($raw)<29 || !$key || strlen($key)!==32) throw new RuntimeException('Invalid token configuration.');
- $plain=openssl_decrypt(substr($raw,28),'aes-256-gcm',$key,OPENSSL_RAW_DATA,substr($raw,0,12),substr($raw,12,16));
- if($plain===false) throw new RuntimeException('Token decryption failed.');
+ $raw=base64_decode($encrypted,true);
+ if(!$raw || strlen($raw)<29 || !crypto_key_ready()) throw new RuntimeException('Invalid token configuration.');
+ $plain=crypto_open($raw);
+ if($plain===null) throw new RuntimeException('Token decryption failed.');
  return json_decode($plain,true,512,JSON_THROW_ON_ERROR);
 }
 

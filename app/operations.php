@@ -257,6 +257,9 @@ function ops_health(bool $deep = true): array
     $checks['debug'] = empty($config['debug']) ? ['ok', 'off'] : ['fail', 'on: errors are shown to visitors'];
     $key = base64_decode((string) ($config['encryption_key'] ?? ''), true);
     $checks['encryption_key'] = $key !== false && strlen($key) === 32 ? ['ok', 'configured (keep a copy offline: backups cannot be read without it)'] : ['fail', 'missing or not 32 bytes'];
+    if (! empty($config['previous_encryption_key'])) {
+        $checks['key_rotation'] = ['warn', 'a key rotation is under way: run php install/rotate-key.php --resume'];
+    }
 
     $dir = ops_backup_dir();
     $backups = $dir ? ops_backups($dir) : [];

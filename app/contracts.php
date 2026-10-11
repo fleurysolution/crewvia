@@ -41,6 +41,6 @@ function contract_store_pdf(int $id,string $kind,string $bytes): void {
 }
 function contract_read_pdf(array $file): string {
  global $config;$key=base64_decode($config['encryption_key']??'',true);$bytes=file_get_contents(workforce_storage_path($config).'/contracts/'.$file['storage_name']);
- $plain=openssl_decrypt(substr($bytes,28),'aes-256-gcm',$key,OPENSSL_RAW_DATA,substr($bytes,0,12),substr($bytes,12,16));
- if($plain===false||!hash_equals($file['file_hash'],hash('sha256',$plain)))throw new RuntimeException('Document integrity check failed.');return $plain;
+ require_once __DIR__.'/crypto.php';$plain=$key&&strlen($key)===32&&$bytes!==false?crypto_open($bytes):null;
+ if($plain===null||!hash_equals($file['file_hash'],hash('sha256',$plain)))throw new RuntimeException('Document integrity check failed.');return $plain;
 }

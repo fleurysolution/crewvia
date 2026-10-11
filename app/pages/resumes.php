@@ -7,8 +7,8 @@ if(isset($_GET['download'])) {
     $key=base64_decode($config['encryption_key']??'',true);if(!$key||strlen($key)!==32){refuse(503, t('Document encryption key is unavailable.'));}
     $path=workforce_storage_path($config).'/resumes/'.$doc['storage_name'];
     if(!is_file($path)){refuse(404, t('Document unavailable.'));}
-    $raw=file_get_contents($path);$plain=openssl_decrypt(substr($raw,28),'aes-256-gcm',$key,OPENSSL_RAW_DATA,substr($raw,0,12),substr($raw,12,16));
-    if($plain===false||!hash_equals($doc['file_hash'],hash('sha256',$plain))){refuse(500, t('Document integrity check failed.'));}
+    $raw=file_get_contents($path);require_once __DIR__.'/../crypto.php';$plain=$raw===false?null:crypto_open($raw);
+    if($plain===null||!hash_equals($doc['file_hash'],hash('sha256',$plain))){refuse(500, t('Document integrity check failed.'));}
     log_activity('downloaded a CV','resume',(int)$doc['id']);header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="resume-'.(int)$doc['id'].'.'.$doc['extension'].'"');echo $plain;exit;
 }
 $resumes=$cid?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE r.candidate_id=? ORDER BY r.id DESC',[$cid]):(!$own?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id ORDER BY r.id DESC LIMIT 100'):[]);

@@ -215,11 +215,58 @@ the real figure.
   3. If data must also go back, use the live restore of the backup taken
      before the deploy.
 
-## 8. What is not automated
+## 8. Rotating the encryption key
+
+Rotate it when it may have been exposed: a copy of `config.php` went
+somewhere it shouldn't, or someone who knew it left. Rotating takes the
+time to read and rewrite every encrypted value and document. The site
+keeps working throughout, so it needs no downtime.
+
+1. Check that everything opens with the current key:
+
+   ```bash
+   php install/rotate-key.php --check
+   ```
+
+   If anything is listed as unreadable, stop and resolve it first. The
+   rotation refuses to start while anything opens with no key.
+2. Rotate:
+
+   ```bash
+   php install/rotate-key.php --start
+   ```
+
+   It then:
+   - takes a backup, under the current key;
+   - writes a new random key into `config.php`, keeping the old one as
+     `previous_encryption_key`;
+   - re-encrypts every encrypted database value and every document;
+   - removes the old key from `config.php`.
+
+   Neither key is ever printed.
+3. If it is interrupted, or run with `--limit=N` to spread the work, run:
+
+   ```bash
+   php install/rotate-key.php --resume
+   ```
+
+   Until it completes, the site reads with both keys, and System health
+   shows "key rotation under way".
+4. Afterwards:
+   - copy the new `encryption_key` from `config.php` into the password
+     manager;
+   - keep the old key there too, labelled with the date. The backups taken
+     before the rotation need it: to restore one, set the old key as
+     `previous_encryption_key` in `config.php`, restore, then run
+     `--resume`, which re-encrypts the restored data with the current key
+     and removes the old one again.
+
+Only the main `config.php` workspace is rotated. A workspace configured
+under `tenants/` is refused for now.
+
+## 9. What is not automated
 
 - The off-server copy of backups (section 4): the agency chooses the
   destination.
 - The outside uptime monitor on `/health` (section 3): the agency chooses
   the service.
-- Rotating the encryption key: not supported. A new key cannot read
-  existing documents or backups.

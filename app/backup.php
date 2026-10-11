@@ -87,10 +87,10 @@ function backup_commit(): string
 }
 
 /** A value that says whether two keys are the same, and nothing about the key. */
-function backup_key_check(): string
+function backup_key_check(?string $keyB64 = null): string
 {
     global $config;
-    return substr(hash('sha256', 'crewvia-key-check|' . (string) base64_decode((string) ($config['encryption_key'] ?? ''), true)), 0, 16);
+    return substr(hash('sha256', 'crewvia-key-check|' . (string) base64_decode((string) ($keyB64 ?? $config['encryption_key'] ?? ''), true)), 0, 16);
 }
 
 /**
@@ -98,11 +98,11 @@ function backup_key_check(): string
  * key. The fingerprints catch a damaged or incomplete copy; the signature
  * catches files and manifest changed together, which needs the key.
  */
-function backup_signature(array $manifest): string
+function backup_signature(array $manifest, ?string $keyB64 = null): string
 {
     global $config;
     unset($manifest['signature']);
-    $key = hash_hmac('sha256', 'crewvia-backup-manifest', (string) base64_decode((string) ($config['encryption_key'] ?? ''), true), true);
+    $key = hash_hmac('sha256', 'crewvia-backup-manifest', (string) base64_decode((string) ($keyB64 ?? $config['encryption_key'] ?? ''), true), true);
     return hash_hmac('sha256', json_encode($manifest, JSON_UNESCAPED_SLASHES), $key);
 }
 
@@ -297,6 +297,7 @@ function backup_resolve(string $which, ?string $dir = null): ?string
 /** Problems with a backup before anything is restored from it; empty when it is whole. */
 function backup_verify(string $path): array
 {
+    global $config;
     $problems = [];
     $manifest = json_decode((string) @file_get_contents($path . '/manifest.json'), true);
     if (! is_array($manifest) || ($manifest['format'] ?? null) !== BACKUP_FORMAT) {
@@ -309,9 +310,18 @@ function backup_verify(string $path): array
             $problems[] = $name . ' does not match its fingerprint: altered or incomplete';
         }
     }
-    if (($manifest['key_check'] ?? '') !== backup_key_check()) {
-        $problems[] = 'the encryption key configured here is not the one this backup was taken with: its documents and bank details could not be read. Put the original key in config.php first';
-    } elseif (! hash_equals(backup_signature($manifest), (string) ($manifest['signature'] ?? ''))) {
+    // The key it was taken with: the current one, or the previous one during or
+    // after a rotation (GAP-1002), set back as previous_encryption_key.
+    $keyUsed = null;
+    foreach (['encryption_key', 'previous_encryption_key'] as $name) {
+        if (! empty($config[$name]) && ($manifest['key_check'] ?? '') === backup_key_check((string) $config[$name])) {
+            $keyUsed = (string) $config[$name];
+            break;
+        }
+    }
+    if ($keyUsed === null) {
+        $problems[] = 'the encryption key configured here is not the one this backup was taken with: its documents and bank details could not be read. Put the original key in config.php first (as previous_encryption_key, if the key was rotated since)';
+    } elseif (! hash_equals(backup_signature($manifest, $keyUsed), (string) ($manifest['signature'] ?? ''))) {
         $problems[] = 'manifest.json is not signed by this workspace: it was changed after the backup was taken';
     }
     return $problems;

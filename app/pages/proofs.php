@@ -33,8 +33,8 @@ if(isset($_GET['download'])) {
  if(!$doc || ($isWorker && (int)$doc['candidate_id']!==(int)$candidate['candidate_id'])) { refuse(404, t('Document unavailable.')); }
  if(!$isWorker && !can('recruiter') && !row("SELECT d.id FROM worker_documents d WHERE d.id=? AND (d.document_type IN ('W4','payroll_authorization') OR EXISTS(SELECT 1 FROM expense_claims e WHERE e.receipt_document_id=d.id))",[$doc['id']])) { refuse(404, t('Document unavailable.')); }
  if(!$configured) { refuse(503, t('Document encryption key is unavailable.')); }
- $raw=file_get_contents($storage.'/'.$doc['storage_name']);$plain=openssl_decrypt(substr($raw,28),'aes-256-gcm',$key,OPENSSL_RAW_DATA,substr($raw,0,12),substr($raw,12,16));
- if($plain===false || !hash_equals($doc['file_hash'],hash('sha256',$plain))) { refuse(500, t('Document integrity check failed.')); }
+ $raw=file_get_contents($storage.'/'.$doc['storage_name']);require_once __DIR__.'/../crypto.php';$plain=$raw===false?null:crypto_open($raw);
+ if($plain===null || !hash_equals($doc['file_hash'],hash('sha256',$plain))) { refuse(500, t('Document integrity check failed.')); }
  // An I-9 or a W-4 carries a social security number. The file is
  // encrypted at rest and checked before it is served, but opening one
  // left no trace at all - so there was no answer to who had seen whose

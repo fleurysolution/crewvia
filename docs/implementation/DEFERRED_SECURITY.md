@@ -7,7 +7,7 @@ creating a new exposure; the list only records what already exists.
 
 | # | Item | Clean-up at the end |
 |---|---|---|
-| X1 | `config.php` with the production database password and encryption key is tracked in the repository and in its history (since `3ce5942`). | Change the database password; `git rm --cached config.php`; purge it from history; rotate the encryption key with a re-encryption script (not yet written) so stored bank details, contracts and résumés stay readable. |
+| X1 | `config.php` with the production database password and encryption key is tracked in the repository and in its history (since `3ce5942`). | Change the database password; `git rm --cached config.php`; purge it from history; rotate the encryption key with `php install/rotate-key.php --start` (GAP-1002, written 11 Oct 2026; see docs/OPERATIONS.md §8), which re-encrypts stored bank details, contracts and résumés so they stay readable. Not run on production: yours to run with the rest of this list. |
 | X2 | The repository was public for a period while X1 was in it. | Treat every value in X1 as known to others. |
 | X3 | The server's git remote URL embeds a GitHub personal access token, stored in `.git/config` on the VPS and pasted into a working session. | Revoke the token on GitHub; `git remote set-url origin` to a URL without it; use a read-only deploy key if the repository stays private. |
 | X4 | Deployment is a manual `git pull` in the live folder (cPanel Git™ Version Control points at it). A pull would also write `config.php` from the repository. | Decide the deploy route (cPanel pull, cron, or CI over SSH); keep server-only files out of the repository first. |
