@@ -1859,4 +1859,63 @@ if (! $hadPlanning) {
        . 'sprints only where a project creates one. Every existing task stays as it was, without an estimate.' . PHP_EOL;
 }
 
+// ── P5-M03: asset inspections, maintenance, service, lifecycle, valuation ──
+// Reversed by install/rollback/p5-m03.sql.
+$assetLifecycleSql = __DIR__ . '/asset-lifecycle.sql';
+
+if (! is_file($assetLifecycleSql)) {
+    fwrite(STDERR, "Missing install/asset-lifecycle.sql\n");
+    exit(1);
+}
+
+$hadAssetLifecycle = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                                WHERE table_schema=DATABASE() AND table_name='asset_service_records'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($assetLifecycleSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+foreach (['asset_categories' => [
+              'asset_class'        => "ENUM('safety','tools','electronics','vehicles_plant','other') NOT NULL DEFAULT 'other'",
+              'useful_life_months' => 'SMALLINT UNSIGNED NULL',
+              'residual_percent'   => 'DECIMAL(5,2) NULL',
+          ],
+          'equipment' => [
+              'in_service_on'      => 'DATE NULL',
+              'useful_life_months' => 'SMALLINT UNSIGNED NULL',
+              'residual_value'     => 'DECIMAL(10,2) NULL',
+              'retired_on'         => 'DATE NULL',
+              'disposed_on'        => 'DATE NULL',
+              'disposal_method'    => "ENUM('sold','scrapped','returned_to_client','donated','written_off') NULL",
+              'disposal_proceeds'  => 'DECIMAL(10,2) NULL',
+          ]] as $table => $columns) {
+    foreach ($columns as $column => $definition) {
+        if (! val("SELECT COUNT(*) FROM information_schema.columns
+                   WHERE table_schema=DATABASE() AND table_name=? AND column_name=?", [$table, $column])) {
+            q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+        }
+    }
+}
+// A disposed item has left the agency for good.
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns
+                                 WHERE table_schema=DATABASE() AND table_name='equipment' AND column_name='status'"), 'disposed')) {
+    q("ALTER TABLE equipment MODIFY status ENUM('available','in_repair','lost','retired','disposed') NOT NULL DEFAULT 'available'");
+}
+
+if (! $hadAssetLifecycle) {
+    // The seeded categories get their class; their life and residual stay for the agency to set.
+    foreach (['ppe' => 'safety', 'fall_protection' => 'safety', 'gas_detection' => 'safety', 'tools' => 'tools', 'radios' => 'electronics'] as $code => $class) {
+        q("UPDATE asset_categories SET asset_class = ? WHERE code = ? AND asset_class = 'other'", [$class, $code]);
+    }
+    // Repairs already costed in the history become service records, once.
+    $carried = q("INSERT INTO asset_service_records (equipment_id, kind, performed_on, cost, notes, user_id, created_at)
+                  SELECT e.equipment_id, 'repair', DATE(e.created_at), e.cost, e.detail, e.user_id, e.created_at
+                    FROM asset_events e WHERE e.event = 'repaired'")->rowCount();
+    echo 'Asset lifecycle: inspections with results, maintenance plans, service records, disposal and straight-line valuation; '
+       . $carried . ' past repair(s) carried into the service history. No item has a useful life until its category or the item is given one.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

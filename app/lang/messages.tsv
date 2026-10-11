@@ -2731,3 +2731,129 @@ Weekly capacity saved.	Capacité hebdomadaire enregistrée.	Capacidad semanal gu
 Workload	Charge de travail	Carga de trabajo
 Workload is open to administrators, recruiters and supervisors.	La charge de travail est ouverte aux administrateurs, recruteurs et superviseurs.	La carga de trabajo está abierta a administradores, reclutadores y supervisores.
 Mark blocked	Marquer bloquée	Marcar bloqueada
+:n days	:n jours	:n días
+:n months	:n mois	:n meses
+:n of :life months used	:n mois écoulés sur :life	:n de :life meses usados
+:n used	:n écoulés	:n usados
+A category code is 2 to 40 lowercase letters, digits or underscores.	Un code de catégorie fait 2 à 40 lettres minuscules, chiffres ou tirets bas.	Un código de categoría tiene de 2 a 40 minúsculas, dígitos o guiones bajos.
+A field is too long.	Un champ est trop long.	Un campo es demasiado largo.
+A residual value is 0 to 90% of the cost.	Une valeur résiduelle va de 0 à 90 % du coût.	Un valor residual va del 0 al 90 % del costo.
+A residual value is from 0 up to the purchase cost.	Une valeur résiduelle va de 0 au coût d'achat.	Un valor residual va de 0 hasta el costo de compra.
+A retired item has no maintenance plan.	Un équipement retiré n'a pas de plan de maintenance.	Un equipo retirado no tiene plan de mantenimiento.
+A useful life is 1 to 600 months.	Une durée de vie utile va de 1 à 600 mois.	Una vida útil va de 1 a 600 meses.
+Acquired	Acquis	Adquirido
+Add the category	Ajouter la catégorie	Agregar la categoría
+An inspection interval is 1 to 3,650 days.	Un intervalle d'inspection va de 1 à 3 650 jours.	Un intervalo de inspección va de 1 a 3.650 días.
+An item goes into service on or after the day it was bought.	Un équipement entre en service le jour de son achat ou après.	Un equipo entra en servicio el día de su compra o después.
+An item is disposed of on or after the day it was retired.	Un équipement est cédé le jour de son retrait ou après.	Un equipo se da de baja el día de su retiro o después.
+Another category already has that code.	Une autre catégorie a déjà ce code.	Otra categoría ya tiene ese código.
+Asset valuation	Valorisation des équipements	Valoración de equipos
+Book value	Valeur comptable	Valor contable
+By class	Par classe	Por clase
+Calibrate the sensor	Étalonner le capteur	Calibrar el sensor
+Calibration	Étalonnage	Calibración
+Categories	Catégories	Categorías
+Category saved.	Catégorie enregistrée.	Categoría guardada.
+Change what the value is based on	Modifier ce sur quoi repose la valeur	Cambiar en qué se basa el valor
+Choose a class.	Choisissez une classe.	Elija una clase.
+Choose a vendor from the list, or leave it empty.	Choisissez un fournisseur de la liste, ou laissez vide.	Elija un proveedor de la lista o déjelo vacío.
+Cost of ownership	Coût de possession	Costo de propiedad
+Days out of use	Jours hors d'usage	Días fuera de uso
+Depreciation to date	Amortissement à ce jour	Depreciación a la fecha
+Dispose of it	Le céder	Darlo de baja
+Dispose of it, for good	Le céder, définitivement	Darlo de baja, definitivamente
+Disposed of	Cédé	Dado de baja
+Donated	Donné	Donado
+Download CSV	Télécharger le CSV	Descargar CSV
+Downtime is 0 to 365 days.	L'immobilisation va de 0 à 365 jours.	El tiempo fuera de uso va de 0 a 365 días.
+Due within two weeks	À faire dans les deux semaines	Pendiente en dos semanas
+Electronics	Électronique	Electrónica
+Every	Tous les	Cada
+Every (days)	Tous les (jours)	Cada (días)
+Every class	Toutes les classes	Todas las clases
+Findings	Constats	Hallazgos
+Findings · required when it fails	Constats · obligatoires en cas d'échec	Hallazgos · obligatorios si falla
+First due · empty: one interval from today	Première échéance · vide : un intervalle à partir d'aujourd'hui	Primer vencimiento · vacío: un intervalo desde hoy
+For a plan	Pour un plan	Para un plan
+Gain on disposal	Plus-value de cession	Ganancia en la baja
+Give a date that is not in the future.	Indiquez une date qui n'est pas dans le futur.	Indique una fecha que no sea futura.
+Give the category a name of 2 to 120 characters.	Donnez à la catégorie un nom de 2 à 120 caractères.	Dé a la categoría un nombre de 2 a 120 caracteres.
+Give what it was sold for.	Indiquez le prix de vente.	Indique por cuánto se vendió.
+In service	En service	En servicio
+In service since	En service depuis	En servicio desde
+In use	Utilisée	En uso
+Inspection	Inspection	Inspección
+Inspection every (days)	Inspection tous les (jours)	Inspección cada (días)
+Inspection failed	Inspection échouée	Inspección fallida
+Inspection passed	Inspection réussie	Inspección superada
+Inspections	Inspections	Inspecciones
+Items	Équipements	Equipos
+Keep the findings under 1,000 characters.	Gardez les constats sous 1 000 caractères.	Mantenga los hallazgos por debajo de 1.000 caracteres.
+Keep the note under 400 characters.	Gardez la note sous 400 caractères.	Mantenga la nota por debajo de 400 caracteres.
+Last done	Dernière fois	Última vez
+Lifecycle	Cycle de vie	Ciclo de vida
+Loss on disposal	Moins-value de cession	Pérdida en la baja
+Maintenance comes round every 1 to 3,650 days.	La maintenance revient tous les 1 à 3 650 jours.	El mantenimiento se repite cada 1 a 3.650 días.
+Maintenance plan stopped	Plan de maintenance arrêté	Plan de mantenimiento detenido
+Maintenance planned	Maintenance planifiée	Mantenimiento planificado
+Next inspection · after a pass	Prochaine inspection · après une réussite	Próxima inspección · tras superarla
+No in-service or purchase date	Ni date de mise en service ni date d'achat	Sin fecha de puesta en servicio ni de compra
+No inspection recorded.	Aucune inspection enregistrée.	Ninguna inspección registrada.
+No item.	Aucun équipement.	Ningún equipo.
+No maintenance planned.	Aucune maintenance planifiée.	Ningún mantenimiento planificado.
+No purchase cost	Pas de coût d'achat	Sin costo de compra
+No service recorded.	Aucune intervention enregistrée.	Ningún servicio registrado.
+No useful life set, on the item or its category	Aucune durée de vie utile, ni sur l'équipement ni sur sa catégorie	Sin vida útil, ni en el equipo ni en su categoría
+Not valued	Non valorisé	Sin valorar
+Nothing dated yet.	Rien de daté pour l'instant.	Aún nada fechado.
+Nothing is due.	Rien n'est à faire.	Nada pendiente.
+Only a client's item is returned to the client.	Seul un équipement du client est rendu au client.	Solo un equipo del cliente se devuelve al cliente.
+Only a sale brings proceeds.	Seule une vente rapporte un produit.	Solo una venta genera ingresos.
+Or done by	Ou fait par	O hecho por
+Out of use	Hors d'usage	Fuera de uso
+Owned by the client	Appartient au client	Propiedad del cliente
+Passed	Réussie	Superada
+Plan it	La planifier	Planificarlo
+Record the inspection	Enregistrer l'inspection	Registrar la inspección
+Record the service	Enregistrer l'intervention	Registrar el servicio
+Repair	Réparation	Reparación
+Residual %	Résiduelle %	Residual %
+Residual value	Valeur résiduelle	Valor residual
+Residual value, if not the category's share	Valeur résiduelle, si ce n'est la part de la catégorie	Valor residual, si no es la parte de la categoría
+Result	Résultat	Resultado
+Retire the item, or mark it lost, before disposing of it.	Retirez l'équipement, ou déclarez-le perdu, avant de le céder.	Retire el equipo, o márquelo perdido, antes de darlo de baja.
+Returned to the client	Rendu au client	Devuelto al cliente
+Say how it was disposed of.	Dites comment il a été cédé.	Diga cómo se dio de baja.
+Say what failed, so the repair can be done.	Dites ce qui a échoué, pour que la réparation se fasse.	Diga qué falló, para que se haga la reparación.
+Say what kind of service it was.	Dites de quel type d'intervention il s'agit.	Diga qué tipo de servicio fue.
+Say what the maintenance is, in 3 to 190 characters.	Dites ce qu'est la maintenance, en 3 à 190 caractères.	Diga qué es el mantenimiento, en 3 a 190 caracteres.
+Say whether it passed or failed.	Dites si elle a réussi ou échoué.	Diga si se superó o falló.
+Say who did it: a vendor from the list, or a name.	Dites qui l'a faite : un fournisseur de la liste, ou un nom.	Diga quién lo hizo: un proveedor de la lista o un nombre.
+Scrapped	Mis au rebut	Desechado
+Service costs	Coûts d'intervention	Costos de servicio
+Service history	Historique des interventions	Historial de servicio
+Serviced	Entretenu	Mantenido
+Sold	Vendu	Vendido
+Sold for (a sale only)	Vendu pour (vente seulement)	Vendido por (solo una venta)
+Stopped	Arrêté	Detenido
+Straight line from the day it went into service. A management figure: equipment is expensed when bought, and nothing here is posted to the ledger.	Linéaire à partir de la mise en service. Un chiffre de gestion : l'équipement est passé en charges à l'achat, et rien ici n'est comptabilisé au grand livre.	Lineal desde la puesta en servicio. Una cifra de gestión: el equipo se registra como gasto al comprarse, y nada aquí se contabiliza en el libro mayor.
+That category does not exist.	Cette catégorie n'existe pas.	Esa categoría no existe.
+That item failed its last inspection. Inspect it again, and it goes out once it passes.	Cet équipement a échoué à sa dernière inspection. Inspectez-le à nouveau ; il sortira une fois réussie.	Ese equipo falló su última inspección. Inspecciónelo de nuevo; saldrá cuando la supere.
+That item has been disposed of.	Cet équipement a été cédé.	Ese equipo fue dado de baja.
+That item is overdue for :task (due :date). Do it before the item is issued.	Cet équipement est en retard pour :task (prévu le :date). Faites-le avant de le remettre.	Ese equipo tiene vencido :task (desde :date). Hágalo antes de entregarlo.
+That maintenance plan does not exist or is already stopped.	Ce plan de maintenance n'existe pas ou est déjà arrêté.	Ese plan de mantenimiento no existe o ya está detenido.
+That maintenance plan is not this item's, or is stopped.	Ce plan de maintenance n'est pas celui de cet équipement, ou il est arrêté.	Ese plan de mantenimiento no es de este equipo o está detenido.
+The first maintenance is today or later.	La première maintenance a lieu aujourd'hui ou plus tard.	El primer mantenimiento es hoy o más tarde.
+The item does not go out while this is overdue	L'équipement ne sort pas tant que ceci est en retard	El equipo no sale mientras esto esté vencido
+Useful life	Durée de vie utile	Vida útil
+Useful life (months)	Durée de vie utile (mois)	Vida útil (meses)
+Useful life (months), if not the category's	Durée de vie utile (mois), si ce n'est celle de la catégorie	Vida útil (meses), si no es la de la categoría
+Valuation	Valorisation	Valoración
+Valuation set	Valorisation définie	Valoración definida
+Value today	Valeur aujourd'hui	Valor hoy
+Valued	Valorisés	Valorados
+Vehicles and plant	Véhicules et engins	Vehículos y maquinaria
+What each agency-owned item is worth on a date: straight-line depreciation of its cost down to its residual value over its useful life, from the day it went into service. A management figure: equipment is expensed when bought, and nothing here is posted to the ledger.	Ce que vaut à une date chaque équipement de l'agence : amortissement linéaire de son coût jusqu'à sa valeur résiduelle sur sa durée de vie utile, à partir de sa mise en service. Un chiffre de gestion : l'équipement est passé en charges à l'achat, et rien ici n'est comptabilisé au grand livre.	Lo que vale en una fecha cada equipo de la agencia: depreciación lineal de su costo hasta su valor residual durante su vida útil, desde su puesta en servicio. Una cifra de gestión: el equipo se registra como gasto al comprarse, y nada aquí se contabiliza en el libro mayor.
+blocks issue when overdue	bloque la remise si en retard	bloquea la entrega si está vencido
+in service :date	en service le :date	en servicio el :date
+residual :amount	résiduelle :amount	residual :amount

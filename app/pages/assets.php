@@ -8,6 +8,7 @@
  */
 
 require_once __DIR__ . '/../assets.php';
+require_once __DIR__ . '/../asset-lifecycle.php';
 
 require_role('recruiter', 'hotels');
 
@@ -69,6 +70,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/assets');
     }
 
+    // P5-M03: inspections, maintenance, service, valuation, disposal, categories.
+    $lifecycleActions = [
+        'inspection' => fn() => al_inspect($id, (string) ($_POST['result'] ?? ''), trim((string) ($_POST['inspected_on'] ?? '')), (string) ($_POST['findings'] ?? ''), (string) ($_POST['next_due'] ?? '')),
+        'plan_save' => fn() => al_plan_save($id, $_POST),
+        'plan_stop' => fn() => al_plan_stop((int) ($_POST['plan_id'] ?? 0)),
+        'service' => fn() => al_service_add($id, $_POST),
+        'value' => fn() => al_value_settings($id, $_POST),
+        'dispose' => fn() => al_dispose($id, $_POST),
+    ];
+    if (isset($lifecycleActions[$do])) {
+        db()->beginTransaction();
+        if (($why = $lifecycleActions[$do]()) !== null) {
+            db()->rollBack();
+            refuse(422, $why);
+        }
+        db()->commit();
+        flash(t('Recorded.'));
+        redirect('/assets?id=' . $id);
+    }
+    if ($do === 'category_save') {
+        if (($why = al_category_save($_POST, (int) ($_POST['category_id'] ?? 0))) !== null) {
+            refuse(422, $why);
+        }
+        flash(t('Category saved.'));
+        redirect('/assets#asset-categories');
+    }
+
     if ($do === 'act') {
         db()->beginTransaction();
         $why = asset_action($id, (string) ($_POST['action'] ?? ''), (string) ($_POST['note'] ?? ''), (string) ($_POST['cost'] ?? ''), (string) ($_POST['next_due'] ?? ''));
@@ -102,7 +130,14 @@ if (isset($_GET['id'])) {
                     JOIN candidates c ON c.id = p.candidate_id JOIN jobs j ON j.id = p.job_id
                     WHERE i.equipment_id = ? ORDER BY i.id DESC', [(int) $item['id']]);
     $order = $item['purchase_order_id'] ? row('SELECT reference FROM purchase_orders WHERE id = ?', [(int) $item['purchase_order_id']]) : null;
-    render('assets', compact('item', 'holder', 'events', 'issues', 'order', 'statuses', 'categories'));
+    $inspections = rows('SELECT i.*, u.name AS by_name FROM asset_inspections i LEFT JOIN users u ON u.id = i.inspected_by WHERE i.equipment_id = ? ORDER BY i.inspected_on DESC, i.id DESC', [(int) $item['id']]);
+    $plans = rows('SELECT * FROM asset_maintenance_plans WHERE equipment_id = ? ORDER BY is_active DESC, next_due', [(int) $item['id']]);
+    $services = rows('SELECT s.*, v.name AS vendor_name, u.name AS by_name FROM asset_service_records s LEFT JOIN vendors v ON v.id = s.vendor_id LEFT JOIN users u ON u.id = s.user_id
+                      WHERE s.equipment_id = ? ORDER BY s.performed_on DESC, s.id DESC', [(int) $item['id']]);
+    $valuation = al_valuation($item, date('Y-m-d'));
+    $lifecycle = al_lifecycle($item);
+    $vendors = rows("SELECT id, name FROM vendors WHERE status = 'approved' ORDER BY name");
+    render('assets', compact('item', 'holder', 'events', 'issues', 'order', 'statuses', 'categories', 'inspections', 'plans', 'services', 'valuation', 'lifecycle', 'vendors'));
     return;
 }
 
@@ -116,7 +151,7 @@ if (isset($statuses[$state])) {
     if ($state !== 'issued') { $args[] = $state; }
 }
 if ($state === 'overdue') {
-    $where[] = "e.inspection_due < CURDATE() AND e.status NOT IN ('lost','retired')";
+    $where[] = "e.inspection_due < CURDATE() AND e.status NOT IN ('lost','retired','disposed')";
 }
 if ($category) {
     $where[] = 'e.category_id = ?';
@@ -136,10 +171,10 @@ $items = rows('SELECT e.*, o.owner_type, o.serial_number, cl.name AS owner_clien
                LEFT JOIN jobs j ON j.id = p.job_id'
              . ($where ? ' WHERE ' . implode(' AND ', $where) : '') . ' ORDER BY e.asset_tag LIMIT 500', $args);
 
-$counts = ['issued' => 0, 'available' => 0, 'in_repair' => 0, 'lost' => 0, 'retired' => 0, 'overdue' => 0];
+$counts = ['issued' => 0, 'available' => 0, 'in_repair' => 0, 'lost' => 0, 'retired' => 0, 'disposed' => 0, 'overdue' => 0];
 foreach (rows("SELECT e.status, e.inspection_due, (SELECT COUNT(*) FROM equipment_issues i WHERE i.equipment_id = e.id AND i.returned_at IS NULL) AS out_now FROM equipment e") as $r) {
     $counts[$r['out_now'] ? 'issued' : $r['status']]++;
-    if ($r['inspection_due'] && $r['inspection_due'] < date('Y-m-d') && ! in_array($r['status'], ['lost', 'retired'], true)) {
+    if ($r['inspection_due'] && $r['inspection_due'] < date('Y-m-d') && ! in_array($r['status'], ['lost', 'retired', 'disposed'], true)) {
         $counts['overdue']++;
     }
 }
@@ -156,4 +191,6 @@ if (can('hotels')) {
 }
 $clients = rows('SELECT id, name FROM clients ORDER BY name');
 
-render('assets', compact('items', 'counts', 'statuses', 'categories', 'orders', 'clients', 'state', 'category', 'search'));
+$due = al_due(14);
+
+render('assets', compact('items', 'counts', 'statuses', 'categories', 'orders', 'clients', 'state', 'category', 'search', 'due'));

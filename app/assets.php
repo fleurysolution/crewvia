@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 function asset_statuses(): array
 {
-    return ['available' => t('Available'), 'issued' => t('Issued'), 'in_repair' => t('In repair'), 'lost' => t('Lost'), 'retired' => t('Retired')];
+    return ['available' => t('Available'), 'issued' => t('Issued'), 'in_repair' => t('In repair'), 'lost' => t('Lost'), 'retired' => t('Retired'), 'disposed' => t('Disposed of')];
 }
 
 function asset_conditions(): array
@@ -31,7 +31,10 @@ function asset_event_labels(): array
 {
     return ['registered' => t('Registered'), 'issued' => t('Issued'), 'returned' => t('Returned'), 'lost' => t('Lost'),
             'repair' => t('Sent for repair'), 'repaired' => t('Back from repair'), 'inspect' => t('Inspected'),
-            'lose' => t('Lost'), 'retire' => t('Retired'), 'restore' => t('Found or put back in service')];
+            'lose' => t('Lost'), 'retire' => t('Retired'), 'restore' => t('Found or put back in service'),
+            // P5-M03
+            'inspection_failed' => t('Inspection failed'), 'plan' => t('Maintenance planned'), 'plan_stopped' => t('Maintenance plan stopped'),
+            'serviced' => t('Serviced'), 'valuation' => t('Valuation set'), 'disposed' => t('Disposed of')];
 }
 
 function asset_categories(bool $activeOnly = true): array
@@ -52,7 +55,7 @@ function asset_event(int $equipmentId, string $event, ?string $detail = null, ?f
 /** The item, with its derived state ('issued' when it is out). */
 function asset(int $equipmentId): ?array
 {
-    $a = row('SELECT e.*, o.owner_type, o.client_id, o.serial_number, c.label AS category,
+    $a = row('SELECT e.*, o.owner_type, o.client_id, o.serial_number, c.label AS category, c.asset_class,
                      i.id AS issue_id, i.placement_id AS held_by_placement
               FROM equipment e LEFT JOIN equipment_ownership o ON o.equipment_id = e.id
               LEFT JOIN asset_categories c ON c.id = e.category_id
@@ -139,11 +142,35 @@ function asset_issue(int $equipmentId, int $placementId, int $jobId, string $con
     if (! empty($a['inspection_due']) && $a['inspection_due'] < date('Y-m-d')) {
         return t('That item is past its inspection date (:date). Inspect it before it is issued.', ['date' => d((string) $a['inspection_due'])]);
     }
+    // P5-M03: maintenance that must be done before the item goes out (a calibration, say).
+    try {
+        $blocking = row('SELECT task, next_due FROM asset_maintenance_plans WHERE equipment_id = ? AND is_active = 1 AND blocks_issue = 1 AND next_due < ? ORDER BY next_due LIMIT 1',
+                        [$equipmentId, date('Y-m-d')]);
+    } catch (Throwable $e) {
+        $blocking = null;
+    }
+    if ($blocking) {
+        return t('That item is overdue for :task (due :date). Do it before the item is issued.', ['task' => $blocking['task'], 'date' => d((string) $blocking['next_due'])]);
+    }
+    // A failed inspection stands until one passes: a repair alone does not clear it.
+    try {
+        $lastInspection = val('SELECT result FROM asset_inspections WHERE equipment_id = ? ORDER BY inspected_on DESC, id DESC LIMIT 1', [$equipmentId]);
+    } catch (Throwable $e) {
+        $lastInspection = null;
+    }
+    if ($lastInspection === 'fail') {
+        return t('That item failed its last inspection. Inspect it again, and it goes out once it passes.');
+    }
     if (! in_array($condition, ['good', 'worn', 'damaged'], true)) {
         $condition = 'good';
     }
 
     q('INSERT INTO equipment_issues (equipment_id, placement_id, issue_condition, issued_by) VALUES (?,?,?,?)', [$equipmentId, $placementId, $condition, uid() ?: null]);
+    // The first time it goes out is when it went into service.
+    try {
+        q('UPDATE equipment SET in_service_on = CURDATE() WHERE id = ? AND in_service_on IS NULL', [$equipmentId]);
+    } catch (Throwable $e) {
+    }
     asset_event($equipmentId, 'issued', $p['full_name'] . ' · ' . $condition);
 
     return null;
@@ -222,10 +249,26 @@ function asset_action(int $equipmentId, string $action, string $note, string $co
             return t('The next inspection is a date after today.');
         }
         q('UPDATE equipment SET inspection_due = ? WHERE id = ?', [$next ?: null, $equipmentId]);
+        // P5-M03: every inspection is a record too, passed here.
+        try {
+            q("INSERT INTO asset_inspections (equipment_id, inspected_on, result, findings, next_due, inspected_by) VALUES (?, CURDATE(), 'pass', ?, ?, ?)",
+              [$equipmentId, trim($note) ?: null, $next ?: null, uid() ?: null]);
+        } catch (Throwable $e) {
+        }
         $note = trim($note . ($next ? ' · ' . t('next due :date', ['date' => d($next)]) : ''), ' ·');
     } else {
         $status = ['repair' => 'in_repair', 'repaired' => 'available', 'lose' => 'lost', 'retire' => 'retired', 'restore' => 'available'][$action];
         q('UPDATE equipment SET status = ? WHERE id = ?', [$status, $equipmentId]);
+        // P5-M03: retirement is dated; a repair is a line of the service history (one entry, two views).
+        try {
+            if ($action === 'retire') { q('UPDATE equipment SET retired_on = CURDATE() WHERE id = ?', [$equipmentId]); }
+            if ($action === 'restore') { q('UPDATE equipment SET retired_on = NULL WHERE id = ?', [$equipmentId]); }
+            if ($action === 'repaired') {
+                q("INSERT INTO asset_service_records (equipment_id, kind, performed_on, cost, notes, user_id) VALUES (?, 'repair', CURDATE(), ?, ?, ?)",
+                  [$equipmentId, $amount, trim($note) ?: null, uid() ?: null]);
+            }
+        } catch (Throwable $e) {
+        }
     }
 
     asset_event($equipmentId, $action, trim($note) ?: null, $amount);

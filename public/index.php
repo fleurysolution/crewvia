@@ -178,6 +178,7 @@ $routes = [
     '/my-tasks' => 'my-tasks',
     '/project-board' => 'project-board',
     '/workload' => 'workload',
+    '/asset-valuation' => 'asset-valuation',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',
