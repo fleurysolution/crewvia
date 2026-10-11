@@ -1796,4 +1796,28 @@ if (! $hadOperations) {
        . 'no backup is taken until install/backup.php runs (by cron, see docs/OPERATIONS.md).' . PHP_EOL;
 }
 
+// ── P5-M01: project milestones, tasks and task history ──
+// Reversed by install/rollback/p5-m01.sql.
+$projectTasksSql = __DIR__ . '/project-tasks.sql';
+
+if (! is_file($projectTasksSql)) {
+    fwrite(STDERR, "Missing install/project-tasks.sql\n");
+    exit(1);
+}
+
+$hadProjectTasks = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                              WHERE table_schema=DATABASE() AND table_name='project_tasks'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($projectTasksSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadProjectTasks) {
+    echo 'Project tasks: milestones, tasks with assignees, priorities, deadlines and history, and progress per project; '
+       . 'no task exists yet (administrators, recruiters and the supervisors of a crew create them under Project tasks).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

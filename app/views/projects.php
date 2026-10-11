@@ -100,7 +100,7 @@
     <table>
       <thead><tr>
         <th><?= te('Project') ?></th><th><?= te('Client') ?></th><th><?= te('Where') ?></th>
-        <th><?= te('Status') ?></th><th><?= te('Scope') ?></th><th class="right"><?= te('Open') ?></th>
+        <th><?= te('Status') ?></th><th><?= te('Scope') ?></th><th><?= te('Tasks') ?></th><th class="right"><?= te('Open') ?></th>
       </tr></thead>
       <tbody>
       <?php foreach ($projects as $p): ?>
@@ -127,6 +127,15 @@
               <?= te(':placed of :asked placed', [
                   'placed' => (int) $p['placed'], 'asked' => (int) $p['asked_for']]) ?>
               <div class="muted"><?= te(':n lines on the order', ['n' => (int) $p['scope_lines']]) ?></div>
+            <?php endif; ?>
+          </td>
+          <td class="small" data-task-progress="<?= (int) $p['id'] ?>">
+            <?php $tp = $taskProgress[(int) $p['id']] ?? null; ?>
+            <?php if (! $tp || ! $tp['live']): ?>
+              <span class="muted">&mdash;</span>
+            <?php else: ?>
+              <?= te(':done of :live done (:percent%)', ['done' => $tp['done'], 'live' => $tp['live'], 'percent' => $tp['percent']]) ?>
+              <?php if ($tp['overdue']): ?><div><span class="tag red"><?= te(':n overdue', ['n' => $tp['overdue']]) ?></span></div><?php endif; ?>
             <?php endif; ?>
           </td>
           <td class="right">

@@ -33,6 +33,8 @@ function workspace_nav(?array $u): array
         ['/report-builder',     'Report builder',                     ['recruiter','payroll']],
         ['/',                   'Project dashboard',                  null],
         ['/projects',           'Projects',                           'admin'],
+        ['/project-tasks',      'Project tasks',                      ['recruiter','hotels','payroll']],
+        ['/my-tasks',           'My tasks',                           null],
         ['/manning',            'Manning',                            ['recruiter','hotels','payroll']],
         ['/personnel',          'Promotions & transfers',             'recruiter'],
         ['/organization',       'Organization',                       ['recruiter','hotels','payroll']],
@@ -117,7 +119,7 @@ function workspace_nav(?array $u): array
     if (in_array($u['role'] ?? '', ['worker', 'supervisor'], true)) {
         $crew = is_worker_account();
 
-        $nav = [['/activity', 'Activity', null]];
+        $nav = [['/activity', 'Activity', null], ['/my-tasks', 'My tasks', null]];
 
         if ($crew) {
             $nav[] = ['/self-service', 'My self-service', null];
@@ -158,6 +160,8 @@ function workspace_nav(?array $u): array
 
     if (($u['role'] ?? '') === 'supervisor') {
         array_unshift($nav, ['/my-team', 'My team', null]);
+        // P5-M01: the tasks of the projects they supervise a crew on.
+        $nav[] = ['/project-tasks', 'Project tasks', null];
         // A supervisor raises what the crew needs, and may own the budget.
         $nav[] = ['/procurement', 'Procurement', null];
     }
@@ -180,7 +184,7 @@ function workspace_sections(): array
 {
     return [
         'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
-                       '/my-team', '/portal'],
+                       '/my-team', '/portal', '/project-tasks', '/my-tasks'],
         'Recruiting' => ['/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels'],
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks',

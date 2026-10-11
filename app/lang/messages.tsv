@@ -2567,3 +2567,81 @@ Tables	Tables	Tablas
 The checks cron runs every hour, the backups, the scheduled jobs and the errors people met. A failing line here is also mailed by cron, if the health check is scheduled.	Les contrôles que cron lance chaque heure, les sauvegardes, les tâches planifiées et les erreurs rencontrées. Une ligne en échec est aussi envoyée par cron, si le contrôle de santé est planifié.	Los controles que cron ejecuta cada hora, las copias, las tareas programadas y los errores encontrados. Una línea fallando también la envía cron, si el control de salud está programado.
 Times	Fois	Veces
 files	fichiers	archivos
+:done of :live done (:percent%)	:done sur :live terminées (:percent %)	:done de :live hechas (:percent %)
+:done of :live tasks done (:percent%)	:done tâches sur :live terminées (:percent %)	:done de :live tareas hechas (:percent %)
+:n blocked	:n bloquées	:n bloqueadas
+:n open	:n ouvertes	:n abiertas
+:n overdue	:n en retard	:n vencidas
+:reached of :total milestones reached	:reached jalons atteints sur :total	:reached de :total hitos alcanzados
+A task goes to a member of staff, or to a worker placed on this project.	Une tâche va à un membre du personnel, ou à un travailleur placé sur ce projet.	Una tarea se asigna a un miembro del personal o a un trabajador colocado en este proyecto.
+Add the milestone	Ajouter le jalon	Agregar el hito
+All	Toutes	Todas
+Any	Tous	Cualquiera
+Anyone	Tout le monde	Cualquier persona
+Assigned	Attribuée	Asignada
+Assigned to	Attribuée à	Asignada a
+Blocked	Bloquée	Bloqueada
+Cancel this milestone	Annuler ce jalon	Cancelar este hito
+Change the task	Modifier la tâche	Cambiar la tarea
+Choose a milestone of this project.	Choisissez un jalon de ce projet.	Elija un hito de este proyecto.
+Choose a priority.	Choisissez une priorité.	Elija una prioridad.
+Choose a status.	Choisissez un statut.	Elija un estado.
+Create the task	Créer la tâche	Crear la tarea
+Deadline	Date limite	Fecha límite
+Description changed	Description modifiée	Descripción cambiada
+Give the deadline as a date.	Indiquez la date limite sous forme de date.	Indique la fecha límite como una fecha.
+Give the milestone a title of at most 190 characters.	Donnez au jalon un titre de 190 caractères au plus.	Dé al hito un título de 190 caracteres como máximo.
+Give the task a title of at most 190 characters.	Donnez à la tâche un titre de 190 caractères au plus.	Dé a la tarea un título de 190 caracteres como máximo.
+High	Haute	Alta
+If blocked, waiting for	Si bloquée, en attente de	Si está bloqueada, a la espera de
+Keep a note under 1,000 characters.	Gardez la note sous 1 000 caractères.	Mantenga la nota por debajo de 1.000 caracteres.
+Keep the description under 5,000 characters.	Gardez la description sous 5 000 caractères.	Mantenga la descripción por debajo de 5.000 caracteres.
+Low	Basse	Baja
+Milestone	Jalon	Hito
+Milestone cancelled.	Jalon annulé.	Hito cancelado.
+Milestone reached	Jalon atteint	Hito alcanzado
+Milestone saved.	Jalon enregistré.	Hito guardado.
+Milestones	Jalons	Hitos
+Milestones on this project are set by its managers.	Les jalons de ce projet sont fixés par ses responsables.	Los hitos de este proyecto los fijan sus responsables.
+My tasks	Mes tâches	Mis tareas
+New milestone	Nouveau jalon	Nuevo hito
+New task	Nouvelle tâche	Nueva tarea
+No milestone yet.	Aucun jalon pour l'instant.	Aún no hay hitos.
+No task for these filters.	Aucune tâche pour ces filtres.	Ninguna tarea para estos filtros.
+No task on this project yet.	Aucune tâche sur ce projet pour l'instant.	Aún no hay tareas en este proyecto.
+Normal	Normale	Normal
+Nothing changed.	Rien n'a changé.	Nada cambió.
+Nothing is assigned to you.	Rien ne vous est attribué.	No tiene nada asignado.
+Only the person assigned, or whoever manages this project's tasks, changes this task.	Seule la personne attribuée, ou qui gère les tâches de ce projet, modifie cette tâche.	Solo la persona asignada, o quien gestiona las tareas de este proyecto, cambia esta tarea.
+Only whoever manages this project's tasks cancels a task or reopens a cancelled one.	Seul qui gère les tâches de ce projet annule une tâche ou rouvre une tâche annulée.	Solo quien gestiona las tareas de este proyecto cancela una tarea o reabre una cancelada.
+Open a project first: tasks belong to a project.	Ouvrez d'abord un projet : les tâches appartiennent à un projet.	Abra primero un proyecto: las tareas pertenecen a un proyecto.
+Open tasks	Tâches ouvertes	Tareas abiertas
+Overdue only	En retard seulement	Solo vencidas
+Priority	Priorité	Prioridad
+Project tasks	Tâches du projet	Tareas del proyecto
+Project tasks are open to the desks and to the supervisors of this project's crews.	Les tâches du projet sont ouvertes aux bureaux et aux superviseurs des équipes de ce projet.	Las tareas del proyecto están abiertas a las oficinas y a los supervisores de las cuadrillas de este proyecto.
+Save the changes	Enregistrer les modifications	Guardar los cambios
+Say what the task is waiting for, so someone can unblock it.	Dites ce que la tâche attend, pour que quelqu'un puisse la débloquer.	Diga qué espera la tarea, para que alguien pueda desbloquearla.
+Task	Tâche	Tarea
+Task blocked: :title	Tâche bloquée : :title	Tarea bloqueada: :title
+Task created.	Tâche créée.	Tarea creada.
+Task done: :title	Tâche terminée : :title	Tarea hecha: :title
+Task for you: :title	Tâche pour vous : :title	Tarea para usted: :title
+Task updated.	Tâche mise à jour.	Tarea actualizada.
+Tasks	Tâches	Tareas
+Tasks are still open under this milestone: close them or move them to another one first.	Des tâches sont encore ouvertes sous ce jalon : fermez-les ou déplacez-les d'abord.	Aún hay tareas abiertas en este hito: ciérrelas o muévalas primero.
+Tasks done	Tâches terminées	Tareas hechas
+Tasks on this project are created by its managers: administrators, recruiters and the supervisors of its crews.	Les tâches de ce projet sont créées par ses responsables : administrateurs, recruteurs et superviseurs de ses équipes.	Las tareas de este proyecto las crean sus responsables: administradores, reclutadores y supervisores de sus cuadrillas.
+That task does not exist.	Cette tâche n'existe pas.	Esa tarea no existe.
+That task is not on this project.	Cette tâche n'est pas sur ce projet.	Esa tarea no está en este proyecto.
+That task is not yours.	Cette tâche n'est pas la vôtre.	Esa tarea no es suya.
+The milestones of :project, the tasks that reach them, who does each and by when.	Les jalons de :project, les tâches qui y mènent, qui fait chacune et pour quand.	Los hitos de :project, las tareas que llevan a ellos, quién hace cada una y para cuándo.
+Title of the milestone	Titre du jalon	Título del hito
+Title of the task	Titre de la tâche	Título de la tarea
+To do	À faire	Por hacer
+Under way	En cours	En marcha
+Urgent	Urgente	Urgente
+Waiting for	En attente de	A la espera de
+What is assigned to you on every project, the open ones first. Move each along and say when something stops you.	Ce qui vous est attribué sur chaque projet, les tâches ouvertes d'abord. Faites avancer chacune et dites quand quelque chose vous arrête.	Lo que tiene asignado en cada proyecto, primero lo abierto. Haga avanzar cada una y diga cuándo algo le detiene.
+You can move your task along and write on it; its other details are set by whoever manages the project's tasks.	Vous pouvez faire avancer votre tâche et y écrire ; ses autres détails sont fixés par qui gère les tâches du projet.	Puede hacer avanzar su tarea y escribir en ella; sus otros detalles los fija quien gestiona las tareas del proyecto.
+crew	équipe	cuadrilla

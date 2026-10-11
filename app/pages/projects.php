@@ -96,4 +96,8 @@ $projects = rows("SELECT j.*, c.name client_name,
 
 $pageTitle = t('Projects') . ' · ' . $config['app_name'];
 
-render('projects', compact('projects'));
+// P5-M01: each project's task progress, in one query for the whole list.
+require_once __DIR__ . '/../project-tasks.php';
+$taskProgress = pt_progress_all();
+
+render('projects', compact('projects', 'taskProgress'));
