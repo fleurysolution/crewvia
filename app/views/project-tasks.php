@@ -8,7 +8,8 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
 <?php if (! $job): ?>
 <p class="muted"><?= te('Open a project first: tasks belong to a project.') ?></p>
 <?php return; endif; ?>
-<p class="sub"><?= te('The milestones of :project, the tasks that reach them, who does each and by when.', ['project' => $job['title']]) ?></p>
+<p class="sub"><?= te('The milestones of :project, the tasks that reach them, who does each and by when.', ['project' => $job['title']]) ?>
+  <a href="/project-board"><?= te('Board') ?></a> · <a href="/workload"><?= te('Workload') ?></a></p>
 
 <div class="card" id="task-progress" data-percent="<?= $progress['percent'] ?? '' ?>" data-live="<?= (int) $progress['live'] ?>" data-done="<?= (int) $progress['done'] ?>" data-overdue="<?= (int) $progress['overdue'] ?>">
   <h2><?= te('Progress') ?></h2>
@@ -57,7 +58,8 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
   <h2><?= e($detail['title']) ?> <span class="tag <?= $ptStatusTone[$detail['status']] ?>"><?= e($ptStatus[$detail['status']]) ?></span> <span class="tag <?= $ptPriorityTone[$detail['priority']] ?>"><?= e($ptPriority[$detail['priority']]) ?></span></h2>
   <p><?= te('Assigned to') ?>: <?= e((string) ($detail['assignee_name'] ?? '–')) ?> · <?= te('Due') ?>: <?= $detail['due_on'] ? e(d($detail['due_on'])) : '–' ?>
      <?php if ($detail['due_on'] && $detail['due_on'] < $today && in_array($detail['status'], PT_OPEN, true)): ?><span class="tag red"><?= te('Overdue') ?></span><?php endif; ?>
-     · <?= te('Milestone') ?>: <?= e((string) ($detail['milestone_title'] ?? '–')) ?></p>
+     · <?= te('Milestone') ?>: <?= e((string) ($detail['milestone_title'] ?? '–')) ?>
+     · <?= te('Estimate') ?>: <?= $detail['estimate_hours'] !== null ? e(t(':h h', ['h' => rtrim(rtrim((string) $detail['estimate_hours'], '0'), '.')])) : '–' ?></p>
   <?php if ($detail['description']): ?><p style="white-space:pre-wrap"><?= e($detail['description']) ?></p><?php endif; ?>
   <?php if ($detail['status'] === 'blocked'): ?><p class="flash err"><?= te('Waiting for') ?>: <?= e((string) $detail['blocked_reason']) ?></p><?php endif; ?>
 
@@ -77,10 +79,27 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
     <label><?= te('Priority') ?><select name="priority"><?php foreach ($ptPriority as $k => $label): ?><option value="<?= e($k) ?>"<?= $k === $detail['priority'] ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Deadline') ?><input type="date" name="due_on" value="<?= e((string) $detail['due_on']) ?>"></label>
     <label><?= te('Milestone') ?><select name="milestone_id"><option value="0">–</option><?php foreach ($milestones as $m): if ($m['cancelled_at']) continue; ?><option value="<?= (int) $m['id'] ?>"<?= (int) $m['id'] === (int) $detail['milestone_id'] ? ' selected' : '' ?>><?= e($m['title']) ?></option><?php endforeach; ?></select></label>
+    <label><?= te('Estimate (hours)') ?><input name="estimate_hours" type="number" min="0.5" max="999" step="0.5" value="<?= e($detail['estimate_hours'] === null ? '' : rtrim(rtrim((string) $detail['estimate_hours'], '0'), '.')) ?>"></label>
+    <label><?= te('Subtask of') ?><select name="parent_id"><option value="0">–</option><?php foreach ($parents as $pa): if ((int) $pa['id'] === (int) $detail['id']) continue; ?><option value="<?= (int) $pa['id'] ?>"<?= (int) $pa['id'] === (int) $detail['parent_id'] ? ' selected' : '' ?>><?= e($pa['title']) ?></option><?php endforeach; ?></select></label>
+    <label><?= te('Sprint') ?><select name="sprint_id"><option value="0"><?= te('Backlog (no sprint)') ?></option><?php foreach ($sprints as $sp): ?><option value="<?= (int) $sp['id'] ?>"<?= (int) $sp['id'] === (int) $detail['sprint_id'] ? ' selected' : '' ?>><?= e($sp['name']) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Description') ?><textarea name="description" maxlength="5000" rows="3"><?= e((string) $detail['description']) ?></textarea></label>
     <div><button class="btn"><?= te('Save the changes') ?></button></div></form>
   </details>
   <?php endif; ?>
+
+  <div class="grid g2" style="margin-top:12px">
+    <div id="task-subtasks" data-count="<?= count($subtasks) ?>"><h3><?= te('Subtasks') ?></h3>
+      <?php if (! $subtasks): ?><p class="small muted"><?= te('None.') ?></p><?php endif; ?>
+      <?php foreach ($subtasks as $st): ?><div class="small" data-subtask="<?= (int) $st['id'] ?>"><a href="/project-tasks?task=<?= (int) $st['id'] ?>"><?= e($st['title']) ?></a> · <?= e(pt_statuses()[$st['status']]) ?> · <?= e((string) ($st['assignee_name'] ?? '–')) ?></div><?php endforeach; ?></div>
+    <div id="task-dependencies"><h3><?= te('Waits for') ?></h3>
+      <?php if (! $waitsFor): ?><p class="small muted"><?= te('Nothing.') ?></p><?php endif; ?>
+      <?php foreach ($waitsFor as $wf): ?><div class="small row" data-waits-for="<?= (int) $wf['id'] ?>" data-status="<?= e($wf['status']) ?>"><a href="/project-tasks?task=<?= (int) $wf['id'] ?>"><?= e($wf['title']) ?></a> · <?= e(pt_statuses()[$wf['status']]) ?>
+        <?php if ($manage): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="dependency_remove"><input type="hidden" name="task_id" value="<?= (int) $detail['id'] ?>"><input type="hidden" name="depends_on_id" value="<?= (int) $wf['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form><?php endif; ?></div><?php endforeach; ?>
+      <?php if ($manage): ?><form method="post" class="row" id="dependency-form"><?= csrf_field() ?><input type="hidden" name="do" value="dependency_add"><input type="hidden" name="task_id" value="<?= (int) $detail['id'] ?>">
+        <label class="small"><?= te('Add a task this one waits for') ?><select name="depends_on_id"><?php foreach ($others as $ot): if ((int) $ot['id'] === (int) $detail['id']) continue; ?><option value="<?= (int) $ot['id'] ?>"><?= e($ot['title']) ?></option><?php endforeach; ?></select></label>
+        <button class="btn sm"><?= te('Add') ?></button></form><?php endif; ?>
+      <?php if ($blocking): ?><h3 style="margin-top:8px"><?= te('Waiting for this task') ?></h3><?php foreach ($blocking as $bl): ?><div class="small" data-blocks="<?= (int) $bl['id'] ?>"><a href="/project-tasks?task=<?= (int) $bl['id'] ?>"><?= e($bl['title']) ?></a> · <?= e(pt_statuses()[$bl['status']]) ?></div><?php endforeach; ?><?php endif; ?></div>
+  </div>
 
   <h3 style="margin-top:14px"><?= te('History') ?></h3>
   <table id="task-history"><?php foreach ($events as $ev): ?>
@@ -120,6 +139,9 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
     <label><?= te('Priority') ?><select name="priority"><?php foreach ($ptPriority as $k => $label): ?><option value="<?= e($k) ?>"<?= $k === 'normal' ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Deadline') ?><input type="date" name="due_on"></label>
     <label><?= te('Milestone') ?><select name="milestone_id"><option value="0">–</option><?php foreach ($milestones as $m): if ($m['cancelled_at']) continue; ?><option value="<?= (int) $m['id'] ?>"><?= e($m['title']) ?></option><?php endforeach; ?></select></label>
+    <label><?= te('Estimate (hours)') ?><input name="estimate_hours" type="number" min="0.5" max="999" step="0.5"></label>
+    <label><?= te('Subtask of') ?><select name="parent_id"><option value="0">–</option><?php foreach ($parents as $pa): ?><option value="<?= (int) $pa['id'] ?>"><?= e($pa['title']) ?></option><?php endforeach; ?></select></label>
+    <label><?= te('Sprint') ?><select name="sprint_id"><option value="0"><?= te('Backlog (no sprint)') ?></option><?php foreach ($sprints as $sp): ?><option value="<?= (int) $sp['id'] ?>"><?= e($sp['name']) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Description') ?><textarea name="description" maxlength="5000" rows="3"></textarea></label>
     <div><button class="btn"><?= te('Create the task') ?></button></div></form>
 </div>

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_login();
 require_once __DIR__ . '/../project-tasks.php';
+require_once __DIR__ . '/../project-planning.php';
 
 $job = current_job();
 $jobId = (int) ($job['id'] ?? 0);
@@ -35,9 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $taskId = (int) ($_POST['task_id'] ?? 0);
         $task = pt_task($taskId);
         if (! $task || (int) $task['job_id'] !== $jobId) { refuse(404, t('That task is not on this project.')); }
-        $in = array_intersect_key($_POST, array_flip(['title', 'description', 'priority', 'due_on', 'milestone_id', 'assignee_id', 'status', 'blocked_reason', 'note']));
+        $in = array_intersect_key($_POST, array_flip(['title', 'description', 'priority', 'due_on', 'milestone_id', 'assignee_id', 'status', 'blocked_reason', 'note',
+                                                      'estimate_hours', 'parent_id', 'sprint_id']));
         if (($why = pt_update($taskId, $in, uid())) !== null) { refuse(422, $why); }
         flash(t('Task updated.'));
+        redirect('/project-tasks?task=' . $taskId);
+    }
+    if ($do === 'dependency_add' || $do === 'dependency_remove') {
+        $taskId = (int) ($_POST['task_id'] ?? 0);
+        $task = pt_task($taskId);
+        if (! $task || (int) $task['job_id'] !== $jobId) { refuse(404, t('That task is not on this project.')); }
+        $other = (int) ($_POST['depends_on_id'] ?? 0);
+        $why = $do === 'dependency_add' ? pt_dependency_add($taskId, $other, uid()) : pt_dependency_remove($taskId, $other, uid());
+        if ($why !== null) { refuse(422, $why); }
+        flash($do === 'dependency_add' ? t('Dependency added.') : t('Dependency removed.'));
         redirect('/project-tasks?task=' . $taskId);
     }
     if ($do === 'milestone_save') {
@@ -79,10 +91,18 @@ $milestones = pt_milestones($jobId);
 $assignable = pt_assignable($jobId);
 $detail = null;
 $events = [];
+$subtasks = $waitsFor = $blocking = [];
 if (($taskId = (int) ($_GET['task'] ?? 0)) && ($found = pt_task($taskId)) && (int) $found['job_id'] === $jobId) {
     $detail = $found;
     $events = pt_events($taskId);
+    $subtasks = rows('SELECT t.id, t.title, t.status, u.name AS assignee_name FROM project_tasks t LEFT JOIN users u ON u.id = t.assignee_id WHERE t.parent_id = ? ORDER BY t.id', [$taskId]);
+    $waitsFor = rows('SELECT p.id, p.title, p.status FROM project_task_dependencies d JOIN project_tasks p ON p.id = d.depends_on_id WHERE d.task_id = ? ORDER BY p.id', [$taskId]);
+    $blocking = rows('SELECT t.id, t.title, t.status FROM project_task_dependencies d JOIN project_tasks t ON t.id = d.task_id WHERE d.depends_on_id = ? ORDER BY t.id', [$taskId]);
 }
+$sprints = array_values(array_filter(pp_sprints($jobId), fn($s) => $s['status'] !== 'closed'));
+$parents = rows("SELECT id, title FROM project_tasks WHERE job_id = ? AND parent_id IS NULL AND status IN ('todo','in_progress','blocked') ORDER BY title", [$jobId]);
+$others = rows("SELECT id, title FROM project_tasks WHERE job_id = ? AND status <> 'cancelled' ORDER BY title", [$jobId]);
 $today = date('Y-m-d');
 
-render('project-tasks', compact('job', 'manage', 'filter', 'tasks', 'progress', 'milestones', 'assignable', 'detail', 'events', 'today'));
+render('project-tasks', compact('job', 'manage', 'filter', 'tasks', 'progress', 'milestones', 'assignable', 'detail', 'events', 'today',
+                                 'subtasks', 'waitsFor', 'blocking', 'sprints', 'parents', 'others'));

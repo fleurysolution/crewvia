@@ -1820,4 +1820,43 @@ if (! $hadProjectTasks) {
        . 'no task exists yet (administrators, recruiters and the supervisors of a crew create them under Project tasks).' . PHP_EOL;
 }
 
+// ── P5-M02: subtasks, dependencies, estimates, sprints, capacity ──
+// Reversed by install/rollback/p5-m02.sql.
+$planningSql = __DIR__ . '/project-planning.sql';
+
+if (! is_file($planningSql)) {
+    fwrite(STDERR, "Missing install/project-planning.sql\n");
+    exit(1);
+}
+
+$hadPlanning = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                          WHERE table_schema=DATABASE() AND table_name='project_sprints'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($planningSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// The task columns, each added once.
+$taskColumn = fn(string $c): bool => (bool) val("SELECT COUNT(*) FROM information_schema.columns
+                                                  WHERE table_schema=DATABASE() AND table_name='project_tasks' AND column_name=?", [$c]);
+if (! $taskColumn('parent_id')) {
+    q('ALTER TABLE project_tasks ADD COLUMN parent_id INT UNSIGNED NULL AFTER milestone_id,
+       ADD CONSTRAINT fk_task_parent FOREIGN KEY (parent_id) REFERENCES project_tasks(id)');
+}
+if (! $taskColumn('estimate_hours')) {
+    q('ALTER TABLE project_tasks ADD COLUMN estimate_hours DECIMAL(6,1) NULL AFTER due_on');
+}
+if (! $taskColumn('sprint_id')) {
+    q('ALTER TABLE project_tasks ADD COLUMN sprint_id INT UNSIGNED NULL AFTER parent_id,
+       ADD CONSTRAINT fk_task_sprint FOREIGN KEY (sprint_id) REFERENCES project_sprints(id)');
+}
+
+if (! $hadPlanning) {
+    echo 'Project planning: a board per project, subtasks, dependencies, estimates, weekly capacity (40 h unless set) and workload; '
+       . 'sprints only where a project creates one. Every existing task stays as it was, without an estimate.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

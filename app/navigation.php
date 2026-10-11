@@ -34,6 +34,8 @@ function workspace_nav(?array $u): array
         ['/',                   'Project dashboard',                  null],
         ['/projects',           'Projects',                           'admin'],
         ['/project-tasks',      'Project tasks',                      ['recruiter','hotels','payroll']],
+        ['/project-board',      'Project board',                      ['recruiter','hotels','payroll']],
+        ['/workload',           'Workload',                           'recruiter'],
         ['/my-tasks',           'My tasks',                           null],
         ['/manning',            'Manning',                            ['recruiter','hotels','payroll']],
         ['/personnel',          'Promotions & transfers',             'recruiter'],
@@ -162,6 +164,8 @@ function workspace_nav(?array $u): array
         array_unshift($nav, ['/my-team', 'My team', null]);
         // P5-M01: the tasks of the projects they supervise a crew on.
         $nav[] = ['/project-tasks', 'Project tasks', null];
+        $nav[] = ['/project-board', 'Project board', null];
+        $nav[] = ['/workload', 'Workload', null];
         // A supervisor raises what the crew needs, and may own the budget.
         $nav[] = ['/procurement', 'Procurement', null];
     }
@@ -184,7 +188,7 @@ function workspace_sections(): array
 {
     return [
         'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
-                       '/my-team', '/portal', '/project-tasks', '/my-tasks'],
+                       '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
         'Recruiting' => ['/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels'],
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks',

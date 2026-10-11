@@ -2645,3 +2645,89 @@ Waiting for	En attente de	A la espera de
 What is assigned to you on every project, the open ones first. Move each along and say when something stops you.	Ce qui vous est attribué sur chaque projet, les tâches ouvertes d'abord. Faites avancer chacune et dites quand quelque chose vous arrête.	Lo que tiene asignado en cada proyecto, primero lo abierto. Haga avanzar cada una y diga cuándo algo le detiene.
 You can move your task along and write on it; its other details are set by whoever manages the project's tasks.	Vous pouvez faire avancer votre tâche et y écrire ; ses autres détails sont fixés par qui gère les tâches du projet.	Puede hacer avanzar su tarea y escribir en ella; sus otros detalles los fija quien gestiona las tareas del proyecto.
 crew	équipe	cuadrilla
+:h h	:h h	:h h
+:h h free that week	:h h libres cette semaine-là	:h h libres esa semana
+:n back to the backlog	:n renvoyée(s) au carnet	:n devuelta(s) a la cartera
+:n day(s) off	:n jour(s) de congé	:n día(s) libre(s)
+:n without an estimate	:n sans estimation	:n sin estimación
+A sprint lasts at most 90 days.	Un sprint dure au plus 90 jours.	Un sprint dura como máximo 90 días.
+A sprint runs from a start date to an end date on or after it.	Un sprint va d'une date de début à une date de fin égale ou postérieure.	Un sprint va de una fecha de inicio a una fecha de fin igual o posterior.
+A subtask belongs to a task of the same project.	Une sous-tâche appartient à une tâche du même projet.	Una subtarea pertenece a una tarea del mismo proyecto.
+A task cannot be its own subtask.	Une tâche ne peut pas être sa propre sous-tâche.	Una tarea no puede ser su propia subtarea.
+A task cannot wait for itself.	Une tâche ne peut pas s'attendre elle-même.	Una tarea no puede esperarse a sí misma.
+A task waits only for another task of the same project.	Une tâche n'attend qu'une autre tâche du même projet.	Una tarea solo espera otra tarea del mismo proyecto.
+Add a task this one waits for	Ajouter une tâche que celle-ci attend	Agregar una tarea que esta espera
+All tasks	Toutes les tâches	Todas las tareas
+Another sprint is active on this project: close it first.	Un autre sprint est actif sur ce projet : clôturez-le d'abord.	Otro sprint está activo en este proyecto: ciérrelo primero.
+Back to the backlog when the sprint closed.	Renvoyée au carnet à la clôture du sprint.	Devuelta a la cartera al cerrar el sprint.
+Backlog (no sprint)	Carnet (sans sprint)	Cartera (sin sprint)
+Balancing	Équilibrage	Equilibrio
+Board	Tableau	Tablero
+Choose a sprint of this project that is not closed.	Choisissez un sprint de ce projet qui n'est pas clôturé.	Elija un sprint de este proyecto que no esté cerrado.
+Close its :n open subtask(s) first.	Fermez d'abord ses :n sous-tâche(s) ouverte(s).	Cierre primero sus :n subtarea(s) abierta(s).
+Close the sprint	Clôturer le sprint	Cerrar el sprint
+Could go to	Pourrait aller à	Podría ir a
+Dates	Dates	Fechas
+Dependencies are set by whoever manages this project's tasks.	Les dépendances sont fixées par qui gère les tâches de ce projet.	Las dependencias las fija quien gestiona las tareas de este proyecto.
+Dependency added.	Dépendance ajoutée.	Dependencia agregada.
+Dependency removed.	Dépendance retirée.	Dependencia quitada.
+Estimate	Estimation	Estimación
+Estimate (hours)	Estimation (heures)	Estimación (horas)
+Give the estimate in hours, more than 0 and at most 999.	Donnez l'estimation en heures, plus de 0 et au plus 999.	Indique la estimación en horas, más de 0 y como máximo 999.
+Give the sprint a name of at most 120 characters.	Donnez au sprint un nom de 120 caractères au plus.	Dé al sprint un nombre de 120 caracteres como máximo.
+Give the weekly capacity in hours, from 0 to 80.	Donnez la capacité hebdomadaire en heures, de 0 à 80.	Indique la capacidad semanal en horas, de 0 a 80.
+Hours a week	Heures par semaine	Horas por semana
+Hours a week for :name	Heures par semaine pour :name	Horas por semana para :name
+Hours done	Heures faites	Horas hechas
+Keep the goal under 500 characters.	Gardez l'objectif sous 500 caractères.	Mantenga el objetivo por debajo de 500 caracteres.
+Later	Plus tard	Más adelante
+New sprint	Nouveau sprint	Nuevo sprint
+No date	Sans date	Sin fecha
+No sprint on this project.	Aucun sprint sur ce projet.	Ningún sprint en este proyecto.
+Nobody has open tasks.	Personne n'a de tâche ouverte.	Nadie tiene tareas abiertas.
+Nobody is over capacity, or nobody on the same project has room to take a task.	Personne ne dépasse sa capacité, ou personne sur le même projet n'a la place de reprendre une tâche.	Nadie supera su capacidad, o nadie en el mismo proyecto tiene espacio para tomar una tarea.
+Nothing here.	Rien ici.	Nada aquí.
+Nothing.	Rien.	Nada.
+Only a planned sprint of this project can start.	Seul un sprint planifié de ce projet peut démarrer.	Solo un sprint planificado de este proyecto puede empezar.
+Only the active sprint can be closed.	Seul le sprint actif peut être clôturé.	Solo el sprint activo puede cerrarse.
+Open task hours per person and week, against the hours each can give, less approved time off. A task past its date counts in this week; one without a date or an estimate is shown apart.	Heures de tâches ouvertes par personne et par semaine, face aux heures que chacun peut donner, moins les congés approuvés. Une tâche en retard compte dans cette semaine ; une tâche sans date ou sans estimation est montrée à part.	Horas de tareas abiertas por persona y semana, frente a las horas que cada uno puede dar, menos las ausencias aprobadas. Una tarea vencida cuenta en esta semana; una sin fecha o sin estimación se muestra aparte.
+Optional. A project works without them; with them, one runs at a time, and closing it returns its open tasks to the backlog.	Facultatifs. Un projet fonctionne sans eux ; avec eux, un seul à la fois, et sa clôture renvoie ses tâches ouvertes au carnet.	Opcionales. Un proyecto funciona sin ellos; con ellos, uno a la vez, y cerrarlo devuelve sus tareas abiertas a la cartera.
+Over	Dépassé	Excedido
+Plan the sprint	Planifier le sprint	Planificar el sprint
+Project board	Tableau du projet	Tablero del proyecto
+Reassign	Réattribuer	Reasignar
+Reassigned to balance the workload.	Réattribuée pour équilibrer la charge.	Reasignada para equilibrar la carga.
+Sprint	Sprint	Sprint
+Sprint closed: :n open task(s) back to the backlog.	Sprint clôturé : :n tâche(s) ouverte(s) renvoyée(s) au carnet.	Sprint cerrado: :n tarea(s) abierta(s) devuelta(s) a la cartera.
+Sprint saved.	Sprint enregistré.	Sprint guardado.
+Sprint started.	Sprint démarré.	Sprint iniciado.
+Sprints	Sprints	Sprints
+Sprints on this project are planned by its managers.	Les sprints de ce projet sont planifiés par ses responsables.	Los sprints de este proyecto los planifican sus responsables.
+Start	Démarrer	Empezar
+Subtask of	Sous-tâche de	Subtarea de
+Subtask of :title	Sous-tâche de :title	Subtarea de :title
+Subtasks	Sous-tâches	Subtareas
+Subtasks go one level deep: choose a task that is not itself a subtask.	Les sous-tâches n'ont qu'un niveau : choisissez une tâche qui n'est pas elle-même une sous-tâche.	Las subtareas tienen un solo nivel: elija una tarea que no sea a su vez una subtarea.
+Subtasks: :done of :live done	Sous-tâches : :done sur :live terminées	Subtareas: :done de :live hechas
+Task list	Liste des tâches	Lista de tareas
+Task moved.	Tâche déplacée.	Tarea movida.
+Task reassigned.	Tâche réattribuée.	Tarea reasignada.
+That person does not exist or is switched off.	Cette personne n'existe pas ou est désactivée.	Esa persona no existe o está desactivada.
+That task is closed: reopen it before adding subtasks to it.	Cette tâche est fermée : rouvrez-la avant d'y ajouter des sous-tâches.	Esa tarea está cerrada: reábrala antes de agregarle subtareas.
+That task is not on a project you plan.	Cette tâche n'est pas sur un projet que vous planifiez.	Esa tarea no está en un proyecto que usted planifica.
+That would make a loop: :b already waits, directly or not, for :a.	Cela ferait une boucle : :b attend déjà, directement ou non, :a.	Eso haría un bucle: :b ya espera, directa o indirectamente, a :a.
+The tasks of :project by where they stand. Move a card when the work moves; the task's history keeps every move.	Les tâches de :project selon leur avancement. Déplacez une carte quand le travail avance ; l'historique de la tâche garde chaque déplacement.	Las tareas de :project según su avance. Mueva una tarjeta cuando el trabajo avance; el historial de la tarea guarda cada movimiento.
+This task already waits for that one.	Cette tâche attend déjà celle-là.	Esta tarea ya espera a esa.
+This task does not wait for that one.	Cette tâche n'attend pas celle-là.	Esta tarea no espera a esa.
+This task has subtasks of its own, so it cannot become a subtask.	Cette tâche a ses propres sous-tâches, elle ne peut donc pas devenir une sous-tâche.	Esta tarea tiene sus propias subtareas, así que no puede ser una subtarea.
+This task waits for: :list. Finish those first, or remove the dependency.	Cette tâche attend : :list. Terminez-les d'abord, ou retirez la dépendance.	Esta tarea espera: :list. Termínelas primero o quite la dependencia.
+Waiting for this task	En attente de cette tâche	A la espera de esta tarea
+Waits for	Attend	Espera
+Waits for :n task(s)	Attend :n tâche(s)	Espera :n tarea(s)
+Week of	Semaine du	Semana del
+Week of :date	Semaine du :date	Semana del :date
+Weekly capacity is set by administrators and recruiters.	La capacité hebdomadaire est fixée par les administrateurs et les recruteurs.	La capacidad semanal la fijan los administradores y los reclutadores.
+Weekly capacity saved.	Capacité hebdomadaire enregistrée.	Capacidad semanal guardada.
+Workload	Charge de travail	Carga de trabajo
+Workload is open to administrators, recruiters and supervisors.	La charge de travail est ouverte aux administrateurs, recruteurs et superviseurs.	La carga de trabajo está abierta a administradores, reclutadores y supervisores.
+Mark blocked	Marquer bloquée	Marcar bloqueada

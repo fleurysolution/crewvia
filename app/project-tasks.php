@@ -31,6 +31,12 @@ function pt_priorities(): array
 
 const PT_OPEN = ['todo', 'in_progress', 'blocked'];
 
+/**
+ * P5-M02: progress counts the work itself. A task with live subtasks is
+ * counted through them, not as one more task beside them (alias t).
+ */
+const PT_LEAF = "NOT EXISTS (SELECT 1 FROM project_tasks c WHERE c.parent_id = t.id AND c.status <> 'cancelled')";
+
 function pt_can_manage(int $jobId): bool
 {
     if (($u = user()) === null || $jobId <= 0) {
@@ -93,13 +99,15 @@ function pt_events(int $taskId): array
 function pt_event_text(array $ev): string
 {
     $label = ['created' => t('Created'), 'assigned' => t('Assigned'), 'status' => t('Status'), 'priority' => t('Priority'), 'deadline' => t('Deadline'),
-              'milestone' => t('Milestone'), 'title' => t('Title of the task'), 'description' => t('Description changed'), 'note' => t('Note')][$ev['kind']] ?? $ev['kind'];
+              'milestone' => t('Milestone'), 'title' => t('Title of the task'), 'description' => t('Description changed'), 'note' => t('Note'),
+              'estimate' => t('Estimate'), 'parent' => t('Subtask of'), 'sprint' => t('Sprint'), 'dependency' => t('Waits for')][$ev['kind']] ?? $ev['kind'];
     $value = function (?string $v) use ($ev): string {
         if ($v === null || $v === '') { return '–'; }
         return match ($ev['kind']) {
             'status' => pt_statuses()[$v] ?? $v,
             'priority' => pt_priorities()[$v] ?? $v,
             'deadline' => d($v),
+            'estimate' => t(':h h', ['h' => rtrim(rtrim($v, '0'), '.')]),
             default => $v,
         };
     };
@@ -133,6 +141,81 @@ function pt_date_refusal(string $date): ?string
     return $date === '' || (valid_date($date) && $date >= '2000-01-01' && $date <= '2100-12-31') ? null : t('Give the deadline as a date.');
 }
 
+/** P5-M02: why $parentId cannot hold $taskId (0 for a new task) as a subtask, or null. */
+function pt_parent_refusal(int $jobId, int $parentId, int $taskId = 0): ?string
+{
+    $p = row('SELECT id, job_id, parent_id, status FROM project_tasks WHERE id = ?', [$parentId]);
+    if (! $p || (int) $p['job_id'] !== $jobId) { return t('A subtask belongs to a task of the same project.'); }
+    if ($taskId && $parentId === $taskId) { return t('A task cannot be its own subtask.'); }
+    if ($p['parent_id'] !== null) { return t('Subtasks go one level deep: choose a task that is not itself a subtask.'); }
+    if ($taskId && val('SELECT COUNT(*) FROM project_tasks WHERE parent_id = ?', [$taskId])) { return t('This task has subtasks of its own, so it cannot become a subtask.'); }
+    if (in_array($p['status'], ['done', 'cancelled'], true)) { return t('That task is closed: reopen it before adding subtasks to it.'); }
+    return null;
+}
+
+/** An estimate in hours: empty, or more than 0 and at most 999. */
+function pt_estimate_refusal(string $hours): ?string
+{
+    return $hours === '' || (is_numeric($hours) && (float) $hours > 0 && (float) $hours <= 999) ? null : t('Give the estimate in hours, more than 0 and at most 999.');
+}
+
+/** A sprint of this project that is not closed, or a refusal. */
+function pt_sprint_refusal(int $jobId, int $sprintId): ?string
+{
+    $s = row('SELECT job_id, status FROM project_sprints WHERE id = ?', [$sprintId]);
+    return $s && (int) $s['job_id'] === $jobId && $s['status'] !== 'closed' ? null : t('Choose a sprint of this project that is not closed.');
+}
+
+/** What a task still waits for: its prerequisites not done or cancelled. */
+function pt_waiting_on(int $taskId): array
+{
+    return rows("SELECT p.id, p.title, p.status FROM project_task_dependencies d JOIN project_tasks p ON p.id = d.depends_on_id
+                  WHERE d.task_id = ? AND p.status IN ('todo','in_progress','blocked') ORDER BY p.id", [$taskId]);
+}
+
+/** Does $from already lead, through what it waits for, to $target? */
+function pt_depends_path(int $from, int $target): bool
+{
+    $seen = [];
+    $queue = [$from];
+    while ($queue) {
+        $id = array_shift($queue);
+        if ($id === $target) { return true; }
+        if (isset($seen[$id])) { continue; }
+        $seen[$id] = true;
+        foreach (array_column(rows('SELECT depends_on_id FROM project_task_dependencies WHERE task_id = ?', [$id]), 'depends_on_id') as $next) {
+            $queue[] = (int) $next;
+        }
+    }
+    return false;
+}
+
+/** $taskId waits for $dependsOn. Managers only; same project; no loop. */
+function pt_dependency_add(int $taskId, int $dependsOn, int $by): ?string
+{
+    $a = row('SELECT id, job_id, title FROM project_tasks WHERE id = ?', [$taskId]);
+    $b = row('SELECT id, job_id, title FROM project_tasks WHERE id = ?', [$dependsOn]);
+    if (! $a || ! $b || (int) $a['job_id'] !== (int) $b['job_id']) { return t('A task waits only for another task of the same project.'); }
+    if (! pt_can_manage((int) $a['job_id'])) { return t('Dependencies are set by whoever manages this project\'s tasks.'); }
+    if ($taskId === $dependsOn) { return t('A task cannot wait for itself.'); }
+    if (val('SELECT COUNT(*) FROM project_task_dependencies WHERE task_id = ? AND depends_on_id = ?', [$taskId, $dependsOn])) { return t('This task already waits for that one.'); }
+    if (pt_depends_path($dependsOn, $taskId)) { return t('That would make a loop: :b already waits, directly or not, for :a.', ['a' => $a['title'], 'b' => $b['title']]); }
+    q('INSERT INTO project_task_dependencies (task_id, depends_on_id, created_by) VALUES (?,?,?)', [$taskId, $dependsOn, $by]);
+    pt_event($taskId, $by, 'dependency', null, $b['title']);
+    log_activity('made a task wait for another', 'project_task', $taskId, '#' . $taskId . ' waits for #' . $dependsOn);
+    return null;
+}
+
+function pt_dependency_remove(int $taskId, int $dependsOn, int $by): ?string
+{
+    $a = row('SELECT job_id FROM project_tasks WHERE id = ?', [$taskId]);
+    if (! $a || ! pt_can_manage((int) $a['job_id'])) { return t('Dependencies are set by whoever manages this project\'s tasks.'); }
+    if (! q('DELETE FROM project_task_dependencies WHERE task_id = ? AND depends_on_id = ?', [$taskId, $dependsOn])->rowCount()) { return t('This task does not wait for that one.'); }
+    pt_event($taskId, $by, 'dependency', (string) val('SELECT title FROM project_tasks WHERE id = ?', [$dependsOn]), null);
+    log_activity('removed a task dependency', 'project_task', $taskId, '#' . $taskId . ' no longer waits for #' . $dependsOn);
+    return null;
+}
+
 /** Creates a task. Returns [refusal, new id]. */
 function pt_create(int $jobId, array $in, int $by): array
 {
@@ -145,17 +228,33 @@ function pt_create(int $jobId, array $in, int $by): array
     $due = trim((string) ($in['due_on'] ?? ''));
     $milestone = (int) ($in['milestone_id'] ?? 0);
     $assignee = (int) ($in['assignee_id'] ?? 0);
+    $parent = (int) ($in['parent_id'] ?? 0);
+    $estimate = trim((string) ($in['estimate_hours'] ?? ''));
+    $sprint = (int) ($in['sprint_id'] ?? 0);
     if ($title === '' || mb_strlen($title) > 190) { return [t('Give the task a title of at most 190 characters.'), null]; }
     if (mb_strlen($description) > 5000) { return [t('Keep the description under 5,000 characters.'), null]; }
     if (! isset(pt_priorities()[$priority])) { return [t('Choose a priority.'), null]; }
     if (($why = pt_date_refusal($due)) !== null) { return [$why, null]; }
     if ($milestone && ($why = pt_milestone_refusal($jobId, $milestone)) !== null) { return [$why, null]; }
     if ($assignee && ($why = pt_assignee_refusal($jobId, $assignee)) !== null) { return [$why, null]; }
+    if ($parent && ($why = pt_parent_refusal($jobId, $parent)) !== null) { return [$why, null]; }
+    if (($why = pt_estimate_refusal($estimate)) !== null) { return [$why, null]; }
+    if ($sprint && ($why = pt_sprint_refusal($jobId, $sprint)) !== null) { return [$why, null]; }
+    // A subtask sits under its parent's milestone and sprint unless told otherwise.
+    if ($parent) {
+        $up = row('SELECT milestone_id, sprint_id FROM project_tasks WHERE id = ?', [$parent]);
+        $milestone = $milestone ?: (int) $up['milestone_id'];
+        $sprint = $sprint ?: (int) $up['sprint_id'];
+    }
 
-    q('INSERT INTO project_tasks (job_id, milestone_id, title, description, assignee_id, priority, due_on, created_by) VALUES (?,?,?,?,?,?,?,?)',
-      [$jobId, $milestone ?: null, $title, $description !== '' ? $description : null, $assignee ?: null, $priority, $due !== '' ? $due : null, $by]);
+    q('INSERT INTO project_tasks (job_id, milestone_id, parent_id, sprint_id, title, description, assignee_id, priority, due_on, estimate_hours, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      [$jobId, $milestone ?: null, $parent ?: null, $sprint ?: null, $title, $description !== '' ? $description : null, $assignee ?: null, $priority, $due !== '' ? $due : null,
+       $estimate !== '' ? round((float) $estimate, 1) : null, $by]);
     $id = (int) db()->lastInsertId();
     pt_event($id, $by, 'created', null, $title);
+    if ($parent) {
+        pt_event($id, $by, 'parent', null, (string) val('SELECT title FROM project_tasks WHERE id = ?', [$parent]));
+    }
     if ($assignee) {
         pt_event($id, $by, 'assigned', null, (string) val('SELECT name FROM users WHERE id = ?', [$assignee]));
         pt_notify($assignee, $by, t('Task for you: :title', ['title' => $title]), '/my-tasks?task=' . $id);
@@ -185,7 +284,7 @@ function pt_update(int $taskId, array $in, int $by): ?string
             db()->rollBack();
             return t('Only the person assigned, or whoever manages this project\'s tasks, changes this task.');
         }
-        if (! $manage && array_intersect_key($in, array_flip(['title', 'description', 'priority', 'due_on', 'milestone_id', 'assignee_id']))) {
+        if (! $manage && array_intersect_key($in, array_flip(['title', 'description', 'priority', 'due_on', 'milestone_id', 'assignee_id', 'parent_id', 'estimate_hours', 'sprint_id']))) {
             db()->rollBack();
             return t('You can move your task along and write on it; its other details are set by whoever manages the project\'s tasks.');
         }
@@ -234,6 +333,33 @@ function pt_update(int $taskId, array $in, int $by): ?string
                              $a ? (string) val('SELECT name FROM users WHERE id = ?', [$a]) : null];
             }
         }
+        if (array_key_exists('estimate_hours', $in)) {
+            $h = trim((string) $in['estimate_hours']);
+            if (($why = pt_estimate_refusal($h)) !== null) { db()->rollBack(); return $why; }
+            $hv = $h !== '' ? number_format(round((float) $h, 1), 1, '.', '') : null;
+            if ($hv !== ($t['estimate_hours'] === null ? null : number_format((float) $t['estimate_hours'], 1, '.', ''))) {
+                $set['estimate_hours'] = $hv;
+                $events[] = ['estimate', $t['estimate_hours'] === null ? null : number_format((float) $t['estimate_hours'], 1, '.', ''), $hv];
+            }
+        }
+        if (array_key_exists('parent_id', $in)) {
+            $pp = (int) $in['parent_id'];
+            if ($pp && ($why = pt_parent_refusal($jobId, $pp, $taskId)) !== null) { db()->rollBack(); return $why; }
+            if ($pp !== (int) $t['parent_id']) {
+                $set['parent_id'] = $pp ?: null;
+                $events[] = ['parent', $t['parent_id'] ? (string) val('SELECT title FROM project_tasks WHERE id = ?', [$t['parent_id']]) : null,
+                             $pp ? (string) val('SELECT title FROM project_tasks WHERE id = ?', [$pp]) : null];
+            }
+        }
+        if (array_key_exists('sprint_id', $in)) {
+            $sp = (int) $in['sprint_id'];
+            if ($sp && ($why = pt_sprint_refusal($jobId, $sp)) !== null) { db()->rollBack(); return $why; }
+            if ($sp !== (int) $t['sprint_id']) {
+                $set['sprint_id'] = $sp ?: null;
+                $events[] = ['sprint', $t['sprint_id'] ? (string) val('SELECT name FROM project_sprints WHERE id = ?', [$t['sprint_id']]) : null,
+                             $sp ? (string) val('SELECT name FROM project_sprints WHERE id = ?', [$sp]) : null];
+            }
+        }
         $statusNote = null;
         if (array_key_exists('status', $in)) {
             $s = (string) $in['status'];
@@ -246,6 +372,17 @@ function pt_update(int $taskId, array $in, int $by): ?string
             if ($s === 'blocked' && (mb_strlen($reason) < 3 || mb_strlen($reason) > 500)) {
                 db()->rollBack();
                 return t('Say what the task is waiting for, so someone can unblock it.');
+            }
+            // P5-M02: work does not start or finish ahead of what it waits for,
+            // and a task does not close while its subtasks are open.
+            if ($s !== $t['status'] && in_array($s, ['in_progress', 'done'], true) && ($waiting = pt_waiting_on($taskId))) {
+                db()->rollBack();
+                return t('This task waits for: :list. Finish those first, or remove the dependency.', ['list' => implode(', ', array_column($waiting, 'title'))]);
+            }
+            if ($s !== $t['status'] && in_array($s, ['done', 'cancelled'], true)
+                && ($open = (int) val("SELECT COUNT(*) FROM project_tasks WHERE parent_id = ? AND status IN ('todo','in_progress','blocked')", [$taskId]))) {
+                db()->rollBack();
+                return t('Close its :n open subtask(s) first.', ['n' => $open]);
             }
             if ($s !== $t['status'] || ($s === 'blocked' && $reason !== (string) $t['blocked_reason'])) {
                 $set['status'] = $s;
@@ -338,7 +475,7 @@ function pt_milestones(int $jobId): array
 {
     $today = date('Y-m-d');
     $out = rows("SELECT m.*, COALESCE(SUM(t.status <> 'cancelled'), 0) AS live, COALESCE(SUM(t.status = 'done'), 0) AS done
-                   FROM project_milestones m LEFT JOIN project_tasks t ON t.milestone_id = m.id
+                   FROM project_milestones m LEFT JOIN project_tasks t ON t.milestone_id = m.id AND " . PT_LEAF . "
                   WHERE m.job_id = ? GROUP BY m.id ORDER BY m.cancelled_at IS NOT NULL, m.due_on IS NULL, m.due_on, m.id", [$jobId]);
     foreach ($out as &$m) {
         $m['live'] = (int) $m['live'];
@@ -353,7 +490,7 @@ function pt_milestones(int $jobId): array
 /** Progress of one project: tasks by status, done over live, overdue, milestones reached. */
 function pt_progress(int $jobId): array
 {
-    $by = array_column(rows('SELECT status, COUNT(*) AS n FROM project_tasks WHERE job_id = ? GROUP BY status', [$jobId]), 'n', 'status');
+    $by = array_column(rows('SELECT t.status, COUNT(*) AS n FROM project_tasks t WHERE t.job_id = ? AND ' . PT_LEAF . ' GROUP BY t.status', [$jobId]), 'n', 'status');
     $counts = [];
     foreach (array_keys(pt_statuses()) as $s) {
         $counts[$s] = (int) ($by[$s] ?? 0);
@@ -366,7 +503,7 @@ function pt_progress(int $jobId): array
         'done' => $counts['done'],
         'open' => $counts['todo'] + $counts['in_progress'] + $counts['blocked'],
         'percent' => $live ? (int) floor($counts['done'] * 100 / $live) : null,
-        'overdue' => (int) val("SELECT COUNT(*) FROM project_tasks WHERE job_id = ? AND status IN ('todo','in_progress','blocked') AND due_on < ?", [$jobId, date('Y-m-d')]),
+        'overdue' => (int) val("SELECT COUNT(*) FROM project_tasks t WHERE t.job_id = ? AND t.status IN ('todo','in_progress','blocked') AND t.due_on < ? AND " . PT_LEAF, [$jobId, date('Y-m-d')]),
         'milestones' => count($milestones),
         'milestones_reached' => count(array_filter($milestones, fn($m) => $m['reached'])),
     ];
@@ -376,10 +513,10 @@ function pt_progress(int $jobId): array
 function pt_progress_all(): array
 {
     try {
-        $rows = rows("SELECT job_id, SUM(status <> 'cancelled') AS live, SUM(status = 'done') AS done,
-                             SUM(status IN ('todo','in_progress','blocked')) AS open,
-                             SUM(status IN ('todo','in_progress','blocked') AND due_on < ?) AS overdue
-                        FROM project_tasks GROUP BY job_id", [date('Y-m-d')]);
+        $rows = rows("SELECT t.job_id, SUM(t.status <> 'cancelled') AS live, SUM(t.status = 'done') AS done,
+                             SUM(t.status IN ('todo','in_progress','blocked')) AS open,
+                             SUM(t.status IN ('todo','in_progress','blocked') AND t.due_on < ?) AS overdue
+                        FROM project_tasks t WHERE " . PT_LEAF . " GROUP BY t.job_id", [date('Y-m-d')]);
     } catch (Throwable $e) {
         return [];
     }

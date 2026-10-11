@@ -97,7 +97,7 @@ if ($fresh['role']==='client' && !in_array($path,['/client-portal','/account','/
     if($path==='/') redirect('/client-portal');
     http_response_code(403);render('403',['need'=>['client']]);exit;
 }
-if ($fresh['role'] === 'supervisor' && !in_array($path,['/select-project','/project-tasks','/my-tasks','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
+if ($fresh['role'] === 'supervisor' && !in_array($path,['/select-project','/project-tasks','/project-board','/workload','/my-tasks','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
 if ($fresh['role'] === 'worker' && !in_array($path, ['/my-tasks','/my-payslips','/appraisals','/performance','/benefits','/hr-records','/hr-requests','/self-service','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
 
 if ($fresh['must_change_pw'] && $path !== '/account') redirect('/account');
@@ -176,6 +176,8 @@ $routes = [
     '/system-health' => 'system-health',
     '/project-tasks' => 'project-tasks',
     '/my-tasks' => 'my-tasks',
+    '/project-board' => 'project-board',
+    '/workload' => 'workload',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',
