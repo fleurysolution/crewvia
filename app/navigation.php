@@ -83,6 +83,7 @@ function workspace_nav(?array $u): array
         ['/ai-review',          'AI Review',                          'recruiter'],
         ['/structure',          'Deployment view',                  'admin'],
         ['/email-delivery',     'Email delivery',                     'admin'],
+        ['/integrations',       'Integrations',                       'admin'],
         ['/operations',         'Operations',                         ['recruiter','hotels']],
         ['/assets',             'Assets',                             ['recruiter','hotels']],
         ['/candidates',         'Candidates',                         'recruiter'],
@@ -190,7 +191,7 @@ function workspace_sections(): array
         'Clients' => ['/client-orders', '/client-access', '/client-portal'],
         'Administration' => ['/people', '/hr-records', '/leave-types', '/pay-grades', '/appraisal-templates', '/organization', '/job', '/employees', '/personnel',
                              '/offboarding', '/imports', '/settings', '/agency-setup',
-                             '/email-delivery', '/subscription', '/approval-chains'],
+                             '/email-delivery', '/integrations', '/subscription', '/approval-chains'],
     ];
 }
 

@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/integrations.php';
+
 function saas_configured(): bool
 {
     global $config;
@@ -15,15 +17,15 @@ function saas_api(string $method, string $endpoint, array $params = [], ?string 
     global $config;
     if (!saas_configured()) throw new RuntimeException('Stripe subscription configuration is incomplete.');
     if (!preg_match('#^/(customers|checkout/sessions|billing_portal/sessions|subscriptions)(/[a-zA-Z0-9_]+)?$#D', $endpoint)) throw new RuntimeException('Invalid billing endpoint.');
-    $headers = ['Authorization: Bearer ' . $config['stripe_secret_key'], 'Stripe-Version: 2024-06-20'];
+    $headers = ['Authorization: Bearer ' . $config['stripe_secret_key'], 'Stripe-Version: 2024-06-20', 'Content-Type: application/x-www-form-urlencoded'];
     if ($idempotency) $headers[] = 'Idempotency-Key: ' . $idempotency;
-    $curl = curl_init('https://api.stripe.com/v1' . $endpoint);
-    curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_CONNECTTIMEOUT=>5, CURLOPT_TIMEOUT=>20,
-        CURLOPT_HTTPHEADER=>$headers, CURLOPT_CUSTOMREQUEST=>$method]);
-    if ($method !== 'GET') curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
-    $body = curl_exec($curl); $status = curl_getinfo($curl, CURLINFO_HTTP_CODE); curl_close($curl);
-    $data = $body ? json_decode($body, true) : null;
-    if ($status < 200 || $status >= 300 || !is_array($data)) throw new RuntimeException('Billing provider unavailable. Please retry or contact support.');
+    // A read, or a write carrying its idempotency key, is safe to repeat: Stripe answers the key's first result again (P4-M04).
+    $r = integration_request('stripe', $method, 'https://api.stripe.com/v1' . $endpoint, $headers, $method !== 'GET' ? http_build_query($params) : null, $method === 'GET' || $idempotency !== null, 20);
+    $data = $r['body'] !== '' ? json_decode($r['body'], true) : null;
+    if ($r['status'] < 200 || $r['status'] >= 300 || !is_array($data)) {
+        integration_event('stripe', $method . ' ' . preg_replace('#/[a-zA-Z0-9_]{6,}$#', '/{id}', $endpoint), 'failed', null, 'HTTP ' . $r['status']);
+        throw new RuntimeException('Billing provider unavailable. Please retry or contact support.');
+    }
     return $data;
 }
 
@@ -66,4 +68,85 @@ function saas_subscription_refresh(string $subscription): void
     $status=(string)($remote['status'] ?? 'unknown');
     $period=(int)($remote['current_period_end'] ?? 0);
     q('UPDATE saas_subscription SET stripe_subscription_id=?,status=?,quantity=?,period_end=? WHERE id=1',[$subscription,$status,(int)($items[0]['quantity'] ?? 0),$period?gmdate('Y-m-d H:i:s',$period):null]);
+}
+
+
+/** The webhook secrets in force: a list while one is being rotated, or the single one. */
+function saas_webhook_secrets(): array
+{
+    global $config;
+    $list = $config['stripe_webhook_secrets'] ?? [$config['stripe_webhook_secret'] ?? ''];
+
+    return array_values(array_filter(is_array($list) ? $list : [$list], fn($s) => is_string($s) && $s !== ''));
+}
+
+/**
+ * A Stripe webhook (P4-M04): verified against each secret in force,
+ * processed once per event id, for this workspace only, and recorded.
+ * A failure answers 503 so that Stripe sends it again. Returns
+ * [HTTP status, JSON body].
+ */
+function stripe_webhook_handle(string $payload, string $header, array $secrets): array
+{
+    global $config;
+    $event = null;
+    foreach ($secrets ?: [''] as $secret) {
+        try {
+            $event = saas_verify_event($payload, $header, $secret);
+            break;
+        } catch (Throwable $e) {
+            $why = $e->getMessage();
+        }
+    }
+    if ($event === null) {
+        integration_refusal('stripe', 'webhook', null, $why ?? 'Invalid webhook');
+        return [400, '{"error":"Invalid webhook"}'];
+    }
+    $type = (string) ($event['type'] ?? '');
+    try {
+        db()->beginTransaction();
+        q('SELECT id FROM saas_subscription WHERE id=1 FOR UPDATE');
+        if (row('SELECT event_id FROM saas_webhook_events WHERE event_id=?', [$event['id']])) {
+            db()->commit();
+            integration_event('stripe', 'webhook', 'duplicate', $event['id'], $type);
+            return [200, '{"received":true,"duplicate":true}'];
+        }
+        $object = $event['data']['object'];
+        $subscription = null;
+        // A shared Stripe account can notify several tenant endpoints. Ignore other workspaces.
+        $workspace = $object['metadata']['workspace_id'] ?? $object['client_reference_id'] ?? null;
+        if ($workspace !== null && $workspace !== ($config['tenant_id'] ?? '')) {
+            db()->commit();
+            integration_event('stripe', 'webhook', 'ignored', $event['id'], $type . ': another workspace');
+            return [200, '{"received":true,"ignored":true}'];
+        }
+        $local = row('SELECT * FROM saas_subscription WHERE id=1');
+        if (in_array($type, ['invoice.paid', 'invoice.payment_failed'], true) && ($object['customer'] ?? '') !== $local['stripe_customer_id']) {
+            db()->commit();
+            integration_event('stripe', 'webhook', 'ignored', $event['id'], $type . ': another customer');
+            return [200, '{"received":true,"ignored":true}'];
+        }
+        if ($type === 'checkout.session.completed') {
+            if (($object['client_reference_id'] ?? '') !== ($config['tenant_id'] ?? '') || ($object['customer'] ?? '') !== $local['stripe_customer_id']
+                || ($object['mode'] ?? '') !== 'subscription' || ($object['id'] ?? '') !== $local['last_checkout_id']) throw new RuntimeException('Checkout workspace mismatch.');
+            $subscription = $object['subscription'] ?? null;
+        } elseif (str_starts_with($type, 'customer.subscription.')) {
+            if (($object['metadata']['workspace_id'] ?? '') !== ($config['tenant_id'] ?? '')) throw new RuntimeException('Webhook workspace mismatch.');
+            $subscription = $object['id'] ?? null;
+        } elseif (in_array($type, ['invoice.paid', 'invoice.payment_failed'], true)) {
+            $subscription = $object['subscription'] ?? null;
+            if (!$subscription || $subscription !== $local['stripe_subscription_id'] || ($object['customer'] ?? '') !== $local['stripe_customer_id']) throw new RuntimeException('Invoice workspace mismatch.');
+        }
+        // The subscription is read back from Stripe, so events arriving out of order still leave its latest state.
+        if ($subscription) saas_subscription_refresh($subscription);
+        q('INSERT INTO saas_webhook_events(event_id,event_type) VALUES (?,?)', [$event['id'], $type]);
+        db()->commit();
+        integration_event('stripe', 'webhook', 'ok', $event['id'], $type);
+        return [200, '{"received":true}'];
+    } catch (Throwable $e) {
+        if (db()->inTransaction()) db()->rollBack();
+        error_log('[workforce billing] Webhook processing failed: ' . $event['id']);
+        integration_event('stripe', 'webhook', 'failed', $event['id'], $type . ': ' . mb_substr($e->getMessage(), 0, 300) . ' (Stripe will send it again)');
+        return [503, '{"error":"Processing failed; retry required"}'];
+    }
 }

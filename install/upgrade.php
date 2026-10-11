@@ -1648,4 +1648,42 @@ if (! $hadReportBuilder) {
        . 'run install/run-report-schedules.php hourly to deliver them.' . PHP_EOL;
 }
 
+// ── P4-M04: integrations audit, provider tokens, retries ─────────────────
+// Reversed by install/rollback/p4-m04.sql.
+$integrationsSql = __DIR__ . '/integrations.sql';
+
+if (! is_file($integrationsSql)) {
+    fwrite(STDERR, "Missing install/integrations.sql\n");
+    exit(1);
+}
+
+$hadIntegrations = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                              WHERE table_schema=DATABASE() AND table_name='integration_events'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($integrationsSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// A Gmail connection knows whether Google still accepts it, and a Connect
+// event when to try again and why it last failed.
+foreach (['gmail_connections' => ['status' => "ENUM('active','reconnect') NOT NULL DEFAULT 'active'", 'scopes' => 'VARCHAR(500) NULL',
+                                  'last_refreshed_at' => 'DATETIME NULL', 'last_error' => 'VARCHAR(190) NULL'],
+          'docusign_connect_events' => ['next_attempt_at' => 'DATETIME NULL', 'last_error' => 'VARCHAR(190) NULL', 'processed_at' => 'DATETIME NULL']] as $table => $columns) {
+    foreach ($columns as $column => $definition) {
+        if (! val("SELECT COUNT(*) FROM information_schema.columns
+                   WHERE table_schema=DATABASE() AND table_name=? AND column_name=?", [$table, $column])) {
+            q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+        }
+    }
+}
+
+if (! $hadIntegrations) {
+    echo 'Integrations: Gmail, DocuSign and Stripe calls are audited and retried only when safe; '
+       . (int) val('SELECT COUNT(*) FROM gmail_connections') . ' Gmail connection(s), '
+       . (int) val("SELECT COUNT(*) FROM docusign_connect_events WHERE status='pending'") . ' Connect event(s) pending; every provider stays off until configured.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

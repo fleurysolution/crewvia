@@ -2393,3 +2393,37 @@ less than	moins que	menos que
 at most	au plus	como máximo
 is empty	est vide	está vacío
 is not empty	n'est pas vide	no está vacío
+:n connected mailbox(es), :r to reconnect	:n boîte(s) connectée(s), :r à reconnecter	:n buzón(es) conectado(s), :r por reconectar
+Allow Crewvia to read and send your Gmail, then connect again.	Autorisez Crewvia à lire et envoyer votre Gmail, puis reconnectez-vous.	Permita que Crewvia lea y envíe su Gmail y vuelva a conectarse.
+Authentication: :how	Authentification : :how	Autenticación: :how
+DocuSign Connect queue	File Connect de DocuSign	Cola Connect de DocuSign
+Each notification is checked against DocuSign itself. A failure waits 2, 4, 8 and 16 minutes; after five attempts it is marked failed for you to requeue.	Chaque notification est vérifiée auprès de DocuSign lui-même. Un échec attend 2, 4, 8 et 16 minutes ; après cinq tentatives il est marqué en échec, à remettre en file.	Cada notificación se verifica con el propio DocuSign. Un fallo espera 2, 4, 8 y 16 minutos; tras cinco intentos se marca como fallido para que lo vuelva a encolar.
+Envelope	Enveloppe	Sobre
+Every outcome	Toute issue	Todo resultado
+Every provider	Tout fournisseur	Todo proveedor
+Gmail connections to reconnect	Connexions Gmail à reconnecter	Conexiones de Gmail por reconectar
+Gmail, DocuSign and Stripe: whether each is on, what waits, what failed, and every outcome kept. Settings and tokens are never shown here.	Gmail, DocuSign et Stripe : si chacun est actif, ce qui attend, ce qui a échoué, et chaque issue conservée. Les réglages et jetons ne sont jamais affichés ici.	Gmail, DocuSign y Stripe: si cada uno está activo, qué espera, qué falló, y cada resultado conservado. La configuración y los tokens nunca se muestran aquí.
+Google no longer accepts these. Each person reconnects from their inbox; nothing is sent or read until then.	Google ne les accepte plus. Chaque personne se reconnecte depuis sa boîte ; rien n'est envoyé ni lu d'ici là.	Google ya no las acepta. Cada persona se reconecta desde su buzón; no se envía ni se lee nada hasta entonces.
+Google no longer accepts this connection: reconnect it.	Google n'accepte plus cette connexion : reconnectez-la.	Google ya no acepta esta conexión: reconéctela.
+Integrations	Intégrations	Integraciones
+Last error	Dernière erreur	Último error
+Next attempt	Prochaine tentative	Próximo intento
+None received.	Aucun reçu.	Ninguno recibido.
+Nothing queued.	Rien en file.	Nada en cola.
+Nothing recorded yet.	Rien d'enregistré pour l'instant.	Nada registrado todavía.
+Only a failed Connect event is requeued.	Seul un événement Connect en échec est remis en file.	Solo un evento Connect fallido se vuelve a encolar.
+Reconnect	Reconnecter	Reconectar
+Requeue	Remettre en file	Volver a encolar
+Requeued: the next reconciliation run tries it again from the first attempt.	Remis en file : la prochaine réconciliation le retente depuis la première tentative.	Vuelto a encolar: la próxima conciliación lo reintenta desde el primer intento.
+Stripe events processed	Événements Stripe traités	Eventos de Stripe procesados
+Processed	Traité	Procesado
+Failed	Échoué	Fallido
+Ok	Réussi	Correcto
+Duplicate	Doublon	Duplicado
+Ignored	Ignoré	Ignorado
+JWT grant	Autorisation JWT	Concesión JWT
+access token	jeton d'accès	token de acceso
+Google OAuth for each user's mailbox: read and send.	OAuth Google pour la boîte de chaque utilisateur : lecture et envoi.	OAuth de Google para el buzón de cada usuario: lectura y envío.
+Contracts signed through DocuSign envelopes, confirmed by Connect.	Contrats signés par enveloppes DocuSign, confirmés par Connect.	Contratos firmados mediante sobres de DocuSign, confirmados por Connect.
+The workspace subscription, checkout and billing portal.	L'abonnement de l'espace, le paiement et le portail de facturation.	La suscripción del espacio, el pago y el portal de facturación.
+This message was already sent, or its form expired. Open the form again.	Ce message a déjà été envoyé, ou son formulaire a expiré. Rouvrez le formulaire.	Este mensaje ya se envió, o su formulario caducó. Abra el formulario de nuevo.

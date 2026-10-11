@@ -10,7 +10,8 @@ try {
  if(empty($profile['email_verified'])) throw new RuntimeException(t('Google email is not verified.'));
  $account=row('SELECT * FROM users WHERE email=? AND is_active=1',[(string)$profile['email']]);
  if(!$account || ($connectUid && $connectUid!==(int)$account['id'])) throw new RuntimeException(t('Use the Google account matching your existing RSS account.'));
- $tokens['expires_at']=time()+(int)($tokens['expires_in'] ?? 3600);
- q('INSERT INTO gmail_connections(user_id,email,encrypted_tokens) VALUES (?,?,?) ON DUPLICATE KEY UPDATE email=VALUES(email),encrypted_tokens=VALUES(encrypted_tokens)',[$account['id'],$profile['email'],token_encrypt($tokens)]);
+ // Without read and send the inbox cannot work: refuse now rather than fail later.
+ if(!gmail_scopes_ok((string)($tokens['scope'] ?? ''))) { integration_event('gmail','connect','refused','user:'.$account['id'],'Gmail read and send were not both granted',(int)$account['id']);flash(t('Allow Crewvia to read and send your Gmail, then connect again.'),'err');redirect('/login'); }
+ gmail_store_connection((int)$account['id'],(string)$profile['email'],$tokens);
  security_begin_login($account,'/inbox');
-} catch(Throwable $e) { error_log('[rss-ops] Google authorization failed');flash(t('Google connection failed. Check configuration and use your registered account.'),'err');redirect('/login'); }
+} catch(Throwable $e) { error_log('[rss-ops] Google authorization failed');integration_event('gmail','connect','failed',null,'Authorization or account match failed');flash(t('Google connection failed. Check configuration and use your registered account.'),'err');redirect('/login'); }
