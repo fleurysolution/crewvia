@@ -93,7 +93,8 @@ function report_active_sql(string $alias = 'p'): string
 
 /**
  * Run one report. Returns columns (key => [label, type]), rows (each with
- * a 'key' that names it), totals (by column key) and notes.
+ * a 'key' that names it), totals (by column key) and notes. With
+ * columns_only set, only the columns, and nothing is read.
  */
 function report_run(string $key, array $f): array
 {
@@ -110,6 +111,9 @@ function report_run(string $key, array $f): array
             $columns = ['name' => ['Name', 'text'], 'number' => ['Employee number', 'text'], 'type' => ['Employment', 'label'], 'trade' => ['Trade', 'text'],
                         'availability' => ['Availability', 'label'], 'project' => ['Assignment', 'text'], 'status' => ['State', 'label'],
                         'start' => ['Started', 'date'], 'rehire' => ['Rehire', 'label']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $rows = [];
             foreach (report_people($jobId) as $c) {
                 $e = row('SELECT * FROM employee_profiles WHERE candidate_id = ?', [(int) $c['id']]) ?: [];
@@ -136,6 +140,9 @@ function report_run(string $key, array $f): array
         case 'headcount':
             $columns = ['project' => ['Project', 'text'], 'opening' => ['At the start', 'int'], 'started' => ['Started', 'int'],
                         'ended' => ['Ended', 'int'], 'closing' => ['At the end', 'int'], 'net' => ['Change', 'int']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $rows = [];
             foreach (rows('SELECT id, title FROM jobs ORDER BY title, id') as $j) {
                 $count = static fn(string $where, array $args): int => (int) val("SELECT COUNT(DISTINCT p.candidate_id) FROM placements p WHERE p.job_id = ? AND $where", [(int) $j['id'], ...$args]);
@@ -156,6 +163,9 @@ function report_run(string $key, array $f): array
         case 'attendance':
             $columns = ['name' => ['Name', 'text'], 'project' => ['Project', 'text'], 'present' => ['Present', 'int'], 'absent' => ['Absent', 'int'],
                         'rate' => ['Attendance', 'pct'], 'leave' => ['Approved leave days', 'int']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $sql = "SELECT p.id, c.full_name, j.title,
                            (SELECT COUNT(*) FROM assignment_checkins k WHERE k.placement_id = p.id AND k.present = 1 AND k.work_date BETWEEN ? AND ?) AS present,
                            (SELECT COUNT(*) FROM assignment_checkins k WHERE k.placement_id = p.id AND k.present = 0 AND k.work_date BETWEEN ? AND ?) AS absent
@@ -189,6 +199,9 @@ function report_run(string $key, array $f): array
         case 'leave':
             $columns = ['name' => ['Name', 'text'], 'type' => ['Kind of leave', 'text'], 'allowed' => ['Allowed', 'num'], 'taken' => ['Taken', 'num'],
                         'left' => ['Left', 'num'], 'waiting' => ['Requests waiting', 'int']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $types = leave_types();
             $rows = [];
             foreach (report_people($jobId) as $c) {
@@ -211,6 +224,9 @@ function report_run(string $key, array $f): array
             $columns = ['name' => ['Name', 'text'], 'project' => ['Project', 'text'], 'type' => ['Employment', 'label'], 'grade' => ['Grade', 'text'],
                         'rate' => ['Hourly rate', 'money'], 'bill' => ['Bill rate', 'money'], 'margin' => ['Margin', 'pct'], 'salary' => ['Salary per period', 'money'],
                         'band' => ['Outside band', 'label']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $week = week_ending($asof);
             $sql = 'SELECT p.*, c.full_name, j.title FROM placements p JOIN candidates c ON c.id = p.candidate_id JOIN jobs j ON j.id = p.job_id WHERE ' . report_active_sql();
             $args = [$asof, $asof];
@@ -238,6 +254,9 @@ function report_run(string $key, array $f): array
         case 'deductions':
             $columns = ['label' => ['Pay item', 'text'], 'code' => ['Code', 'text'], 'side' => ['Kind', 'label'], 'people' => ['People', 'int'],
                         'weeks' => ['Weeks', 'int'], 'amount' => ['Amount', 'money']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $sql = "SELECT p.candidate_id, s.result_json FROM timesheets t JOIN placements p ON p.id = t.placement_id JOIN pay_snapshots s ON s.timesheet_id = t.id
                     WHERE t.status IN ('approved','paid') AND t.week_ending BETWEEN ? AND ?";
             $args = [$from, $to];
@@ -276,6 +295,9 @@ function report_run(string $key, array $f): array
             $columns = ['week' => ['Week ending', 'date'], 'status' => ['State', 'label'], 'people' => ['People', 'int'], 'gross' => ['Gross', 'money'],
                         'deductions' => ['Deductions', 'money'], 'employer' => ['Employer cost', 'money'], 'reimbursed' => ['Reimbursed', 'money'],
                         'net' => ['Net before tax', 'money'], 'adjustments' => ['Adjustments', 'money'], 'payable' => ['Payable', 'money'], 'paid' => ['Sheets paid', 'text']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $rows = [];
             foreach (rows('SELECT * FROM payroll_runs WHERE week_ending BETWEEN ? AND ? ORDER BY week_ending', [$from, $to]) as $run) {
                 $s = payroll_run_summary($run);
@@ -295,6 +317,9 @@ function report_run(string $key, array $f): array
             $columns = ['name' => ['Name', 'text'], 'project' => ['Project', 'text'], 'kind' => ['Kind', 'label'], 'status' => ['State', 'label'],
                         'paid_out' => ['Paid out', 'date'], 'amount' => ['Amount', 'money'], 'repaid' => ['Repaid', 'money'], 'balance' => ['Balance', 'money'],
                         'behind' => ['Behind schedule', 'money'], 'written_off' => ['Written off', 'money']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $sql = "SELECT a.*, c.full_name, j.title FROM wage_advances a JOIN candidates c ON c.id = a.candidate_id LEFT JOIN jobs j ON j.id = a.job_id
                     WHERE a.status IN ('approved','paid_out','cleared','written_off')";
             $args = [];
@@ -321,6 +346,9 @@ function report_run(string $key, array $f): array
             $columns = ['plan' => ['Plan', 'text'], 'kind' => ['Kind', 'label'], 'provider' => ['Provider', 'text'], 'covered' => ['Covered', 'int'],
                         'waived' => ['Waived', 'int'], 'employee' => ['Employee cost per week', 'money'], 'employer' => ['Agency cost per week', 'money'],
                         'percent' => ['Paid as a share of pay', 'int']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $rows = [];
             foreach (rows('SELECT * FROM benefit_plans ORDER BY name, id') as $plan) {
                 $on = "plan_id = ? AND starts_on <= ? AND (ends_on IS NULL OR ends_on >= ?)";
@@ -343,6 +371,9 @@ function report_run(string $key, array $f): array
             $columns = ['name' => ['Name', 'text'], 'reviews' => ['Reviews approved', 'int'], 'score' => ['Latest score', 'pct'], 'grade' => ['Grade', 'text'],
                         'rehire' => ['Would rehire', 'label'], 'goals_open' => ['Goals open', 'int'], 'goals_achieved' => ['Goals achieved', 'int'],
                         'goals_missed' => ['Goals missed', 'int'], 'actions_open' => ['Development open', 'int'], 'actions_overdue' => ['Development overdue', 'int']];
+            if (! empty($f['columns_only'])) {
+                return ['columns' => $columns, 'rows' => [], 'totals' => [], 'notes' => []];
+            }
             $rows = [];
             $scores = [];
             foreach (report_people($jobId) as $c) {

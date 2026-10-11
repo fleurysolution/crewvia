@@ -1,6 +1,6 @@
 <?php if ($report === null): ?>
 <h1><?= te('Reports') ?></h1>
-<p class="sub"><?= te('Read from the records the desks keep: nothing here is entered or stored. Each report you open is logged.') ?></p>
+<p class="sub"><?= te('Read from the records the desks keep: nothing here is entered or stored. Each report you open is logged.') ?> <a href="/report-builder"><?= te('Report builder') ?></a></p>
 <div class="grid g2" id="report-list">
   <?php foreach ($catalog as $k => $r): ?>
   <a class="card" href="/reports?r=<?= e($k) ?>" data-report="<?= e($k) ?>"><h2><?= te($r['title']) ?></h2><p class="muted"><?= te($r['about']) ?></p></a>

@@ -1624,4 +1624,28 @@ if (! $hadBudgets) {
     echo 'Statements: income statement, balance sheet and cash flow are read from the ledger; budgets by account and month, none set yet.' . PHP_EOL;
 }
 
+// ── P4-M03: report builder, export policy, schedules, delivery ───────────
+// Reversed by install/rollback/p4-m03.sql.
+$reportBuilderSql = __DIR__ . '/report-builder.sql';
+
+if (! is_file($reportBuilderSql)) {
+    fwrite(STDERR, "Missing install/report-builder.sql\n");
+    exit(1);
+}
+
+$hadReportBuilder = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                               WHERE table_schema=DATABASE() AND table_name='report_definitions'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($reportBuilderSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadReportBuilder) {
+    echo 'Report builder: saved reports, exports logged with their fingerprint, schedules delivered inside Crewvia (nothing emailed); '
+       . 'run install/run-report-schedules.php hourly to deliver them.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

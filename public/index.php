@@ -188,6 +188,7 @@ $routes = [
     '/statements' => 'statements',
     '/reports' => 'reports',
     '/analytics' => 'analytics',
+    '/report-builder' => 'report-builder',
     '/balances' => 'balances',
     '/periods' => 'periods',
     '/vendors' => 'vendors',

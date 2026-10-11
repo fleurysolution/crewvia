@@ -2276,3 +2276,120 @@ Bills on hold	Factures bloquées	Facturas retenidas
 By category	Par catégorie	Por categoría
 By vendor	Par fournisseur	Por proveedor
 Value	Valeur	Valor
+:n condition(s)	:n condition(s)	:n condición(es)
+:n recipient(s)	:n destinataire(s)	:n destinatario(s)
+:n row(s)	:n ligne(s)	:n fila(s)
+:n run(s)	:n exécution(s)	:n ejecución(es)
+:name may not receive this report: :why.	:name ne peut pas recevoir ce rapport : :why.	:name no puede recibir este informe: :why.
+A condition names a column of the report and how to compare it.	Une condition nomme une colonne du rapport et la façon de la comparer.	Una condición indica una columna del informe y cómo compararla.
+A relative period is worked out on the day the report runs: last month on 3 June is May. Fixed dates use From and To, At and Year as given.	Une période relative est calculée le jour où le rapport s'exécute : le mois dernier, le 3 juin, c'est mai. Les dates fixes utilisent Du, Au, À la date et Année tels quels.	Un período relativo se calcula el día en que se ejecuta el informe: el mes pasado, el 3 de junio, es mayo. Las fechas fijas usan Desde, Hasta, Al y Año tal como se indican.
+Archive	Archiver	Archivar
+Archive this report and stop its schedules?	Archiver ce rapport et arrêter ses planifications ?	¿Archivar este informe y detener sus programaciones?
+As the report gives it	Comme le rapport le donne	Como lo da el informe
+Ascending	Croissant	Ascendente
+At most	Au plus	Como máximo
+At most five conditions.	Cinq conditions au plus.	Cinco condiciones como máximo.
+Built on	Construit sur	Basado en
+Built on :report	Construit sur :report	Basado en :report
+By default whoever may read a report may export it. Narrow it here; administrators may always export.	Par défaut, quiconque peut lire un rapport peut l'exporter. Restreignez-le ici ; les administrateurs peuvent toujours exporter.	Por defecto, quien puede leer un informe puede exportarlo. Restrínjalo aquí; los administradores siempre pueden exportar.
+Choose a day of the month from 1 to 28, so that every month has it.	Choisissez un jour du mois de 1 à 28, pour que chaque mois l'ait.	Elija un día del mes del 1 al 28, para que todos los meses lo tengan.
+Choose a period.	Choisissez une période.	Elija un período.
+Choose a report you may read.	Choisissez un rapport que vous pouvez lire.	Elija un informe que pueda leer.
+Choose a report.	Choisissez un rapport.	Elija un informe.
+Choose between 1 and 20 people to receive it.	Choisissez entre 1 et 20 personnes pour le recevoir.	Elija entre 1 y 20 personas para recibirlo.
+Choose how often it runs.	Choisissez sa fréquence.	Elija con qué frecuencia se ejecuta.
+Choose the day of the week.	Choisissez le jour de la semaine.	Elija el día de la semana.
+Choose the hour it runs, 0 to 23.	Choisissez l'heure d'exécution, de 0 à 23.	Elija la hora de ejecución, de 0 a 23.
+Columns	Colonnes	Columnas
+Conditions	Conditions	Condiciones
+Daily	Quotidien	Diario
+Monthly	Mensuel	Mensual
+Dates are written as year-month-day.	Les dates s'écrivent année-mois-jour.	Las fechas se escriben año-mes-día.
+Day of the month	Jour du mois	Día del mes
+Delivered to you	Livrés pour vous	Entregados a usted
+Descending	Décroissant	Descendente
+Every reader	Tout lecteur	Todo lector
+Every schedule	Toutes les planifications	Todas las programaciones
+Export as CSV	Exporter en CSV	Exportar como CSV
+Export policy saved.	Règle d'export enregistrée.	Regla de exportación guardada.
+Give the value each condition compares with.	Donnez la valeur à laquelle chaque condition compare.	Indique el valor con que compara cada condición.
+Hotel desk	Hébergement	Hoteles
+Hour	Heure	Hora
+Keep at least one column.	Gardez au moins une colonne.	Conserve al menos una columna.
+Sunday	Dimanche	Domingo
+Monday	Lundi	Lunes
+Tuesday	Mardi	Martes
+Wednesday	Mercredi	Miércoles
+Thursday	Jeudi	Jueves
+Friday	Vendredi	Viernes
+Saturday	Samedi	Sábado
+More than, at least, less than and at most compare with a number.	Plus que, au moins, moins que et au plus comparent avec un nombre.	Más que, al menos, menos que y como máximo comparan con un número.
+Name the report in 3 to 120 characters.	Nommez le rapport en 3 à 120 caractères.	Nombre el informe con 3 a 120 caracteres.
+New saved report	Nouveau rapport enregistré	Nuevo informe guardado
+No saved report yet.	Aucun rapport enregistré pour l'instant.	Todavía no hay informes guardados.
+Not scheduled.	Non planifié.	Sin programar.
+Nothing delivered to you.	Rien de livré pour vous.	Nada entregado a usted.
+Nothing was due.	Rien n'était dû.	No había nada pendiente.
+On the server, install/run-report-schedules.php runs what is due; a cron entry every hour keeps it on time.	Sur le serveur, install/run-report-schedules.php exécute ce qui est dû ; une entrée cron toutes les heures le tient à l'heure.	En el servidor, install/run-report-schedules.php ejecuta lo pendiente; una entrada cron cada hora lo mantiene puntual.
+Only its owner or an administrator changes a saved report.	Seuls son propriétaire ou un administrateur modifient un rapport enregistré.	Solo su propietario o un administrador cambian un informe guardado.
+Only people who may read and export this report are offered. Each is told in Crewvia and downloads the file signed in, within :n days. Nothing is emailed.	Seules les personnes pouvant lire et exporter ce rapport sont proposées. Chacune est prévenue dans Crewvia et télécharge le fichier connectée, sous :n jours. Rien n'est envoyé par courriel.	Solo se ofrecen personas que pueden leer y exportar este informe. Cada una recibe aviso en Crewvia y descarga el archivo con sesión iniciada, dentro de :n días. No se envía nada por correo.
+Order and size	Ordre et taille	Orden y tamaño
+Owner	Propriétaire	Propietario
+Recipients	Destinataires	Destinatarios
+Report archived, and its schedules stopped.	Rapport archivé, et ses planifications arrêtées.	Informe archivado y sus programaciones detenidas.
+Report builder	Générateur de rapports	Generador de informes
+Report saved.	Rapport enregistré.	Informe guardado.
+Reports go to staff only.	Les rapports ne vont qu'au personnel.	Los informes van solo al personal.
+Restart	Relancer	Reanudar
+Run what is due now	Exécuter maintenant ce qui est dû	Ejecutar ahora lo pendiente
+Save a report with the columns, period, conditions and order you need, export it, or have it run by itself for the people who need it. Every export is logged.	Enregistrez un rapport avec les colonnes, la période, les conditions et l'ordre voulus, exportez-le, ou faites-le s'exécuter seul pour les personnes qui en ont besoin. Chaque export est journalisé.	Guarde un informe con las columnas, el período, las condiciones y el orden que necesite, expórtelo, o haga que se ejecute solo para quienes lo necesitan. Cada exportación queda registrada.
+Save the report	Enregistrer le rapport	Guardar el informe
+Saved reports	Rapports enregistrés	Informes guardados
+Schedule it	Le planifier	Programarlo
+Schedule restarted.	Planification relancée.	Programación reanudada.
+Schedule stopped.	Planification arrêtée.	Programación detenida.
+Scheduled. The first run is due :at.	Planifié. La première exécution est prévue le :at.	Programado. La primera ejecución está prevista para :at.
+Schedules	Planifications	Programaciones
+Share with everyone who may read this report	Partager avec quiconque peut lire ce rapport	Compartir con quien pueda leer este informe
+Shared	Partagé	Compartido
+Show between 1 and 5,000 rows.	Affichez entre 1 et 5 000 lignes.	Muestre entre 1 y 5.000 filas.
+Sort by a column of the report.	Triez sur une colonne du rapport.	Ordene por una columna del informe.
+Stop	Arrêter	Detener
+That delivery has expired: its file was erased after :n days. The report itself can be run again.	Cette livraison a expiré : son fichier a été effacé après :n jours. Le rapport lui-même peut être relancé.	Esa entrega caducó: su archivo se borró después de :n días. El informe en sí puede ejecutarse de nuevo.
+That project does not exist.	Ce projet n'existe pas.	Ese proyecto no existe.
+That saved report does not exist, or is not open to you.	Ce rapport enregistré n'existe pas, ou ne vous est pas ouvert.	Ese informe guardado no existe o no está abierto para usted.
+That schedule does not exist.	Cette planification n'existe pas.	Esa programación no existe.
+The first :n of :m rows, as the report limit says.	Les :n premières lignes sur :m, selon la limite du rapport.	Las primeras :n de :m filas, según el límite del informe.
+There is no report delivered to you under that number.	Aucun rapport ne vous a été livré sous ce numéro.	No hay ningún informe entregado a usted con ese número.
+This file no longer matches its recorded fingerprint. Nothing was downloaded.	Ce fichier ne correspond plus à son empreinte enregistrée. Rien n'a été téléchargé.	Este archivo ya no coincide con su huella registrada. No se descargó nada.
+This report is scheduled: stop its schedules before changing which report it is built on.	Ce rapport est planifié : arrêtez ses planifications avant de changer le rapport sur lequel il est construit.	Este informe está programado: detenga sus programaciones antes de cambiar el informe en que se basa.
+Who may export	Qui peut exporter	Quién puede exportar
+You may no longer read or export this report, so its delivery is closed to you.	Vous ne pouvez plus lire ni exporter ce rapport, sa livraison vous est donc fermée.	Ya no puede leer ni exportar este informe, así que su entrega está cerrada para usted.
+Your role may read this report but not export it	Votre rôle peut lire ce rapport mais pas l'exporter	Su rol puede leer este informe pero no exportarlo
+Your role may read this report but not export it.	Votre rôle peut lire ce rapport mais pas l'exporter.	Su rol puede leer este informe pero no exportarlo.
+day :n	le :n	día :n
+downloaded	téléchargé	descargado
+next :at	prochaine le :at	próxima el :at
+rows	lignes	filas
+stopped	arrêtée	detenida
+until :d	jusqu'au :d	hasta el :d
+Not run	Non exécuté	No ejecutado
+account inactive	compte inactif	cuenta inactiva
+may not read this report	ne peut pas lire ce rapport	no puede leer este informe
+may not export this report	ne peut pas exporter ce rapport	no puede exportar este informe
+Fixed dates	Dates fixes	Fechas fijas
+Last week	La semaine dernière	La semana pasada
+This month	Ce mois-ci	Este mes
+Last month	Le mois dernier	El mes pasado
+The last 30 days	Les 30 derniers jours	Los últimos 30 días
+This year	Cette année	Este año
+Last year	L'année dernière	El año pasado
+is	est	es
+is not	n'est pas	no es
+contains	contient	contiene
+more than	plus que	más que
+at least	au moins	al menos
+less than	moins que	menos que
+at most	au plus	como máximo
+is empty	est vide	está vacío
+is not empty	n'est pas vide	no está vacío
