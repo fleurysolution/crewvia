@@ -306,6 +306,16 @@ function leave_balance(int $candidateId, string $slug, ?int $year = null, int $e
                       [$candidateId, $y]);
 
     $e = leave_entitlement($type, $hours($year), $hours($year - 1), $taken($year - 1));
+
+    // P5-M05: days of this leave given as a reward this year add to the
+    // allowance. Before that upgrade there is nothing to add.
+    if ($e['allowed'] !== null) {
+        require_once __DIR__ . '/engagement.php';
+        try {
+            $e['allowed'] += eng_leave_reward_days($candidateId, $slug, $year);
+        } catch (PDOException $ignored) {
+        }
+    }
     $usedNow = $taken($year);
 
     return [

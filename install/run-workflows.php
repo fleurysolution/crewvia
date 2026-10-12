@@ -25,5 +25,8 @@ $purgedLogs=ops_purge_logs();
 // P5-M04: the training each requirement calls for, and the renewals of what runs out within the month.
 $trainingAssigned=0;
 try{require_once __DIR__.'/../app/training.php';$trainingAssigned=tr_sync();}catch(Throwable $e){error_log('[crewvia] training sync: '.$e->getMessage());}
-ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs,'training_assigned'=>$trainingAssigned],$opsStarted);
+// P5-M05: engagement surveys whose closing date has passed.
+$surveysClosed=0;
+try{require_once __DIR__.'/../app/surveys.php';$surveysClosed=sv_close_due();}catch(Throwable $e){error_log('[crewvia] survey close: '.$e->getMessage());}
+ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs,'training_assigned'=>$trainingAssigned,'surveys_closed'=>$surveysClosed],$opsStarted);
 echo "Workflow alert pass complete. No external messages sent.\n";

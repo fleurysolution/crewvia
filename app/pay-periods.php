@@ -26,7 +26,7 @@ function payroll_run_statuses(): array
 function payroll_adjustment_kinds(): array
 {
     return ['correction' => t('Correction of a paid week'), 'back_pay' => t('Back pay'),
-            'reimbursement' => t('Reimbursement'), 'recovery' => t('Recovery of an overpayment')];
+            'reimbursement' => t('Reimbursement'), 'recovery' => t('Recovery of an overpayment'), 'reward' => t('Reward')];
 }
 
 function payroll_run(int $id): ?array
@@ -132,6 +132,11 @@ function payroll_adjustment_add(array $run, int $candidateId, ?int $timesheetId,
 {
     if ($run['status'] !== 'open') {
         return t('Adjustments go into an open period. This one is :status.', ['status' => payroll_run_statuses()[$run['status']] ?? $run['status']]);
+    }
+
+    // P5-M05: a reward is paid from its approval, never typed in a second time.
+    if ($kind === 'reward') {
+        return t('A reward is paid from the rewards approved under Recognition, not typed in here.');
     }
 
     if (! array_key_exists($kind, payroll_adjustment_kinds())) {

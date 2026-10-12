@@ -81,13 +81,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/payroll-runs?id=' . (int) $run['id']);
     }
 
+    if ($do === 'pay_reward') {
+        require_once __DIR__ . '/../engagement.php';
+        $refusal = eng_reward_pay((int) $run['id'], (int) ($_POST['redemption_id'] ?? 0), uid());
+
+        if ($refusal !== null) {
+            refuse(422, $refusal);
+        }
+
+        flash(t('Reward paid in this period.'));
+        redirect('/payroll-runs?id=' . (int) $run['id']);
+    }
+
     refuse(422, t('Unknown action.'));
 }
 
 $runs = rows('SELECT r.*, (SELECT COUNT(*) FROM payroll_adjustments a WHERE a.run_id = r.id) AS adjustments
               FROM payroll_runs r ORDER BY r.week_ending DESC LIMIT 26');
 $run = payroll_run((int) ($_GET['id'] ?? 0)) ?? ($runs[0] ?? null);
-$summary = $blockers = $adjustments = $events = $differences = $people = [];
+$summary = $blockers = $adjustments = $events = $differences = $people = $cashRewards = [];
 
 if ($run) {
     $summary = payroll_run_summary($run);
@@ -99,6 +111,8 @@ if ($run) {
                     WHERE e.run_id = ? ORDER BY e.id DESC', [(int) $run['id']]);
 
     if ($run['status'] === 'open') {
+        require_once __DIR__ . '/../engagement.php';
+        $cashRewards = eng_cash_rewards_to_pay();
         $differences = array_values(array_filter(payroll_open_differences(),
             fn($d) => (int) $d['adjusted'] === 0 && $d['week_ending'] < $run['week_ending']));
         $people = rows("SELECT DISTINCT c.id, c.full_name FROM candidates c JOIN placements p ON p.candidate_id = c.id
@@ -112,4 +126,4 @@ $statuses = payroll_run_statuses();
 $kinds = payroll_adjustment_kinds();
 
 $pageTitle = t('Pay periods') . ' · ' . $config['app_name'];
-render('payroll-runs', compact('runs', 'run', 'summary', 'blockers', 'adjustments', 'events', 'differences', 'people', 'statuses', 'kinds'));
+render('payroll-runs', compact('runs', 'run', 'summary', 'blockers', 'adjustments', 'events', 'differences', 'people', 'statuses', 'kinds', 'cashRewards'));

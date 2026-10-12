@@ -1942,4 +1942,37 @@ if (! $hadTraining) {
        . 'no course exists yet (recruiters and administrators write them under Training). Project briefings stay under Safety & learning.' . PHP_EOL;
 }
 
+// ── P5-M05: recognition and engagement ──
+// Reversed by install/rollback/p5-m05.sql.
+$engagementSql = __DIR__ . '/engagement.sql';
+
+if (! is_file($engagementSql)) {
+    fwrite(STDERR, "Missing install/engagement.sql\n");
+    exit(1);
+}
+
+$hadEngagement = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                            WHERE table_schema=DATABASE() AND table_name='kudos'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($engagementSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// A cash reward is paid as a payroll adjustment of its own kind.
+$adjustmentKind = (string) val("SELECT COLUMN_TYPE FROM information_schema.columns
+                                WHERE table_schema=DATABASE() AND table_name='payroll_adjustments' AND column_name='kind'");
+
+if ($adjustmentKind !== '' && ! str_contains($adjustmentKind, "'reward'")) {
+    db()->exec("ALTER TABLE payroll_adjustments MODIFY kind ENUM('correction','back_pay','reimbursement','recovery','reward') NOT NULL");
+}
+
+if (! $hadEngagement) {
+    echo 'Recognition and engagement: thanks between colleagues, awards with nominations, points and a rewards catalogue '
+       . '(cash paid through payroll, time off added to leave), feedback, and anonymous engagement surveys; no award, reward or survey exists yet. '
+       . 'Recognition in HR records, performance reviews and HR cases stay where they are.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

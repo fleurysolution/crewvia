@@ -92,11 +92,20 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
     <?php endforeach; ?>
     <?php endif; ?>
 
+    <?php if ($cashRewards): ?>
+    <h3 style="margin:14px 0 6px"><?= te('Cash rewards to pay') ?></h3>
+    <p class="small muted"><?= te('Approved under Recognition. Paying one adds it to this period as a reward, paid as wages.') ?></p>
+    <?php foreach ($cashRewards as $cr): ?>
+      <form method="post" class="row" data-cash-reward="<?= (int) $cr['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="pay_reward"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>"><input type="hidden" name="redemption_id" value="<?= (int) $cr['id'] ?>">
+        <span class="small"><?= e($cr['name'] . ' · ' . $cr['reward']) ?> · <span class="mono"><?= e(money($cr['cash_amount'])) ?></span></span> <button class="btn sm"><?= te('Pay in this period') ?></button></form>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <form method="post" class="card" id="new-adjustment" style="margin-top:12px"><?= csrf_field() ?><input type="hidden" name="do" value="adjust"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>">
       <h3 style="margin:0 0 8px"><?= te('Record an adjustment') ?></h3>
       <div class="grid g2">
         <div><label><?= te('Worker') ?></label><select name="candidate_id"><?php foreach ($people as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['full_name']) ?></option><?php endforeach; ?></select></div>
-        <div><label><?= te('Kind') ?></label><select name="kind"><?php foreach ($kinds as $k => $v): ?><option value="<?= e($k) ?>"><?= e($v) ?></option><?php endforeach; ?></select></div>
+        <div><label><?= te('Kind') ?></label><select name="kind"><?php foreach ($kinds as $k => $v): if ($k === 'reward') { continue; } ?><option value="<?= e($k) ?>"><?= e($v) ?></option><?php endforeach; ?></select></div>
         <div><label><?= te('Amount') ?></label><input name="amount" type="number" min="0.01" step="0.01" required></div>
         <div><label><?= te('Hours (optional)') ?></label><input name="hours" type="number" step="0.25"></div>
       </div>
