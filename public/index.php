@@ -67,6 +67,8 @@ if ($path === '/logout') {
     log_activity('signed out');
     // P5-M06b: signing out on a trusted phone ends its trust and clears what it kept.
     if (isset($_COOKIE['crewvia_device'])) { require_once __DIR__.'/../app/offline-sync.php'; os_revoke_cookie_grant(uid() ?: null, 'signed_out'); header('Clear-Site-Data: "storage"'); }
+    // P5-M06c: and its push notifications stop (clearing its storage also drops the browser's subscription).
+    if (isset($_COOKIE['crewvia_push'])) { require_once __DIR__.'/../app/push.php'; push_end_cookie('signed_out'); header('Clear-Site-Data: "storage"'); }
     $_SESSION = [];
     if (ini_get('session.use_cookies')) { $p = session_get_cookie_params(); setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']); }
     session_destroy();

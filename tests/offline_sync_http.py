@@ -243,7 +243,7 @@ w = user('w')
 status, body = w.get('/attendance')
 check('Attendance links a worker to trusting their phone', 'id="offline-attendance"' in body)
 status, _, page = Client().open(base + '/offline-entry.html')
-check('The offline screen is a static page with no data in it', status == 200 and 'id="offline-entry"' in page and '/assets/offline-sync.js?v=1' in page and 'Offline w' not in page)
+check('The offline screen is a static page with no data in it', status == 200 and 'id="offline-entry"' in page and '/assets/offline-sync.js?v=2' in page and 'Offline w' not in page)
 status, body = user('w2').get('/devices')
 check('Trusted phones in French', 'Téléphones de confiance' in body)
 

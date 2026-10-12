@@ -3257,3 +3257,33 @@ Trusted until :date.	De confiance jusqu'au :date.	De confianza hasta el :date.
 Typed here, it is kept on this phone and sent when there is a connection. The office decides, as for anything typed online.	Saisi ici, c'est gardé sur ce téléphone et envoyé dès qu'il y a du réseau. Le bureau décide, comme pour toute saisie en ligne.	Lo que escriba aquí se guarda en este teléfono y se envía cuando hay conexión. La oficina decide, como con todo lo que se escribe en línea.
 Unknown entry.	Saisie inconnue.	Entrada desconocida.
 Waiting to be sent	En attente d'envoi	En espera de envío
+A push says only that there is something new in Crewvia; what it is shows once you open it. Google, Apple, Mozilla and Microsoft, who carry it, see no name and no message.	Une notification dit seulement qu'il y a du nouveau dans Crewvia ; le contenu s'affiche une fois Crewvia ouvert. Google, Apple, Mozilla et Microsoft, qui la transportent, ne voient ni nom ni message.	Una notificación solo dice que hay algo nuevo en Crewvia; el contenido se ve al abrirlo. Google, Apple, Mozilla y Microsoft, que la transportan, no ven ningún nombre ni mensaje.
+A test push went to :n phone(s).	Une notification de test est partie vers :n téléphone(s).	Se envió una notificación de prueba a :n teléfono(s).
+Approvals and requests	Approbations et demandes	Aprobaciones y solicitudes
+Choose at least one kind of notification.	Choisissez au moins un type de notification.	Elija al menos un tipo de notificación.
+Everything else	Tout le reste	Todo lo demás
+Make the key pair on the server first: php install/push-keys.php	Créez d'abord la paire de clés sur le serveur : php install/push-keys.php	Cree primero el par de claves en el servidor: php install/push-keys.php
+New in Crewvia. Open it to read.	Du nouveau dans Crewvia. Ouvrez-le pour lire.	Hay algo nuevo en Crewvia. Ábralo para leerlo.
+No phone of yours has push notifications on.	Aucun de vos téléphones n'a les notifications activées.	Ninguno de sus teléfonos tiene las notificaciones activadas.
+Notifications are blocked for Crewvia in the settings of this browser.	Les notifications sont bloquées pour Crewvia dans les réglages de ce navigateur.	Las notificaciones están bloqueadas para Crewvia en la configuración de este navegador.
+On for this phone, for: :kinds.	Activées sur ce téléphone, pour : :kinds.	Activadas en este teléfono, para: :kinds.
+Only an administrator turns push notifications on or off.	Seul un administrateur active ou désactive les notifications.	Solo un administrador activa o desactiva las notificaciones.
+Phones and notifications	Téléphones et notifications	Teléfonos y notificaciones
+Push notifications	Notifications sur le téléphone	Notificaciones en el teléfono
+Push notifications are off for this phone.	Les notifications sont désactivées sur ce téléphone.	Las notificaciones están desactivadas en este teléfono.
+Push notifications are off.	Les notifications sont désactivées.	Las notificaciones están desactivadas.
+Push notifications are off. Nothing is sent.	Les notifications sont désactivées. Rien n'est envoyé.	Las notificaciones están desactivadas. No se envía nada.
+Push notifications are on for this phone.	Les notifications sont activées sur ce téléphone.	Las notificaciones están activadas en este teléfono.
+Push notifications are on. People turn them on for their own phone here.	Les notifications sont activées. Chacun les active ici pour son propre téléphone.	Las notificaciones están activadas. Cada persona las activa aquí para su propio teléfono.
+Recognition and feedback	Reconnaissance et retours	Reconocimiento y comentarios
+Send me a test	M'envoyer un test	Enviarme una prueba
+Send to this phone when there is something new about:	Envoyer à ce téléphone quand il y a du nouveau sur :	Enviar a este teléfono cuando haya algo nuevo sobre:
+That is not a push service this browser should use.	Ce n'est pas un service de notification que ce navigateur devrait utiliser.	No es un servicio de notificaciones que este navegador debería usar.
+That phone gets no more push notifications.	Ce téléphone ne reçoit plus de notifications.	Ese teléfono ya no recibe notificaciones.
+The key pair is not made yet. On the server: php install/push-keys.php	La paire de clés n'est pas encore créée. Sur le serveur : php install/push-keys.php	El par de claves aún no está creado. En el servidor: php install/push-keys.php
+This browser cannot receive push notifications. On an iPhone, add Crewvia to the Home Screen first (iOS 16.4 or later).	Ce navigateur ne peut pas recevoir de notifications. Sur iPhone, ajoutez d'abord Crewvia à l'écran d'accueil (iOS 16.4 ou plus récent).	Este navegador no puede recibir notificaciones. En un iPhone, primero agregue Crewvia a la pantalla de inicio (iOS 16.4 o posterior).
+Turn off for this phone	Désactiver sur ce téléphone	Desactivar en este teléfono
+Turn on for this phone	Activer sur ce téléphone	Activar en este teléfono
+Turn push notifications off	Désactiver les notifications	Desactivar las notificaciones
+Turn push notifications on	Activer les notifications	Activar las notificaciones
+Turning push on lets Crewvia call the push services of Google, Apple, Mozilla and Microsoft. Pushes go out each time the scheduled workflows run, or every minute with php install/push-dispatch.php in cron.	Activer les notifications permet à Crewvia d'appeler les services de notification de Google, Apple, Mozilla et Microsoft. Elles partent à chaque passage des tâches planifiées, ou chaque minute avec php install/push-dispatch.php dans cron.	Activar las notificaciones permite a Crewvia llamar a los servicios de notificaciones de Google, Apple, Mozilla y Microsoft. Se envían cada vez que se ejecutan las tareas programadas, o cada minuto con php install/push-dispatch.php en cron.

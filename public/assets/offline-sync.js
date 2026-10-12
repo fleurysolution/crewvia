@@ -131,5 +131,8 @@
     });
   }
 
-  global.CrewviaSync = {refresh: refresh, bootstrap: bootstrap, keep: keep, flush: flush, queue: function () { return all('queue'); }, today: today};
+  // P5-M06c: small settings the service worker reads (the push text, in the owner's language).
+  function meta(key, value) { return value === undefined ? get('meta', key) : put('meta', value, key); }
+
+  global.CrewviaSync = {refresh: refresh, bootstrap: bootstrap, keep: keep, flush: flush, queue: function () { return all('queue'); }, today: today, meta: meta};
 })(typeof self !== 'undefined' ? self : this);

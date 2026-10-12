@@ -52,6 +52,8 @@ check('It never stores a response it fetched: only the fixed list, at install', 
 check('It answers only reads: pages being opened, and the files it keeps, nothing else', "if (request.method !== 'GET') {" in sw
       and "PRECACHE.includes(url.pathname + url.search)" in sw and sw.count('event.respondWith(') == 2)
 check('A new version clears the old caches', 'caches.delete' in sw)
+check('A push shows only the words kept on the phone, never anything it carries', "addEventListener('push'" in sw and 'event.data' not in sw and 'showNotification(' in sw)
+check('Tapping it opens the notifications page', "openWindow('/notifications')" in sw)
 for p in precache:
     check('%s is there to keep' % p, anon.get(p)[0] == 200)
 

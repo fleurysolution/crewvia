@@ -28,5 +28,8 @@ try{require_once __DIR__.'/../app/training.php';$trainingAssigned=tr_sync();}cat
 // P5-M05: engagement surveys whose closing date has passed.
 $surveysClosed=0;
 try{require_once __DIR__.'/../app/surveys.php';$surveysClosed=sv_close_due();}catch(Throwable $e){error_log('[crewvia] survey close: '.$e->getMessage());}
-ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs,'training_assigned'=>$trainingAssigned,'surveys_closed'=>$surveysClosed],$opsStarted);
+// P5-M06c: pushes for what is new, only once an administrator has turned push on.
+$pushSent=0;
+try{require_once __DIR__.'/../app/push.php';$pushSent=push_dispatch()['sent'];}catch(Throwable $e){error_log('[crewvia] push dispatch: '.$e->getMessage());}
+ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs,'training_assigned'=>$trainingAssigned,'surveys_closed'=>$surveysClosed,'push_sent'=>$pushSent],$opsStarted);
 echo "Workflow alert pass complete. No external messages sent.\n";

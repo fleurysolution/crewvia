@@ -1999,4 +1999,28 @@ if (! $hadOffline) {
        . 'the server decides each one by the screens\' rules and logs when it was typed. No phone is trusted yet.' . PHP_EOL;
 }
 
+// ── P5-M06c: push notifications (off until an administrator turns them on) ──
+// Reversed by install/rollback/p5-m06c.sql.
+$pushSql = __DIR__ . '/push.sql';
+
+if (! is_file($pushSql)) {
+    fwrite(STDERR, "Missing install/push.sql\n");
+    exit(1);
+}
+
+$hadPush = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                      WHERE table_schema=DATABASE() AND table_name='push_subscriptions'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($pushSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadPush) {
+    echo 'Push notifications: built and OFF. A push carries no name or message. To use them later: php install/push-keys.php, '
+       . 'then an administrator turns them on under Phones and notifications.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

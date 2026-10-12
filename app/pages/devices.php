@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../offline-sync.php';
+require_once __DIR__ . '/../push.php';
 
 $me = user();
 $admin = can('admin');
@@ -33,6 +34,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash(t('That phone is no longer trusted.'));
         redirect('/devices');
     }
+    // P5-M06c: push notifications.
+    if ($do === 'push_switch') {
+        if (! $admin) { refuse(403, t('Only an administrator turns push notifications on or off.')); }
+        $why = push_switch(($_POST['state'] ?? '') === 'on', uid());
+        if ($why !== null) { refuse(422, $why); }
+        flash(push_enabled() ? t('Push notifications are on. People turn them on for their own phone here.') : t('Push notifications are off. Nothing is sent.'));
+        redirect('/devices#push');
+    }
+    if ($do === 'push_subscribe') {
+        [$why] = push_subscribe($me, trim((string) ($_POST['endpoint'] ?? '')), (array) ($_POST['kinds'] ?? []), (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+        if ($why !== null) { refuse(422, $why); }
+        flash(t('Push notifications are on for this phone.'));
+        redirect('/devices#push');
+    }
+    if ($do === 'push_unsubscribe') {
+        push_end_cookie('removed');
+        flash(t('Push notifications are off for this phone.'));
+        redirect('/devices#push');
+    }
+    if ($do === 'push_remove') {
+        $s = row('SELECT * FROM push_subscriptions WHERE id = ?', [(int) ($_POST['subscription_id'] ?? 0)]);
+        if (! $s || ((int) $s['user_id'] !== uid() && ! $admin)) { refuse(404, t('That phone does not exist.')); }
+        push_end((int) $s['id'], (int) $s['user_id'] === uid() ? 'removed' : 'removed_by_admin');
+        flash(t('That phone gets no more push notifications.'));
+        redirect('/devices#push');
+    }
+    if ($do === 'push_test') {
+        [$why, $n] = push_test(uid());
+        if ($why !== null) { refuse(422, $why); }
+        flash(t('A test push went to :n phone(s).', ['n' => $n]));
+        redirect('/devices#push');
+    }
     refuse(400, t('Unknown action.'));
 }
 
@@ -40,4 +73,7 @@ $current = os_current_grant();
 $mine = os_grants_for(uid());
 $everyone = $admin ? os_grants_for(null) : [];
 $mayTrust = os_may_trust($me);
-render('devices', compact('current', 'mine', 'everyone', 'mayTrust', 'admin'));
+$push = ['on' => push_enabled(), 'key' => push_public_key(), 'here' => push_current_subscription(uid()),
+         'mine' => rows('SELECT * FROM push_subscriptions WHERE user_id = ? ORDER BY id DESC LIMIT 20', [uid()]),
+         'all' => $admin ? rows('SELECT s.*, u.name FROM push_subscriptions s JOIN users u ON u.id = s.user_id WHERE s.ended_at IS NULL ORDER BY u.name LIMIT 500') : []];
+render('devices', compact('current', 'mine', 'everyone', 'mayTrust', 'admin', 'push'));

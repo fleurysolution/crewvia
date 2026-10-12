@@ -8,14 +8,17 @@
 // browser's own error. What a worker or supervisor types offline lives in
 // IndexedDB (see /assets/offline-sync.js), not here.
 //
-// Push (P5-M06c) is a separate step.
+// A push (P5-M06c) carries no content: it only says there is something new.
+// The words shown are kept on the phone, in its owner's language, when push
+// is turned on; tapping opens the notifications page, where Crewvia shows
+// what it is to someone signed in.
 
-const SHELL = 'crewvia-shell-v3';
+const SHELL = 'crewvia-shell-v4';
 const OFFLINE = '/offline.html';
-const PRECACHE = [OFFLINE, '/offline-entry.html', '/assets/offline-sync.js?v=1', '/assets/offline-entry.js?v=1',
+const PRECACHE = [OFFLINE, '/offline-entry.html', '/assets/offline-sync.js?v=2', '/assets/offline-entry.js?v=1',
                   '/assets/fleury-brand.css?v=20261008', '/assets/app-icon-192.png', '/assets/app-icon.svg'];
 
-importScripts('/assets/offline-sync.js?v=1');
+importScripts('/assets/offline-sync.js?v=2');
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(SHELL).then(cache => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -53,4 +56,15 @@ self.addEventListener('sync', event => {
   if (event.tag === 'crewvia-attendance') {
     event.waitUntil(self.CrewviaSync.flush());
   }
+});
+
+self.addEventListener('push', event => {
+  event.waitUntil(self.CrewviaSync.meta('push').catch(() => null).then(words => self.registration.showNotification(
+    (words && words.title) || 'Crewvia',
+    {body: (words && words.body) || 'New in Crewvia. Open it to read.', tag: 'crewvia', icon: '/assets/app-icon-192.png'})));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(self.clients.openWindow('/notifications'));
 });

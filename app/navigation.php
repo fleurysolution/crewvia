@@ -62,7 +62,7 @@ function workspace_nav(?array $u): array
         ['/recognition',        'Recognition',                        null],
         ['/feedback',           'Feedback',                           null],
         ['/surveys',            'Surveys',                            null],
-        ['/devices',            'Trusted phones',                     'admin'],
+        ['/devices',            'Phones and notifications',           null],
         ['/safety-plan',        'Site safety plan',                   ['recruiter','hotels','supervisor']],
         ['/offboarding',        'Offboarding',                        'recruiter'],
         ['/comms',              'Communications',                     null],
@@ -130,7 +130,7 @@ function workspace_nav(?array $u): array
 
         $nav = [['/activity', 'Activity', null], ['/my-tasks', 'My tasks', null], ['/my-training', 'My training', null],
                 ['/recognition', 'Recognition', null], ['/feedback', 'Feedback', null], ['/surveys', 'Surveys', null],
-                ['/devices', 'Trusted phones', null]];
+                ['/devices', 'Phones and notifications', null]];
 
         if ($crew) {
             $nav[] = ['/self-service', 'My self-service', null];
