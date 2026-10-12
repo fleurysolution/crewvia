@@ -599,6 +599,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-group{width:100%}
 }
 </style>
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=1">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -641,25 +642,41 @@ input,select,textarea{border-color:#8a96a6}
     })($nav, $navSections, $here);
     ?>  </nav>
   <?php if($u && !in_array($u['role'] ?? '',['worker','client'],true)): ?><form action="/search" method="get" class="workspace-search"><label class="sr-only" for="directory-search"><?= te('Search employee folders') ?></label><input id="directory-search" name="q" placeholder="<?= te('Search everything') ?>" aria-label="<?= te('Search everything') ?>"><button class="btn ghost sm"><?= te('Search') ?></button></form><?php endif; ?>
-  <div class="me">
-    <?php /* Name first, then what this account may do, on its own line. The
-             two used to sit side by side and read as one meaningless phrase. */ ?>
-    <span class="me-who">
-      <b><?= e($u['name'] ?? '') ?></b>
-      <small><?= te(roles()[$u['role'] ?? ''] ?? '') ?></small>
-    </span>
-    <form method="post" action="/language" class="lang-switch">
-      <?= csrf_field() ?>
-      <input type="hidden" name="back" value="<?= e($_SERVER['REQUEST_URI'] ?? $here) ?>">
-      <label class="sr-only" for="lang-pick"><?= te('Language') ?></label>
-      <select id="lang-pick" name="locale">
-        <?php foreach (WORKFORCE_LOCALES as $code => $name): ?>
-          <option value="<?= e($code) ?>" <?= locale() === $code ? 'selected' : '' ?>><?= e($name) ?></option>
-        <?php endforeach; ?>
-      </select>
-      <button class="btn ghost sm"><?= te('Change') ?></button>
-    </form>
-    <?php if($u): ?><a href="/account"><?= te('Account') ?></a><form method="post" action="/logout"><?= csrf_field() ?><button class="btn sm"><?= te('Sign out') ?></button></form><?php else: ?><a href="/login"><?= te('Sign in') ?></a><?php endif; ?>
+  <?php
+  // One place for who is signed in: the notifications bell and the account
+  // menu (account, language, sign out), as on any professional workspace.
+  $hdrUnread = $u ? (int) val('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL', [uid()]) : 0;
+  $hdrInitials = strtoupper(implode('', array_map(static fn($w) => mb_substr($w, 0, 1), array_slice(preg_split('/\s+/', trim((string) ($u['name'] ?? ''))) ?: [], 0, 2))));
+  ?>
+  <div class="top-actions">
+    <?php if ($u): ?>
+    <a class="top-icon" href="/notifications" id="bell" aria-label="<?= te('Notifications') ?>" title="<?= te('Notifications') ?>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><?php if ($hdrUnread): ?><span class="count"><?= $hdrUnread > 99 ? '99+' : $hdrUnread ?></span><?php endif; ?></a>
+    <details class="acct" id="account-menu">
+      <summary><span class="avatar" aria-hidden="true"><?= e($hdrInitials ?: '?') ?></span>
+        <span class="acct-who me-who"><b><?= e($u['name'] ?? '') ?></b><small><?= te(roles()[$u['role'] ?? ''] ?? '') ?></small></span></summary>
+      <div class="acct-pop">
+        <a href="/account"><?= te('Account') ?></a>
+        <a href="/account-security"><?= te('Account security') ?></a>
+        <?php if (($u['role'] ?? '') !== 'client'): ?><a href="/devices"><?= te('Phones and notifications') ?></a><?php endif; ?>
+        <hr>
+        <form method="post" action="/language" class="lang-switch">
+          <?= csrf_field() ?>
+          <input type="hidden" name="back" value="<?= e($_SERVER['REQUEST_URI'] ?? $here) ?>">
+          <label class="sr-only" for="lang-pick"><?= te('Language') ?></label>
+          <select id="lang-pick" name="locale">
+            <?php foreach (WORKFORCE_LOCALES as $code => $name): ?>
+              <option value="<?= e($code) ?>" <?= locale() === $code ? 'selected' : '' ?>><?= e($name) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <button class="btn ghost sm"><?= te('Change') ?></button>
+        </form>
+        <hr>
+        <form method="post" action="/logout" class="signout"><?= csrf_field() ?><button class="link"><?= te('Sign out') ?></button></form>
+      </div>
+    </details>
+    <?php else: ?>
+    <a href="/login"><?= te('Sign in') ?></a>
+    <?php endif; ?>
   </div>
 </header>
 

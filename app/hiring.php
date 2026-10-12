@@ -1,0 +1,300 @@
+<?php
+/**
+ * The Hiring workspace (P5-M10): one place for a recruiter to work a job,
+ * modelled on how job boards' employer sites work and built on Crewvia's
+ * own records - requisitions (vacancies), their applications and stages,
+ * screening answers and checks, contact history, and the talent pool.
+ *
+ *   /hiring                       every requisition, with its counts
+ *   /hiring?v=ID                  one requisition: its applicants by stage,
+ *                                 filtered, each with yes / maybe / no
+ *   /hiring?v=ID&app=ID           the split review of one applicant
+ *   /hiring?v=ID&tab=matches      people in the talent pool who fit, to
+ *                                 add to this job
+ *
+ * Nothing here is a second rule book. Moving an application follows the
+ * screening screen's rules (settled applications do not move; an offer
+ * needs passed checks, answered required questions, the contract steps
+ * and its terms; acceptance is the person's own, in their portal). The
+ * interest a recruiter shows (yes, maybe, no) is a sorting aid kept on
+ * the application; it decides nothing.
+ */
+
+declare(strict_types=1);
+
+/** @return array<string,string> */
+function hw_tabs(): array
+{
+    return ['active' => t('Active'), 'new' => t('New'), 'screening' => t('Screening'), 'interview' => t('Interview'), 'offered' => t('Offered'),
+            'accepted' => t('Hired'), 'closed' => t('Rejected or withdrawn'), 'all' => t('All')];
+}
+
+/** @return array<string,string> */
+function hw_stages(): array
+{
+    return ['new' => t('New'), 'screening' => t('Screening'), 'interview' => t('Interview'), 'offered' => t('Offered'), 'accepted' => t('Hired'),
+            'rejected' => t('Rejected'), 'withdrawn' => t('Withdrawn')];
+}
+
+/** @return array<string,string> */
+function hw_interests(): array
+{
+    return ['yes' => t('Interested'), 'maybe' => t('Maybe'), 'no' => t('Not interested')];
+}
+
+function hw_tab_where(string $tab): string
+{
+    return match ($tab) {
+        'active' => "a.stage IN ('new','screening','interview','offered')",
+        'closed' => "a.stage IN ('rejected','withdrawn')",
+        'new', 'screening', 'interview', 'offered', 'accepted' => "a.stage = '" . $tab . "'",
+        default  => '1',
+    };
+}
+
+/** Every requisition, with the counts a recruiter reads first. */
+function hw_jobs(string $status, int $jobId): array
+{
+    $where = ['1'];
+    $args = [];
+    if ($status === 'open') { $where[] = 'v.is_open = 1'; }
+    if ($status === 'closed') { $where[] = 'v.is_open = 0'; }
+    if ($jobId) { $where[] = 'v.job_id = ?'; $args[] = $jobId; }
+
+    return rows("SELECT v.id, v.title, v.is_open, v.openings, v.discipline, v.starts_on, j.title AS project, j.id AS job_id,
+                        COUNT(a.id) AS total,
+                        COALESCE(SUM(a.stage = 'new'), 0) AS new_count,
+                        COALESCE(SUM(a.stage IN ('screening','interview')), 0) AS reviewing,
+                        COALESCE(SUM(a.stage = 'offered'), 0) AS offered,
+                        COALESCE(SUM(a.stage = 'accepted'), 0) AS hired,
+                        MAX(a.created_at) AS last_applied
+                 FROM vacancies v JOIN jobs j ON j.id = v.job_id LEFT JOIN applications a ON a.vacancy_id = v.id
+                 WHERE " . implode(' AND ', $where) . '
+                 GROUP BY v.id, v.title, v.is_open, v.openings, v.discipline, v.starts_on, j.title, j.id
+                 ORDER BY v.is_open DESC, MAX(a.created_at) IS NULL, MAX(a.created_at) DESC, v.id DESC LIMIT 300', $args);
+}
+
+function hw_vacancy(int $id): ?array
+{
+    return row('SELECT v.*, j.title AS project, j.status AS project_status FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.id = ?', [$id]);
+}
+
+/** @return array<string,int> */
+function hw_counts(int $vacancyId): array
+{
+    $out = array_fill_keys(array_keys(hw_tabs()), 0);
+    foreach (rows('SELECT stage, COUNT(*) AS n FROM applications WHERE vacancy_id = ? GROUP BY stage', [$vacancyId]) as $r) {
+        $n = (int) $r['n'];
+        $out['all'] += $n;
+        if (in_array($r['stage'], ['new', 'screening', 'interview', 'offered'], true)) { $out['active'] += $n; }
+        if (isset($out[$r['stage']])) { $out[$r['stage']] += $n; }
+        if (in_array($r['stage'], ['rejected', 'withdrawn'], true)) { $out['closed'] += $n; }
+    }
+
+    return $out;
+}
+
+/**
+ * The applicants of one requisition for a tab, with what a recruiter
+ * scans: where they are, their background, how screening stands, when
+ * they applied and were last contacted, and the interest shown.
+ */
+function hw_applicants(array $v, string $tab, array $f): array
+{
+    $where = ['a.vacancy_id = ?', hw_tab_where($tab)];
+    $args = [(int) $v['id']];
+    if (($f['q'] ?? '') !== '') {
+        $where[] = '(c.full_name LIKE ? OR c.city LIKE ? OR c.state LIKE ? OR c.degree LIKE ?)';
+        array_push($args, ...array_fill(0, 4, '%' . $f['q'] . '%'));
+    }
+    if (in_array($f['interest'] ?? '', ['yes', 'maybe', 'no'], true)) { $where[] = 'a.interest = ?'; $args[] = $f['interest']; }
+    if (($f['interest'] ?? '') === 'unset') { $where[] = 'a.interest IS NULL'; }
+    $order = match ($f['sort'] ?? '') {
+        'oldest' => 'a.created_at ASC, a.id ASC',
+        'score'  => 'a.screening_score IS NULL, a.screening_score DESC, a.id DESC',
+        'name'   => 'c.full_name ASC',
+        default  => 'a.created_at DESC, a.id DESC',
+    };
+    $list = rows('SELECT a.id, a.stage, a.source, a.created_at, a.screening_score, a.screened_out, a.screened_out_why, a.interest,
+                         c.id AS candidate_id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone, c.email
+                  FROM applications a JOIN candidates c ON c.id = a.candidate_id
+                  WHERE ' . implode(' AND ', $where) . ' ORDER BY ' . $order . ' LIMIT 300', $args);
+    if (! $list) {
+        return [];
+    }
+    $ids = implode(',', array_map(static fn($a) => (int) $a['id'], $list));
+    $checks = [];
+    foreach (rows("SELECT application_id, status, COUNT(*) AS n FROM screening_checks WHERE application_id IN ($ids) GROUP BY application_id, status") as $r) {
+        $checks[(int) $r['application_id']][$r['status']] = (int) $r['n'];
+    }
+    $required = (int) val('SELECT COUNT(*) FROM screening_questions WHERE job_id = ? AND required = 1', [(int) $v['job_id']]);
+    $answered = [];
+    foreach (rows("SELECT s.application_id, COUNT(*) AS n FROM screening_answers s JOIN screening_questions q ON q.id = s.question_id
+                   WHERE s.application_id IN ($ids) AND q.required = 1 AND TRIM(s.answer) <> '' GROUP BY s.application_id") as $r) {
+        $answered[(int) $r['application_id']] = (int) $r['n'];
+    }
+    $cids = implode(',', array_map(static fn($a) => (int) $a['candidate_id'], $list));
+    $skills = [];
+    foreach (rows("SELECT candidate_id, skill_slug FROM candidate_skills WHERE candidate_id IN ($cids) ORDER BY confirmed DESC, years DESC") as $r) {
+        $skills[(int) $r['candidate_id']][] = $r['skill_slug'];
+    }
+    foreach ($list as &$a) {
+        $a['checks'] = $checks[(int) $a['id']] ?? [];
+        $a['required'] = $required;
+        $a['answered'] = $answered[(int) $a['id']] ?? 0;
+        $a['skills'] = array_slice($skills[(int) $a['candidate_id']] ?? [], 0, 3);
+    }
+
+    return $list;
+}
+
+/** Initials for an avatar. */
+function hw_initials(string $name): string
+{
+    $parts = preg_split('/\s+/', trim($name)) ?: [];
+
+    return strtoupper(implode('', array_map(static fn($w) => mb_substr($w, 0, 1), array_slice($parts, 0, 2)))) ?: '?';
+}
+
+/** "3 hours ago", "2 days ago", or the date. */
+function hw_ago(?string $when): string
+{
+    if (! $when) {
+        return '';
+    }
+    $s = time() - strtotime($when);
+    return match (true) {
+        $s < 3600   => t(':n minute(s) ago', ['n' => max(1, intdiv($s, 60))]),
+        $s < 86400  => t(':n hour(s) ago', ['n' => intdiv($s, 3600)]),
+        $s < 864000 => t(':n day(s) ago', ['n' => intdiv($s, 86400)]),
+        default     => d(substr($when, 0, 10)),
+    };
+}
+
+// ── acting on an application ────────────────────────────────────────────
+
+function hw_application(int $id): ?array
+{
+    return row('SELECT a.*, v.job_id, v.title AS vacancy_title, c.full_name FROM applications a JOIN vacancies v ON v.id = a.vacancy_id JOIN candidates c ON c.id = a.candidate_id WHERE a.id = ?', [$id]);
+}
+
+/** Yes, maybe, no, or clear it. A sorting aid; it moves nothing. */
+function hw_interest(int $id, string $value, int $by): ?string
+{
+    $a = hw_application($id);
+    if (! $a) { return t('Application unavailable in this project.'); }
+    if ($value !== '' && ! isset(hw_interests()[$value])) { return t('Unknown action.'); }
+    $value = $a['interest'] === $value ? '' : $value;
+    q('UPDATE applications SET interest = ?, interest_by = ?, interest_at = ? WHERE id = ?', [$value ?: null, $value ? $by : null, $value ? date('Y-m-d H:i:s') : null, $id]);
+
+    return null;
+}
+
+/** A note on the application, kept with its stage. */
+function hw_note(int $id, string $note, int $by): ?string
+{
+    $note = trim($note);
+    $a = hw_application($id);
+    if (! $a) { return t('Application unavailable in this project.'); }
+    if (mb_strlen($note) < 2 || mb_strlen($note) > 2000) { return t('Write the note in 2 to 2000 characters.'); }
+    q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, $a['stage'], $note]);
+    log_activity('noted an application', 'application', $id, $note);
+
+    return null;
+}
+
+/**
+ * Move an application, by the screening screen's rules. Returns the
+ * refusal, or null.
+ */
+function hw_move(int $id, string $stage, string $note, int $by): ?string
+{
+    require_once __DIR__ . '/contracts.php';
+    $a = hw_application($id);
+    $note = trim($note);
+    if (! $a) { return t('Application unavailable in this project.'); }
+    if (in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)) { return t('That application is settled. Raise a new one for the same person if they come back.'); }
+    if (! in_array($stage, ['new', 'screening', 'interview', 'offered', 'rejected', 'withdrawn', 'accepted'], true) || $stage === $a['stage']) { return t('Choose another stage.'); }
+    if ($stage === 'accepted') { return t('The candidate must accept their offer in their private portal.'); }
+    $jobId = (int) $a['job_id'];
+    if ($stage === 'offered') {
+        if ((int) val("SELECT COUNT(*) FROM screening_checks WHERE application_id = ? AND status <> 'passed'", [$id])) { return t('Complete screening checks before offering this job.'); }
+        if ((int) val("SELECT COUNT(*) FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id = q.id AND s.application_id = ?
+                       WHERE q.job_id = ? AND q.required = 1 AND (s.answer IS NULL OR TRIM(s.answer) = '')", [$id, $jobId])) {
+            return t('Answer every required screening question before offering this job.');
+        }
+        if (contract_document_gaps((int) $a['candidate_id'], $jobId) || contract_latest($id) || val('SELECT required_before_deployment FROM contract_policies WHERE job_id = ?', [$jobId])) {
+            return t('Use the contract workflow after required document verification.');
+        }
+        if ($note === '') { return t('Enter the complete offer terms before issuing an offer.'); }
+    }
+    q('UPDATE applications SET stage = ? WHERE id = ?', [$stage, $id]);
+    q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, $stage, $note]);
+    log_activity('moved an application', 'application', $id, $stage);
+    if (in_array($stage, ['screening', 'offered'], true)) {
+        require_once __DIR__ . '/invitations.php';
+        try {
+            workforce_invite_candidate((int) $a['candidate_id']);
+        } catch (Throwable $error) {
+            flash(t('Stage recorded. Invitation needs attention: :message', ['message' => t($error->getMessage())]), 'err');
+        }
+    }
+
+    return null;
+}
+
+// ── the talent pool ─────────────────────────────────────────────────────
+
+/** People who fit the requisition's discipline, not yet on it and not barred from rehire. */
+function hw_matches(array $v, string $q = ''): array
+{
+    $args = [(int) $v['id']];
+    $where = ["NOT EXISTS (SELECT 1 FROM applications x WHERE x.candidate_id = c.id AND x.vacancy_id = ?)",
+              "NOT EXISTS (SELECT 1 FROM employee_profiles p WHERE p.candidate_id = c.id AND p.rehire_status = 'ineligible')",
+              "NOT EXISTS (SELECT 1 FROM worker_accounts w JOIN users u ON u.id = w.user_id WHERE w.candidate_id = c.id AND u.is_active = 0)"];
+    if (in_array((string) ($v['discipline'] ?? ''), ['mechanical', 'chemical'], true)) {
+        $where[] = 'c.discipline = ?';
+        $args[] = $v['discipline'];
+    }
+    if ($q !== '') {
+        $where[] = '(c.full_name LIKE ? OR c.city LIKE ? OR c.state LIKE ? OR c.degree LIKE ?)';
+        array_push($args, ...array_fill(0, 4, '%' . $q . '%'));
+    }
+
+    return rows('SELECT c.id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone,
+                        (SELECT COUNT(*) FROM placements pl WHERE pl.candidate_id = c.id AND pl.status = \'completed\') AS past_jobs
+                 FROM candidates c WHERE ' . implode(' AND ', $where) . '
+                 ORDER BY past_jobs DESC, c.years_exp IS NULL, c.years_exp DESC, c.last_contact_at IS NULL, c.last_contact_at DESC LIMIT 60', $args);
+}
+
+/** Put someone from the pool on this requisition as a new applicant. */
+function hw_add(int $vacancyId, int $candidateId, int $by): array
+{
+    $v = hw_vacancy($vacancyId);
+    if (! $v || ! (int) $v['is_open']) { return [t('That requisition is closed.'), 0]; }
+    if (! row('SELECT id FROM candidates WHERE id = ?', [$candidateId])) { return [t('That person does not exist.'), 0]; }
+    if (val("SELECT COUNT(*) FROM employee_profiles WHERE candidate_id = ? AND rehire_status = 'ineligible'", [$candidateId])) { return [t('This person is on the do-not-rehire register.'), 0]; }
+    if (val('SELECT COUNT(*) FROM applications WHERE candidate_id = ? AND vacancy_id = ?', [$candidateId, $vacancyId])) { return [t('This person is already on this requisition.'), 0]; }
+    q("INSERT INTO applications (candidate_id, vacancy_id, source) VALUES (?,?,'Talent pool')", [$candidateId, $vacancyId]);
+    $id = (int) db()->lastInsertId();
+    q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, 'new', t('Added from the talent pool')]);
+    log_activity('added a person from the talent pool', 'application', $id, (string) $v['title']);
+
+    return [null, $id];
+}
+
+/** What happened on an application, and every contact with the person, newest first. */
+function hw_timeline(array $a): array
+{
+    $out = [];
+    foreach (rows('SELECT e.stage, e.note, e.created_at, u.name FROM application_events e LEFT JOIN users u ON u.id = e.user_id WHERE e.application_id = ? ORDER BY e.id DESC LIMIT 100', [(int) $a['id']]) as $e) {
+        $out[] = ['when' => $e['created_at'], 'who' => $e['name'], 'what' => hw_stages()[$e['stage']] ?? $e['stage'], 'note' => $e['note'], 'kind' => 'stage'];
+    }
+    $outcomes = contact_outcomes();
+    foreach (rows('SELECT k.outcome, k.note, k.called_at, u.name FROM candidate_calls k LEFT JOIN users u ON u.id = k.user_id WHERE k.candidate_id = ? ORDER BY k.id DESC LIMIT 100', [(int) $a['candidate_id']]) as $k) {
+        $out[] = ['when' => $k['called_at'], 'who' => $k['name'], 'what' => t($outcomes[$k['outcome']] ?? $k['outcome']), 'note' => $k['note'], 'kind' => 'contact'];
+    }
+    usort($out, static fn($x, $y) => strcmp((string) $y['when'], (string) $x['when']));
+
+    return $out;
+}

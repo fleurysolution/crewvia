@@ -2122,4 +2122,25 @@ if (! $hadDriver) {
        . 'the decision and the yearly due date; a valid CDL and the medical certificate go into Qualifications. No provider is connected.' . PHP_EOL;
 }
 
+// ── P5-M10: the Hiring workspace (the interest shown on an application) ──
+// Reversed by install/rollback/p5-m10.sql.
+$hadInterest = (bool) val("SELECT COUNT(*) FROM information_schema.columns
+                           WHERE table_schema=DATABASE() AND table_name='applications' AND column_name='interest'");
+
+foreach ([
+    'interest'    => "ENUM('yes','maybe','no') NULL",
+    'interest_by' => 'INT UNSIGNED NULL',
+    'interest_at' => 'DATETIME NULL',
+] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name='applications' AND column_name=?", [$column])) {
+        q('ALTER TABLE applications ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+
+if (! $hadInterest) {
+    echo 'Hiring: one workspace per requisition - applicants by stage with yes / maybe / no, a split review with screener answers, checks, '
+       . 'resume, notes and texts, and talent pool matches to add; ' . (int) val('SELECT COUNT(*) FROM vacancies WHERE is_open = 1') . ' open requisition(s).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

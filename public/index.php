@@ -196,6 +196,7 @@ $routes = [
     '/contacts' => 'contacts',
     '/message-templates' => 'message-templates',
     '/driver-checks' => 'driver-checks',
+    '/hiring' => 'hiring',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',

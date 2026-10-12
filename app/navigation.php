@@ -92,6 +92,7 @@ function workspace_nav(?array $u): array
         ['/subscription',       'Subscription & workspace',           'admin'],
         ['/recruitment',        'Application screening',              'recruiter'],
         ['/onboarding',         'Onboarding',                         'recruiter'],
+        ['/hiring',             'Hiring',                             'recruiter'],
         ['/requisitions',       'Requisitions',                       'recruiter'],
         ['/screening-questions','Screening questions',                'recruiter'],
         ['/channels',           'Distribution channels',              'recruiter'],
@@ -200,7 +201,7 @@ function workspace_sections(): array
     return [
         'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
-        'Recruiting' => ['/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
+        'Recruiting' => ['/hiring', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',
