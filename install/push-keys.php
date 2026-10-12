@@ -7,7 +7,7 @@
  * The private key is stored sealed with the encryption key, never printed
  * and never written to a file. Running it again changes nothing: a new key
  * pair would cut off every phone already subscribed. Making the keys does
- * not turn push on; an administrator does that under Trusted phones.
+ * not turn push on; an administrator does that under Phones and notifications.
  */
 
 declare(strict_types=1);
@@ -28,4 +28,4 @@ try {
 
 echo $public === null
     ? 'Push keys: already in place; nothing changed.' . PHP_EOL
-    : 'Push keys: made. Push stays off until an administrator turns it on under Trusted phones.' . PHP_EOL;
+    : 'Push keys: made. Push stays off until an administrator turns it on under Phones and notifications.' . PHP_EOL;

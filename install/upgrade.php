@@ -2063,4 +2063,63 @@ if (! $hadMessaging) {
        . 'No SMS or travel provider is connected.' . PHP_EOL;
 }
 
+// ── P5-M08: Twilio for texts and calls, prepared, in sandbox ──
+// Reversed by install/rollback/p5-m08.sql.
+$twilioSql = __DIR__ . '/twilio.sql';
+
+if (! is_file($twilioSql)) {
+    fwrite(STDERR, "Missing install/twilio.sql\n");
+    exit(1);
+}
+
+$hadTwilio = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='sms_messages'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($twilioSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// Twilio's outcomes are audited like the other providers', and it is a connector of its own kind.
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns
+                                 WHERE table_schema=DATABASE() AND table_name='integration_events' AND column_name='provider'"), "'twilio'")) {
+    q("ALTER TABLE integration_events MODIFY provider ENUM('gmail','docusign','stripe','adp','ats','twilio') NOT NULL");
+}
+
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns
+                                 WHERE table_schema=DATABASE() AND table_name='connector_modes' AND column_name='kind'"), "'messaging'")) {
+    q("ALTER TABLE connector_modes MODIFY kind ENUM('payroll','ats','screening','messaging') NOT NULL");
+}
+
+if (! $hadTwilio) {
+    echo 'Twilio: texts and calls from Crewvia prepared, in sandbox; nothing is sent until an administrator enters the credentials on Integrations, '
+       . 'the account check passes and live is authorized.' . PHP_EOL;
+}
+
+// ── P5-M09: driving-record checks (MVR, Clearinghouse, PSP), recorded ──
+// Reversed by install/rollback/p5-m09.sql.
+$driverSql = __DIR__ . '/driver-records.sql';
+
+if (! is_file($driverSql)) {
+    fwrite(STDERR, "Missing install/driver-records.sql\n");
+    exit(1);
+}
+
+$hadDriver = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                        WHERE table_schema=DATABASE() AND table_name='driver_checks'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($driverSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadDriver) {
+    echo 'Driving records: MVR (MVRNOW, with the CDL), the FMCSA Clearinghouse and PSP, run in their own sites and recorded here with the consent, '
+       . 'the decision and the yearly due date; a valid CDL and the medical certificate go into Qualifications. No provider is connected.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

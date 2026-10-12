@@ -31,5 +31,8 @@ try{require_once __DIR__.'/../app/surveys.php';$surveysClosed=sv_close_due();}ca
 // P5-M06c: pushes for what is new, only once an administrator has turned push on.
 $pushSent=0;
 try{require_once __DIR__.'/../app/push.php';$pushSent=push_dispatch()['sent'];}catch(Throwable $e){error_log('[crewvia] push dispatch: '.$e->getMessage());}
-ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs,'training_assigned'=>$trainingAssigned,'surveys_closed'=>$surveysClosed,'push_sent'=>$pushSent],$opsStarted);
+// P5-M09: driving-record checks due again within the month, or overdue.
+$driverAlerts=0;
+try{require_once __DIR__.'/../app/driver-records.php';$driverAlerts=dr_due_alerts();}catch(Throwable $e){error_log('[crewvia] driver checks: '.$e->getMessage());}
+ops_record('workflows','ok',['error_logs_purged'=>$purgedLogs,'training_assigned'=>$trainingAssigned,'surveys_closed'=>$surveysClosed,'push_sent'=>$pushSent,'driver_alerts'=>$driverAlerts],$opsStarted);
 echo "Workflow alert pass complete. No external messages sent.\n";

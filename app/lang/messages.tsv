@@ -3322,3 +3322,139 @@ Unknown placeholder: :list. Use: :known.	Champ inconnu : :list. Utilisez : :know
 Write the message in 5 to 1000 characters.	Rédigez le message en 5 à 1000 caractères.	Escriba el mensaje en 5 a 1000 caracteres.
 arranged	prévue	organizada
 none needed	aucune nécessaire	no se necesita
+A messaging service SID starts with MG, followed by 32 letters and digits.	Un SID de service de messagerie commence par MG, suivi de 32 lettres et chiffres.	Un SID de servicio de mensajería empieza por MG, seguido de 32 letras y dígitos.
+A text is 1 to 1600 characters.	Un SMS fait de 1 à 1600 caractères.	Un mensaje de texto tiene de 1 a 1600 caracteres.
+Account SID	SID du compte	SID de la cuenta
+Add your own phone number to your account first: Twilio rings you, then connects the call.	Ajoutez d'abord votre propre numéro à votre compte : Twilio vous appelle, puis met en relation.	Agregue primero su propio número a su cuenta: Twilio lo llama a usted y luego conecta la llamada.
+Auth token (left empty: keep the one saved)	Jeton d'authentification (vide : garder celui enregistré)	Token de autenticación (vacío: conservar el guardado)
+Call through Crewvia	Appeler via Crewvia	Llamar desde Crewvia
+Call through Crewvia (sandbox: not dialled)	Appeler via Crewvia (bac à sable : pas composé)	Llamar desde Crewvia (prueba: no se marca)
+Calling through Crewvia is not set up.	L'appel via Crewvia n'est pas configuré.	Las llamadas desde Crewvia no están configuradas.
+Calls need the Twilio number, not only a messaging service.	Les appels exigent le numéro Twilio, pas seulement un service de messagerie.	Las llamadas necesitan el número de Twilio, no solo un servicio de mensajería.
+Check the account (the sandbox trial)	Vérifier le compte (l'essai en bac à sable)	Verificar la cuenta (la prueba)
+Connecting your call.	Mise en relation de votre appel.	Conectando su llamada.
+Credentials entered: account ending :end, sending from :from.	Identifiants saisis : compte se terminant par :end, envoi depuis :from.	Credenciales ingresadas: cuenta que termina en :end, envía desde :from.
+Enter the Twilio credentials first.	Saisissez d'abord les identifiants Twilio.	Ingrese primero las credenciales de Twilio.
+Give the Twilio number with its country code, for example +15551234567.	Donnez le numéro Twilio avec son indicatif, par exemple +15551234567.	Indique el número de Twilio con su código de país, por ejemplo +15551234567.
+Give the Twilio number, a messaging service, or both.	Donnez le numéro Twilio, un service de messagerie, ou les deux.	Indique el número de Twilio, un servicio de mensajería o ambos.
+In Twilio, set the number's incoming messages to :inbound and the status callback is sent with each text. Texting US numbers from a business also needs A2P 10DLC registration (brand and campaign) in Twilio.	Dans Twilio, réglez les messages entrants du numéro sur :inbound ; le retour de statut est envoyé avec chaque SMS. Envoyer des SMS professionnels vers des numéros américains exige aussi l'enregistrement A2P 10DLC (marque et campagne) dans Twilio.	En Twilio, configure los mensajes entrantes del número hacia :inbound; el aviso de estado se envía con cada texto. Enviar textos de empresa a números de EE. UU. también requiere el registro A2P 10DLC (marca y campaña) en Twilio.
+Messaging service SID (optional)	SID du service de messagerie (facultatif)	SID del servicio de mensajería (opcional)
+No credentials entered yet.	Aucun identifiant saisi pour l'instant.	Aún no se ingresaron credenciales.
+Sandbox: recorded here, nothing was sent or dialled.	Bac à sable : consigné ici, rien n'a été envoyé ni composé.	Prueba: registrado aquí, no se envió ni marcó nada.
+Save the credentials	Enregistrer les identifiants	Guardar las credenciales
+Saved. Twilio is in sandbox until the account is checked.	Enregistré. Twilio reste en bac à sable jusqu'à la vérification du compte.	Guardado. Twilio sigue en prueba hasta que se verifique la cuenta.
+Send from Crewvia	Envoyer depuis Crewvia	Enviar desde Crewvia
+Send from Crewvia (sandbox: not sent)	Envoyer depuis Crewvia (bac à sable : pas envoyé)	Enviar desde Crewvia (prueba: no se envía)
+Sent through Twilio. Its delivery status shows under Integrations.	Envoyé via Twilio. Son statut de livraison apparaît sous Intégrations.	Enviado por Twilio. Su estado de entrega aparece en Integraciones.
+Text reply: :body	Réponse par SMS : :body	Respuesta por texto: :body
+Texting through Crewvia is not set up.	L'envoi de SMS via Crewvia n'est pas configuré.	Los textos desde Crewvia no están configurados.
+Texts and calls from Crewvia itself, through the agency's Twilio account. Until it is live, nothing leaves Crewvia: texts and calls are recorded as sandbox.	SMS et appels depuis Crewvia, via le compte Twilio de l'agence. Tant que ce n'est pas en direct, rien ne sort de Crewvia : SMS et appels sont consignés en bac à sable.	Textos y llamadas desde Crewvia, con la cuenta de Twilio de la agencia. Hasta que esté en vivo, nada sale de Crewvia: textos y llamadas se registran como prueba.
+The account SID starts with AC, followed by 32 letters and digits.	Le SID du compte commence par AC, suivi de 32 lettres et chiffres.	El SID de la cuenta empieza por AC, seguido de 32 letras y dígitos.
+The account is active: the sandbox trial passed.	Le compte est actif : l'essai en bac à sable est réussi.	La cuenta está activa: la prueba se superó.
+The auth token is 32 letters and digits.	Le jeton d'authentification fait 32 lettres et chiffres.	El token de autenticación tiene 32 letras y dígitos.
+Twilio did not confirm an active account (HTTP :status). Check the SID and token.	Twilio n'a pas confirmé un compte actif (HTTP :status). Vérifiez le SID et le jeton.	Twilio no confirmó una cuenta activa (HTTP :status). Revise el SID y el token.
+Twilio did not place the call (:why).	Twilio n'a pas passé l'appel (:why).	Twilio no realizó la llamada (:why).
+Twilio did not take the text (:why). Nothing was sent.	Twilio n'a pas accepté le SMS (:why). Rien n'a été envoyé.	Twilio no aceptó el texto (:why). No se envió nada.
+Twilio is ringing your phone. Answer it to be connected.	Twilio appelle votre téléphone. Répondez pour être mis en relation.	Twilio está llamando a su teléfono. Conteste para conectarse.
+Twilio number	Numéro Twilio	Número de Twilio
+Twilio rings your phone first, then connects them, showing the agency's number.	Twilio appelle d'abord votre téléphone, puis la personne, en affichant le numéro de l'agence.	Twilio llama primero a su teléfono y luego conecta a la persona, mostrando el número de la agencia.
+Twilio: texts and calls from Crewvia	Twilio : SMS et appels depuis Crewvia	Twilio: textos y llamadas desde Crewvia
+a messaging service	un service de messagerie	un servicio de mensajería
+:c crash(es) in 5 years; :i inspection(s) and :o out-of-service violation(s) in 3 years	:c accident(s) en 5 ans ; :i inspection(s) et :o infraction(s) d'immobilisation en 3 ans	:c choque(s) en 5 años; :i inspección(es) y :o infracción(es) fuera de servicio en 3 años
+:check for :name is due on :date	:check de :name à refaire le :date	:check de :name vence el :date
+:v violation(s), :a accident(s) in 3 years	:v infraction(s), :a accident(s) en 3 ans	:v infracción(es), :a accidente(s) en 3 años
+A decision against the person on a consumer report needs the date the pre-adverse notice was sent, with a copy of the report.	Une décision défavorable fondée sur un rapport de consommateur exige la date d'envoi du préavis, avec une copie du rapport.	Una decisión en contra de la persona basada en un informe de consumidor requiere la fecha en que se envió el aviso previo, con una copia del informe.
+A driver prohibited by the Clearinghouse cannot drive: the decision is not acceptable.	Un conducteur interdit par le Clearinghouse ne peut pas conduire : la décision est non acceptable.	Un conductor prohibido por el Clearinghouse no puede conducir: la decisión es no aceptable.
+A licence that is not valid cannot be acceptable.	Un permis non valide ne peut pas être acceptable.	Una licencia no válida no puede ser aceptable.
+A major violation (DUI, leaving the scene, a felony with a vehicle)	Une infraction grave (conduite en état d'ivresse, délit de fuite, crime avec un véhicule)	Una infracción grave (DUI, abandono del lugar, delito grave con un vehículo)
+A valid commercial licence needs its expiry date.	Un permis commercial valide doit avoir sa date d'expiration.	Una licencia comercial válida necesita su fecha de vencimiento.
+Acceptable	Acceptable	Aceptable
+Accidents, last 3 years	Accidents, 3 dernières années	Accidentes, últimos 3 años
+CDL class	Classe du CDL	Clase de CDL
+Choose a full or a limited query.	Choisissez une requête complète ou limitée.	Elija una consulta completa o limitada.
+Choose the state that issued the licence.	Choisissez l'État qui a délivré le permis.	Elija el estado que emitió la licencia.
+Choose which check.	Choisissez la vérification.	Elija la verificación.
+Clearinghouse query	Requête au Clearinghouse	Consulta al Clearinghouse
+Commercial driver's licence (CDL)	Permis de conduire commercial (CDL)	Licencia de conducir comercial (CDL)
+Consent	Consentement	Consentimiento
+Consent given by the driver in the Clearinghouse	Consentement donné par le conducteur dans le Clearinghouse	Consentimiento dado por el conductor en el Clearinghouse
+Consent given on	Consentement donné le	Consentimiento dado el
+Crashes, last 5 years	Accidents, 5 dernières années	Choques, últimos 5 años
+Current	À jour	Al día
+Date of the result	Date du résultat	Fecha del resultado
+Driving records	Dossiers de conduite	Historiales de manejo
+Driving records: MVR, Clearinghouse, PSP	Dossiers de conduite : MVR, Clearinghouse, PSP	Historiales de manejo: MVR, Clearinghouse, PSP
+Due again	À refaire	Por renovar
+Due again on :date	À refaire le :date	Renovar el :date
+Due within the month	À refaire dans le mois	Vence en el mes
+Each link is an HTTPS address.	Chaque lien est une adresse HTTPS.	Cada enlace es una dirección HTTPS.
+Endorsements (H, N, P, S, T, X)	Mentions (H, N, P, S, T, X)	Endosos (H, N, P, S, T, X)
+Endorsements are letters among H, N, P, S, T and X.	Les mentions sont des lettres parmi H, N, P, S, T et X.	Los endosos son letras entre H, N, P, S, T y X.
+FMCSA Drug and Alcohol Clearinghouse	FMCSA Drug and Alcohol Clearinghouse	FMCSA Drug and Alcohol Clearinghouse
+FMCSA Pre-Employment Screening (PSP)	Vérification préalable FMCSA (PSP)	Evaluación previa al empleo FMCSA (PSP)
+Full query	Requête complète	Consulta completa
+Full query (before driving)	Requête complète (avant de conduire)	Consulta completa (antes de conducir)
+Give the class of the commercial licence: A, B or C.	Donnez la classe du permis commercial : A, B ou C.	Indique la clase de la licencia comercial: A, B o C.
+Give the crashes (5 years), inspections and out-of-service violations (3 years) as numbers.	Donnez en nombres les accidents (5 ans), inspections et infractions d'immobilisation (3 ans).	Indique en números los choques (5 años), inspecciones e infracciones fuera de servicio (3 años).
+Give the date of the result: after the consent, and today or earlier.	Donnez la date du résultat : après le consentement, et aujourd'hui ou avant.	Indique la fecha del resultado: después del consentimiento, y hoy o antes.
+Give the date the consent was given, today or earlier.	Donnez la date du consentement, aujourd'hui ou avant.	Indique la fecha del consentimiento, hoy o antes.
+Give the licence expiry as a date.	Donnez l'expiration du permis sous forme de date.	Indique el vencimiento de la licencia como fecha.
+Give the medical certificate expiry as a date.	Donnez l'expiration du certificat médical sous forme de date.	Indique el vencimiento del certificado médico como fecha.
+Give the violations and accidents of the last 3 years, 0 to 99.	Donnez les infractions et accidents des 3 dernières années, de 0 à 99.	Indique las infracciones y accidentes de los últimos 3 años, de 0 a 99.
+If a limited query finds information, a full query must follow within 24 hours, on the driver's consent in the Clearinghouse; Crewvia opens it.	Si une requête limitée trouve des informations, une requête complète doit suivre sous 24 heures, avec le consentement du conducteur dans le Clearinghouse ; Crewvia l'ouvre.	Si una consulta limitada encuentra información, debe seguir una consulta completa en 24 horas, con el consentimiento del conductor en el Clearinghouse; Crewvia la abre.
+Information found	Informations trouvées	Información encontrada
+Information found in the Clearinghouse cannot be recorded as acceptable.	Des informations trouvées dans le Clearinghouse ne peuvent pas être consignées comme acceptables.	La información encontrada en el Clearinghouse no puede registrarse como aceptable.
+Inspections, last 3 years	Inspections, 3 dernières années	Inspecciones, últimos 3 años
+Licence expires on	Le permis expire le	La licencia vence el
+Licence number	Numéro de permis	Número de licencia
+Licence status	Statut du permis	Estado de la licencia
+Limited query	Requête limitée	Consulta limitada
+Limited query (yearly)	Requête limitée (annuelle)	Consulta limitada (anual)
+Medical certificate expires on	Le certificat médical expire le	El certificado médico vence el
+Motor vehicle record (MVRNOW)	Relevé de conduite (MVRNOW)	Historial de vehículo motorizado (MVRNOW)
+Needs review	À examiner	Necesita revisión
+No information found	Aucune information trouvée	No se encontró información
+Not acceptable	Non acceptable	No aceptable
+Not found	Introuvable	No encontrada
+Only a check waiting for its result is cancelled.	Seule une vérification en attente de résultat peut être annulée.	Solo se cancela una verificación que espera su resultado.
+Open :provider	Ouvrir :provider	Abrir :provider
+Out-of-service violations come from inspections: there cannot be more of them.	Les infractions d'immobilisation viennent des inspections : il ne peut y en avoir davantage.	Las infracciones fuera de servicio vienen de las inspecciones: no puede haber más que ellas.
+Out-of-service violations, last 3 years	Infractions d'immobilisation, 3 dernières années	Infracciones fuera de servicio, últimos 3 años
+Pre-adverse notice sent on (needed for a decision against the person)	Préavis envoyé le (requis pour une décision défavorable)	Aviso previo enviado el (necesario para una decisión en contra)
+Pre-adverse notice sent on :date	Préavis envoyé le :date	Aviso previo enviado el :date
+Prohibited from driving	Interdit de conduire	Prohibido conducir
+Provider reference (order number)	Référence du fournisseur (numéro de commande)	Referencia del proveedor (número de pedido)
+Record the decision.	Consignez la décision.	Registre la decisión.
+Record the licence status.	Consignez le statut du permis.	Registre el estado de la licencia.
+Record the result	Consigner le résultat	Registrar el resultado
+Record what the Clearinghouse returned.	Consignez ce que le Clearinghouse a renvoyé.	Registre lo que devolvió el Clearinghouse.
+Request a check	Demander une vérification	Solicitar una verificación
+Requested. Run it in :provider, then record the result here.	Demandé. Faites-la dans :provider, puis consignez le résultat ici.	Solicitado. Hágala en :provider y luego registre el resultado aquí.
+Restrictions	Restrictions	Restricciones
+Revoked	Révoqué	Revocada
+Say why it is not acceptable, in at least 10 characters.	Dites pourquoi ce n'est pas acceptable, en au moins 10 caractères.	Diga por qué no es aceptable, en al menos 10 caracteres.
+Say why, in 3 to 500 characters.	Dites pourquoi, en 3 à 500 caractères.	Diga por qué, en 3 a 500 caracteres.
+Sign in to the agency's account there, run the check with the licence above, then record what it returned here. Nothing is sent from Crewvia.	Connectez-vous au compte de l'agence, faites la vérification avec le permis ci-dessus, puis consignez le résultat ici. Rien n'est envoyé depuis Crewvia.	Inicie sesión en la cuenta de la agencia, haga la verificación con la licencia de arriba y luego registre aquí lo que devolvió. Crewvia no envía nada.
+Signed PSP disclosure and authorization	Divulgation et autorisation PSP signées	Divulgación y autorización PSP firmadas
+Signed consent form kept by the agency	Formulaire de consentement signé conservé par l'agence	Formulario de consentimiento firmado guardado por la agencia
+State that issued the licence	État qui a délivré le permis	Estado que emitió la licencia
+That check does not exist.	Cette vérification n'existe pas.	Esa verificación no existe.
+That check is already recorded or cancelled.	Cette vérification est déjà consignée ou annulée.	Esa verificación ya está registrada o cancelada.
+That check is already waiting for its result.	Cette vérification attend déjà son résultat.	Esa verificación ya espera su resultado.
+The licence number is 4 to 20 letters and digits.	Le numéro de permis fait 4 à 20 lettres et chiffres.	El número de licencia tiene de 4 a 20 letras y dígitos.
+The motor vehicle record (MVRNOW), the FMCSA Clearinghouse and PSP. Each is run in the provider's own site; Crewvia keeps the consent, the result, the decision and when it is due again. A valid CDL and a medical certificate go into Qualifications.	Le relevé de conduite (MVRNOW), le Clearinghouse FMCSA et le PSP. Chacun se fait sur le site du fournisseur ; Crewvia garde le consentement, le résultat, la décision et la date du prochain contrôle. Un CDL valide et un certificat médical vont dans les Qualifications.	El historial de manejo (MVRNOW), el Clearinghouse de FMCSA y el PSP. Cada uno se hace en el sitio del proveedor; Crewvia guarda el consentimiento, el resultado, la decisión y cuándo toca de nuevo. Una CDL válida y un certificado médico pasan a Calificaciones.
+The result	Le résultat	El resultado
+This check needs: :consent.	Cette vérification exige : :consent.	Esta verificación necesita: :consent.
+Valid	Valide	Válida
+Violations, last 3 years	Infractions, 3 dernières années	Infracciones, últimos 3 años
+Waiting for a result	En attente de résultat	Esperando resultado
+What the Clearinghouse returned	Ce que le Clearinghouse a renvoyé	Lo que devolvió el Clearinghouse
+Where each check is run	Où se fait chaque vérification	Dónde se hace cada verificación
+Where the consent is kept (optional)	Où le consentement est conservé (facultatif)	Dónde se guarda el consentimiento (opcional)
+Why it is cancelled	Pourquoi elle est annulée	Por qué se cancela
+a major violation	une infraction grave	una infracción grave
+follows a limited query	suit une requête limitée	sigue a una consulta limitada
+licence ending :last4	permis se terminant par :last4	licencia que termina en :last4
+medical certificate until :date	certificat médical jusqu'au :date	certificado médico hasta el :date
+requested	demandée	solicitada
+the Clearinghouse	le Clearinghouse	el Clearinghouse

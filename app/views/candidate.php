@@ -188,6 +188,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </div>
   </div>
 
+  <p class="small" id="driver-records-link"><a href="/driver-checks?candidate=<?= (int) $c['id'] ?>"><?= te('Driving records: MVR, Clearinghouse, PSP') ?></a></p>
   <?php require __DIR__ . '/_text-panel.php'; ?>
   <form method="post" action="/contacts" class="card" id="contact-preferences"><?= csrf_field() ?><input type="hidden" name="do" value="preferences"><input type="hidden" name="candidate_id" value="<?= (int) $c['id'] ?>">
     <h3><?= te('How they may be contacted') ?></h3>

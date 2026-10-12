@@ -1,5 +1,5 @@
 <?php
-$names = ['gmail' => 'Gmail', 'docusign' => 'DocuSign', 'stripe' => 'Stripe', 'adp' => 'ADP', 'ats' => t('Applicant tracking')];
+$names = ['gmail' => 'Gmail', 'docusign' => 'DocuSign', 'stripe' => 'Stripe', 'adp' => 'ADP', 'ats' => t('Applicant tracking'), 'twilio' => 'Twilio'];
 $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' => 'amber', 'failed' => 'red', 'refused' => 'red'];
 ?>
 <h1><?= te('Integrations') ?></h1>
@@ -13,6 +13,21 @@ $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' =
     <?php if ($k === 'gmail'): ?><p class="small" id="gmail-counts" data-total="<?= (int) $gmail['total'] ?>" data-reconnect="<?= (int) $gmail['reconnect'] ?>"><?= te(':n connected mailbox(es), :r to reconnect', ['n' => (int) $gmail['total'], 'r' => (int) $gmail['reconnect']]) ?></p><?php endif; ?>
   </div>
   <?php endforeach; ?>
+</div>
+
+<div class="card" id="twilio" data-configured="<?= $twilio['configured'] ? 1 : 0 ?>" data-mode="<?= e($twilio['mode']) ?>">
+  <h2>Twilio <span class="tag <?= $twilio['mode'] === 'live' ? 'green' : ($twilio['mode'] === 'sandbox' ? 'amber' : 'grey') ?>"><?= te(ucfirst($twilio['mode'])) ?></span></h2>
+  <p class="muted"><?= te('Texts and calls from Crewvia itself, through the agency\'s Twilio account. Until it is live, nothing leaves Crewvia: texts and calls are recorded as sandbox.') ?></p>
+  <p class="small"><?= $twilio['configured'] ? te('Credentials entered: account ending :end, sending from :from.', ['end' => (string) $twilio['sid_end'], 'from' => $twilio['service'] ? t('a messaging service') . ($twilio['from'] ? ' / ' . $twilio['from'] : '') : (string) $twilio['from']]) : te('No credentials entered yet.') ?></p>
+  <form method="post" class="grid g2" id="twilio-form"><?= csrf_field() ?><input type="hidden" name="do" value="twilio_save">
+    <label><?= te('Account SID') ?><input name="account_sid" required pattern="AC[0-9a-f]{32}" autocomplete="off"></label>
+    <label><?= te('Auth token (left empty: keep the one saved)') ?><input name="auth_token" type="password" autocomplete="new-password"></label>
+    <label><?= te('Twilio number') ?><input name="from_number" placeholder="+15551234567"></label>
+    <label><?= te('Messaging service SID (optional)') ?><input name="messaging_service_sid" placeholder="MG…"></label>
+    <button class="btn sm"><?= te('Save the credentials') ?></button></form>
+  <?php if ($twilio['configured']): ?><form method="post" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="twilio_check"><button class="btn sm ghost"><?= te('Check the account (the sandbox trial)') ?></button></form><?php endif; ?>
+  <p class="small muted"><?= te('In Twilio, set the number\'s incoming messages to :inbound and the status callback is sent with each text. Texting US numbers from a business also needs A2P 10DLC registration (brand and campaign) in Twilio.', ['inbound' => $twilio['inbound_url']]) ?></p>
+  <?php if ($twilio['recent']): ?><table id="twilio-recent"><?php foreach ($twilio['recent'] as $m): ?><tr data-sms="<?= (int) $m['id'] ?>" data-status="<?= e($m['status']) ?>"><td class="small"><?= e(substr((string) $m['created_at'], 0, 16)) ?></td><td class="small"><?= $m['direction'] === 'in' ? '←' : '→' ?> <?= e((string) ($m['full_name'] ?? $m['phone'])) ?></td><td class="small"><?= e($m['mode']) ?> · <?= e($m['status']) ?><?= $m['error_code'] ? ' · ' . e($m['error_code']) : '' ?></td></tr><?php endforeach; ?></table><?php endif; ?>
 </div>
 
 <div class="card scroll" id="connectors"><h2><?= te('Payroll, applicant tracking and screening connectors') ?></h2>

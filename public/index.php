@@ -49,6 +49,8 @@ if($path==='/sitemap.xml'){require __DIR__.'/../app/pages/sitemap.php';exit;}
 if($path==='/docusign-webhook'){require __DIR__.'/../app/pages/docusign-webhook.php';exit;}
 // P5-M06b: trusted phones authenticate with their own cookie and header, not a session form token.
 if(str_starts_with($path,'/sync/')){require __DIR__.'/../app/pages/sync.php';exit;}
+// P5-M08: Twilio signs its callbacks; the signature is its authentication.
+if($path==='/twilio-webhook'){require __DIR__.'/../app/pages/twilio-webhook.php';exit;}
 csrf_check();
 
 if ($path === '/google-start') { require __DIR__.'/../app/pages/google-start.php'; exit; }
@@ -193,6 +195,7 @@ $routes = [
     '/devices' => 'devices',
     '/contacts' => 'contacts',
     '/message-templates' => 'message-templates',
+    '/driver-checks' => 'driver-checks',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',

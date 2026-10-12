@@ -23,6 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'mode') {
     redirect('/integrations#connectors');
 }
 
+// P5-M08: Twilio's credentials, and the check of the account (the sandbox trial).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['do'] ?? '', ['twilio_save', 'twilio_check'], true)) {
+    require_once __DIR__ . '/../twilio.php';
+    $why = $_POST['do'] === 'twilio_save' ? tw_credentials_save($_POST, uid()) : tw_check_account();
+    if ($why !== null) {
+        refuse(422, $why);
+    }
+    log_activity($_POST['do'] === 'twilio_save' ? 'saved the Twilio credentials' : 'checked the Twilio account', 'integration', 0, 'twilio');
+    flash($_POST['do'] === 'twilio_save' ? t('Saved. Twilio is in sandbox until the account is checked.') : t('The account is active: the sandbox trial passed.'));
+    redirect('/integrations#twilio');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (($_POST['do'] ?? '') !== 'requeue') {
         refuse(400, t('Unknown action.'));
@@ -35,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('/integrations#connect');
 }
 
-$provider = in_array($_GET['provider'] ?? '', ['gmail', 'docusign', 'stripe', 'adp', 'ats'], true) ? (string) $_GET['provider'] : '';
+$provider = in_array($_GET['provider'] ?? '', ['gmail', 'docusign', 'stripe', 'adp', 'ats', 'twilio'], true) ? (string) $_GET['provider'] : '';
 $outcome = in_array($_GET['outcome'] ?? '', ['ok', 'duplicate', 'ignored', 'retry', 'failed', 'refused'], true) ? (string) $_GET['outcome'] : '';
 $where = [];
 $args = [];
@@ -50,4 +62,7 @@ $connect = rows("SELECT payload_hash, envelope_id, status, attempts, next_attemp
 $stripe = rows('SELECT event_id, event_type, processed_at FROM saas_webhook_events ORDER BY processed_at DESC LIMIT 20');
 
 $connectors = connector_list();
-render('integrations', compact('provider', 'outcome', 'events', 'status', 'gmail', 'reconnect', 'connect', 'stripe', 'connectors'));
+require_once __DIR__ . '/../twilio.php';
+$twilio = tw_summary() + ['status_url' => tw_public_url('kind=status'), 'inbound_url' => tw_public_url('kind=inbound'),
+                         'recent' => rows('SELECT m.*, c.full_name FROM sms_messages m LEFT JOIN candidates c ON c.id = m.candidate_id ORDER BY m.id DESC LIMIT 30')];
+render('integrations', compact('provider', 'outcome', 'events', 'status', 'gmail', 'reconnect', 'connect', 'stripe', 'connectors', 'twilio'));

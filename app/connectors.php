@@ -46,7 +46,7 @@ function connector_mode(string $connector): string
 
 function connector_provider(string $connector): string
 {
-    return str_starts_with($connector, 'ats:') ? 'ats' : 'adp';
+    return str_starts_with($connector, 'ats:') ? 'ats' : ($connector === 'twilio' ? 'twilio' : 'adp');
 }
 
 /** The connectors this installation has: ADP, and each configured partner channel. */
@@ -59,6 +59,13 @@ function connector_list(): array
         if (is_string($channel) && preg_match('/^[a-z0-9_-]{1,60}$/', $channel)) {
             $list['ats:' . $channel] = ['kind' => 'ats', 'name' => 'Applicant tracking partner: ' . $channel, 'configured' => ! empty($entry['enabled'])];
         }
+    }
+    // P5-M08: Twilio, configured once its credentials are entered on Integrations.
+    try {
+        require_once __DIR__ . '/twilio.php';
+        $list['twilio'] = ['kind' => 'messaging', 'name' => 'Twilio: texts and calls from Crewvia', 'configured' => tw_configured()];
+    } catch (Throwable $e) {
+        // Before the P5-M08 upgrade there is no Twilio to list.
     }
     foreach ($list as $k => &$c) {
         $m = $modes[$k] ?? [];

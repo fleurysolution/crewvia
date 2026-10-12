@@ -35,6 +35,28 @@ if ($do === 'texted') {
     exit;
 }
 
+// P5-M08: a text sent, or a call placed, through Crewvia's Twilio connector.
+if ($do === 'send_sms' || $do === 'call_twilio') {
+    if ($pid) {
+        require_role('recruiter', 'hotels', 'payroll');
+        if (! row('SELECT id FROM placements WHERE id = ? AND candidate_id = ?', [$pid, $cid])) { refuse(404, t('That placement no longer exists.')); }
+    } else {
+        require_role('recruiter');
+    }
+    require_once __DIR__ . '/../twilio.php';
+    [$why, $what] = $do === 'send_sms'
+        ? tw_send_text($cid, (int) ($_POST['template'] ?? 0), (string) ($_POST['text'] ?? ''), uid())
+        : tw_call($cid, uid());
+    $back = $pid ? '/placements/' . $pid : '/candidates/' . $cid . '#contact';
+    if ($why !== null) { refuse(422, $why, $back); }
+    flash(match ($what) {
+        'sandbox' => t('Sandbox: recorded here, nothing was sent or dialled.'),
+        'ringing' => t('Twilio is ringing your phone. Answer it to be connected.'),
+        default   => t('Sent through Twilio. Its delivery status shows under Integrations.'),
+    });
+    redirect($back);
+}
+
 if ($do === 'preferences') {
     require_role('recruiter');
     $why = msg_preferences_save($cid, ! empty($_POST['no_texts']), ! empty($_POST['no_calls']), (string) ($_POST['reason'] ?? ''), uid());
