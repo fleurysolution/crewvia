@@ -464,6 +464,10 @@ $strike   = (bool) $job['strike_live'];
         <label for="j-state"><?= te('State') ?></label>
         <input id="j-state" name="site_state" maxlength="2" value="<?= e($job['site_state'] ?? '') ?>">
       </div>
+      <div style="max-width:120px">
+        <label for="j-zip"><?= te('ZIP code') ?></label>
+        <input id="j-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?" value="<?= e($job['site_zip'] ?? '') ?>">
+      </div>
       <div>
         <label for="j-start"><?= te('Starts') ?></label>
         <input id="j-start" type="date" name="starts_on" value="<?= e($job['starts_on'] ?? '') ?>">

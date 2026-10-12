@@ -2154,4 +2154,67 @@ if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'client_po
         : 'Client portal: OFF, no client account exists; an administrator can switch it on on Client access.') . PHP_EOL;
 }
 
+// ── P5-M12 (T8): locations - state, city and distance from the site ──
+// Reversed by install/rollback/p5-m12.sql.
+require_once __DIR__ . '/../app/geo.php';
+$geoSql = __DIR__ . '/geo.sql';
+if (! is_file($geoSql) || ! is_file(__DIR__ . '/gazetteer/us-places.tsv') || ! is_file(__DIR__ . '/gazetteer/us-zips.tsv')) {
+    fwrite(STDERR, "Missing install/geo.sql or install/gazetteer/us-places.tsv / us-zips.tsv\n");
+    exit(1);
+}
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($geoSql)) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+$hadGeo = (bool) val("SELECT COUNT(*) FROM information_schema.columns
+                      WHERE table_schema=DATABASE() AND table_name='candidates' AND column_name='geo_basis'");
+foreach ([
+    ['candidates', 'zip',       'VARCHAR(10) NULL'],
+    ['candidates', 'geo_lat',   'DECIMAL(8,5) NULL'],
+    ['candidates', 'geo_lng',   'DECIMAL(8,5) NULL'],
+    ['candidates', 'geo_from',  "ENUM('zip','city') NULL"],
+    ['candidates', 'geo_state', 'CHAR(2) NULL'],
+    ['candidates', 'geo_basis', 'VARCHAR(320) NULL'],
+    ['jobs',       'site_zip',  'VARCHAR(10) NULL'],
+] as [$table, $column, $definition]) {
+    if (! val('SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name=? AND column_name=?', [$table, $column])) {
+        q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.statistics
+           WHERE table_schema=DATABASE() AND table_name='candidates' AND index_name='idx_candidates_geo'")) {
+    q('ALTER TABLE candidates ADD INDEX idx_candidates_geo (geo_lat, geo_lng)');
+}
+// The gazetteer, loaded once: 1,000 rows a statement.
+foreach (['geo_places' => ['us-places.tsv', 4, '(state, place_key, lat, lng)'], 'geo_zips' => ['us-zips.tsv', 3, '(zip, lat, lng)']] as $table => [$file, $width, $columns]) {
+    if ((int) val('SELECT COUNT(*) FROM ' . $table)) {
+        continue;
+    }
+    $batch = [];
+    $flush = static function () use (&$batch, $table, $width, $columns): void {
+        if ($batch) {
+            q('INSERT IGNORE INTO ' . $table . ' ' . $columns . ' VALUES ' . implode(',', array_fill(0, count($batch), '(' . implode(',', array_fill(0, $width, '?')) . ')')), array_merge(...$batch));
+            $batch = [];
+        }
+    };
+    foreach (file(__DIR__ . '/gazetteer/' . $file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $cells = explode("\t", $line);
+        if (count($cells) === $width) {
+            $batch[] = $cells;
+        }
+        if (count($batch) === 1000) {
+            $flush();
+        }
+    }
+    $flush();
+}
+geo_refresh_candidates(1000000);
+if (! $hadGeo) {
+    echo 'Locations: ' . number_format((int) val('SELECT COUNT(*) FROM geo_places')) . ' places and ' . number_format((int) val('SELECT COUNT(*) FROM geo_zips'))
+       . ' ZIP codes (US Census 2023); ' . (int) val('SELECT COUNT(*) FROM candidates WHERE geo_lat IS NOT NULL') . ' of ' . (int) val('SELECT COUNT(*) FROM candidates')
+       . ' candidate(s) and ' . count(array_filter(rows('SELECT site_city, site_state, site_zip FROM jobs'), static fn($j) => geo_site($j) !== null))
+       . ' of ' . (int) val('SELECT COUNT(*) FROM jobs') . ' project site(s) placed from their city, state or ZIP.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

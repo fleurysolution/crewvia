@@ -62,11 +62,12 @@ $hwScore = static function (?string $s): string {
 
 <?php if ($hwView === 'candidates'): ?>
 <div class="chips" id="stage-tabs">
-  <?php foreach (hw_tabs() as $k => $l): ?><a href="<?= e($hwUrl(['stage' => $k === 'active' ? null : $k, 'q' => $hwFilter['q'], 'interest' => $hwFilter['interest'], 'sort' => $hwFilter['sort']])) ?>" class="<?= $hwTab === $k ? 'on' : '' ?>" data-stage-tab="<?= e($k) ?>"><?= e($l) ?><b><?= (int) $hwCounts[$k] ?></b></a><?php endforeach; ?>
+  <?php foreach (hw_tabs() as $k => $l): ?><a href="<?= e($hwUrl(['stage' => $k === 'active' ? null : $k, 'q' => $hwFilter['q'], 'interest' => $hwFilter['interest'], 'sort' => $hwFilter['sort'], 'miles' => $hwFilter['miles'] ?: null])) ?>" class="<?= $hwTab === $k ? 'on' : '' ?>" data-stage-tab="<?= e($k) ?>"><?= e($l) ?><b><?= (int) $hwCounts[$k] ?></b></a><?php endforeach; ?>
 </div>
 <form method="get" class="filterbar" id="applicant-filter"><input type="hidden" name="v" value="<?= (int) $v['id'] ?>"><?php if ($hwTab !== 'active'): ?><input type="hidden" name="stage" value="<?= e($hwTab) ?>"><?php endif; ?>
-  <select name="sort" aria-label="<?= te('Sort') ?>"><?php foreach (['' => t('Newest first'), 'oldest' => t('Oldest first'), 'score' => t('Best screening score'), 'name' => t('Name')] as $k => $l): ?><option value="<?= e($k) ?>"<?= $hwFilter['sort'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
+  <select name="sort" aria-label="<?= te('Sort') ?>"><?php foreach (['' => t('Newest first'), 'oldest' => t('Oldest first'), 'score' => t('Best screening score'), 'name' => t('Name')] + ($hwSite ? ['near' => t('Nearest the site')] : []) as $k => $l): ?><option value="<?= e($k) ?>"<?= $hwFilter['sort'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
   <select name="interest" aria-label="<?= te('Interest') ?>"><?php foreach (['' => t('Any interest'), 'yes' => t('Interested'), 'maybe' => t('Maybe'), 'no' => t('Not interested'), 'unset' => t('Not marked yet')] as $k => $l): ?><option value="<?= e($k) ?>"<?= $hwFilter['interest'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
+  <?php if ($hwSite): ?><select name="miles" aria-label="<?= te('Distance from the site') ?>" id="miles-filter"><option value=""><?= te('Any distance') ?></option><?php foreach (geo_radii() as $r): ?><option value="<?= $r ?>"<?= $hwFilter['miles'] === $r ? ' selected' : '' ?>><?= te('Within :n miles of the site', ['n' => $r]) ?></option><?php endforeach; ?></select><?php else: ?><span class="small muted" id="no-site-location"><?= te('No distance: the project\'s site has no city and state or ZIP code.') ?></span><?php endif; ?>
   <input type="search" name="q" value="<?= e($hwFilter['q']) ?>" placeholder="<?= te('Search applicants by name, place or degree') ?>" aria-label="<?= te('Search applicants') ?>">
   <button class="btn ghost"><?= te('Apply') ?></button>
 </form>
@@ -75,7 +76,7 @@ $hwScore = static function (?string $s): string {
 <div class="split" id="review">
   <nav class="split-list" aria-label="<?= te('Applicants') ?>">
     <?php foreach ($hwList as $r): ?><a href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>" class="<?= (int) $r['id'] === (int) $a['id'] ? 'on' : '' ?>" data-list-app="<?= (int) $r['id'] ?>">
-      <div class="who"><?= $hwScore($r['screening_score']) ?><div><strong><?= e($r['full_name']) ?></strong><div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ')) ?></div><div class="sm"><?= e(hw_stages()[$r['stage']]) ?> · <?= e(hw_ago((string) $r['created_at'])) ?></div></div></div></a><?php endforeach; ?>
+      <div class="who"><?= $hwScore($r['screening_score']) ?><div><strong><?= e($r['full_name']) ?></strong><div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ')) ?><?= $r['miles_away'] !== null ? ' · <span data-miles="' . (int) $r['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $r['miles_away'])]) . '</span>' : '' ?></div><div class="sm"><?= e(hw_stages()[$r['stage']]) ?> · <?= e(hw_ago((string) $r['created_at'])) ?></div></div></div></a><?php endforeach; ?>
     <?php if (! $hwList): ?><p class="muted small" style="padding:12px"><?= te('Nobody in this tab.') ?></p><?php endif; ?>
   </nav>
   <section>
@@ -150,7 +151,7 @@ $hwScore = static function (?string $s): string {
   <div class="rows-head"><span><?= te('Applicant and score') ?></span><span><?= te('Background and screening') ?></span><span><?= te('Activity') ?></span><span><?= te('Interest') ?></span></div>
   <?php foreach ($hwList as $r): $chk = $r['checks']; ?><div class="row-item" data-app="<?= (int) $r['id'] ?>" data-interest="<?= e((string) $r['interest']) ?>">
     <div class="who"><?= $hwScore($r['screening_score']) ?><div style="min-width:0"><a class="name" href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>"><?= e($r['full_name']) ?></a>
-      <div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ') ?: t('Location not given')) ?></div>
+      <div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ') ?: t('Location not given')) ?><?= $r['miles_away'] !== null ? ' · <span data-miles="' . (int) $r['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $r['miles_away'])]) . '</span>' : '' ?></div>
       <div class="sm"><span class="tag <?= $hwStageTone[$r['stage']] ?? 'grey' ?>"><?= e(hw_stages()[$r['stage']]) ?></span></div></div></div>
     <div class="sm"><div style="color:var(--ui-ink)"><?= $r['degree'] ? e($r['degree']) : te('No degree on file') ?><?= $r['years_exp'] !== null ? ' · ' . te(':n yr', ['n' => (int) $r['years_exp']]) : '' ?></div>
       <?php if ($r['skills']): ?><div><?= e(implode(' · ', $r['skills'])) ?></div><?php endif; ?>
@@ -166,12 +167,12 @@ $hwScore = static function (?string $s): string {
 
 <?php elseif ($hwView === 'matches'): ?>
 <p class="sub"><?= te('People in the talent pool who fit this requisition\'s discipline, not yet on it and not on the do-not-rehire register; those who have worked for the agency before come first.') ?></p>
-<form method="get" class="filterbar"><input type="hidden" name="v" value="<?= (int) $v['id'] ?>"><input type="hidden" name="tab" value="matches"><input type="search" name="q" value="<?= e($hwFilter['q']) ?>" placeholder="<?= te('Search by name, place or degree') ?>" aria-label="<?= te('Search') ?>"><button class="btn ghost"><?= te('Search') ?></button></form>
+<form method="get" class="filterbar"><input type="hidden" name="v" value="<?= (int) $v['id'] ?>"><input type="hidden" name="tab" value="matches"><?php if ($hwSite): ?><select name="miles" aria-label="<?= te('Distance from the site') ?>" id="miles-filter"><option value=""><?= te('Any distance') ?></option><?php foreach (geo_radii() as $r): ?><option value="<?= $r ?>"<?= $hwFilter['miles'] === $r ? ' selected' : '' ?>><?= te('Within :n miles of the site', ['n' => $r]) ?></option><?php endforeach; ?></select><?php else: ?><span class="small muted" id="no-site-location"><?= te('No distance: the project\'s site has no city and state or ZIP code.') ?></span><?php endif; ?><input type="search" name="q" value="<?= e($hwFilter['q']) ?>" placeholder="<?= te('Search by name, place or degree') ?>" aria-label="<?= te('Search') ?>"><button class="btn ghost"><?= te('Search') ?></button></form>
 <?php if (! $hwMatches): ?><div class="card empty-state"><h3><?= te('No match in the pool') ?></h3><p><?= te('Nobody in the talent pool fits this requisition yet.') ?></p></div><?php else: ?>
 <div class="rows" id="matches">
   <div class="rows-head"><span><?= te('Person') ?></span><span><?= te('Background') ?></span><span><?= te('With the agency') ?></span><span></span></div>
   <?php foreach ($hwMatches as $m): ?><div class="row-item" data-match="<?= (int) $m['id'] ?>">
-    <div class="who"><span class="avatar" aria-hidden="true"><?= e(hw_initials((string) $m['full_name'])) ?></span><div><a class="name" href="/candidates/<?= (int) $m['id'] ?>"><?= e($m['full_name']) ?></a><div class="sm"><?= e(trim(($m['city'] ?? '') . ', ' . ($m['state'] ?? ''), ', ')) ?></div></div></div>
+    <div class="who"><span class="avatar" aria-hidden="true"><?= e(hw_initials((string) $m['full_name'])) ?></span><div><a class="name" href="/candidates/<?= (int) $m['id'] ?>"><?= e($m['full_name']) ?></a><div class="sm"><?= e(trim(($m['city'] ?? '') . ', ' . ($m['state'] ?? ''), ', ')) ?><?= $m['miles_away'] !== null ? ' · <span data-miles="' . (int) $m['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $m['miles_away'])]) . '</span>' : '' ?></div></div></div>
     <div class="sm"><?= $m['degree'] ? e($m['degree']) : te('No degree on file') ?><?= $m['years_exp'] !== null ? ' · ' . te(':n yr', ['n' => (int) $m['years_exp']]) : '' ?></div>
     <div class="sm"><?= (int) $m['past_jobs'] ? te(':n past assignment(s)', ['n' => (int) $m['past_jobs']]) : te('No assignment yet') ?><div><?= $m['last_contact_at'] ? te('Last contact :when', ['when' => hw_ago((string) $m['last_contact_at'])]) : te('Not contacted yet') ?></div></div>
     <div><?php if ((int) $v['is_open']): ?><form method="post" action="/hiring"><?= csrf_field() ?><input type="hidden" name="do" value="add"><input type="hidden" name="vacancy_id" value="<?= (int) $v['id'] ?>"><input type="hidden" name="candidate_id" value="<?= (int) $m['id'] ?>"><input type="hidden" name="back" value="<?= e($hwUrl(['tab' => 'matches', 'q' => $hwFilter['q']])) ?>"><button class="btn sm"><?= te('Add to this job') ?></button></form><?php endif; ?></div>

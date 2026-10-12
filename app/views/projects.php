@@ -52,6 +52,10 @@
       <label for="p-state"><?= te('State') ?></label>
       <input id="p-state" name="site_state" maxlength="2" placeholder="IN">
     </div>
+    <div style="max-width:120px">
+      <label for="p-zip"><?= te('ZIP code') ?></label>
+      <input id="p-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
+    </div>
     <div>
       <label for="p-start"><?= te('Starts') ?></label>
       <input id="p-start" type="date" name="starts_on">

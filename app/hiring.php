@@ -76,7 +76,7 @@ function hw_jobs(string $status, int $jobId): array
 
 function hw_vacancy(int $id): ?array
 {
-    return row('SELECT v.*, j.title AS project, j.status AS project_status FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.id = ?', [$id]);
+    return row('SELECT v.*, j.title AS project, j.status AS project_status, j.site_city, j.site_state, j.site_zip FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.id = ?', [$id]);
 }
 
 /** @return array<string,int> */
@@ -99,10 +99,16 @@ function hw_counts(int $vacancyId): array
  * scans: where they are, their background, how screening stands, when
  * they applied and were last contacted, and the interest shown.
  */
-function hw_applicants(array $v, string $tab, array $f): array
+function hw_applicants(array $v, string $tab, array $f, ?array $site = null): array
 {
     $where = ['a.vacancy_id = ?', hw_tab_where($tab)];
     $args = [(int) $v['id']];
+    if ($site && ($miles = (int) ($f['miles'] ?? 0))) {
+        [$within, $withinArgs] = geo_within_sql($site, $miles);
+        $where[] = $within;
+        array_push($args, ...$withinArgs);
+    }
+    [$distanceSql, $distanceArgs] = $site ? geo_distance_sql($site) : ['NULL', []];
     if (($f['q'] ?? '') !== '') {
         $where[] = '(c.full_name LIKE ? OR c.city LIKE ? OR c.state LIKE ? OR c.degree LIKE ?)';
         array_push($args, ...array_fill(0, 4, '%' . $f['q'] . '%'));
@@ -113,12 +119,14 @@ function hw_applicants(array $v, string $tab, array $f): array
         'oldest' => 'a.created_at ASC, a.id ASC',
         'score'  => 'a.screening_score IS NULL, a.screening_score DESC, a.id DESC',
         'name'   => 'c.full_name ASC',
+        'near'   => 'miles_away IS NULL, miles_away ASC, a.id DESC',
         default  => 'a.created_at DESC, a.id DESC',
     };
     $list = rows('SELECT a.id, a.stage, a.source, a.created_at, a.screening_score, a.screened_out, a.screened_out_why, a.interest,
-                         c.id AS candidate_id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone, c.email
+                         c.id AS candidate_id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone, c.email,
+                         ' . $distanceSql . ' AS miles_away
                   FROM applications a JOIN candidates c ON c.id = a.candidate_id
-                  WHERE ' . implode(' AND ', $where) . ' ORDER BY ' . $order . ' LIMIT 300', $args);
+                  WHERE ' . implode(' AND ', $where) . ' ORDER BY ' . $order . ' LIMIT 300', array_merge($distanceArgs, $args));
     if (! $list) {
         return [];
     }
@@ -246,7 +254,7 @@ function hw_move(int $id, string $stage, string $note, int $by): ?string
 // ── the talent pool ─────────────────────────────────────────────────────
 
 /** People who fit the requisition's discipline, not yet on it and not barred from rehire. */
-function hw_matches(array $v, string $q = ''): array
+function hw_matches(array $v, string $q = '', ?array $site = null, int $miles = 0): array
 {
     $args = [(int) $v['id']];
     $where = ["NOT EXISTS (SELECT 1 FROM applications x WHERE x.candidate_id = c.id AND x.vacancy_id = ?)",
@@ -260,11 +268,18 @@ function hw_matches(array $v, string $q = ''): array
         $where[] = '(c.full_name LIKE ? OR c.city LIKE ? OR c.state LIKE ? OR c.degree LIKE ?)';
         array_push($args, ...array_fill(0, 4, '%' . $q . '%'));
     }
+    if ($site && $miles) {
+        [$within, $withinArgs] = geo_within_sql($site, $miles);
+        $where[] = $within;
+        array_push($args, ...$withinArgs);
+    }
+    [$distanceSql, $distanceArgs] = $site ? geo_distance_sql($site) : ['NULL', []];
 
     return rows('SELECT c.id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone,
-                        (SELECT COUNT(*) FROM placements pl WHERE pl.candidate_id = c.id AND pl.status = \'completed\') AS past_jobs
+                        (SELECT COUNT(*) FROM placements pl WHERE pl.candidate_id = c.id AND pl.status = \'completed\') AS past_jobs,
+                        ' . $distanceSql . ' AS miles_away
                  FROM candidates c WHERE ' . implode(' AND ', $where) . '
-                 ORDER BY past_jobs DESC, c.years_exp IS NULL, c.years_exp DESC, c.last_contact_at IS NULL, c.last_contact_at DESC LIMIT 60', $args);
+                 ORDER BY past_jobs DESC, ' . ($site ? 'miles_away IS NULL, miles_away ASC, ' : '') . 'c.years_exp IS NULL, c.years_exp DESC, c.last_contact_at IS NULL, c.last_contact_at DESC LIMIT 60', array_merge($distanceArgs, $args));
 }
 
 /** Put someone from the pool on this requisition as a new applicant. */

@@ -217,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
     q('SELECT id FROM jobs WHERE id = ? FOR UPDATE', [$jobId]);
 
     q('UPDATE jobs SET title = ?, description = ?, order_reference = ?,
-         site_name = ?, site_city = ?, site_state = ?,
+         site_name = ?, site_city = ?, site_state = ?, site_zip = ?,
          lodging_provided = ?, travel_provided = ?, transport_provided = ?,
          strike_live = ?, starts_on = ?, ends_on = ?, status = ?, notes = ?
        WHERE id = ?', [
@@ -227,6 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         trim((string) ($_POST['site_name'] ?? '')) ?: null,
         trim((string) ($_POST['site_city'] ?? '')) ?: null,
         strtoupper(trim((string) ($_POST['site_state'] ?? ''))) ?: null,
+        preg_match('/^\d{5}(-\d{4})?$/', trim((string) ($_POST['site_zip'] ?? ''))) ? trim((string) $_POST['site_zip']) : null,
         isset($_POST['lodging_provided'])   ? 1 : 0,
         isset($_POST['travel_provided'])    ? 1 : 0,
         isset($_POST['transport_provided']) ? 1 : 0,

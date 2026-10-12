@@ -64,6 +64,44 @@ $stages = candidate_stages();
         <?= te('On the register') ?>
       </label>
     </div>
+  </div>
+  <div class="row" id="location-filter" style="margin-top:8px">
+    <div style="max-width:190px">
+      <label for="in_state"><?= te('State') ?></label>
+      <select id="in_state" name="in_state">
+        <option value=""><?= te('Any state') ?></option>
+        <?php foreach (geo_states() as $code => $stateName): ?>
+          <option value="<?= e($code) ?>" <?= $geoState === $code ? 'selected' : '' ?>><?= e($code . ' - ' . $stateName) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+    <div style="max-width:200px">
+      <label for="city"><?= te('City') ?></label>
+      <input id="city" name="city" value="<?= e($geoCity) ?>" maxlength="120">
+    </div>
+    <div style="max-width:150px">
+      <label for="miles"><?= te('Distance') ?></label>
+      <select id="miles" name="miles">
+        <option value=""><?= te('Any distance') ?></option>
+        <?php foreach (geo_radii() as $r): ?><option value="<?= $r ?>" <?= $geoMiles === $r ? 'selected' : '' ?>><?= te('Within :n miles', ['n' => $r]) ?></option><?php endforeach; ?>
+      </select>
+    </div>
+    <div style="flex:2">
+      <label for="near"><?= te('of the site of') ?></label>
+      <select id="near" name="near">
+        <option value=""><?= te('Choose a project') ?></option>
+        <?php foreach ($geoProjects as $gp): ?>
+          <option value="<?= (int) $gp['id'] ?>" <?= $geoNear === (int) $gp['id'] ? 'selected' : '' ?>><?= e($gp['title'] . ' - ' . trim(($gp['site_city'] ?? '') . ', ' . ($gp['site_state'] ?? ''), ', ')) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+    <div style="max-width:130px">
+      <label for="near_zip"><?= te('or of ZIP code') ?></label>
+      <input id="near_zip" name="near_zip" value="<?= e($geoZip) ?>" maxlength="10" inputmode="numeric">
+    </div>
+  </div>
+  <?php if ($geoMissing): ?><p class="small" id="location-missing" style="color:var(--red,#b42318);margin:6px 0 0"><?= te('That place could not be found: give the project a city and state or a ZIP code, or try another ZIP code.') ?></p><?php endif; ?>
+  <div class="row" style="margin-top:8px">
     <div class="row tight">
       <button class="btn" type="submit"><?= te('Filter') ?></button>
       <a class="btn ghost" href="/candidates"><?= te('Clear') ?></a>
@@ -154,7 +192,7 @@ $stages = candidate_stages();
             <span class="muted">—</span>
           <?php endif; ?>
         </td>
-        <td class="small muted"><?= e(trim(($c['city'] ?? '') . ', ' . ($c['state'] ?? ''), ' ,')) ?: '—' ?></td>
+        <td class="small muted"><?= e(trim(($c['city'] ?? '') . ', ' . ($c['state'] ?? ''), ' ,')) ?: '—' ?><?php if ($c['miles_away'] !== null): ?><div data-miles="<?= (int) $c['id'] ?>"><?= te('≈ :n mi', ['n' => (int) round((float) $c['miles_away'])]) ?></div><?php endif; ?></td>
         <td><span class="tag <?= e(stage_colour($c['stage'])) ?>"><?= e($stages[$c['stage']] ?? $c['stage']) ?></span></td>
         <td class="small">
           <?php if ($c['last_contact_at']): ?>

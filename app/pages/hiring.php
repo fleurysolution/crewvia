@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../hiring.php';
+require_once __DIR__ . '/../geo.php';
 
 require_role('recruiter');
 
@@ -57,12 +58,16 @@ if (! $hwVacancy) {
 }
 $hwTab = isset(hw_tabs()[$_GET['stage'] ?? '']) ? (string) $_GET['stage'] : 'active';
 $hwView = in_array($_GET['tab'] ?? '', ['candidates', 'matches', 'job'], true) ? (string) $_GET['tab'] : 'candidates';
-$hwFilter = ['q' => trim((string) ($_GET['q'] ?? '')), 'interest' => (string) ($_GET['interest'] ?? ''), 'sort' => (string) ($_GET['sort'] ?? '')];
+$hwFilter = ['q' => trim((string) ($_GET['q'] ?? '')), 'interest' => (string) ($_GET['interest'] ?? ''), 'sort' => (string) ($_GET['sort'] ?? ''),
+             'miles' => in_array((int) ($_GET['miles'] ?? 0), geo_radii(), true) ? (int) $_GET['miles'] : 0];
+geo_refresh_candidates();
+$hwSite = geo_site($hwVacancy);
 $hwCounts = hw_counts((int) $hwVacancy['id']);
-$hwList = $hwView === 'candidates' ? hw_applicants($hwVacancy, $hwTab, $hwFilter) : [];
-$hwMatches = $hwView === 'matches' ? hw_matches($hwVacancy, $hwFilter['q']) : [];
+$hwList = $hwView === 'candidates' ? hw_applicants($hwVacancy, $hwTab, $hwFilter, $hwSite) : [];
+$hwMatches = $hwView === 'matches' ? hw_matches($hwVacancy, $hwFilter['q'], $hwSite, $hwFilter['miles']) : [];
 $hwSelf = '/hiring?' . http_build_query(array_filter(['v' => (int) $hwVacancy['id'], 'tab' => $hwView !== 'candidates' ? $hwView : null, 'stage' => $hwTab !== 'active' ? $hwTab : null,
-                                                          'q' => $hwFilter['q'] ?: null, 'interest' => $hwFilter['interest'] ?: null, 'sort' => $hwFilter['sort'] ?: null]));
+                                                          'q' => $hwFilter['q'] ?: null, 'interest' => $hwFilter['interest'] ?: null, 'sort' => $hwFilter['sort'] ?: null,
+                                                          'miles' => $hwFilter['miles'] ?: null]));
 
 $hwApp = null;
 $textPanel = null;
@@ -88,4 +93,4 @@ if (isset($_GET['app'])) {
 }
 $hwDetail = in_array($_GET['detail'] ?? '', ['application', 'activity'], true) ? (string) $_GET['detail'] : 'application';
 
-render('hiring', compact('hwVacancy', 'hwTab', 'hwView', 'hwFilter', 'hwCounts', 'hwList', 'hwMatches', 'hwSelf', 'hwApp', 'hwDetail', 'textPanel'));
+render('hiring', compact('hwVacancy', 'hwTab', 'hwView', 'hwFilter', 'hwCounts', 'hwList', 'hwMatches', 'hwSelf', 'hwApp', 'hwDetail', 'textPanel', 'hwSite'));

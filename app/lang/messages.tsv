@@ -3557,3 +3557,17 @@ Switch the client portal on in Client access before giving anyone the client des
 Too many failed attempts. Try again in 15 minutes, or ask an administrator to unlock your sign-in.	Trop de tentatives échouées. Réessayez dans 15 minutes, ou demandez à un administrateur de débloquer votre connexion.	Demasiados intentos fallidos. Vuelva a intentarlo en 15 minutos o pida a un administrador que desbloquee su inicio de sesión.
 Unlock sign-in	Débloquer la connexion	Desbloquear inicio de sesión
 sign-in locked until :time	connexion bloquée jusqu’à :time	inicio de sesión bloqueado hasta :time
+A ZIP code is 5 digits, or 5 and 4.	Un code ZIP compte 5 chiffres, ou 5 et 4.	Un código ZIP tiene 5 dígitos, o 5 y 4.
+Any distance	Toute distance	Cualquier distancia
+Choose a project	Choisissez un projet	Elija un proyecto
+Distance	Distance	Distancia
+Distance from the site	Distance du chantier	Distancia del sitio
+Nearest the site	Les plus proches du chantier	Más cerca del sitio
+No distance: the project's site has no city and state or ZIP code.	Pas de distance : le chantier du projet n’a ni ville et État ni code ZIP.	Sin distancia: el sitio del proyecto no tiene ciudad y estado ni código ZIP.
+That place could not be found: give the project a city and state or a ZIP code, or try another ZIP code.	Ce lieu est introuvable : donnez au projet une ville et un État ou un code ZIP, ou essayez un autre code ZIP.	No se encontró ese lugar: indique al proyecto una ciudad y un estado o un código ZIP, o pruebe otro código ZIP.
+Within :n miles	À moins de :n miles	A menos de :n millas
+Within :n miles of the site	À moins de :n miles du chantier	A menos de :n millas del sitio
+ZIP code	Code ZIP	Código ZIP
+of the site of	du chantier de	del sitio de
+or of ZIP code	ou du code ZIP	o del código ZIP
+≈ :n mi	≈ :n mi	≈ :n mi

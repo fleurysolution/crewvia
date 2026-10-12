@@ -57,16 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     q('INSERT INTO jobs (client_id, title, description, order_reference,
-                         site_name, site_city, site_state,
+                         site_name, site_city, site_state, site_zip,
                          lodging_provided, travel_provided, transport_provided,
                          starts_on, ends_on, status, headcount_target)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0)', [
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)', [
         $c['id'], $title,
         $description !== '' ? $description : null,
         trim((string) ($_POST['order_reference'] ?? '')) ?: null,
         trim((string) ($_POST['site_name'] ?? '')) ?: null,
         trim((string) ($_POST['site_city'] ?? '')) ?: null,
         strtoupper(trim((string) ($_POST['site_state'] ?? ''))) ?: null,
+        preg_match('/^\d{5}(-\d{4})?$/', trim((string) ($_POST['site_zip'] ?? ''))) ? trim((string) $_POST['site_zip']) : null,
         isset($_POST['lodging_provided'])   ? 1 : 0,
         isset($_POST['travel_provided'])    ? 1 : 0,
         isset($_POST['transport_provided']) ? 1 : 0,

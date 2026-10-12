@@ -72,6 +72,25 @@ $hasPhone   = ($_GET['phone'] ?? '') === '1';
 $mine       = ($_GET['mine'] ?? '') === '1';
 $skill      = (string) ($_GET['skill'] ?? '');
 $blocked    = ($_GET['blocked'] ?? '') === '1';
+// T8: where they are.
+require_once __DIR__ . '/../geo.php';
+$geoState  = geo_state_code((string) ($_GET['in_state'] ?? '')) ?? '';
+$geoCity   = trim((string) ($_GET['city'] ?? ''));
+$geoMiles  = in_array((int) ($_GET['miles'] ?? 0), geo_radii(), true) ? (int) $_GET['miles'] : 0;
+$geoNear   = (int) ($_GET['near'] ?? 0);
+$geoZip    = geo_zip((string) ($_GET['near_zip'] ?? '')) ?? '';
+$geoCenter = null;
+$geoMissing = false;
+if ($geoState !== '' || $geoCity !== '' || $geoMiles) {
+    geo_refresh_candidates();
+}
+if ($geoZip !== '') {
+    $geoCenter = geo_point(null, null, $geoZip);
+} elseif ($geoNear && ($nearJob = row('SELECT site_city, site_state, site_zip FROM jobs WHERE id = ?', [$geoNear]))) {
+    $geoCenter = geo_site($nearJob);
+}
+$geoMissing = ($geoZip !== '' || $geoNear) && ! $geoCenter;
+$geoProjects = rows("SELECT id, title, site_city, site_state FROM jobs WHERE status <> 'closed' ORDER BY title");
 
 $where = [];
 $args  = [];
@@ -83,6 +102,14 @@ if ($search !== '') {
 }
 
 if ($stage !== '' && $stage !== 'all') { $where[] = 'c.stage = ?';      $args[] = $stage; }
+if ($geoState !== '')                  { $where[] = 'c.geo_state = ?';  $args[] = $geoState; }
+if ($geoCity !== '')                   { $where[] = 'c.city LIKE ?';    $args[] = '%' . $geoCity . '%'; }
+if ($geoCenter && $geoMiles) {
+    [$within, $withinArgs] = geo_within_sql($geoCenter, $geoMiles);
+    $where[] = $within;
+    array_push($args, ...$withinArgs);
+}
+[$distanceSql, $distanceArgs] = $geoCenter ? geo_distance_sql($geoCenter) : ['NULL', []];
 if ($discipline !== '')                { $where[] = 'c.discipline = ?'; $args[] = $discipline; }
 if ($hasPhone)                         { $where[] = "c.phone IS NOT NULL AND c.phone <> ''"; }
 if ($mine)                             { $where[] = 'c.owner_id = ?';   $args[] = uid(); }
@@ -114,7 +141,8 @@ $sql = 'SELECT c.*, u.name AS owner_name, ep.rehire_status,
                (SELECT k.outcome FROM candidate_calls k WHERE k.candidate_id = c.id
                  ORDER BY k.id DESC LIMIT 1) AS last_outcome,
                (SELECT GROUP_CONCAT(cs.skill_slug ORDER BY cs.confirmed DESC SEPARATOR ",")
-                  FROM candidate_skills cs WHERE cs.candidate_id = c.id) AS skill_slugs
+                  FROM candidate_skills cs WHERE cs.candidate_id = c.id) AS skill_slugs,
+               ' . $distanceSql . ' AS miles_away
         FROM candidates c
         LEFT JOIN users u ON u.id = c.owner_id
         LEFT JOIN employee_profiles ep ON ep.candidate_id = c.id';
@@ -127,14 +155,15 @@ if ($where) {
 // next person to ring.
 $page=max(1,(int)($_GET['page'] ?? 1));$offset=($page-1)*100;
 $listTotal=(int)val('SELECT COUNT(*) FROM candidates c'.($where?' WHERE '.implode(' AND ',$where):''),$args);
-$sql .= " ORDER BY FIELD(c.stage,'new','contacted','screening','offered','accepted','placed','declined','rejected'),
+$sql .= " ORDER BY " . ($geoCenter ? 'miles_away IS NULL, miles_away, ' : '') . "FIELD(c.stage,'new','contacted','screening','offered','accepted','placed','declined','rejected'),
                    c.last_contact_at IS NOT NULL, c.last_contact_at ASC, c.full_name ASC
           LIMIT 100 OFFSET ".$offset;
 
-$list   = rows($sql, $args);
+$list   = rows($sql, array_merge($distanceArgs, $args));
 $counts = array_column(rows('SELECT stage, COUNT(*) n FROM candidates GROUP BY stage'), 'n', 'stage');
 $total  = (int) val('SELECT COUNT(*) FROM candidates');
 $qs     = http_build_query(array_filter($_GET, static fn ($v) => $v !== '' && $v !== null));
 
 $pageTitle = t('Candidates').' · '.$config['app_name'];
-render('candidates', compact('list','counts','total','search','stage','discipline','hasPhone','mine','skill','blocked','qs','page','listTotal'));
+render('candidates', compact('list','counts','total','search','stage','discipline','hasPhone','mine','skill','blocked','qs','page','listTotal',
+                             'geoState','geoCity','geoMiles','geoNear','geoZip','geoCenter','geoMissing','geoProjects'));

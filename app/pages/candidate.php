@@ -34,12 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = $_POST['do'] ?? '';
 
     if ($do === 'save') {
-        q('UPDATE candidates SET phone=?, email=?, city=?, state=?, discipline=?, degree=?,
+        if (trim((string) ($_POST['zip'] ?? '')) !== '' && ! preg_match('/^\d{5}(-\d{4})?$/', trim((string) $_POST['zip']))) {
+            refuse(422, t('A ZIP code is 5 digits, or 5 and 4.'), '/candidates/' . $id);
+        }
+        q('UPDATE candidates SET phone=?, email=?, city=?, state=?, zip=?, discipline=?, degree=?,
            years_exp=?, notes=? WHERE id=?', [
             trim((string) ($_POST['phone'] ?? '')) ?: null,
             trim((string) ($_POST['email'] ?? '')) ?: null,
             trim((string) ($_POST['city'] ?? '')) ?: null,
             trim((string) ($_POST['state'] ?? '')) ?: null,
+            trim((string) ($_POST['zip'] ?? '')) ?: null,
             // The one list, so a trade a requisition can ask for is a trade
             // somebody can be filed under.
             array_key_exists($_POST['discipline'] ?? '', disciplines())

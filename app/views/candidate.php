@@ -807,6 +807,10 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
       <label for="d-state"><?= te('State') ?></label>
       <input id="d-state" name="state" value="<?= e((string) $c['state']) ?>" maxlength="2">
     </div>
+    <div style="max-width:120px">
+      <label for="d-zip"><?= te('ZIP code') ?></label>
+      <input id="d-zip" name="zip" value="<?= e((string) ($c['zip'] ?? '')) ?>" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
+    </div>
   </div>
 
   <div class="row" style="margin-top:14px">
