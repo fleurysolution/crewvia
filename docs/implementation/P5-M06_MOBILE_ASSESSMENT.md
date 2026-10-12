@@ -1,8 +1,17 @@
 # P5-M06 — mobile assessment, and the proposed architecture for offline attendance and push
 
-Status: **assessment only. Nothing in this document is built.** Offline
-attendance sync and push notifications wait for the owner's approval of the
-architecture below, as the Phase 5 plan requires.
+Status: **architecture approved by the owner on 11 Oct 2026**, with these
+decisions:
+
+1. The web app (PWA), not native apps.
+2. Offline scope: workers' own hours **and** supervisors' gate marks (3.2
+   and 3.4's first item, together in P5-M06b). The crew's names stay on the
+   supervisor's phone for 24 hours at most and are wiped at sign-out.
+3. A trusted phone stays trusted for 14 days.
+4. Push is built, switched off until the owner turns it on.
+
+Built in order: P5-M06a, then P5-M06b, then P5-M06c, each delivered and
+tested before the next.
 
 ## 1. What exists today, verified in the code
 

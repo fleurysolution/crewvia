@@ -589,14 +589,25 @@ a:focus-visible,button:focus-visible,.btn:focus-visible,input:focus-visible,sele
 .tag.grey{color:#4f5b6b}
 .trade-split .short{color:#8a5600}
 input,select,textarea{border-color:#8a96a6}
+/* P5-M06a: on a phone the menu folds behind a button, so the page is on the
+   first screen. Only when scripts run: without them the menu stays open. */
+.nav-toggle{display:none}
+@media(max-width:720px){
+  .js .nav-toggle{display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+  .js .top .nav{display:none}
+  .js .top.nav-open .nav{display:flex;flex-direction:column;flex-wrap:nowrap;overflow:visible}
+  .js .top.nav-open .nav .nav-group{width:100%}
+}
 </style>
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 <a class="skip-link" href="#main"><?= te('Skip to the content') ?></a>
 
 <header class="top">
   <div><div class="brand"><?= e($appName) ?></div><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
-  <nav class="nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div>
+  <?php if ($u): ?><button type="button" class="btn ghost sm nav-toggle" aria-controls="workspace-nav" aria-expanded="false"><?= te('Menu') ?></button><?php endif; ?>
+  <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div>
     <?php
     // Everything the sidebar needs is local to this call, so nothing it
     // uses can still be set when the view runs below.
@@ -726,6 +737,16 @@ setInterval(refreshNotifications,30000);
   });
 })();
 </script>
+<script>
+// P5-M06a: the menu button on a phone. Escape closes it and returns to the button.
+(function(){
+  var button = document.querySelector('.nav-toggle'), top = document.querySelector('.top');
+  if (!button || !top) return;
+  function set(open){ top.classList.toggle('nav-open', open); button.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  button.addEventListener('click', function(){ set(!top.classList.contains('nav-open')); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && top.classList.contains('nav-open')) { set(false); button.focus(); } });
+})();
+if('serviceWorker' in navigator && window.isSecureContext){navigator.serviceWorker.register('/service-worker.js').catch(()=>{});}
+</script>
 </body>
-<script>if('serviceWorker' in navigator && window.isSecureContext){navigator.serviceWorker.register('/service-worker.js').catch(()=>{});}</script>
 </html>
