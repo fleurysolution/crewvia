@@ -47,9 +47,10 @@ status, headers, sw = anon.get('/service-worker.js')
 check('The service worker is served as JavaScript', status == 200 and 'javascript' in headers.get('Content-Type', ''), headers.get('Content-Type'))
 offline = re.search(r"const OFFLINE = '([^']+)';", sw)[1]
 precache = json.loads(re.search(r'const PRECACHE = (\[[^\]]*\]);', sw)[1].replace('OFFLINE', "'%s'" % offline).replace("'", '"'))
-check('It keeps only the offline page and static files', precache[0] == '/offline.html' and all(p == '/offline.html' or p.startswith('/assets/') for p in precache), precache)
+check('It keeps only the two static offline pages and static files', precache[0] == '/offline.html' and all(p in ('/offline.html', '/offline-entry.html') or p.startswith('/assets/') for p in precache), precache)
 check('It never stores a response it fetched: only the fixed list, at install', 'cache.put' not in sw and sw.count('cache.addAll(PRECACHE)') == 1)
-check('It answers only pages being opened, and only reads', "request.method !== 'GET' || request.mode !== 'navigate'" in sw)
+check('It answers only reads: pages being opened, and the files it keeps, nothing else', "if (request.method !== 'GET') {" in sw
+      and "PRECACHE.includes(url.pathname + url.search)" in sw and sw.count('event.respondWith(') == 2)
 check('A new version clears the old caches', 'caches.delete' in sw)
 for p in precache:
     check('%s is there to keep' % p, anon.get(p)[0] == 200)

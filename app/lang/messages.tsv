@@ -3210,3 +3210,50 @@ Your nominee won: :title	Votre nominé a gagné : :title	Su nominado ganó: :tit
 Your points: :n	Vos points : :n	Sus puntos: :n
 Your reward is ready: :name	Votre récompense est prête : :name	Su recompensa está lista: :name
 Menu	Menu	Menú
+A gate mark is for today or the last 7 days.	Un pointage à l'entrée vaut pour aujourd'hui ou les 7 derniers jours.	Una marca de entrada es para hoy o los últimos 7 días.
+A trusted phone keeps your hours (and, for a supervisor, gate marks) when there is no signal, and sends them when there is. It opens nothing else: no page, record, document or pay. It stays trusted for :n days, until you sign out on it, change your password, or remove it here.	Un téléphone de confiance garde vos heures (et, pour un superviseur, les pointages à l'entrée) sans réseau, et les envoie dès qu'il y en a. Il n'ouvre rien d'autre : ni page, ni dossier, ni document, ni paie. Il reste de confiance :n jours, ou jusqu'à ce que vous vous y déconnectiez, changiez votre mot de passe ou le retiriez ici.	Un teléfono de confianza guarda sus horas (y, para un supervisor, las marcas de entrada) sin señal, y las envía cuando hay. No abre nada más: ni páginas, ni expedientes, ni documentos, ni pagos. Sigue siendo de confianza :n días, hasta que cierre sesión en él, cambie su contraseña o lo quite aquí.
+Attendance without signal	Présence sans réseau	Asistencia sin señal
+Attendance without signal: trust this phone	Présence sans réseau : faire confiance à ce téléphone	Asistencia sin señal: confiar en este teléfono
+Every trusted phone	Tous les téléphones de confiance	Todos los teléfonos de confianza
+Gate	Entrée	Entrada
+Gate marks are sent by a supervisor.	Les pointages à l'entrée sont envoyés par un superviseur.	Las marcas de entrada las envía un supervisor.
+Give a working day, today or earlier.	Indiquez un jour travaillé, aujourd'hui ou avant.	Indique un día trabajado, hoy o antes.
+Hours are 0 to 24.	Les heures vont de 0 à 24.	Las horas van de 0 a 24.
+Hours are sent by the worker.	Les heures sont envoyées par le travailleur.	Las horas las envía el trabajador.
+Keep it to send	Garder pour envoyer	Guardar para enviar
+Kept. It goes when there is a connection.	Gardé. Il partira dès qu'il y aura du réseau.	Guardado. Se enviará cuando haya conexión.
+Last used	Dernière utilisation	Último uso
+My trusted phones	Mes téléphones de confiance	Mis teléfonos de confianza
+No connection: kept on this phone.	Pas de réseau : gardé sur ce téléphone.	Sin conexión: guardado en este teléfono.
+Nothing waiting.	Rien en attente.	Nada en espera.
+Offline attendance is for workers and supervisors.	La présence sans réseau est pour les travailleurs et les superviseurs.	La asistencia sin señal es para trabajadores y supervisores.
+Only on your own phone. Anyone holding it can send hours in your name until it is removed.	Seulement sur votre propre téléphone. Quiconque l'a en main peut envoyer des heures en votre nom jusqu'à ce qu'il soit retiré.	Solo en su propio teléfono. Quien lo tenga puede enviar horas en su nombre hasta que se quite.
+Open Crewvia	Ouvrir Crewvia	Abrir Crewvia
+Removed	Retiré	Quitado
+Replaced	Remplacé	Reemplazado
+Saved	Enregistré	Guardado
+Send now	Envoyer maintenant	Enviar ahora
+Someone marked this person later than you did; that mark stands.	Quelqu'un a pointé cette personne après vous ; ce pointage est maintenu.	Alguien marcó a esta persona después que usted; esa marca se mantiene.
+Stop trusting this phone	Ne plus faire confiance à ce téléphone	Dejar de confiar en este teléfono
+That assignment is not one of yours, or it has ended.	Cette affectation n'est pas la vôtre, ou elle est terminée.	Esa asignación no es suya, o ya terminó.
+That day is already approved. Ask for a correction.	Ce jour est déjà approuvé. Demandez une correction.	Ese día ya está aprobado. Pida una corrección.
+That day is outside the assignment.	Ce jour est hors de l'affectation.	Ese día está fuera de la asignación.
+That day was rejected after you typed this. Look at the reason and enter it again.	Ce jour a été refusé après votre saisie. Lisez le motif et saisissez-le de nouveau.	Ese día se rechazó después de que lo escribiera. Lea el motivo e ingréselo de nuevo.
+That entry has no usable id.	Cette saisie n'a pas d'identifiant utilisable.	Esa entrada no tiene un identificador válido.
+That person is not in your crew, or their assignment has ended.	Cette personne n'est pas dans votre équipe, ou son affectation est terminée.	Esa persona no está en su cuadrilla, o su asignación terminó.
+That phone does not exist.	Ce téléphone n'existe pas.	Ese teléfono no existe.
+That phone is no longer trusted.	Ce téléphone n'est plus de confiance.	Ese teléfono ya no es de confianza.
+That week is already approved for pay. Ask the office for a correction.	Cette semaine est déjà approuvée pour la paie. Demandez une correction au bureau.	Esa semana ya está aprobada para el pago. Pida una corrección a la oficina.
+The crew list is more than a day old and was removed from this phone. Open Crewvia with a connection to get it again.	La liste de l'équipe date de plus d'un jour et a été retirée de ce téléphone. Ouvrez Crewvia avec du réseau pour la récupérer.	La lista de la cuadrilla tiene más de un día y se quitó de este teléfono. Abra Crewvia con conexión para obtenerla de nuevo.
+This phone	Ce téléphone	Este teléfono
+This phone is no longer trusted.	Ce téléphone n'est plus de confiance.	Este teléfono ya no es de confianza.
+This phone is no longer trusted. Sign in to Crewvia and trust it again.	Ce téléphone n'est plus de confiance. Connectez-vous à Crewvia et faites-lui de nouveau confiance.	Este teléfono ya no es de confianza. Inicie sesión en Crewvia y vuelva a confiar en él.
+This phone is trusted until :date. Open Attendance without signal from the offline page, or from here.	Ce téléphone est de confiance jusqu'au :date. Ouvrez Présence sans réseau depuis la page hors ligne, ou d'ici.	Este teléfono es de confianza hasta el :date. Abra Asistencia sin señal desde la página sin conexión, o desde aquí.
+Trust this phone	Faire confiance à ce téléphone	Confiar en este teléfono
+Trusted	De confiance	De confianza
+Trusted on	Confiance donnée le	Confiado el
+Trusted phones	Téléphones de confiance	Teléfonos de confianza
+Trusted until :date.	De confiance jusqu'au :date.	De confianza hasta el :date.
+Typed here, it is kept on this phone and sent when there is a connection. The office decides, as for anything typed online.	Saisi ici, c'est gardé sur ce téléphone et envoyé dès qu'il y a du réseau. Le bureau décide, comme pour toute saisie en ligne.	Lo que escriba aquí se guarda en este teléfono y se envía cuando hay conexión. La oficina decide, como con todo lo que se escribe en línea.
+Unknown entry.	Saisie inconnue.	Entrada desconocida.
+Waiting to be sent	En attente d'envoi	En espera de envío

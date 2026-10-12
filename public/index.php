@@ -47,6 +47,8 @@ if($path==='/recruiting-webhook'){require __DIR__.'/../app/pages/recruiting-webh
 if($path==='/app-manifest'){require __DIR__.'/../app/pages/app-manifest.php';exit;}
 if($path==='/sitemap.xml'){require __DIR__.'/../app/pages/sitemap.php';exit;}
 if($path==='/docusign-webhook'){require __DIR__.'/../app/pages/docusign-webhook.php';exit;}
+// P5-M06b: trusted phones authenticate with their own cookie and header, not a session form token.
+if(str_starts_with($path,'/sync/')){require __DIR__.'/../app/pages/sync.php';exit;}
 csrf_check();
 
 if ($path === '/google-start') { require __DIR__.'/../app/pages/google-start.php'; exit; }
@@ -63,6 +65,8 @@ if ($path === '/login') {
 if ($path === '/logout') {
     if ($method !== 'POST') { http_response_code(405); exit('Use the sign-out button.'); }
     log_activity('signed out');
+    // P5-M06b: signing out on a trusted phone ends its trust and clears what it kept.
+    if (isset($_COOKIE['crewvia_device'])) { require_once __DIR__.'/../app/offline-sync.php'; os_revoke_cookie_grant(uid() ?: null, 'signed_out'); header('Clear-Site-Data: "storage"'); }
     $_SESSION = [];
     if (ini_get('session.use_cookies')) { $p = session_get_cookie_params(); setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']); }
     session_destroy();
@@ -97,8 +101,8 @@ if ($fresh['role']==='client' && !in_array($path,['/client-portal','/account','/
     if($path==='/') redirect('/client-portal');
     http_response_code(403);render('403',['need'=>['client']]);exit;
 }
-if ($fresh['role'] === 'supervisor' && !in_array($path,['/select-project','/project-tasks','/project-board','/workload','/my-tasks','/my-training','/recognition','/feedback','/surveys','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
-if ($fresh['role'] === 'worker' && !in_array($path, ['/my-tasks','/my-training','/recognition','/feedback','/surveys','/my-payslips','/appraisals','/performance','/benefits','/hr-records','/hr-requests','/self-service','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
+if ($fresh['role'] === 'supervisor' && !in_array($path,['/select-project','/project-tasks','/project-board','/workload','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
+if ($fresh['role'] === 'worker' && !in_array($path, ['/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/my-payslips','/appraisals','/performance','/benefits','/hr-records','/hr-requests','/self-service','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
 
 if ($fresh['must_change_pw'] && $path !== '/account') redirect('/account');
 if (($config['commercial_mode'] ?? 'demo')==='subscription' && !empty($config['saas_enforce_subscription'])
@@ -184,6 +188,7 @@ $routes = [
     '/recognition' => 'recognition',
     '/feedback' => 'feedback',
     '/surveys' => 'surveys',
+    '/devices' => 'devices',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',

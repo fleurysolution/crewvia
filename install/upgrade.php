@@ -1975,4 +1975,28 @@ if (! $hadEngagement) {
        . 'Recognition in HR records, performance reviews and HR cases stay where they are.' . PHP_EOL;
 }
 
+// ── P5-M06b: trusted phones and offline attendance ──
+// Reversed by install/rollback/p5-m06b.sql.
+$offlineSql = __DIR__ . '/offline-sync.sql';
+
+if (! is_file($offlineSql)) {
+    fwrite(STDERR, "Missing install/offline-sync.sql\n");
+    exit(1);
+}
+
+$hadOffline = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                         WHERE table_schema=DATABASE() AND table_name='device_grants'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($offlineSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+if (! $hadOffline) {
+    echo 'Offline attendance: workers and supervisors may trust their phone (14 days) to type hours and gate marks without signal; '
+       . 'the server decides each one by the screens\' rules and logs when it was typed. No phone is trusted yet.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

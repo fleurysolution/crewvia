@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance without signal · Crewvia</title>
+<link rel="stylesheet" href="/assets/fleury-brand.css?v=20261008">
+<style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f3f6fb;color:#10263b}
+main{max-width:560px;margin:0 auto;padding:24px 16px 60px}
+.card{background:#fff;border:1px solid #e3e9f1;border-radius:14px;padding:18px;margin-bottom:14px}
+h1{font-size:24px;margin:0 0 6px}h2{font-size:17px;margin:0 0 10px}
+p{line-height:1.5;margin:0 0 8px}.muted{color:#5b6b80}.small{font-size:13px}
+label{display:block;font-size:13px;margin:8px 0 4px}
+input,select{width:100%;box-sizing:border-box;font-size:16px;padding:10px;border:1px solid #8a96a6;border-radius:8px;background:#fff}
+button,.btn{display:inline-block;margin-top:10px;padding:10px 16px;border-radius:8px;border:0;background:#3166db;color:#fff;font-size:16px;font-weight:600;text-decoration:none}
+button.ghost{background:#fff;color:#10263b;border:1px solid #8a96a6}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eef2f7}
+.row:last-child{border-bottom:0}.row button{margin-top:0;padding:8px 12px;font-size:15px}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eef2f7}
+.tag.saved,.tag.replaced{background:#e3f6ea;color:#17663a}.tag.refused{background:#fde8e8;color:#9b1c1c}
+#status{font-weight:600}
+</style>
+</head>
+<body>
+<main id="offline-entry">
+  <h1 id="title">Attendance without signal</h1>
+  <p class="muted" id="intro">Typed here, it is kept on this phone and sent when there is a connection.</p>
+  <p id="status" role="status"></p>
+  <div id="screen"></div>
+  <div class="card">
+    <h2 id="waiting-title">Waiting to be sent</h2>
+    <div id="waiting"></div>
+    <button type="button" id="send">Send now</button>
+  </div>
+  <div class="card"><h2 id="answered-title">Answered</h2><div id="answered"></div></div>
+  <p><a class="btn" href="/" id="open">Open Crewvia</a></p>
+</main>
+<script src="/assets/offline-sync.js?v=1"></script>
+<script src="/assets/offline-entry.js?v=1"></script>
+</body>
+</html>
