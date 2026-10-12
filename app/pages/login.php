@@ -13,20 +13,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim((string) ($_POST['email'] ?? ''));
     $pass  = (string) ($_POST['password'] ?? '');
 
-    $emailAllowed=security_rate_limit('login-email',mb_strtolower($email),10,900);
-    $ipAllowed=security_rate_limit('login-ip',(string)($_SERVER['REMOTE_ADDR']??''),100,900);
+    // Q1: every attempt is counted first; a success clears or gives back its count below.
+    $emailKey=mb_strtolower($email);$ip=(string)($_SERVER['REMOTE_ADDR']??'');
+    $emailAllowed=security_rate_limit('login-email',$emailKey,SECURITY_LOGIN_FAILURES,SECURITY_LOGIN_WINDOW);
+    $ipAllowed=security_rate_limit('login-ip',$ip,100,900);
     $u=$emailAllowed&&$ipAllowed?row('SELECT * FROM users WHERE email=? AND is_active=1',[$email]):null;
     $hash=$u['password_hash']??'$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi';
     $valid=password_verify($pass,$hash);
     if($u&&$valid){
         // P4-M06: a hash made with an older cost or algorithm is renewed while the password is at hand.
         if(password_needs_rehash($hash,PASSWORD_DEFAULT))q('UPDATE users SET password_hash=? WHERE id=?',[password_hash($pass,PASSWORD_DEFAULT),$u['id']]);
+        security_rate_clear('login-email',$emailKey);security_rate_refund('login-ip',$ip);
         $to=$_SESSION['intended']??'/';unset($_SESSION['intended']);
         security_begin_login($u,is_string($to)?$to:'/');
     }
 
     security_log_attempt(!$emailAllowed||!$ipAllowed?'sign-in throttled':'failed sign-in',(int)($u['id']??0),mb_substr($email,0,190).(!$emailAllowed||!$ipAllowed?' (too many attempts)':''));
-    $error = t('That email and password do not match an account.');
+    $error = $emailAllowed&&$ipAllowed ? t('That email and password do not match an account.') : t('Too many failed attempts. Try again in 15 minutes, or ask an administrator to unlock your sign-in.');
 }
 
 $token = csrf_token();

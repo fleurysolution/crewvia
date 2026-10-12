@@ -3543,3 +3543,17 @@ Why (kept on the application)	Motif (conservé sur la candidature)	Motivo (se gu
 With the agency	Avec l’agence	Con la agencia
 Write the note in 2 to 2000 characters.	Rédigez la note en 2 à 2000 caractères.	Escriba la nota en 2 a 2000 caracteres.
 screened out	écarté	descartado
+Client access is switched off. Contact the agency.	L’accès client est désactivé. Contactez l’agence.	El acceso de clientes está desactivado. Comuníquese con la agencia.
+Client accounts can sign in and see their authorized projects.	Les comptes clients peuvent se connecter et voir leurs projets autorisés.	Las cuentas de clientes pueden iniciar sesión y ver sus proyectos autorizados.
+Client portal switched off. Client accounts cannot sign in.	Portail client désactivé. Les comptes clients ne peuvent plus se connecter.	Portal del cliente desactivado. Las cuentas de clientes no pueden iniciar sesión.
+Client portal switched on. Client accounts can sign in.	Portail client activé. Les comptes clients peuvent se connecter.	Portal del cliente activado. Las cuentas de clientes pueden iniciar sesión.
+Clients have no access to Crewvia: client accounts cannot sign in, and none can be created or granted a client.	Les clients n’ont aucun accès à Crewvia : les comptes clients ne peuvent pas se connecter, et aucun ne peut être créé ni rattaché à un client.	Los clientes no tienen acceso a Crewvia: las cuentas de clientes no pueden iniciar sesión y no se puede crear ninguna ni asignarle un cliente.
+Select an account.	Choisissez un compte.	Seleccione una cuenta.
+Sign-in unlocked for :name.	Connexion débloquée pour :name.	Inicio de sesión desbloqueado para :name.
+Switch the client portal off	Désactiver le portail client	Desactivar el portal del cliente
+Switch the client portal on	Activer le portail client	Activar el portal del cliente
+Switch the client portal on before giving a client access.	Activez le portail client avant de donner un accès client.	Active el portal del cliente antes de dar acceso a un cliente.
+Switch the client portal on in Client access before giving anyone the client desk.	Activez le portail client dans Accès client avant d’attribuer le poste client à quelqu’un.	Active el portal del cliente en Acceso de clientes antes de asignar a alguien el puesto de cliente.
+Too many failed attempts. Try again in 15 minutes, or ask an administrator to unlock your sign-in.	Trop de tentatives échouées. Réessayez dans 15 minutes, ou demandez à un administrateur de débloquer votre connexion.	Demasiados intentos fallidos. Vuelva a intentarlo en 15 minutos o pida a un administrador que desbloquee su inicio de sesión.
+Unlock sign-in	Débloquer la connexion	Desbloquear inicio de sesión
+sign-in locked until :time	connexion bloquée jusqu’à :time	inicio de sesión bloqueado hasta :time

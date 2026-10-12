@@ -93,6 +93,8 @@ require_once __DIR__.'/../app/security.php';
 $version=(int)val('SELECT session_version FROM account_security WHERE user_id=?',[uid()]);
 if($version!==(int)($_SESSION['auth_version']??0)){$_SESSION=[];session_destroy();redirect('/login');}
 $_SESSION['user'] = $fresh;
+// Q2: a client account works only while the client portal is switched on.
+if ($fresh['role'] === 'client' && ! client_portal_enabled()) { $_SESSION=[]; session_destroy(); redirect('/login'); }
 // P4-M06: where an administrator requires it, administrators and payroll
 // work only once two-step verification is on.
 if (in_array($fresh['role'], ['admin', 'payroll'], true) && ! in_array($path, ['/account-security', '/account', '/language'], true)

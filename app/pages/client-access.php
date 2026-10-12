@@ -1,7 +1,17 @@
 <?php
 require_role('admin');
+require_once __DIR__.'/../security.php';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     $action=(string)($_POST['do'] ?? '');
+    // Q2: the client portal is switched on or off here, by an administrator.
+    if($action==='portal') {
+        $on=($_POST['enabled'] ?? '')==='1';
+        q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('client_portal_enabled',?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)",[$on?'1':'0']);
+        log_activity($on?'switched the client portal on':'switched the client portal off','setting',0,'client_portal_enabled');
+        flash($on?t('Client portal switched on. Client accounts can sign in.'):t('Client portal switched off. Client accounts cannot sign in.'));
+        redirect('/client-access');
+    }
+    if(in_array($action,['create','grant'],true) && !client_portal_enabled()) {refuse(422, t('Switch the client portal on before giving a client access.'));}
     $clientId=(int)($_POST['client_id'] ?? 0);
     if(!row('SELECT id FROM clients WHERE id=?',[$clientId])) {refuse(422, t('Select a valid client.'));}
     if($action==='create') {
@@ -32,4 +42,5 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 $clients=rows('SELECT id,name FROM clients ORDER BY name');
 $accounts=rows("SELECT id,name,email,is_active FROM users WHERE role='client' ORDER BY name");
 $grants=rows('SELECT a.user_id,a.client_id,u.name,u.email,c.name client_name FROM client_access a JOIN users u ON u.id=a.user_id JOIN clients c ON c.id=a.client_id ORDER BY c.name,u.name');
-render('client-access',compact('clients','accounts','grants'));
+$portalOn=client_portal_enabled();
+render('client-access',compact('clients','accounts','grants','portalOn'));

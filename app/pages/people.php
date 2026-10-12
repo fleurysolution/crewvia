@@ -2,6 +2,7 @@
 /** The team. Max and Jerry only. */
 
 require_role('admin');
+require_once __DIR__ . '/../security.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = $_POST['do'] ?? '';
@@ -41,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ((! array_key_exists($role, roles()) || $role === 'worker')) {
             redirect('/people');
         }
+        if ($role === 'client' && ! client_portal_enabled()) {
+            refuse(422, t('Switch the client portal on in Client access before giving anyone the client desk.'), '/people');
+        }
 
         // Never leave the account with nobody who can get back in.
         if ($role !== 'admin') {
@@ -57,6 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         q('UPDATE users SET role = ? WHERE id = ?', [$role, $uidT]);
         log_activity('changed a desk', 'user', $uidT, $before . ' -> ' . $role);
         flash(t('Desk changed.'));
+        redirect('/people');
+    }
+
+    // Q1: an administrator clears a sign-in locked by failed attempts.
+    if ($do === 'unlock') {
+        $target = row('SELECT id, name, email FROM users WHERE id = ?', [(int) ($_POST['user_id'] ?? 0)]);
+        if (! $target) {
+            refuse(422, t('Select an account.'), '/people');
+        }
+        security_rate_clear('login-email', mb_strtolower(trim((string) $target['email'])));
+        log_activity('unlocked a sign-in', 'user', (int) $target['id'], (string) $target['name']);
+        flash(t('Sign-in unlocked for :name.', ['name' => $target['name']]));
         redirect('/people');
     }
 
@@ -91,8 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $team = rows('SELECT * FROM users ORDER BY FIELD(role,"admin","recruiter","hotels","payroll"), name');
+$lockedUntil = [];
+foreach ($team as $member) {
+    if ($until = security_login_locked_until((string) $member['email'])) {
+        $lockedUntil[(int) $member['id']] = $until;
+    }
+}
 $recent = rows('SELECT a.*, u.name AS who FROM activity a LEFT JOIN users u ON u.id = a.user_id
                 ORDER BY a.id DESC LIMIT 25');
 
 $pageTitle = t('Team').' · '.$config['app_name'];
-render('people', compact('team','recent'));
+render('people', compact('team','recent','lockedUntil'));

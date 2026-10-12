@@ -35,6 +35,7 @@ q("INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label) 
 q("INSERT INTO applications(candidate_id,vacancy_id,stage) VALUES (?,?,'screening')",[$ids[0]['candidate'],$vac]);$historyApp=(int)db()->lastInsertId();
 q("INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,'rejected','Historical rejection before reconsideration')",[$historyApp,(int)val("SELECT id FROM users WHERE email='admin@test.invalid'")]);
 q("INSERT INTO users(name,email,password_hash,role,must_change_pw) VALUES ('Test client contact','client@test.invalid',?,'client',0)",[$password]);$clientUser=(int)db()->lastInsertId();
+q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('client_portal_enabled','1') ON DUPLICATE KEY UPDATE setting_value='1'");
 q("INSERT INTO attendance_records(placement_id,work_date,hours,status,submitted_by,reviewed_by,reviewed_at) VALUES (?,'2026-10-08',8,'approved',?,?,NOW())",[$ids[0]['placement'],$ids[0]['user'],(int)val("SELECT id FROM users WHERE email='admin@test.invalid'")]);
 q('INSERT INTO client_access(user_id,client_id,granted_by) VALUES (?,?,?)',[$clientUser,$client,(int)val("SELECT id FROM users WHERE email='admin@test.invalid'")]);
 q("INSERT INTO clients(name) VALUES ('Other private client')");$otherClient=(int)db()->lastInsertId();

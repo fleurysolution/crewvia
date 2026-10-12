@@ -505,7 +505,7 @@ operational.post('/language',{'locale':'en','back':'/contracts'})
 
 for count in range(11):
  _,body=public.post('/login',{'email':'absent@test.invalid','password':'Invalid password'})
-check('Repeated invalid logins remain generic','That email and password do not match an account.' in body)
+check('Repeated invalid logins lock that email, an account or not, without saying which','Too many failed attempts. Try again in 15 minutes' in body)
 
 json.dump(results,open('work/test-results.json','w'),indent=2)
 

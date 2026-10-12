@@ -11,6 +11,7 @@
         <td><strong><?= e($t['name']) ?></strong>
           <?php if ((int) $t['is_active'] === 0): ?><span class="tag red"><?= te('off') ?></span><?php endif; ?>
           <?php if ((int) $t['must_change_pw'] === 1): ?><span class="tag amber"><?= te('temp password') ?></span><?php endif; ?>
+          <?php if (isset($lockedUntil[(int) $t['id']])): ?><span class="tag red" data-locked="<?= (int) $t['id'] ?>"><?= te('sign-in locked until :time', ['time' => date('g:ia', $lockedUntil[(int) $t['id']])]) ?></span><?php endif; ?>
         </td>
         <td class="small muted"><?= e($t['email']) ?></td>
         <td>
@@ -33,6 +34,13 @@
             <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
             <button class="btn ghost sm" type="submit"><?= te('Reset password') ?></button>
           </form>
+          <?php if (isset($lockedUntil[(int) $t['id']])): ?>
+          <form method="post" action="/people" style="display:inline">
+            <?= csrf_field() ?><input type="hidden" name="do" value="unlock">
+            <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
+            <button class="btn sm" type="submit"><?= te('Unlock sign-in') ?></button>
+          </form>
+          <?php endif; ?>
           <?php if ((int) $t['id'] !== uid()): ?>
           <form method="post" action="/people" style="display:inline">
             <?= csrf_field() ?><input type="hidden" name="do" value="toggle">

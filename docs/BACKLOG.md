@@ -122,9 +122,9 @@ what stops the telephone.
 
 | # | Question | Why it matters | Status |
 |---|---|---|---|
-| Q1 | **Login throttle**: 10 attempts per 15 minutes per email. Raise it, or add an administrator unlock? | It has already locked us out during testing. If the RSS VP mistypes their password a few times during the demonstration he is locked out for fifteen minutes, in front of everybody. | decide |
-| Q2 | Does RSS ever need the **client-facing portal** enabled, or is C8 permanent? | It changes how client orders and invoices are designed. | decide |
-| Q3 | At what point does RSS stop paying **ADP**? | Decides whether T17–T19 are a convenience or a replacement. | decide |
+| Q1 | **Login throttle**: 10 attempts per 15 minutes per email. Raise it, or add an administrator unlock? | It has already locked us out during testing. If the RSS VP mistypes their password a few times during the demonstration he is locked out for fifteen minutes, in front of everybody. | done 12 Oct (P5-M11): failures only, 15-min lock, administrator unlock on People |
+| Q2 | Does RSS ever need the **client-facing portal** enabled, or is C8 permanent? | It changes how client orders and invoices are designed. | done 12 Oct (P5-M11): behind a switch on Client access, off unless a client already signed in |
+| Q3 | At what point does RSS stop paying **ADP**? | Decides whether T17–T19 are a convenience or a replacement. | decided 12 Oct: ADP stays until further notice; the build is unchanged |
 
 ---
 

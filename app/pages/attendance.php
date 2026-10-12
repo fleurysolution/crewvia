@@ -8,6 +8,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   $pid=(int)($_POST['placement_id'] ?? 0);$date=(string)($_POST['work_date'] ?? '');$hours=$_POST['hours'] ?? '';
   $p=row("SELECT p.* FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE p.id=? AND w.user_id=? AND p.status IN ('confirmed','travelling','on_site')",[$pid,uid()]);
   if(!$p || !valid_date($date) || !is_numeric($hours) || !is_finite((float)$hours) || (float)$hours<0 || (float)$hours>24 || ($p['start_date'] && $date<$p['start_date']) || ($p['end_date'] && $date>$p['end_date'])) { refuse(422, t('Valid working date, assignment and 0–24 hours required.')); }
+  // Frozen-week decision, 12 Oct 2026: refused here as /sync refuses it; the office settles it as an adjustment.
+  if(attendance_week_frozen($pid,$date)) { refuse(422, t('That week is already approved for pay. Ask the office for a correction.')); }
   $locked=row("SELECT id FROM attendance_records WHERE placement_id=? AND work_date=? AND status='approved'",[$pid,$date]);
   if(!$locked) q("INSERT INTO attendance_records(placement_id,work_date,hours,submitted_by) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE hours=VALUES(hours),status='submitted'",[$pid,$date,(float)$hours,uid()]);
  }

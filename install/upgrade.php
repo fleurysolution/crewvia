@@ -2143,4 +2143,15 @@ if (! $hadInterest) {
        . 'resume, notes and texts, and talent pool matches to add; ' . (int) val('SELECT COUNT(*) FROM vacancies WHERE is_open = 1') . ' open requisition(s).' . PHP_EOL;
 }
 
+// ── P5-M11: the client portal behind a switch (Q2) ──
+// Left on where client accounts already sign in, so nobody loses access by
+// an upgrade. Reversed by install/rollback/p5-m11.sql.
+if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'client_portal_enabled'")) {
+    $activeClients = (int) val("SELECT COUNT(*) FROM users WHERE role = 'client' AND is_active = 1");
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('client_portal_enabled', ?)", [$activeClients ? '1' : '0']);
+    echo ($activeClients
+        ? 'Client portal: left ON, ' . $activeClients . ' active client account(s) sign in; an administrator can switch it off on Client access.'
+        : 'Client portal: OFF, no client account exists; an administrator can switch it on on Client access.') . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

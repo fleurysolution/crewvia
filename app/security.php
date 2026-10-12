@@ -7,6 +7,43 @@ function security_rate_limit(string $purpose, string $identity, int $maximum=10,
     q('INSERT INTO auth_rate_limits(bucket,window_start,attempts) VALUES (?,?,1) ON DUPLICATE KEY UPDATE attempts=IF(window_start<=?,1,attempts+1),window_start=IF(window_start<=?,VALUES(window_start),window_start)',[$bucket,$now,$now-$window,$now-$window]);
     return (int)val('SELECT attempts FROM auth_rate_limits WHERE bucket=?',[$bucket])<=$maximum;
 }
+/**
+ * Sign-in lock (Q1, 12 Oct 2026): only failed attempts count. Ten failures
+ * for one email within 15 minutes lock that email until the 15 minutes
+ * have passed; an administrator can clear it at once on People. Every
+ * attempt is still counted first, atomically, so guesses sent at the same
+ * instant cannot slip past the limit; a successful sign-in then clears its
+ * email's count and gives back its address's.
+ */
+const SECURITY_LOGIN_FAILURES = 10;
+const SECURITY_LOGIN_WINDOW = 900;
+
+/** Takes back one attempt counted by security_rate_limit(). */
+function security_rate_refund(string $purpose, string $identity): void
+{
+    q('UPDATE auth_rate_limits SET attempts = IF(attempts > 0, attempts - 1, 0) WHERE bucket = ?', [hash('sha256', $purpose . '|' . $identity)]);
+}
+function security_rate_clear(string $purpose, string $identity): void
+{
+    q('DELETE FROM auth_rate_limits WHERE bucket = ?', [hash('sha256', $purpose . '|' . $identity)]);
+}
+/** When a sign-in locked by failed attempts opens again (a timestamp), or null if it is not locked. */
+function security_login_locked_until(string $email): ?int
+{
+    $r = row('SELECT window_start, attempts FROM auth_rate_limits WHERE bucket = ?', [hash('sha256', 'login-email|' . mb_strtolower(trim($email)))]);
+    if (! $r || (int) $r['window_start'] <= time() - SECURITY_LOGIN_WINDOW || (int) $r['attempts'] < SECURITY_LOGIN_FAILURES) {
+        return null;
+    }
+
+    return (int) $r['window_start'] + SECURITY_LOGIN_WINDOW;
+}
+
+/** Q2 (12 Oct 2026): client accounts work only while an administrator has the client portal switched on. */
+function client_portal_enabled(): bool
+{
+    return (string) val("SELECT setting_value FROM platform_settings WHERE setting_key = 'client_portal_enabled'") === '1';
+}
+
 function totp_base32(string $raw): string
 {
     $alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';$bits='';$encoded='';
@@ -61,6 +98,10 @@ function security_finish_login(array $account,string $to='/'): never
 }
 function security_begin_login(array $account,string $to='/'): never
 {
+    if(($account['role'] ?? '')==='client' && !client_portal_enabled()) {
+        security_log_attempt('client sign-in refused',(int)$account['id'],'client portal switched off');
+        flash(t('Client access is switched off. Contact the agency.'),'err');redirect('/login');
+    }
     if(val('SELECT encrypted_totp FROM account_security WHERE user_id=?',[$account['id']])) {
         session_regenerate_id(true);unset($_SESSION['user']);
         $_SESSION['mfa_pending']=['user_id'=>(int)$account['id'],'started'=>time(),'to'=>$to];redirect('/mfa');
