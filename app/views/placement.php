@@ -16,10 +16,11 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
     <?= e(ucfirst(str_replace('_', ' ', $p['status']))) ?></span>
   &middot; <?= e($p['line_role'] ?: ucfirst((string) $p['discipline'])) ?>
   &middot; <?= e($p['job_title']) ?>
-  <?php if ($p['phone']): ?>
+  <?php if ($p['phone'] && $textPanel['preferences']['no_calls_since'] === null): ?>
     &middot; <a href="tel:<?= e(preg_replace('/[^0-9+]/', '', $p['phone'])) ?>"><?= e($p['phone']) ?></a>
   <?php endif; ?>
 </p>
+<?php require __DIR__ . '/_text-panel.php'; ?>
 
 <div class="grid g4" style="margin-bottom:16px">
   <div class="stat">

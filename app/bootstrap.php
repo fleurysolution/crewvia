@@ -570,6 +570,8 @@ function contact_outcomes(): array
         'callback'       => 'Call back later',
         'emailed'        => 'Emailed them',
         'replied_email'  => 'They replied by email',
+        'texted'         => 'Texted them',
+        'replied_text'   => 'They replied by text',
         'not_interested' => 'Not interested',
         'wrong_number'   => 'Wrong number or bad address',
     ];

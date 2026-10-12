@@ -2023,4 +2023,44 @@ if (! $hadPush) {
        . 'then an administrator turns them on under Phones and notifications.' . PHP_EOL;
 }
 
+// ── P5-M07: texting and calling through the staff member's phone ──
+// Reversed by install/rollback/p5-m07.sql.
+$messagingSql = __DIR__ . '/messaging.sql';
+
+if (! is_file($messagingSql)) {
+    fwrite(STDERR, "Missing install/messaging.sql\n");
+    exit(1);
+}
+
+$hadMessaging = (int) val("SELECT COUNT(*) FROM information_schema.tables
+                           WHERE table_schema=DATABASE() AND table_name='message_templates'");
+
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($messagingSql)) as $chunk) {
+    $lines = array_filter(explode("\n", $chunk), fn($l) => !str_starts_with(ltrim($l), '--'));
+    $statement = trim(implode("\n", $lines));
+
+    if ($statement !== '') { db()->exec($statement); }
+}
+
+// A text is a contact like a call or an email, in the same register.
+$contactOutcomes = (string) val("SELECT COLUMN_TYPE FROM information_schema.columns
+                                 WHERE table_schema=DATABASE() AND table_name='candidate_calls' AND column_name='outcome'");
+
+if ($contactOutcomes !== '' && ! str_contains($contactOutcomes, "'texted'")) {
+    q("ALTER TABLE candidate_calls MODIFY outcome
+         ENUM('reached','voicemail','no_answer','callback','emailed','replied_email','texted','replied_text',
+              'not_interested','wrong_number') NOT NULL DEFAULT 'reached'");
+}
+
+if (! val("SELECT COUNT(*) FROM information_schema.columns
+           WHERE table_schema=DATABASE() AND table_name='candidate_calls' AND column_name='template_id'")) {
+    q('ALTER TABLE candidate_calls ADD COLUMN template_id INT UNSIGNED NULL AFTER outcome');
+}
+
+if (! $hadMessaging) {
+    echo 'Texting: messages written once and filled from Crewvia, opened on the staff member\'s phone or copied for Google Voice, '
+       . 'logged as contacts; do-not-text and do-not-call recorded. ' . (int) val('SELECT COUNT(*) FROM message_templates') . ' message(s) to start from. '
+       . 'No SMS or travel provider is connected.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

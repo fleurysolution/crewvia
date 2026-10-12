@@ -160,6 +160,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             refuse(422, t('Invalid contact outcome.'));
         }
 
+        // P5-M07: someone who asked not to be called, or texted, is not logged as such.
+        require_once __DIR__ . '/../messaging.php';
+        $pref = msg_preferences($id);
+        $outcome = (string) ($_POST['outcome'] ?? 'reached');
+        if ($pref['no_calls_since'] !== null && in_array($outcome, ['reached', 'voicemail', 'no_answer', 'callback'], true)) {
+            refuse(422, t('This person asked not to be called.'));
+        }
+        if ($pref['no_texts_since'] !== null && $outcome === 'texted') {
+            refuse(422, t('This person asked not to be texted.'));
+        }
+
         q('INSERT INTO candidate_calls (candidate_id, user_id, outcome, note) VALUES (?,?,?,?)',
           [$id, uid(), (string) ($_POST['outcome'] ?? 'reached'),
            trim((string) ($_POST['note'] ?? '')) ?: null]);
@@ -479,7 +490,11 @@ $invitation = row('SELECT expires_at, used_at FROM invitations
 
 $pageTitle = $c['full_name'] . ' · ' . $config['app_name'];
 
-render('candidate', compact('c', 'calls', 'applications', 'placements', 'documents',
+require_once __DIR__ . '/../messaging.php';
+$textPanel = msg_panel($id);
+$contactPref = $textPanel['preferences'];
+
+render('candidate', compact('textPanel', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
                             'qualifications', 'contracts', 'clearance', 'account',
                             'invitation', 'job', 'jobId', 'standing', 'theirSkills',
                             'workHistory', 'owedToUs'));

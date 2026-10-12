@@ -60,7 +60,9 @@ $lodge = row('SELECT l.*, h.name AS hotel, h.phone AS hotel_phone, h.address
 $legs = rows('SELECT * FROM travel WHERE placement_id = ? AND status <> ? ORDER BY direction',
              [$id, 'cancelled']);
 
-if(!can('payroll')) { render('placement-logistics',compact('p','lodge','legs'));exit; }
+require_once __DIR__ . '/../messaging.php';
+$textPanel = msg_panel((int) $p['candidate_id'], $id);
+if(!can('payroll')) { render('placement-logistics',compact('p','lodge','legs','textPanel'));exit; }
 $sheets = rows('SELECT ts.*,s.result_json AS snapshot_json FROM timesheets ts LEFT JOIN pay_snapshots s ON s.timesheet_id=ts.id WHERE placement_id = ? ORDER BY week_ending DESC LIMIT 12', [$id]);
 
 
@@ -84,4 +86,4 @@ $rateChanges = rows('SELECT r.*, u.name AS changed_by_name FROM placement_rate_c
                      WHERE r.placement_id = ? ORDER BY r.id DESC LIMIT 50', [$id]);
 
 $pageTitle = $p['full_name'] . ' · '.$config['app_name'];
-render('placement', compact('p','lodge','legs','sheets','job','totals','origin','line','rateChanges'));
+render('placement', compact('p','lodge','legs','sheets','job','totals','origin','line','rateChanges','textPanel'));

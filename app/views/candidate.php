@@ -108,7 +108,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?= te($stages[$c['stage']] ?? $c['stage']) ?>
       </span>
       <?php if ($c['phone']): ?>
-        &middot; <a class="mono" href="tel:<?= e(preg_replace('/[^0-9+]/', '', $c['phone'])) ?>"><?= e($c['phone']) ?></a>
+        &middot; <?php if ($contactPref['no_calls_since'] === null): ?><a class="mono" href="tel:<?= e(preg_replace('/[^0-9+]/', '', $c['phone'])) ?>"><?= e($c['phone']) ?></a><?php else: ?><span class="mono"><?= e($c['phone']) ?></span><?php endif; ?>
       <?php endif; ?>
       <?php if ($c['email']): ?>
         &middot; <a href="mailto:<?= e($c['email']) ?>"><?= e($c['email']) ?></a>
@@ -171,7 +171,9 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
       </p>
     </div>
     <div class="contact-actions">
-      <?php if ($c['phone']): ?>
+      <?php if ($c['phone'] && $contactPref['no_calls_since'] !== null): ?>
+        <span class="tag red" id="no-calls"><?= te('Asked not to be called') ?></span>
+      <?php elseif ($c['phone']): ?>
         <a class="btn" href="tel:<?= e(preg_replace('/[^0-9+]/', '', $c['phone'])) ?>">
           <?= te('Call :number', ['number' => e($c['phone'])]) ?>
         </a>
@@ -186,6 +188,14 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </div>
   </div>
 
+  <?php require __DIR__ . '/_text-panel.php'; ?>
+  <form method="post" action="/contacts" class="card" id="contact-preferences"><?= csrf_field() ?><input type="hidden" name="do" value="preferences"><input type="hidden" name="candidate_id" value="<?= (int) $c['id'] ?>">
+    <h3><?= te('How they may be contacted') ?></h3>
+    <label><input type="checkbox" name="no_texts" value="1"<?= $contactPref['no_texts_since'] !== null ? ' checked' : '' ?>> <?= te('Asked not to be texted') ?></label>
+    <label><input type="checkbox" name="no_calls" value="1"<?= $contactPref['no_calls_since'] !== null ? ' checked' : '' ?>> <?= te('Asked not to be called') ?></label>
+    <label><?= te('How they asked (for example: replied STOP)') ?><input name="reason" maxlength="255" value="<?= e((string) ($contactPref['reason'] ?? '')) ?>"></label>
+    <button class="btn sm"><?= te('Save') ?></button>
+  </form>
   <form method="post" class="row contact-log">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="call">

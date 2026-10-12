@@ -3287,3 +3287,38 @@ Turn on for this phone	Activer sur ce téléphone	Activar en este teléfono
 Turn push notifications off	Désactiver les notifications	Desactivar las notificaciones
 Turn push notifications on	Activer les notifications	Activar las notificaciones
 Turning push on lets Crewvia call the push services of Google, Apple, Mozilla and Microsoft. Pushes go out each time the scheduled workflows run, or every minute with php install/push-dispatch.php in cron.	Activer les notifications permet à Crewvia d'appeler les services de notification de Google, Apple, Mozilla et Microsoft. Elles partent à chaque passage des tâches planifiées, ou chaque minute avec php install/push-dispatch.php dans cron.	Activar las notificaciones permite a Crewvia llamar a los servicios de notificaciones de Google, Apple, Mozilla y Microsoft. Se envían cada vez que se ejecutan las tareas programadas, o cada minuto con php install/push-dispatch.php en cron.
+A message with that name already exists in that language.	Un message de ce nom existe déjà dans cette langue.	Ya existe un mensaje con ese nombre en ese idioma.
+Asked not to be called	A demandé à ne pas être appelé	Pidió que no lo llamen
+Asked not to be texted	A demandé à ne pas recevoir de SMS	Pidió que no le envíen mensajes de texto
+Assignment details are only known from a placement: send this one from the placement.	Les détails de l'affectation ne sont connus que depuis un placement : envoyez celui-ci depuis le placement.	Los detalles de la asignación solo se conocen desde una colocación: envíe este desde la colocación.
+Assignment: from the placement, with hotel and travel	Affectation : depuis le placement, avec hôtel et voyage	Asignación: desde la colocación, con hotel y viaje
+Choose a language.	Choisissez une langue.	Elija un idioma.
+Copied. Paste it into Google Voice.	Copié. Collez-le dans Google Voice.	Copiado. Péguelo en Google Voice.
+Copy for Google Voice	Copier pour Google Voice	Copiar para Google Voice
+Give the message a name of 3 to 120 characters.	Donnez au message un nom de 3 à 120 caractères.	Dé al mensaje un nombre de 3 a 120 caracteres.
+How they asked (for example: replied STOP)	Comment la personne l'a demandé (par exemple : a répondu STOP)	Cómo lo pidió (por ejemplo: respondió STOP)
+How they may be contacted	Comment la joindre	Cómo se le puede contactar
+Messages	Messages	Mensajes
+New message	Nouveau message	Nuevo mensaje
+No text message is written yet. Recruiters write them under Text messages.	Aucun SMS n'est encore rédigé. Les recruteurs les rédigent sous Messages SMS.	Aún no hay mensajes de texto. Los reclutadores los escriben en Mensajes de texto.
+Not on file yet, shown in brackets:	Pas encore enregistré, entre crochets :	Aún no registrado, entre corchetes:
+Placeholders: :list. Assignment details (project, start date, hotel, travel, pickup) only from a placement.	Champs : :list. Les détails de l'affectation (projet, date de début, hôtel, voyage, prise en charge) seulement depuis un placement.	Campos: :list. Los detalles de la asignación (proyecto, fecha de inicio, hotel, viaje, recogida) solo desde una colocación.
+Recruiting: from the person's page	Recrutement : depuis la fiche de la personne	Reclutamiento: desde la ficha de la persona
+Say how they asked, in 3 to 255 characters (for example: replied STOP).	Dites comment la personne l'a demandé, en 3 à 255 caractères (par exemple : a répondu STOP).	Diga cómo lo pidió, en 3 a 255 caracteres (por ejemplo: respondió STOP).
+Say where it is sent from.	Dites d'où il est envoyé.	Diga desde dónde se envía.
+Sent from	Envoyé depuis	Enviado desde
+Text	SMS	Mensaje de texto
+Text :number	SMS au :number	Texto a :number
+Text messages	Messages SMS	Mensajes de texto
+Text opens the texting app of this phone. On an iPhone that is Messages, which sends from the phone's own number. To send from the agency's Google Voice number, copy the message and paste it in Google Voice. Either way it is logged here as texted.	SMS ouvre l'application de messages de ce téléphone. Sur iPhone, c'est Messages, qui envoie depuis le numéro du téléphone. Pour envoyer depuis le numéro Google Voice de l'agence, copiez le message et collez-le dans Google Voice. Dans les deux cas, il est consigné ici comme SMS envoyé.	Texto abre la aplicación de mensajes de este teléfono. En un iPhone es Mensajes, que envía desde el número del teléfono. Para enviar desde el número de Google Voice de la agencia, copie el mensaje y péguelo en Google Voice. En ambos casos queda registrado aquí como texto enviado.
+Text to send (you can change it)	Texte à envoyer (modifiable)	Texto para enviar (puede cambiarlo)
+Texted them	SMS envoyé	Se le envió un texto
+That message does not exist.	Ce message n'existe pas.	Ese mensaje no existe.
+The wording texts are written from. Crewvia fills the placeholders from what it already holds, the text opens on your phone (or is copied for Google Voice), and it is logged in the person's contact history. Crewvia sends nothing itself.	Le texte de base des SMS. Crewvia remplit les champs avec ce qu'il sait déjà, le SMS s'ouvre sur votre téléphone (ou est copié pour Google Voice), et il est consigné dans l'historique de contact de la personne. Crewvia n'envoie rien lui-même.	El texto base de los mensajes. Crewvia completa los campos con lo que ya sabe, el mensaje se abre en su teléfono (o se copia para Google Voice) y queda registrado en el historial de contacto de la persona. Crewvia no envía nada por sí mismo.
+They replied by text	A répondu par SMS	Respondió por texto
+This person asked not to be called.	Cette personne a demandé à ne pas être appelée.	Esta persona pidió que no la llamen.
+This person asked not to be texted.	Cette personne a demandé à ne pas recevoir de SMS.	Esta persona pidió que no le envíen mensajes de texto.
+Unknown placeholder: :list. Use: :known.	Champ inconnu : :list. Utilisez : :known.	Campo desconocido: :list. Use: :known.
+Write the message in 5 to 1000 characters.	Rédigez le message en 5 à 1000 caractères.	Escriba el mensaje en 5 a 1000 caracteres.
+arranged	prévue	organizada
+none needed	aucune nécessaire	no se necesita
