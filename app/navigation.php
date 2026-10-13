@@ -199,6 +199,27 @@ function workspace_nav(?array $u): array
 }
 
 /**
+ * Wave 3: the screens each role opens every day, in the order of its day.
+ * They stay in view at the top of the menu; every other screen the role may
+ * open is folded under "More", in its section. A screen listed here that the
+ * person may not open is simply not shown, so the list never widens access.
+ *
+ * @return list<string> paths
+ */
+function workspace_daily(?array $u): array
+{
+    return match ($u['role'] ?? '') {
+        'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/hours', '/billing', '/people', '/settings'],
+        'recruiter'  => ['/home', '/activity', '/hiring', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/contracts', '/client-orders', '/approvals'],
+        'hotels'     => ['/home', '/activity', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
+        'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
+        'supervisor' => ['/my-team', '/activity', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
+        'worker'     => ['/portal', '/my-jobs', '/attendance', '/timeoff', '/my-payslips', '/notifications', '/activity'],
+        default      => [],
+    };
+}
+
+/**
  * The pages that read the working project, where the project bar above the
  * page means something. Elsewhere (Team, Settings, Integrations...) it only
  * suggested the page depended on a project, and is not shown.

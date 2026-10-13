@@ -116,9 +116,12 @@ body = w2.get('/portal')[1]
 sections = dict(re.findall(r'<details class="nav-group" data-section="([^"]+)"[^>]*>(.*?)</details>', body, re.S))
 check('A worker\'s contracts are under "My papers", not "Hiring"', 'My papers' in sections and 'href="/contracts"' in sections['My papers'] and 'Hiring' not in sections, list(sections))
 check('their HR record under "HR", not "Administration"', 'href="/hr-records"' in sections.get('HR', '') and 'Administration' not in sections)
-check('their pay statements under "My pay", and Jobs for you under "My work"', 'href="/my-payslips"' in sections.get('My pay', '') and 'href="/my-jobs"' in sections.get('My work', ''))
+# Wave 3 (P5-M22): their daily screens sit above the sections, in their own words too.
+daily = re.search(r'<div class="nav-daily">(.*?)</div>', body, re.S)[1]
+check('their pay statements and Jobs for you among their daily screens', 'href="/my-payslips"' in daily and 'href="/my-jobs"' in daily and 'My pay statements' in daily)
 body = sup.get('/my-team')[1]
-check('A supervisor\'s team and tasks are under "My work"', 'href="/my-team"' in dict(re.findall(r'data-section="([^"]+)"[^>]*>(.*?)</details>', body, re.S)).get('My work', ''))
+check('A supervisor\'s team and tasks lead their daily screens, and the rest of their work is under "My work"',
+      re.search(r'<div class="nav-daily"><a href="/my-team"', body) is not None and 'href="/workload"' in dict(re.findall(r'data-section="([^"]+)"[^>]*>(.*?)</details>', body, re.S)).get('My work', ''))
 check('The desks keep their own sections', 'data-section="Recruiting"' in rec.get('/roster')[1] and 'data-section="Deployment"' in rec.get('/roster')[1])
 w2.post('/language', {'locale': 'es', 'back': '/portal'}, '/portal')
 check('The worker\'s menu in Spanish', 'Mis documentos' in w2.get('/portal')[1])

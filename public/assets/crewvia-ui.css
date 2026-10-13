@@ -49,6 +49,9 @@ td { padding: 9px 12px; }
 
 /* ── header ── */
 .top { height: 56px; gap: 16px; }
+/* On a phone the menu opens inside the header, so the header grows with it;
+   at a fixed height the open menu spilled out and the page painted over it. */
+@media (max-width: 720px) { .top { height: auto; } }
 .top .brand { font-size: 16px; font-weight: 700; color: #10263b; }
 .product-note { display: none; }
 .workspace-search { max-width: 480px; }
@@ -84,6 +87,20 @@ td { padding: 9px 12px; }
 .nav a { font-size: 13.5px; padding: 7px 12px; border-radius: 7px; }
 .nav-group > summary { font-size: 10.5px; padding: 9px 12px; letter-spacing: 1px; }
 .nav-badge { font-size: 10.5px; }
+/* Wave 3: the daily screens in view, everything else folded under More. */
+.nav-daily { display: flex; flex-direction: column; gap: 2px; }
+.nav-daily > a { display: block; }
+.nav-more { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(203, 216, 230, .18); }
+.nav-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: #c3cfdc; user-select: none; }
+.nav-more > summary::-webkit-details-marker { display: none; }
+.nav-more > summary::after { content: ''; width: 6px; height: 6px; flex: 0 0 auto; margin-left: 8px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); transition: transform .15s; }
+.nav-more[open] > summary::after { transform: rotate(-135deg); }
+.nav-more > summary:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+.nav-more > summary:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.nav-more > .nav-group { margin-left: 4px; }
+@media (max-width: 720px) { .nav-daily { flex-direction: row; } .nav-more { border-top: 0; margin-top: 0; } }
 
 /* ── the working project bar ── */
 .workbar { padding: 0 0 12px; margin-bottom: 16px; border-bottom: 1px solid var(--ui-line); gap: 10px; }

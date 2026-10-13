@@ -598,9 +598,10 @@ input,select,textarea{border-color:#8a96a6}
   .js .top .nav{display:none}
   .js .top.nav-open .nav{display:flex;flex-direction:column;flex-wrap:nowrap;overflow:visible}
   .js .top.nav-open .nav .nav-group{width:100%}
+  .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=3">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=4">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -613,34 +614,61 @@ input,select,textarea{border-color:#8a96a6}
     <?php
     // Everything the sidebar needs is local to this call, so nothing it
     // uses can still be set when the view runs below.
-    (function (array $nav, array $navSections, string $here): void {
+    (function (array $nav, array $navSections, string $here, array $daily): void {
+        $link = static function (string $href, string $label) use ($here): void {
+            // The queue count rides on the Activity entry, so the
+            // number is visible from whatever screen somebody is on.
+            $badge = $href === '/activity' && ($n = activity_total()) > 0
+                ? '<span class="nav-badge">' . (int) $n . '</span>'
+                : '';
+
+            printf('<a href="%s" class="%s">%s%s</a>',
+                   e($href), $here === $href ? 'on' : '', te($label), $badge);
+        };
+
+        // Wave 3: the role's daily screens first, in the order of its day;
+        // every other screen it may open folded under "More", by section.
+        $top = [];
         $grouped = [];
 
         foreach ($nav as [$href, $label, $need]) {
             if ($need !== null && ! can(...(array) $need)) { continue; }
-            $grouped[$navSections[$href] ?? 'Workspace'][] = [$href, $label];
+            if (in_array($href, $daily, true)) {
+                $top[$href] = $label;
+            } else {
+                $grouped[$navSections[$href] ?? 'Workspace'][] = [$href, $label];
+            }
+        }
+        uksort($top, fn ($a, $b) => array_search($a, $daily, true) <=> array_search($b, $daily, true));
+
+        if ($top) {
+            echo '<div class="nav-daily">';
+            foreach ($top as $href => $label) { $link($href, $label); }
+            echo '</div>';
         }
 
+        if (! $grouped) { return; }
+
+        // Without daily screens (a role with none listed) the sections stand
+        // on their own, as before.
+        $holdsAny = false;
+        ob_start();
         foreach ($grouped as $title => $links) {
             $holdsPage = (bool) array_filter($links, fn ($l) => $l[0] === $here);
+            $holdsAny = $holdsAny || $holdsPage;
 
             printf('<details class="nav-group" data-section="%s"%s><summary>%s</summary>',
                    e($title), $holdsPage ? ' open' : '', te($title));
-
-            foreach ($links as [$href, $label]) {
-                // The queue count rides on the Activity entry, so the
-                // number is visible from whatever screen somebody is on.
-                $badge = $href === '/activity' && ($n = activity_total()) > 0
-                    ? '<span class="nav-badge">' . (int) $n . '</span>'
-                    : '';
-
-                printf('<a href="%s" class="%s">%s%s</a>',
-                       e($href), $here === $href ? 'on' : '', te($label), $badge);
-            }
-
+            foreach ($links as [$href, $label]) { $link($href, $label); }
             echo '</details>';
         }
-    })($nav, $navSections, $here);
+        $sections = (string) ob_get_clean();
+
+        if (! $top) { echo $sections; return; }
+
+        printf('<details class="nav-more"%s><summary>%s</summary>%s</details>',
+               $holdsAny ? ' open' : '', te('More'), $sections);
+    })($nav, $navSections, $here, $u ? workspace_daily($u) : []);
     ?>  </nav>
   <?php if($u && !in_array($u['role'] ?? '',['worker','client'],true)): ?><form action="/search" method="get" class="workspace-search"><label class="sr-only" for="directory-search"><?= te('Search employee folders') ?></label><input id="directory-search" name="q" placeholder="<?= te('Search everything') ?>" aria-label="<?= te('Search everything') ?>"><button class="btn ghost sm"><?= te('Search') ?></button></form><?php endif; ?>
   <?php
