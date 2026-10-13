@@ -2261,4 +2261,24 @@ if (! $hadFolios) {
        . 'the client or the worker, then made the hotel\'s bill in Payables; ' . (int) val("SELECT COUNT(*) FROM lodging WHERE status <> 'cancelled'") . ' booking(s) to check against.' . PHP_EOL;
 }
 
+// ── P5-M18 (T7): campaign email ──
+// Reversed by install/rollback/p5-m18.sql.
+$campaignSql = __DIR__ . '/campaigns.sql';
+if (! is_file($campaignSql)) {
+    fwrite(STDERR, "Missing install/campaigns.sql\n");
+    exit(1);
+}
+$hadCampaigns = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='email_campaigns'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($campaignSql)) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='contact_preferences' AND column_name='no_email_since'")) {
+    q('ALTER TABLE contact_preferences ADD COLUMN no_email_since DATETIME NULL AFTER no_calls_since');
+}
+if (! $hadCampaigns) {
+    echo 'Campaign email: one email about a requisition to a filtered list, 50 every 5 minutes and at most 500 a day, with an unsubscribe link and the agency\'s postal address. '
+       . 'An administrator enters that address on Campaign email; then add the cron line for install/deliver-campaigns.php (docs/OPERATIONS.md).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

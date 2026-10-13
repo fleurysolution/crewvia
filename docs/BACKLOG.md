@@ -75,7 +75,7 @@ what stops the telephone.
 
 | # | Deliverable | Answers | Status |
 |---|---|---|---|
-| T7 | **Campaign email** to a filtered list, carrying the project, the rates and the per diem | R13 R14 | open |
+| T7 | **Campaign email** to a filtered list, carrying the project, the rates and the per diem | R13 R14 | done 13 Oct (P5-M18): filtered list, rates and per diem, unsubscribe and postal address, admin approval above 50, 50 per 5 min |
 | T8 | **Location filter** — state, city, and distance from the site | R20 | done 12 Oct (P5-M12): state, city, within N miles of a site or ZIP, on Candidates and Hiring |
 | T9 | Creating a requisition **surfaces the matching available candidates** | R19 | open |
 | T10 | Candidate portal shows the jobs they qualify for, and lets them express interest | R18 | done 12 Oct (P5-M13): Jobs for you, by trade and years, with I'm interested into Hiring |

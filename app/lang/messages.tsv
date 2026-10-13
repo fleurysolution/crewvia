@@ -3768,3 +3768,58 @@ hotel folios still open	folios d’hôtel encore ouverts	folios de hotel aún ab
 lateness disputes to settle	contestations de retard à régler	disputas de retraso por resolver
 on :n project(s)	sur :n projet(s)	en :n proyecto(s)
 open safety incidents	incidents de sécurité ouverts	incidentes de seguridad abiertos
+:n people match.	:n personnes correspondent.	:n personas coinciden.
+:name, you will no longer receive job offers by email from :agency.	:name, vous ne recevrez plus d’offres d’emploi par e-mail de :agency.	:name, ya no recibirá ofertas de empleo por correo de :agency.
+A campaign email to :n people waits for your approval.	Une campagne e-mail vers :n personnes attend votre approbation.	Una campaña de correo a :n personas espera su aprobación.
+Agency postal address	Adresse postale de l’agence	Dirección postal de la agencia
+All campaigns	Toutes les campagnes	Todas las campañas
+An administrator approves campaigns to more than :n people.	Un administrateur approuve les campagnes de plus de :n personnes.	Un administrador aprueba las campañas a más de :n personas.
+An administrator enters the postal address.	C’est un administrateur qui saisit l’adresse postale.	Un administrador ingresa la dirección postal.
+An administrator must enter the agency's postal address first: every campaign email carries it.	Un administrateur doit d’abord saisir l’adresse postale de l’agence : chaque e-mail de campagne la porte.	Un administrador debe ingresar primero la dirección postal de la agencia: cada correo de campaña la lleva.
+Any trade	Tout métier	Cualquier oficio
+Approve and send	Approuver et envoyer	Aprobar y enviar
+As the first person will read it	Tel que la première personne le lira	Tal como lo leerá la primera persona
+Ask for approval	Demander l’approbation	Pedir aprobación
+Campaign	Campagne	Campaña
+Campaign email	Campagne e-mail	Campaña de correo
+Campaigns cannot go out yet.	Les campagnes ne peuvent pas encore partir.	Las campañas aún no pueden enviarse.
+Choose an open requisition.	Choisissez une demande ouverte.	Elija una requisición abierta.
+Create the draft for these :n people	Créer le brouillon pour ces :n personnes	Crear el borrador para estas :n personas
+Draft ready. Check who it goes to and the sample, send yourself a test, then send it.	Brouillon prêt. Vérifiez les destinataires et l’exemple, envoyez-vous un test, puis envoyez-le.	Borrador listo. Revise los destinatarios y el ejemplo, envíese una prueba y luego envíelo.
+Email is not switched on for this installation (email_delivery_enabled and email_from).	L’e-mail n’est pas activé sur cette installation (email_delivery_enabled et email_from).	El correo no está activado en esta instalación (email_delivery_enabled y email_from).
+Email preferences	Préférences e-mail	Preferencias de correo
+Enter the full postal address, 10 to 300 characters.	Saisissez l’adresse postale complète, 10 à 300 caractères.	Ingrese la dirección postal completa, de 10 a 300 caracteres.
+Filled in for each person: :list. The unsubscribe link and the postal address are added at the foot.	Rempli pour chaque personne : :list. Le lien de désinscription et l’adresse postale sont ajoutés en bas.	Se completa para cada persona: :list. El enlace para darse de baja y la dirección postal se añaden al pie.
+It may have been copied incompletely. Nothing was changed.	Il a peut-être été copié de façon incomplète. Rien n’a été modifié.	Puede que se haya copiado de forma incompleta. No se cambió nada.
+Marked available	Marqué disponible	Marcado como disponible
+More than :n people: an administrator approves it before it goes.	Plus de :n personnes : un administrateur l’approuve avant l’envoi.	Más de :n personas: un administrador la aprueba antes del envío.
+Never included: people who unsubscribed, people on the do-not-rehire register, switched-off accounts, people with no valid email, and people already on this requisition.	Jamais inclus : les personnes désinscrites, celles du registre de non-réembauche, les comptes désactivés, les personnes sans e-mail valide et celles déjà sur cette demande.	Nunca se incluye: a quienes se dieron de baja, a quienes están en el registro de no recontratación, cuentas desactivadas, personas sin correo válido y quienes ya están en esta requisición.
+New campaign	Nouvelle campagne	Nueva campaña
+Nobody matches these filters.	Personne ne correspond à ces filtres.	Nadie coincide con estos filtros.
+On its way. It goes out :n at a time, every few minutes; an administrator approves it first when it is for more than :limit people.	En route. Elle part par :n toutes les quelques minutes ; un administrateur l’approuve d’abord si elle vise plus de :limit personnes.	En camino. Sale de :n en :n cada pocos minutos; un administrador la aprueba primero si es para más de :limit personas.
+One email about one requisition, with its pay, per diem and start, to a filtered list of the talent pool. People answer through their portal or the job's application page; first come, first served, and their interest arrives in Hiring.	Un e-mail sur une demande, avec sa rémunération, son indemnité journalière et sa date de début, envoyé à une liste filtrée du vivier. Les personnes répondent par leur portail ou la page de candidature du poste ; premier arrivé, premier servi, et leur intérêt arrive dans Recrutement.	Un correo sobre una requisición, con su pago, viático e inicio, a una lista filtrada de la bolsa de talento. Las personas responden por su portal o la página de solicitud del puesto; el primero que llega se queda con el puesto, y su interés llega a Contratación.
+Printed at the foot of every campaign email, with the unsubscribe link, as the law on commercial email expects.	Imprimée en bas de chaque e-mail de campagne, avec le lien de désinscription, comme le prévoit la loi sur les e-mails commerciaux.	Se imprime al pie de cada correo de campaña, con el enlace para darse de baja, como exige la ley sobre correo comercial.
+Save the address	Enregistrer l’adresse	Guardar la dirección
+See who it goes to	Voir les destinataires	Ver los destinatarios
+Sending	Envoi en cours	Enviando
+Skipped	Ignoré	Omitido
+Stop the emails	Arrêter les e-mails	Dejar de recibir correos
+Stop these job emails?	Arrêter ces e-mails d’emploi ?	¿Dejar de recibir estos correos de empleo?
+Test sent to your own email.	Test envoyé à votre propre e-mail.	Prueba enviada a su propio correo.
+That campaign does not exist.	Cette campagne n’existe pas.	Esa campaña no existe.
+That requisition is closed. Draft a campaign for an open one.	Cette demande est fermée. Préparez une campagne pour une demande ouverte.	Esa requisición está cerrada. Prepare una campaña para una abierta.
+The distance is ignored: the project's site has no city and state or ZIP code.	La distance est ignorée : le chantier du projet n’a ni ville et État ni code ZIP.	Se ignora la distancia: el sitio del proyecto no tiene ciudad y estado ni código ZIP.
+The email	L’e-mail	El correo
+The mail relay refused the test.	Le relais de messagerie a refusé le test.	El servidor de correo rechazó la prueba.
+There is nothing to test, or no email on your account.	Il n’y a rien à tester, ou pas d’e-mail sur votre compte.	No hay nada que probar, o su cuenta no tiene correo.
+This campaign is already on its way, or cancelled.	Cette campagne est déjà en route, ou annulée.	Esta campaña ya está en camino, o cancelada.
+This campaign is finished.	Cette campagne est terminée.	Esta campaña ha terminado.
+This campaign is not waiting for approval.	Cette campagne n’attend pas d’approbation.	Esta campaña no espera aprobación.
+This link is not valid	Ce lien n’est pas valide	Este enlace no es válido
+Waiting for an administrator	En attente d’un administrateur	Esperando a un administrador
+Who it goes to	Destinataires	Destinatarios
+Worked for the agency before	A déjà travaillé pour l’agence	Ya trabajó para la agencia
+Write a subject of 3 to 190 characters.	Rédigez un objet de 3 à 190 caractères.	Escriba un asunto de 3 a 190 caracteres.
+Write the message in 20 to 8000 characters.	Rédigez le message en 20 à 8000 caractères.	Escriba el mensaje en 20 a 8000 caracteres.
+You will not receive these job emails any more. You can still apply for jobs and use your portal.	Vous ne recevrez plus ces e-mails d’emploi. Vous pouvez toujours postuler et utiliser votre portail.	Ya no recibirá estos correos de empleo. Aún puede postularse y usar su portal.
+and :n more	et :n de plus	y :n más

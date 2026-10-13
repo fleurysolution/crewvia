@@ -51,6 +51,8 @@ if($path==='/docusign-webhook'){require __DIR__.'/../app/pages/docusign-webhook.
 if(str_starts_with($path,'/sync/')){require __DIR__.'/../app/pages/sync.php';exit;}
 // P5-M08: Twilio signs its callbacks; the signature is its authentication.
 if($path==='/twilio-webhook'){require __DIR__.'/../app/pages/twilio-webhook.php';exit;}
+// P5-M18: a campaign email's unsubscribe link carries its own secret token; mail programs post to it with no session (RFC 8058).
+if($path==='/unsubscribe'){require __DIR__.'/../app/pages/unsubscribe.php';exit;}
 csrf_check();
 
 if ($path === '/google-start') { require __DIR__.'/../app/pages/google-start.php'; exit; }
@@ -202,6 +204,7 @@ $routes = [
     '/my-jobs' => 'my-jobs',
     '/lateness' => 'lateness',
     '/folios' => 'folios',
+    '/campaigns' => 'campaigns',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',
