@@ -11,7 +11,7 @@ $f = flash();
 require_once __DIR__ . '/../navigation.php';
 require_once __DIR__ . '/../activity.php';
 $nav      = workspace_nav($u);
-$sections = workspace_sections();
+$sections = workspace_sections($u);
 $navSections=[];$navOrder=[];$position=0;
 foreach($sections as $section=>$links) foreach($links as $link){$navSections[$link]=$section;$navOrder[$link]=$position++;}
 usort($nav,fn($left,$right)=>($navOrder[$left[0]] ?? 999)<=>($navOrder[$right[0]] ?? 999));

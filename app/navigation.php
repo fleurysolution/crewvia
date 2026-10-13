@@ -201,8 +201,22 @@ function workspace_nav(?array $u): array
  *
  * @return array<string,list<string>>
  */
-function workspace_sections(): array
+function workspace_sections(?array $u = null): array
 {
+    // A worker or a supervisor sees their own menu in their own words: the
+    // desks' sections filed their contracts under "Hiring" and their HR
+    // record under "Administration".
+    if (in_array($u['role'] ?? '', ['worker', 'supervisor'], true)) {
+        return [
+            'My work' => ['/portal', '/my-jobs', '/my-team', '/my-tasks', '/project-tasks', '/project-board', '/workload', '/attendance', '/lateness', '/timeoff', '/procurement'],
+            'Safety and training' => ['/safety-plan', '/learning', '/my-training'],
+            'My papers' => ['/contracts', '/agreements', '/proofs', '/employment', '/employee-folder', '/checks', '/qualifications', '/screening-workflow'],
+            'My pay' => ['/self-service', '/my-payslips', '/expenses', '/benefits'],
+            'HR' => ['/hr-requests', '/hr-records', '/appraisals', '/performance', '/offboarding'],
+            'Messages and recognition' => ['/activity', '/notifications', '/comms', '/inbox', '/recognition', '/feedback', '/surveys', '/devices'],
+        ];
+    }
+
     return [
         'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],

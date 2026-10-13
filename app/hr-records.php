@@ -214,7 +214,9 @@ function case_decide(array $c, string $outcome, string $note): ?string
     case_note((int) $c['id'], 'decided', case_outcomes()[$outcome] . ' · ' . trim($note));
     hr_log('decided a case', (int) $c['candidate_id'], $c['reference'] . ' ' . $outcome);
     $worker = val('SELECT user_id FROM worker_accounts WHERE candidate_id = ?', [(int) $c['candidate_id']]);
-    if ($worker) {
+    if ($outcome === 'termination') {
+        hr_lock_access((int) $c['candidate_id'], 'Terminated: case ' . $c['reference']);
+    } elseif ($worker) {
         q('INSERT INTO notifications (user_id, message, target) VALUES (?,?,?)', [(int) $worker, 'An HR case about you has an outcome. Read it and give your account.', '/hr-records']);
     }
 
@@ -265,6 +267,33 @@ function case_close(array $c, string $note): ?string
     return null;
 }
 
+// ── locking access on termination (R31) ───────────────────────────────
+
+/**
+ * R31: "On termination their access is locked immediately." When a case is
+ * decided as a termination, or a separation is recorded as terminated, the
+ * person's portal account is switched off, every open session ends, and
+ * every trusted phone is revoked. Other endings (an assignment completed, a
+ * resignation) leave the portal open: people between jobs still read their
+ * pay statements and answer job offers there. An administrator can switch
+ * the account back on from People.
+ * Returns true when an active account was locked.
+ */
+function hr_lock_access(int $candidateId, string $why): bool
+{
+    $userId = (int) val('SELECT w.user_id FROM worker_accounts w JOIN users u ON u.id = w.user_id WHERE w.candidate_id = ? AND u.is_active = 1', [$candidateId]);
+    if (! $userId) {
+        return false;
+    }
+    q('UPDATE users SET is_active = 0 WHERE id = ?', [$userId]);
+    q('INSERT INTO account_security (user_id, session_version) VALUES (?, 1) ON DUPLICATE KEY UPDATE session_version = session_version + 1', [$userId]);
+    q("UPDATE device_grants SET revoked_at = NOW(), revoked_by = ?, revoke_reason = 'terminated' WHERE user_id = ? AND revoked_at IS NULL", [uid() ?: null, $userId]);
+    q('INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?,?,?,?)', [$candidateId, uid() ?: null, 'portal access locked', mb_substr($why, 0, 400)]);
+    log_activity('locked portal access on termination', 'user', $userId, $why);
+
+    return true;
+}
+
 // ── separations ─────────────────────────────────────────────────────────
 
 function separation_record(int $placementId, array $in): array
@@ -307,6 +336,9 @@ function separation_record(int $placementId, array $in): array
       [$placementId, (int) $p['candidate_id'], $on, $reason, $voluntary, mb_substr($detail, 0, 1000) ?: null, $rehire, $case ?: null, uid() ?: null]);
     $id = (int) db()->lastInsertId();
     hr_log('recorded a separation', (int) $p['candidate_id'], separation_reasons()[$reason]);
+    if ($reason === 'terminated') {
+        hr_lock_access((int) $p['candidate_id'], 'Terminated: separation on ' . $on);
+    }
 
     // The register is where every recruiter sees it (the existing rehire decision).
     q('INSERT IGNORE INTO employee_profiles (candidate_id) VALUES (?)', [(int) $p['candidate_id']]);

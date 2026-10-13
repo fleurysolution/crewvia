@@ -2281,4 +2281,25 @@ if (! $hadCampaigns) {
        . 'An administrator enters that address on Campaign email; then add the cron line for install/deliver-campaigns.php (docs/OPERATIONS.md).' . PHP_EOL;
 }
 
+// ── P5-M19: people terminated before the lock existed (R31) ──
+// From now on a termination switches the portal account off when it is
+// decided (app/hr-records.php hr_lock_access). People terminated before
+// that kept a working login, so their accounts are switched off here, once:
+// an account an administrator switches back on afterwards stays on.
+if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'termination_lock_swept'")) {
+    $terminated = rows("SELECT DISTINCT w.user_id, w.candidate_id FROM worker_accounts w JOIN users u ON u.id = w.user_id
+                        WHERE u.is_active = 1 AND (
+                              EXISTS (SELECT 1 FROM disciplinary_cases d WHERE d.candidate_id = w.candidate_id AND d.outcome = 'termination' AND d.status IN ('decided','closed'))
+                           OR EXISTS (SELECT 1 FROM separations s WHERE s.candidate_id = w.candidate_id AND s.reason = 'terminated'))");
+    foreach ($terminated as $t) {
+        q('UPDATE users SET is_active = 0 WHERE id = ?', [(int) $t['user_id']]);
+        q('INSERT INTO account_security (user_id, session_version) VALUES (?, 1) ON DUPLICATE KEY UPDATE session_version = session_version + 1', [(int) $t['user_id']]);
+        q("UPDATE device_grants SET revoked_at = NOW(), revoke_reason = 'terminated' WHERE user_id = ? AND revoked_at IS NULL", [(int) $t['user_id']]);
+        q("INSERT INTO candidate_events (candidate_id, event_type, detail) VALUES (?, 'portal access locked', 'Terminated before the termination lock existed: switched off by the upgrade')", [(int) $t['candidate_id']]);
+    }
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('termination_lock_swept', ?)", [date('Y-m-d H:i:s')]);
+    echo 'Termination lock: a termination now switches the worker\'s portal account off at once; ' . count($terminated)
+       . ' account(s) of people already terminated switched off now (an administrator can switch one back on from People).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

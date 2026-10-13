@@ -44,6 +44,52 @@ function assignment_review_criteria(bool $includeRetired = false): array
 }
 
 /** The grades, in words, so nobody has to remember what a D means. */
+/**
+ * Records how an assignment went: the grade, whether to have them back (with
+ * a reason when not), and the scores. One rule for the recruiter's Roster and
+ * the supervisor's My team. Returns the refusal, or null.
+ */
+function assignment_review_save(array $placement, array $in, int $by): ?string
+{
+    $grade = (string) ($in['grade'] ?? '');
+    if (! array_key_exists($grade, review_grades())) {
+        return t('Choose a grade for the assignment.');
+    }
+    $note = trim((string) ($in['note'] ?? ''));
+    if (mb_strlen($note) > 2000) {
+        return t('That note is too long.');
+    }
+    // Saying somebody should not come back is a claim about a person,
+    // so it carries a reason the way the register does.
+    $rehire = ($in['would_rehire'] ?? '1') === '1' ? 1 : 0;
+    if (! $rehire && $note === '') {
+        return t('Say why you would not have them back. It is the note the next recruiter reads.');
+    }
+    $pid = (int) $placement['id'];
+    db()->beginTransaction();
+    q('INSERT INTO assignment_reviews (placement_id, grade, would_rehire, note, reviewed_by)
+       VALUES (?,?,?,?,?)
+       ON DUPLICATE KEY UPDATE grade = VALUES(grade), would_rehire = VALUES(would_rehire),
+                               note = VALUES(note), reviewed_by = VALUES(reviewed_by),
+                               reviewed_at = NOW()',
+      [$pid, $grade, $rehire, $note !== '' ? $note : null, $by]);
+    $reviewId = (int) val('SELECT id FROM assignment_reviews WHERE placement_id = ?', [$pid]);
+    q('DELETE FROM assignment_review_scores WHERE review_id = ?', [$reviewId]);
+    foreach (assignment_review_criteria() as $slug => $label) {
+        $score = (int) ($in['score'][$slug] ?? 0);
+        if ($score >= 1 && $score <= 5) {
+            q('INSERT INTO assignment_review_scores (review_id, criterion_slug, score) VALUES (?,?,?)', [$reviewId, $slug, $score]);
+        }
+    }
+    db()->commit();
+    // On the person, not on the project, so it travels with them.
+    q('INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?,?,?,?)',
+      [(int) $placement['candidate_id'], $by, 'assignment review', $grade . ($rehire ? '' : ' - would not rehire') . ($note !== '' ? ' - ' . $note : '')]);
+    log_activity('reviewed an assignment', 'placement', $pid, $placement['full_name'] . ': ' . $grade);
+
+    return null;
+}
+
 function review_grades(): array
 {
     return [
