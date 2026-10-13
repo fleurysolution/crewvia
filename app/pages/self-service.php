@@ -15,6 +15,7 @@ if (! $cid) {
     return;
 }
 
-$home = self_service_home($cid);
-
-render('self-service', compact('home'));
+// Wave 2: the worker has one home, the portal, which holds all of this.
+// Only the language travels along, so an old link in French or Spanish stays in it.
+$lang = preg_replace('/[^a-z]/', '', strtolower((string) ($_GET['lang'] ?? '')));
+redirect('/portal' . ($lang !== '' ? '?lang=' . $lang : '') . '#self-service');

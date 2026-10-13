@@ -43,7 +43,7 @@ for path in ['/','/projects','/job','/candidates','/roster','/hotels','/travel',
 check('CSRF rejected',admin.post('/projects',{'title':'Invalid','client':'Invalid'},False)[0]==419)
 worker=Client();check('Worker login and private portal',worker.login('worker@test.invalid')[0]==200)
 body=worker.get('/portal')[1];check('Worker data isolation','worker2@test.invalid' not in body)
-check('Worker staff route redirected to portal','Your assignments' in worker.get('/people')[1])
+check('Worker staff route redirected to portal','id="assignments"' in worker.get('/people')[1])  # P5-M21: the portal is the worker's one home
 _,body=admin.post('/roster',{'do':'status','placement_id':data['ids'][0]['placement'],'status':'on_site'})
 check('Incomplete onboarding blocks deployment','onboarding tasks approved' in body or 'Configure and approve' in body)
 worker.post('/portal',{'task_id':data['task'],'response':'Orientation complete'})

@@ -24,7 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // P4-M06: a hash made with an older cost or algorithm is renewed while the password is at hand.
         if(password_needs_rehash($hash,PASSWORD_DEFAULT))q('UPDATE users SET password_hash=? WHERE id=?',[password_hash($pass,PASSWORD_DEFAULT),$u['id']]);
         security_rate_clear('login-email',$emailKey);security_rate_refund('login-ip',$ip);
-        $to=$_SESSION['intended']??'/';unset($_SESSION['intended']);
+        // Wave 2: each role opens on its own home when no page was asked for.
+        require_once __DIR__.'/../home.php';
+        $to=$_SESSION['intended']??home_for((string)$u['role']);unset($_SESSION['intended']);
         security_begin_login($u,is_string($to)?$to:'/');
     }
 

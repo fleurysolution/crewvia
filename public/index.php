@@ -205,6 +205,7 @@ $routes = [
     '/lateness' => 'lateness',
     '/folios' => 'folios',
     '/campaigns' => 'campaigns',
+    '/home' => 'home',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',

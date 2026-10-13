@@ -9,6 +9,7 @@ $u = user();
 $f = flash();
 
 require_once __DIR__ . '/../navigation.php';
+require_once __DIR__ . '/../home.php';
 require_once __DIR__ . '/../activity.php';
 $nav      = workspace_nav($u);
 $sections = workspace_sections($u);
@@ -606,7 +607,7 @@ input,select,textarea{border-color:#8a96a6}
 <a class="skip-link" href="#main"><?= te('Skip to the content') ?></a>
 
 <header class="top">
-  <div><div class="brand"><?= e($appName) ?></div><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
+  <div><a class="brand" href="<?= e($u ? home_for((string) $u['role']) : '/login') ?>" style="text-decoration:none;color:inherit"><?= e($appName) ?></a><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
   <?php if ($u): ?><button type="button" class="btn ghost sm nav-toggle" aria-controls="workspace-nav" aria-expanded="false"><?= te('Menu') ?></button><?php endif; ?>
   <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div>
     <?php
@@ -728,7 +729,8 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
   require $viewPath;
   $viewHtml = (string) ob_get_clean();
   $sectionLabel = $u ? workspace_section_of($layoutPath, $sections) : null;
-  if ($sectionLabel && ! str_contains(substr($viewHtml, 0, 1500), 'class="eyebrow"')) {
+  $titleEnd = strpos($viewHtml, '</h1>');
+  if ($sectionLabel && ! str_contains(substr($viewHtml, 0, $titleEnd !== false ? $titleEnd : 1500), 'class="eyebrow"')) {
       echo '<div class="page-eyebrow">' . te($sectionLabel) . '</div>';
   }
   echo $viewHtml;

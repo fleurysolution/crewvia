@@ -177,6 +177,16 @@ main { min-width: 0; }
 .scroll { overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; position: relative; }  /* relative: hidden screen-reader labels inside a table are clipped by it instead of widening the page */
 @media (max-width: 760px) { main .card { overflow-x: auto; } main .card > table { min-width: 560px; } }
 
+/* ── home pages (wave 2) ── */
+.home-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+.home-tile { display: block; text-decoration: none; color: inherit; padding: 18px; }
+.home-tile:hover { text-decoration: none; border-color: var(--blue, #346EB6); }
+.home-tile .n { font-size: 28px; font-weight: 700; line-height: 1.1; }
+.home-tile .l { font-size: 13px; color: var(--ui-muted, #5b6b7f); margin-top: 4px; }
+.home-tile.red .n { color: #c0392b; }
+.home-tile.amber .n { color: #b7791f; }
+@media (max-width: 900px) { .home-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 /* ── executive overview groups (T25) ── */
 .overview-groups{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin-bottom:14px}
 .overview-group h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}

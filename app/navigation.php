@@ -139,7 +139,6 @@ function workspace_nav(?array $u): array
                 ['/devices', 'Phones and notifications', null]];
 
         if ($crew) {
-            $nav[] = ['/self-service', 'My self-service', null];
             $nav[] = ['/portal', 'My portal', null];
             $nav[] = ['/my-jobs', 'Jobs for you', null];
             $nav[] = ['/hr-requests', 'My HR requests', null];
@@ -175,6 +174,11 @@ function workspace_nav(?array $u): array
                 ['/offboarding',        'Offboarding',                        null],
             ]);
         }
+    }
+
+    // Wave 2: the recruiting, Logistics and payroll desks open on Today.
+    if (in_array($u['role'] ?? '', ['recruiter', 'hotels', 'payroll'], true)) {
+        array_unshift($nav, ['/home', 'Today', null]);
     }
 
     if (($u['role'] ?? '') === 'supervisor') {
@@ -243,7 +247,7 @@ function workspace_sections(?array $u = null): array
     }
 
     return [
-        'Overview' => ['/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
+        'Overview' => ['/home', '/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
         'Recruiting' => ['/hiring', '/campaigns', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],

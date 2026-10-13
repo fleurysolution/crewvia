@@ -46,4 +46,12 @@ $jobsForYou=$jmWorkerRow?count(array_filter(jm_jobs_for($jmWorkerRow),static fn(
 // T20: hotel charges the worker pays, from reconciled folios, with what the hotel printed.
 require_once __DIR__.'/../folios.php';
 $hotelCharges=fo_worker_charges((int)$worker['id']);
-render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou','hotelCharges'));
+// Wave 2: one home. What self-service shows (what waits on them, a card per area) is part of it.
+require_once __DIR__.'/../hr-requests.php';
+$home=self_service_home((int)$worker['id']);
+$extraWaiting=[];
+$pendingTasks=count(array_filter($tasks,static fn($t)=>in_array($t['status'],['pending','rejected'],true)));
+if($pendingTasks){$extraWaiting[]=['#onboarding',t(':n onboarding task(s) to complete',['n'=>$pendingTasks]),'onboarding'];}
+$offers=count(array_filter($applications,static fn($a)=>$a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']));
+if($offers){$extraWaiting[]=['#applications',t(':n job offer(s) to answer',['n'=>$offers]),'offer'];}
+render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou','hotelCharges','home','extraWaiting'));

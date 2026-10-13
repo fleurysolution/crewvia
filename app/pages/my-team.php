@@ -19,4 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'review') 
 }
 $team = rows("SELECT p.id,p.status,c.full_name,d.trade,d.shift_label,j.title FROM assignment_details d JOIN placements p ON p.id=d.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN jobs j ON j.id=p.job_id WHERE d.supervisor_id=? AND p.status NOT IN ('completed','cancelled') ORDER BY j.title,c.full_name", [uid()]);
 $toGrade = rows($finishedSql . ' AND NOT EXISTS (SELECT 1 FROM assignment_reviews r WHERE r.placement_id = p.id) ORDER BY c.full_name', [uid()]);
-render('my-team', compact('team', 'toGrade'));
+require_once __DIR__ . '/../home.php';
+$today = home_supervisor(uid());
+render('my-team', compact('team', 'toGrade', 'today'));

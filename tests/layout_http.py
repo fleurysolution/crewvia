@@ -15,7 +15,7 @@ results = []
 ROLES = {'admin': 'admin@test.invalid', 'worker': 'worker@test.invalid', 'supervisor': 'supervisor@test.invalid', 'client': 'client@test.invalid'}
 # Detail pages that open with a back link and still have their own header: wave 4 converts them.
 PENDING = {'/appraisals', '/asset-valuation', '/assets', '/attendance-week', '/driver-checks', '/employee-folder', '/feedback', '/hours', '/leave-types',
-           '/my-training', '/pay-grades', '/performance', '/portal', '/proofs', '/report-builder', '/self-service', '/statements', '/surveys', '/training'}
+           '/my-training', '/pay-grades', '/performance', '/proofs', '/report-builder', '/statements', '/surveys', '/training'}
 SKIP = {'/logout', '/inbox'}
 
 
