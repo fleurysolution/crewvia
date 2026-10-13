@@ -1,4 +1,4 @@
-<h1><?= te('Billing') ?></h1>
+<div class="page-head"><div><h1><?= te('Billing') ?></h1>
 <p class="sub">
   <?= e($job['client_name'] ?? 'Client') ?> &middot; <?= e($job['title'] ?? '') ?>
   <?php if (empty($job['bill_rate'])): ?>
@@ -6,7 +6,7 @@
   <?php else: ?>
     &middot; billing at <?= money($job['bill_rate']) ?>/h against <?= money($job['pay_rate']) ?>/h paid
   <?php endif; ?>
-</p>
+</p></div></div>
 
 <form class="card" method="get" action="/billing">
   <div class="row">

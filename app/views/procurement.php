@@ -7,8 +7,8 @@ $otone = ['awaiting_approval' => 'amber', 'approved' => 'green', 'rejected' => '
 $buy = procurement_can_buy();
 $qty = static fn($q): string => rtrim(rtrim(number_format((float) $q, 2, '.', ''), '0'), '.');
 ?>
-<h1><?= te('Procurement') ?></h1>
-<p class="sub"><?= te('What the job needs - rooms, vehicles, safety equipment and the rest - from the request to the purchase order, its approval by the budget owner, what arrived, and what is still to be billed. There is no bidding: a quotation can be attached, and the order is raised from it.') ?></p>
+<div class="page-head"><div><h1><?= te('Procurement') ?></h1>
+<p class="sub"><?= te('What the job needs - rooms, vehicles, safety equipment and the rest - from the request to the purchase order, its approval by the budget owner, what arrived, and what is still to be billed. There is no bidding: a quotation can be attached, and the order is raised from it.') ?></p></div></div>
 
 <?php if (! $job): ?>
 <div class="card"><p class="muted"><?= te('Open a project first.') ?></p></div>

@@ -3,8 +3,8 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
              'haircut'=>'Haircuts','airport'=>'Airport','other'=>'Other'];
 ?>
 
-<h1><?= te('Travel') ?></h1>
-<p class="sub"><?= count($booked) ?> legs booked &middot; <?= count($needTravel) ?> still to book</p>
+<div class="page-head"><div><h1><?= te('Travel') ?></h1>
+<p class="sub"><?= count($booked) ?> legs booked &middot; <?= count($needTravel) ?> still to book</p></div></div>
 
 <?php if ($needTravel): ?>
 <div class="card tight">

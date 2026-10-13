@@ -158,6 +158,25 @@ td { padding: 9px 12px; }
 .empty-state { text-align: center; padding: 40px 20px; color: var(--ui-muted); }
 .empty-state h3 { color: var(--ui-ink); font-size: 15px; margin: 0 0 6px; }
 
+/* ── one page header everywhere (layout walkthrough, wave 1) ── */
+.page-eyebrow, .eyebrow { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue, #346EB6); margin: 0 0 4px; }
+.page-head, .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 0 0 18px; }
+.page-head h1, .page-heading h1 { margin: 0 0 4px; }
+.page-head .sub, .page-heading .sub { margin: 0; max-width: 820px; }
+.page-head > div:first-child, .page-heading > div:first-child { min-width: 0; flex: 1 1 420px; }
+.page-head > .actions, .page-heading > .btn, .page-heading > a.btn, .page-heading > .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+main > p.small:first-child, main > p:first-child > a:only-child { margin: 0 0 6px; font-size: 13px; }
+
+/* ── buttons keep their own size: a button alone in a grid cell or a form row used to stretch to fill it ── */
+.grid > button, .grid > .btn, .grid > input[type=submit] { justify-self: start; align-self: end; width: auto; }
+.row > button.btn, .row > .btn, .row > button { flex: 0 0 auto; width: auto; }
+form.card.row > button, form.row > button { flex: 0 0 auto; }
+
+/* ── a wide table scrolls inside its card on a phone; the page itself never does ── */
+main { min-width: 0; }
+.scroll { overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; position: relative; }  /* relative: hidden screen-reader labels inside a table are clipped by it instead of widening the page */
+@media (max-width: 760px) { main .card { overflow-x: auto; } main .card > table { min-width: 560px; } }
+
 /* ── executive overview groups (T25) ── */
 .overview-groups{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin-bottom:14px}
 .overview-group h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}

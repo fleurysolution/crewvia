@@ -1,5 +1,5 @@
-<h1><?= te('Team') ?></h1>
-<p class="sub"><?= count($team) ?> accounts &middot; a desk decides what somebody sees, not how senior they are</p>
+<div class="page-head"><div><h1><?= te('Team') ?></h1>
+<p class="sub"><?= count($team) ?> accounts &middot; a desk decides what somebody sees, not how senior they are</p></div></div>
 
 <div class="card tight">
   <div class="scroll">

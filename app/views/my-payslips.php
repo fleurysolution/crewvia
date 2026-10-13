@@ -1,5 +1,5 @@
-<h1><?= te('My pay statements') ?></h1>
-<p class="sub"><?= te('How each week was worked out, before taxes. Taxes are withheld by the payroll provider, whose statement is the official one.') ?></p>
+<div class="page-head"><div><h1><?= te('My pay statements') ?></h1>
+<p class="sub"><?= te('How each week was worked out, before taxes. Taxes are withheld by the payroll provider, whose statement is the official one.') ?></p></div></div>
 <div class="card">
   <?php if (! $slips): ?>
     <p class="muted"><?= te('No pay statement yet. One appears here once a week you worked has been approved for pay.') ?></p>

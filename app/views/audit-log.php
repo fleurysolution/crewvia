@@ -1,5 +1,5 @@
-<h1><?= te('Audit log') ?></h1>
-<p class="sub"><?= te('Every action recorded, with who did it, on what, and from which address. Nobody can change or delete an entry, here or in the database.') ?></p>
+<div class="page-head"><div><h1><?= te('Audit log') ?></h1>
+<p class="sub"><?= te('Every action recorded, with who did it, on what, and from which address. Nobody can change or delete an entry, here or in the database.') ?></p></div></div>
 <form method="get" class="card row" id="audit-filters">
   <label for="audit-user" class="sr-only"><?= te('Person') ?></label><select id="audit-user" name="user"><option value="0"><?= te('Everybody') ?></option><?php foreach ($people as $p): ?><option value="<?= (int) $p['id'] ?>"<?= $filters['user'] === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name'] . ' · ' . $p['role']) ?></option><?php endforeach; ?></select>
   <label for="audit-action" class="sr-only"><?= te('Action contains') ?></label><input id="audit-action" name="action" value="<?= e($filters['action']) ?>" placeholder="<?= te('Action contains') ?>" maxlength="60">

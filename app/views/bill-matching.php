@@ -7,9 +7,9 @@ $figures = static function (array $m): string {
     return t('Ordered :o · received :r · billed so far :b', ['o' => money($m['ordered']), 'r' => money($m['received_value']), 'b' => money($m['billed_through'])]);
 };
 ?>
-<h1><?= te('Bill matching') ?></h1>
+<div class="page-head"><div><h1><?= te('Bill matching') ?></h1>
 <p class="sub"><?= te('A bill against an order is paid only when it matches the order and what was received, within the tolerance, or when an administrator has cleared its exceptions with a reason.') ?>
-  <?= te('Tolerance: :p % or :a, whichever is more.', ['p' => rtrim(rtrim(number_format($tolerance['percent'], 2), '0'), '.'), 'a' => money($tolerance['amount'])]) ?></p>
+  <?= te('Tolerance: :p % or :a, whichever is more.', ['p' => rtrim(rtrim(number_format($tolerance['percent'], 2), '0'), '.'), 'a' => money($tolerance['amount'])]) ?></p></div></div>
 
 <div class="grid g4" style="margin-bottom:16px">
   <div class="stat"><div class="n" data-count="exceptions"><?= count($exceptions) ?></div><div class="l"><?= te('Exceptions to clear') ?></div></div>

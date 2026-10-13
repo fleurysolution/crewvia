@@ -8,8 +8,8 @@ $rcTone = ['requested' => 'blue', 'approved' => 'amber', 'declined' => 'red', 'f
            'nominated' => 'blue', 'won' => 'green', 'not_selected' => 'grey', 'withdrawn' => 'grey'];
 $rcSource = ['award' => t('Award'), 'kudos' => t('Thanks'), 'grant' => t('Granted'), 'redemption' => t('Reward'), 'refund' => t('Given back')];
 ?>
-<h1><?= te('Recognition') ?></h1>
-<p class="sub"><?= te('Thank the people you work with, nominate them for awards, and exchange points for rewards. Awards won by workers go into their HR record; performance reviews stay under Performance reviews.') ?></p>
+<div class="page-head"><div><h1><?= te('Recognition') ?></h1>
+<p class="sub"><?= te('Thank the people you work with, nominate them for awards, and exchange points for rewards. Awards won by workers go into their HR record; performance reviews stay under Performance reviews.') ?></p></div></div>
 
 <div class="grid g2" id="thanks">
   <form method="post" class="card" id="kudos-form"><?= csrf_field() ?><input type="hidden" name="do" value="kudos">

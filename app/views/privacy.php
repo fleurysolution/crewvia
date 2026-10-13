@@ -1,4 +1,4 @@
-<h1><?= te('Privacy notice') ?></h1>
+<div class="page-head"><div><h1><?= te('Privacy notice') ?></h1></div></div>
 <?php if ($notice): ?>
 <div class="card" id="privacy-notice" data-version="<?= (int) $notice['id'] ?>">
   <div style="white-space:pre-wrap;overflow-wrap:anywhere"><?= e($notice['body']) ?></div>

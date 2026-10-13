@@ -4,8 +4,8 @@ $ptPriority = pt_priorities();
 $ptStatusTone = ['todo' => 'grey', 'in_progress' => 'blue', 'blocked' => 'red', 'done' => 'green', 'cancelled' => 'grey'];
 $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'low' => 'grey'];
 ?>
-<h1><?= te('My tasks') ?></h1>
-<p class="sub"><?= te('What is assigned to you on every project, the open ones first. Move each along and say when something stops you.') ?></p>
+<div class="page-head"><div><h1><?= te('My tasks') ?></h1>
+<p class="sub"><?= te('What is assigned to you on every project, the open ones first. Move each along and say when something stops you.') ?></p></div></div>
 <div class="card" id="my-task-list" data-count="<?= count($tasks) ?>">
   <?php if (! $tasks): ?><p class="muted"><?= te('Nothing is assigned to you.') ?></p><?php else: ?>
   <?php foreach ($tasks as $tk): $late = $tk['due_on'] && $tk['due_on'] < $today && in_array($tk['status'], PT_OPEN, true); $closed = $tk['status'] === 'cancelled'; ?>

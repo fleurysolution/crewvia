@@ -2,8 +2,8 @@
 $names = ['gmail' => 'Gmail', 'docusign' => 'DocuSign', 'stripe' => 'Stripe', 'adp' => 'ADP', 'ats' => t('Applicant tracking'), 'twilio' => 'Twilio'];
 $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' => 'amber', 'failed' => 'red', 'refused' => 'red'];
 ?>
-<h1><?= te('Integrations') ?></h1>
-<p class="sub"><?= te('Gmail, DocuSign and Stripe: whether each is on, what waits, what failed, and every outcome kept. Settings and tokens are never shown here.') ?></p>
+<div class="page-head"><div><h1><?= te('Integrations') ?></h1>
+<p class="sub"><?= te('Gmail, DocuSign and Stripe: whether each is on, what waits, what failed, and every outcome kept. Settings and tokens are never shown here.') ?></p></div></div>
 
 <div class="grid g2" id="integration-status">
   <?php foreach ($status as $k => $s): ?>

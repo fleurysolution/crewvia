@@ -1,7 +1,7 @@
 <?php
 $pct = static fn(?float $v): string => $v === null ? '—' : number_format($v, 1) . '%';
 ?>
-<h1><?= te('Project costs') ?></h1>
+<div class="page-head"><div><h1><?= te('Project costs') ?></h1></div></div>
 <?php if (! $costs): ?>
 <p class="sub"><?= te('Select a project first.') ?></p>
 <?php else: ?>

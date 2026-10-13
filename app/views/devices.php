@@ -3,8 +3,8 @@ $dvState = ['active' => t('Trusted'), 'expired' => t('Expired'), 'ended' => t('R
 $dvTone = ['active' => 'green', 'expired' => 'grey', 'ended' => 'grey'];
 $here = $current && (int) $current['user_id'] === uid();
 ?>
-<h1><?= te('Trusted phones') ?></h1>
-<p class="sub"><?= te('A trusted phone keeps your hours (and, for a supervisor, gate marks) when there is no signal, and sends them when there is. It opens nothing else: no page, record, document or pay. It stays trusted for :n days, until you sign out on it, change your password, or remove it here.', ['n' => os_trust_days()]) ?></p>
+<div class="page-head"><div><h1><?= te('Trusted phones') ?></h1>
+<p class="sub"><?= te('A trusted phone keeps your hours (and, for a supervisor, gate marks) when there is no signal, and sends them when there is. It opens nothing else: no page, record, document or pay. It stays trusted for :n days, until you sign out on it, change your password, or remove it here.', ['n' => os_trust_days()]) ?></p></div></div>
 
 <div class="card" id="this-phone" data-trusted="<?= $here ? 1 : 0 ?>">
   <h2><?= te('This phone') ?></h2>

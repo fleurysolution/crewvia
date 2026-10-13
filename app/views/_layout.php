@@ -599,7 +599,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-group{width:100%}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=2">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=3">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -687,9 +687,10 @@ $unread  = $u ? (int) val('SELECT COUNT(*) FROM notifications
                            WHERE user_id = ? AND read_at IS NULL', [uid()]) : 0;
 $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
 ?>
-<?php if ($u && ($atADesk || $unread)): ?>
+<?php $onProject = $atADesk && workspace_project_page($here); ?>
+<?php if ($u && ($onProject || $unread)): ?>
   <div class="workbar">
-    <?php if ($atADesk): ?>
+    <?php if ($onProject): ?>
       <form method="post" action="/select-project" class="workbar-project">
         <?= csrf_field() ?>
         <label for="working-project"><?= te('Working project') ?></label>
@@ -719,7 +720,19 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
   <?php if ($f): ?>
     <div class="flash <?= $f['kind'] === 'err' ? 'err' : 'ok' ?>" role="<?= $f['kind'] === 'err' ? 'alert' : 'status' ?>"><?= e($f['msg']) ?></div>
   <?php endif; ?>
-  <?php require $viewPath; ?>
+  <?php
+  // Every page says which part of Crewvia it belongs to, above its title,
+  // unless the page names its own context there already.
+  $layoutPath = $here;   // saved first: a view may use $here for itself (devices.php does)
+  ob_start();
+  require $viewPath;
+  $viewHtml = (string) ob_get_clean();
+  $sectionLabel = $u ? workspace_section_of($layoutPath, $sections) : null;
+  if ($sectionLabel && ! str_contains(substr($viewHtml, 0, 1500), 'class="eyebrow"')) {
+      echo '<div class="page-eyebrow">' . te($sectionLabel) . '</div>';
+  }
+  echo $viewHtml;
+  ?>
 </main>
 
 <?php if($u && ($u['role'] ?? '')!=='client'): ?><script>

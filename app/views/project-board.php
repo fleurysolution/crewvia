@@ -4,7 +4,7 @@ $pbPriority = pt_priorities();
 $pbPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'low' => 'grey'];
 $pbSprintStatus = pp_sprint_statuses();
 ?>
-<h1><?= te('Project board') ?></h1>
+<div class="page-head"><div><h1><?= te('Project board') ?></h1></div></div>
 <?php if (! $job): ?>
 <p class="muted"><?= te('Open a project first: tasks belong to a project.') ?></p>
 <?php return; endif; ?>

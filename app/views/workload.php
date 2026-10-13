@@ -1,6 +1,6 @@
 <?php $wlHours = fn($h) => rtrim(rtrim(number_format((float) $h, 1, '.', ''), '0'), '.') ?: '0'; ?>
-<h1><?= te('Workload') ?></h1>
-<p class="sub"><?= te('Open task hours per person and week, against the hours each can give, less approved time off. A task past its date counts in this week; one without a date or an estimate is shown apart.') ?></p>
+<div class="page-head"><div><h1><?= te('Workload') ?></h1>
+<p class="sub"><?= te('Open task hours per person and week, against the hours each can give, less approved time off. A task past its date counts in this week; one without a date or an estimate is shown apart.') ?></p></div></div>
 
 <div class="card" id="workload" data-people="<?= count($workload['people']) ?>">
   <?php if (! $workload['people']): ?><p class="muted"><?= te('Nobody has open tasks.') ?></p><?php else: ?>

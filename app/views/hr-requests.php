@@ -1,8 +1,8 @@
 <?php
 $tone = ['open' => 'amber', 'answered' => 'blue', 'closed' => 'grey', 'withdrawn' => 'grey'];
 ?>
-<h1><?= $role === 'worker' ? te('My HR requests') : te('HR requests') ?></h1>
-<p class="sub"><?= te('Ask HR or payroll for a letter, a document, an answer about your pay or your schedule. Pay questions go to payroll; the rest to recruiting.') ?><?php if ($role === 'worker'): ?> <a href="/self-service"><?= te('My self-service') ?></a><?php endif; ?></p>
+<div class="page-head"><div><h1><?= $role === 'worker' ? te('My HR requests') : te('HR requests') ?></h1>
+<p class="sub"><?= te('Ask HR or payroll for a letter, a document, an answer about your pay or your schedule. Pay questions go to payroll; the rest to recruiting.') ?><?php if ($role === 'worker'): ?> <a href="/self-service"><?= te('My self-service') ?></a><?php endif; ?></p></div></div>
 
 <?php if ($mode === 'one'): ?>
 <div class="card" id="request" data-request="<?= e($r['reference']) ?>" data-request-status="<?= e($r['status']) ?>">

@@ -5,9 +5,9 @@ $url = static fn(string $s, $p = null): string => '/balances?side=' . $s . ($p !
 $totals = array_fill_keys(array_merge(array_keys($buckets), ['open', 'on_account', 'net']), 0.0);
 foreach ($aging as $a) { foreach ($totals as $k => $_) { $totals[$k] += $a[$k]; } }
 ?>
-<h1><?= $side === 'ar' ? te('What clients owe') : te('What we owe vendors') ?></h1>
+<div class="page-head"><div><h1><?= $side === 'ar' ? te('What clients owe') : te('What we owe vendors') ?></h1>
 <p class="sub"><a href="<?= e($url('ar')) ?>"<?= $side === 'ar' ? ' class="tag blue"' : '' ?>><?= te('Receivables') ?></a> · <a href="<?= e($url('ap')) ?>"<?= $side === 'ap' ? ' class="tag blue"' : '' ?>><?= te('Payables') ?></a>
-  · <?= te('A payment is recorded once and applied to invoices; what is not applied stays on account. Nothing is deleted: it is reversed, with a reason.') ?></p>
+  · <?= te('A payment is recorded once and applied to invoices; what is not applied stays on account. Nothing is deleted: it is reversed, with a reason.') ?></p></div></div>
 
 <div class="card scroll" id="aging"><h2><?= te('Aging') ?></h2>
   <?php if (! $aging): ?><p class="muted"><?= te('Nothing open.') ?></p><?php else: ?>

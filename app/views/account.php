@@ -1,6 +1,6 @@
-<h1><?= te('My account') ?></h1>
+<div class="page-head"><div><h1><?= te('My account') ?></h1>
 <p class="sub"><?= e($me['name'] ?? '') ?> &middot; <?= e(roles()[$me['role'] ?? ''] ?? '') ?>
-  &middot; <?= e($me['email'] ?? '') ?></p>
+  &middot; <?= e($me['email'] ?? '') ?></p></div></div>
 
 <?php if ((int) ($me['must_change_pw'] ?? 0) === 1): ?>
   <div class="flash err"><?= te('You are still on the temporary password you were given. Change it now.') ?></div>

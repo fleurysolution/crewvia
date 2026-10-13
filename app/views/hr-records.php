@@ -2,8 +2,8 @@
 $ctone = ['open' => 'amber', 'decided' => 'blue', 'closed' => 'grey'];
 $cstat = ['open' => t('Open'), 'decided' => t('Outcome recorded'), 'closed' => t('Closed')];
 ?>
-<h1><?= $role === 'worker' ? te('My HR record') : te('HR records') ?></h1>
-<p class="sub"><?= te('Recognition, disciplinary cases and why assignments ended. Cases and separations are seen only by administrators and those granted HR access; every opening is logged. A case is never edited: notes, the outcome and the person\'s own account are added to it.') ?></p>
+<div class="page-head"><div><h1><?= $role === 'worker' ? te('My HR record') : te('HR records') ?></h1>
+<p class="sub"><?= te('Recognition, disciplinary cases and why assignments ended. Cases and separations are seen only by administrators and those granted HR access; every opening is logged. A case is never edited: notes, the outcome and the person\'s own account are added to it.') ?></p></div></div>
 
 <?php if ($mode === 'case'): ?>
 <p><a href="/hr-records?candidate=<?= (int) $c['candidate_id'] ?>">← <?= e($c['full_name']) ?></a></p>

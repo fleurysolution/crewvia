@@ -6,8 +6,8 @@ $cost = static fn(array $p): string => $p['method'] === 'percent'
     : implode(' · ', array_map(fn($t) => benefit_tiers()[$t['tier']] . ' ' . money($t['employee_amount']) . ' + ' . money($t['employer_amount']), $p['tiers']));
 $stone = ['enrolled' => 'green', 'waived' => 'grey', 'ended' => 'grey'];
 ?>
-<h1><?= $role === 'worker' ? te('My benefits') : te('Benefits') ?></h1>
-<p class="sub"><?= te('What a plan costs the person comes off their pay each week, before tax unless the plan says otherwise; what the agency adds is its contribution. Coverage is never edited: a change ends one and starts the next.') ?></p>
+<div class="page-head"><div><h1><?= $role === 'worker' ? te('My benefits') : te('Benefits') ?></h1>
+<p class="sub"><?= te('What a plan costs the person comes off their pay each week, before tax unless the plan says otherwise; what the agency adds is its contribution. Coverage is never edited: a change ends one and starts the next.') ?></p></div></div>
 
 <?php if ($person): ?>
 <div class="card scroll" id="person-benefits"><h2><?= e($person['name']) ?></h2>

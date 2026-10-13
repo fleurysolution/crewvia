@@ -1,6 +1,6 @@
 <?php $healthTone = ['ok' => 'green', 'warn' => 'amber', 'fail' => 'red']; $healthLabel = ['ok' => t('OK'), 'warn' => t('Look at it'), 'fail' => t('Failing')]; ?>
-<h1><?= te('System health') ?></h1>
-<p class="sub"><?= te('The checks cron runs every hour, the backups, the scheduled jobs and the errors people met. A failing line here is also mailed by cron, if the health check is scheduled.') ?></p>
+<div class="page-head"><div><h1><?= te('System health') ?></h1>
+<p class="sub"><?= te('The checks cron runs every hour, the backups, the scheduled jobs and the errors people met. A failing line here is also mailed by cron, if the health check is scheduled.') ?></p></div></div>
 <div class="card" id="health-checks">
   <h2><?= te('Checks') ?></h2>
   <table><tr><th><?= te('Check') ?></th><th><?= te('State') ?></th><th><?= te('Found') ?></th></tr>

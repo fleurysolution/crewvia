@@ -195,6 +195,31 @@ function workspace_nav(?array $u): array
 }
 
 /**
+ * The pages that read the working project, where the project bar above the
+ * page means something. Elsewhere (Team, Settings, Integrations...) it only
+ * suggested the page depended on a project, and is not shown.
+ */
+function workspace_project_page(string $path): bool
+{
+    static $pages = ['/', '/accounts-payable', '/activity', '/advances', '/agency-setup', '/agreements', '/ai-review', '/appraisals', '/attendance', '/attendance-week', '/billing', '/channels', '/checks', '/client-invoices', '/comms', '/contracts', '/employment', '/expenses', '/folios', '/hotels', '/hours', '/imports', '/job', '/lateness', '/learning', '/manning', '/offboarding', '/onboarding', '/operations', '/organization', '/pay-rules', '/payroll-export', '/personnel', '/procurement', '/project-board', '/project-costs', '/project-tasks', '/qualifications', '/recruitment', '/requisitions', '/roster', '/safety-plan', '/screening-questions', '/screening-workflow', '/structure', '/timeoff', '/travel'];
+
+    return in_array($path, $pages, true) || (bool) preg_match('#^/(candidates|placements)/\d+$#', $path);
+}
+
+/** The sidebar section a path belongs to, for the label above its title. */
+function workspace_section_of(string $path, array $sections): ?string
+{
+    $path = preg_replace('#/\d+$#', '', $path) ?: '/';
+    foreach ($sections as $section => $links) {
+        if (in_array($path, $links, true)) {
+            return $section;
+        }
+    }
+
+    return null;
+}
+
+/**
  * The sidebar sections, in the order the business runs: find people, hire
  * them, send them, run the job, pay everyone, bill the client. Read top to
  * bottom it explains the product.

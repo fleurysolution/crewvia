@@ -7,8 +7,8 @@ $callOutcomes = contact_outcomes();
 $stages = candidate_stages();
 ?>
 
-<h1><?= te('Candidates') ?></h1>
-<p class="sub"><?= $total ?> on file &middot; <?= (int) ($counts['new'] ?? 0) ?> nobody has called yet</p>
+<div class="page-head"><div><h1><?= te('Candidates') ?></h1>
+<p class="sub"><?= $total ?> on file &middot; <?= (int) ($counts['new'] ?? 0) ?> nobody has called yet</p></div></div>
 
 <form class="card" method="get" action="/candidates">
   <div class="row">

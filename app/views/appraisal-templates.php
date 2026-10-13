@@ -2,8 +2,8 @@
 $locked = $edit && (int) $edit['used'] > 0;
 $v = static fn(string $col, $default) => $edit[$col] ?? $default;
 ?>
-<h1><?= te('Appraisal templates') ?></h1>
-<p class="sub"><?= te('What a review scores, how much each point counts, the scale and the grades. Once a review uses a template it is fixed; a new version is a new template.') ?></p>
+<div class="page-head"><div><h1><?= te('Appraisal templates') ?></h1>
+<p class="sub"><?= te('What a review scores, how much each point counts, the scale and the grades. Once a review uses a template it is fixed; a new version is a new template.') ?></p></div></div>
 <div class="card scroll" id="template-list">
   <table><tr><th><?= te('Template') ?></th><th><?= te('Kind') ?></th><th class="num"><?= te('Scale') ?></th><th class="num"><?= te('Criteria') ?></th><th class="num"><?= te('Reviews') ?></th><th></th></tr>
   <?php foreach ($templates as $tpl): ?>

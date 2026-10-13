@@ -1,11 +1,11 @@
-<h1><?= te('Hotels') ?></h1>
+<div class="page-head"><div><h1><?= te('Hotels') ?></h1>
 <p class="sub">
   <?= te(':count rooms booked',['count'=>count($booked)]) ?>
   &middot; <?= te(':count without a bed',['count'=>count($needBed)]) ?>
   <?php if ($sharing): ?>
     &middot; <span style="color:var(--red);font-weight:600"><?= te(':count sharing a room',['count'=>count($sharing)]) ?></span>
   <?php endif; ?>
-</p>
+</p></div></div>
 
 <?php if ($sharing): ?>
 <div class="card" style="border-color:#F0C4C1;background:#FDEEED">

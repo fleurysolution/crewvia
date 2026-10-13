@@ -183,7 +183,9 @@ probe('adp', fx['cn_ada'], 'P4A1')
 
 # ── a supervisor keeps to the projects they supervise ────────────────────
 sup = user('super')
-status, body = sup.get('/my-team')
+sup.get('/my-team')
+# P5-M20: the chooser shows on pages that read the working project (My team lists every crew of theirs).
+status, body = sup.get('/procurement')
 options = re.findall(r'<option value="(\d+)"', re.search(r'<select id="working-project".*?</select>', body, re.S)[0])
 check('A supervisor opens on their own project, and the chooser lists only the projects they supervise', options == [str(fx['job_crew'])], options)
 status, body = sup.post('/select-project', {'job_id': fx['job_other']})

@@ -1,5 +1,5 @@
-<h1><?= te('Privacy') ?></h1>
-<p class="sub"><?= te('The agency\'s privacy notice, the consents given to it, and the requests people make about their information. Every action here is logged.') ?></p>
+<div class="page-head"><div><h1><?= te('Privacy') ?></h1>
+<p class="sub"><?= te('The agency\'s privacy notice, the consents given to it, and the requests people make about their information. Every action here is logged.') ?></p></div></div>
 
 <form class="card" method="post" id="publish-form"><?= csrf_field() ?><input type="hidden" name="do" value="publish">
   <h2><?= te('Privacy notice') ?></h2>

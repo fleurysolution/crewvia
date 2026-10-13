@@ -12,8 +12,8 @@ $kpiValue = static function ($v, string $type): string {
 };
 ?>
 <?php if ($dashboard === null): ?>
-<h1><?= te('Dashboards') ?></h1>
-<p class="sub"><?= te('Measures read from the records and the ledger each time they are opened. Nothing here is entered or stored. Each dashboard you open is logged.') ?></p>
+<div class="page-head"><div><h1><?= te('Dashboards') ?></h1>
+<p class="sub"><?= te('Measures read from the records and the ledger each time they are opened. Nothing here is entered or stored. Each dashboard you open is logged.') ?></p></div></div>
 <div class="grid g2" id="dashboard-list">
   <?php foreach ($catalog as $k => $d): ?>
   <a class="card" href="/analytics?d=<?= e($k) ?>" data-dashboard="<?= e($k) ?>"><h2><?= te($d['title']) ?></h2><p class="muted"><?= te($d['about']) ?></p></a>

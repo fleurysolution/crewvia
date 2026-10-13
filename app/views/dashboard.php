@@ -3,7 +3,7 @@
 $pct = $target > 0 ? min(100, (int) round($placed / $target * 100)) : 0;
 ?>
 
-<h1><?= e($job['title'] ?? 'No active job') ?></h1>
+<div class="page-head"><div><h1><?= e($job['title'] ?? 'No active job') ?></h1>
 <p class="sub">
   <?php if ($job): ?>
     <?= e($job['client_name'] ?? 'Client') ?>
@@ -23,7 +23,7 @@ $pct = $target > 0 ? min(100, (int) round($placed / $target * 100)) : 0;
       <a class="btn" href="/projects" style="margin-left:8px"><?= te('Create the first project') ?></a>
     <?php endif; ?>
   <?php endif; ?>
-</p>
+</p></div></div>
 
 <?php
 /* What this product is for, in one line of the screen. Five steps in the

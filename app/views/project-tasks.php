@@ -4,7 +4,7 @@ $ptPriority = pt_priorities();
 $ptStatusTone = ['todo' => 'grey', 'in_progress' => 'blue', 'blocked' => 'red', 'done' => 'green', 'cancelled' => 'grey'];
 $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'low' => 'grey'];
 ?>
-<h1><?= te('Project tasks') ?></h1>
+<div class="page-head"><div><h1><?= te('Project tasks') ?></h1></div></div>
 <?php if (! $job): ?>
 <p class="muted"><?= te('Open a project first: tasks belong to a project.') ?></p>
 <?php return; endif; ?>

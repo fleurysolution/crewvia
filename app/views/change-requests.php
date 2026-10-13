@@ -1,5 +1,5 @@
-<h1><?= te('Change requests') ?></h1>
-<p class="sub"><?= te('What workers asked to change from their own folder. Nothing changes until it is accepted here; a refusal tells the worker why.') ?></p>
+<div class="page-head"><div><h1><?= te('Change requests') ?></h1>
+<p class="sub"><?= te('What workers asked to change from their own folder. Nothing changes until it is accepted here; a refusal tells the worker why.') ?></p></div></div>
 
 <?php if (can('payroll')): ?>
 <div class="card" id="bank-requests">

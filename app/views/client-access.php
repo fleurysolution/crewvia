@@ -1,5 +1,5 @@
-<h1><?= te('Client access') ?></h1>
-<p class="sub"><?= te('Client accounts see only authorized projects and business reports. Employee documents and payroll remain private.') ?></p>
+<div class="page-head"><div><h1><?= te('Client access') ?></h1>
+<p class="sub"><?= te('Client accounts see only authorized projects and business reports. Employee documents and payroll remain private.') ?></p></div></div>
 <div class="card" id="client-portal-switch" data-on="<?= $portalOn ? '1' : '0' ?>"><h2><?= te('Client portal') ?> <span class="tag <?= $portalOn ? 'green' : 'grey' ?>"><?= $portalOn ? te('On') : te('Off') ?></span></h2>
 <p class="small muted"><?= $portalOn ? te('Client accounts can sign in and see their authorized projects.') : te('Clients have no access to Crewvia: client accounts cannot sign in, and none can be created or granted a client.') ?></p>
 <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="portal"><input type="hidden" name="enabled" value="<?= $portalOn ? '0' : '1' ?>"><button class="btn <?= $portalOn ? 'ghost' : '' ?>"><?= $portalOn ? te('Switch the client portal off') : te('Switch the client portal on') ?></button></form></div>

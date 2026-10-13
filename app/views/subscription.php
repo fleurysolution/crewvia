@@ -1,5 +1,5 @@
-<h1><?= te('Subscription &amp; workspace') ?></h1>
-<p class="sub"><?= te('One company workspace, multiple operational projects. Employee email addresses remain personal identities.') ?></p>
+<div class="page-head"><div><h1><?= te('Subscription &amp; workspace') ?></h1>
+<p class="sub"><?= te('One company workspace, multiple operational projects. Employee email addresses remain personal identities.') ?></p></div></div>
 <?php if($error): ?><div class="flash err"><?= e($error) ?></div><?php endif; ?>
 <div class="grid g2"><section class="card"><h2><?= te('Commercial configuration') ?></h2>
 <p>Workspace: <?= e($config['tenant_id'] ?? 'Dedicated installation') ?></p>

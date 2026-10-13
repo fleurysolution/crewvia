@@ -6,8 +6,8 @@ $line = static fn($after, $mult): string => $after === null || $after === ''
 $tone = ['draft' => 'amber', 'active' => 'green', 'retired' => 'grey'];
 $draft = $current && $current['status'] === 'draft';
 ?>
-<h1><?= te('Pay rules') ?></h1>
-<p class="sub"><?= te('Overtime, double time, holidays and shift premiums, set per jurisdiction. A rule set is applied to nobody until an administrator activates it, naming who confirmed the values. Crewvia applies the rules; it does not decide what the law requires.') ?></p>
+<div class="page-head"><div><h1><?= te('Pay rules') ?></h1>
+<p class="sub"><?= te('Overtime, double time, holidays and shift premiums, set per jurisdiction. A rule set is applied to nobody until an administrator activates it, naming who confirmed the values. Crewvia applies the rules; it does not decide what the law requires.') ?></p></div></div>
 
 <div class="card" id="project-rules">
   <h2><?= te('This project') ?></h2>

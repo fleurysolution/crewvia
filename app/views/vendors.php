@@ -4,8 +4,8 @@ $soon = date('Y-m-d', strtotime('+30 days'));
 $tone = ['pending' => 'amber', 'approved' => 'green', 'suspended' => 'grey'];
 $who = ['budget_owner' => t('The budget owner'), 'admin' => t('An administrator'), 'both' => t('The budget owner and an administrator, two people')];
 ?>
-<h1><?= te('Vendors') ?></h1>
-<p class="sub"><?= te('Orders go only to an approved vendor, approved for what is bought, with a W-9 on file and insurance in date. Quotations stay notes on a request: there is no bid analysis.') ?></p>
+<div class="page-head"><div><h1><?= te('Vendors') ?></h1>
+<p class="sub"><?= te('Orders go only to an approved vendor, approved for what is bought, with a W-9 on file and insurance in date. Quotations stay notes on a request: there is no bid analysis.') ?></p></div></div>
 
 <div class="card scroll" id="vendor-list">
   <?php if (! $vendors): ?><p class="muted"><?= te('No vendor registered yet.') ?></p><?php else: ?>

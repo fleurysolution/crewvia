@@ -1,4 +1,4 @@
-<h1><?= te('Account security') ?></h1><p class="sub"><?= te('Protect your account with an authenticator and manage active sessions.') ?></p>
+<div class="page-head"><div><h1><?= te('Account security') ?></h1><p class="sub"><?= te('Protect your account with an authenticator and manage active sessions.') ?></p></div></div>
 <?php if($recoveryCodes): ?><div class="card"><h2><?= te('Save your recovery codes now') ?></h2><p><?= te('Each code works once. These codes are displayed only once; keep them somewhere private.') ?></p><?php foreach($recoveryCodes as $code): ?><p><code class="recovery-code"><?= e($code) ?></code></p><?php endforeach; ?></div><?php endif; ?>
 <div class="card"><h2><?= te('Two-step verification') ?></h2>
 <?php if(!$encryptionReady): ?><p><?= te('Configure a 32-byte encryption key.') ?></p><?php elseif($enabled): ?>

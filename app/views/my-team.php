@@ -1,4 +1,4 @@
-<h1><?= te('My supervised team') ?></h1><p class="sub"><?= te('Workers currently assigned to you. Coordinate through your private channels and review time-off requests.') ?></p><div class="grid g2"><?php foreach($team as $t): ?><div class="card"><h2><?= e($t['full_name']) ?></h2><p><?= e($t['title'].' · '.$t['trade'].' · '.$t['shift_label'].' · '.$t['status']) ?></p></div><?php endforeach; ?></div>
+<div class="page-head"><div><h1><?= te('My supervised team') ?></h1><p class="sub"><?= te('Workers currently assigned to you. Coordinate through your private channels and review time-off requests.') ?></p></div></div><div class="grid g2"><?php foreach($team as $t): ?><div class="card"><h2><?= e($t['full_name']) ?></h2><p><?= e($t['title'].' · '.$t['trade'].' · '.$t['shift_label'].' · '.$t['status']) ?></p></div><?php endforeach; ?></div>
 <?php if ($toGrade): ?>
 <section class="card" id="grading" style="margin-top:14px">
   <span class="eyebrow"><?= te('HOW IT WENT') ?></span>

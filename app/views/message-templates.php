@@ -1,6 +1,6 @@
 <?php $mtPurpose = msg_purposes(); $mtLang = msg_languages(); ?>
-<h1><?= te('Text messages') ?></h1>
-<p class="sub"><?= te('The wording texts are written from. Crewvia fills the placeholders from what it already holds, the text opens on your phone (or is copied for Google Voice), and it is logged in the person\'s contact history. Crewvia sends nothing itself.') ?></p>
+<div class="page-head"><div><h1><?= te('Text messages') ?></h1>
+<p class="sub"><?= te('The wording texts are written from. Crewvia fills the placeholders from what it already holds, the text opens on your phone (or is copied for Google Voice), and it is logged in the person\'s contact history. Crewvia sends nothing itself.') ?></p></div></div>
 <div class="grid g2">
   <div class="card scroll" id="templates" data-count="<?= count($templates) ?>"><h2><?= te('Messages') ?></h2>
     <table><?php foreach ($templates as $tpl): ?><tr data-template="<?= (int) $tpl['id'] ?>"<?= (int) $tpl['is_active'] ? '' : ' class="muted"' ?>>

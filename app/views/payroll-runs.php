@@ -3,8 +3,8 @@ $tone = ['open' => 'blue', 'submitted' => 'amber', 'approved' => 'green', 'locke
 $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t('Approved'), 'lock' => t('Locked'),
                'reopen' => t('Reopened'), 'adjustment' => t('Adjustment recorded')];
 ?>
-<h1><?= te('Pay periods') ?></h1>
-<p class="sub"><?= te('One period per week, across every project. Payroll submits it once every sheet is approved, an administrator who did not submit it approves it, and it is locked once paid. From submission on, nothing in the week changes: a later difference is an adjustment in an open period.') ?></p>
+<div class="page-head"><div><h1><?= te('Pay periods') ?></h1>
+<p class="sub"><?= te('One period per week, across every project. Payroll submits it once every sheet is approved, an administrator who did not submit it approves it, and it is locked once paid. From submission on, nothing in the week changes: a later difference is an adjustment in an open period.') ?></p></div></div>
 
 <div class="grid g2">
   <div class="card scroll">

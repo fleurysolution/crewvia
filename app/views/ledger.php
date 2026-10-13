@@ -13,8 +13,8 @@ $linesTable = static function (array $ls) use ($acctName, $amount): string {
     return $h . '</table>';
 };
 ?>
-<h1><?= te('Ledger') ?></h1>
-<p class="sub"><?= te('Crewvia keeps its own books. Each invoice, payment, credit note, bill, paid claim and payroll period posts itself here once, when it is recorded; nothing is keyed twice, and the QuickBooks export is drawn from these journals. Type a journal only for what Crewvia never sees: rent, insurance, bank fees, payroll taxes paid through ADP.') ?></p>
+<div class="page-head"><div><h1><?= te('Ledger') ?></h1>
+<p class="sub"><?= te('Crewvia keeps its own books. Each invoice, payment, credit note, bill, paid claim and payroll period posts itself here once, when it is recorded; nothing is keyed twice, and the QuickBooks export is drawn from these journals. Type a journal only for what Crewvia never sees: rent, insurance, bank fees, payroll taxes paid through ADP.') ?></p></div></div>
 
 <div class="card" id="ledger-integrity" data-ok="<?= $integrity['ok'] ? '1' : '0' ?>" data-checked="<?= (int) $integrity['checked'] ?>" data-broken="<?= (int) $integrity['broken'] ?>" data-triggers="<?= (int) $integrity['triggers'] ?>" data-synced="<?= (int) $synced ?>" data-drift="<?= count($drift) ?>">
   <h2><?= te('Integrity') ?></h2>

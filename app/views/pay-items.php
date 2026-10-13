@@ -1,5 +1,5 @@
-<h1><?= te('Pay items') ?></h1>
-<p class="sub"><?= te('Deductions agreed with people, and contributions the employer pays on top. They prepare gross to net before taxes; the payroll provider withholds taxes.') ?></p>
+<div class="page-head"><div><h1><?= te('Pay items') ?></h1>
+<p class="sub"><?= te('Deductions agreed with people, and contributions the employer pays on top. They prepare gross to net before taxes; the payroll provider withholds taxes.') ?></p></div></div>
 
 <div class="card scroll" id="pay-item-list">
   <table>
