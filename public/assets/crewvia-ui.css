@@ -158,6 +158,21 @@ td { padding: 9px 12px; }
 .empty-state { text-align: center; padding: 40px 20px; color: var(--ui-muted); }
 .empty-state h3 { color: var(--ui-ink); font-size: 15px; margin: 0 0 6px; }
 
+/* ── executive overview groups (T25) ── */
+.overview-groups{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.overview-group h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.overview-figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.overview-figures .n{font-size:24px;font-weight:700;line-height:1.1}
+.overview-figures .l{font-size:12px;color:var(--ui-muted,#5b6b7f);margin-top:2px}
+.overview-figures.money .n{font-size:20px;overflow-wrap:anywhere}
+.overview-sub{margin-top:10px;font-size:13px}
+.attention-list{list-style:none;margin:0;padding:0}
+.attention-list li{padding:5px 0;border-bottom:1px solid var(--ui-line,#e3e8ef);font-size:13px}
+.attention-list li:last-child{border-bottom:0}
+.attention-list .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;background:#b7791f}
+.attention-list .dot.red{background:#c0392b}
+@media (max-width:1100px){.overview-groups{grid-template-columns:1fr}}
+
 /* ── jobs list ── */
 .counts { display: flex; gap: 18px; }
 .counts a { display: flex; flex-direction: column; font-size: 12px; color: var(--ui-muted); line-height: 1.2; }

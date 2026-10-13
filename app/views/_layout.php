@@ -599,7 +599,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-group{width:100%}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=1">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=2">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>

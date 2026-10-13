@@ -114,7 +114,7 @@ what stops the telephone.
 | T22 | Port **SOPs & Procedures** from BPMS247 | — | open |
 | T23 | Port **Collaboration** from BPMS247 | — | open |
 | T24 | **Cron to drain the outbound email queue** — mail is generated, nothing sends it on a schedule | — | open |
-| T25 | Executive overview layout: better grouping above the project table | R40 | open |
+| T25 | Executive overview layout: better grouping above the project table | R40 | done 13 Oct (P5-M16): People, this week's money, needs somebody today; stage chips on the table |
 
 ---
 
