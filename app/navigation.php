@@ -138,6 +138,7 @@ function workspace_nav(?array $u): array
         if ($crew) {
             $nav[] = ['/self-service', 'My self-service', null];
             $nav[] = ['/portal', 'My portal', null];
+            $nav[] = ['/my-jobs', 'Jobs for you', null];
             $nav[] = ['/hr-requests', 'My HR requests', null];
         }
 

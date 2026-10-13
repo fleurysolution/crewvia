@@ -39,4 +39,8 @@ $travel=rows("SELECT t.* FROM travel t JOIN placements p ON p.id=t.placement_id 
 $routes=rows('SELECT s.runs_on,s.depart_time,s.driver,r.pickup_stop FROM route_passengers r JOIN shuttle_runs s ON s.id=r.run_id JOIN placements p ON p.id=r.placement_id WHERE p.candidate_id=? AND s.runs_on>=CURDATE() ORDER BY s.runs_on,s.depart_time',[$worker['id']]);
 $details=rows('SELECT j.title,d.trade,d.shift_label,u.name supervisor FROM assignment_details d JOIN placements p ON p.id=d.placement_id JOIN jobs j ON j.id=p.job_id LEFT JOIN users u ON u.id=d.supervisor_id WHERE p.candidate_id=?',[$worker['id']]);
 $applications=rows("SELECT a.*,EXISTS(SELECT 1 FROM employment_contracts c WHERE c.application_id=a.id) has_contract,COALESCE((SELECT required_before_deployment FROM contract_policies WHERE job_id=v.job_id),0) contract_required,v.title,j.title project,(SELECT note FROM application_events ev WHERE ev.application_id=a.id AND ev.stage='offered' ORDER BY ev.id DESC LIMIT 1) offer_text FROM applications a JOIN vacancies v ON v.id=a.vacancy_id JOIN jobs j ON j.id=v.job_id WHERE a.candidate_id=?",[$worker['id']]);
-render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications'));
+// T10: how many open jobs fit this file and are not yet answered.
+require_once __DIR__.'/../job-matches.php';
+$jmWorkerRow=jm_worker();
+$jobsForYou=$jmWorkerRow?count(array_filter(jm_jobs_for($jmWorkerRow),static fn($j)=>!$j['application']||$j['application']['stage']==='withdrawn')):0;
+render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou'));

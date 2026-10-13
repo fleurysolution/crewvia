@@ -6,43 +6,7 @@
     <?= te('These decide whether this job is a fit, so answer them as they are.') ?>
   </p>
 
-  <?php foreach ($screening as $question): ?>
-    <?php $name = 'screening[' . (int) $question['id'] . ']'; ?>
-    <div class="field">
-      <label for="sq-<?= (int) $question['id'] ?>">
-        <?= e($question['question']) ?>
-      </label>
-
-      <?php if ($question['answer_type'] === 'yes_no'): ?>
-        <div class="answer-choices">
-          <?php foreach (['Yes', 'No'] as $option): ?>
-            <label class="own-room">
-              <input type="radio" name="<?= e($name) ?>" value="<?= e($option) ?>"
-                     <?= $question['required'] ? 'required' : '' ?>>
-              <?= te($option) ?>
-            </label>
-          <?php endforeach; ?>
-        </div>
-
-      <?php elseif ($question['answer_type'] === 'choice'): ?>
-        <select id="sq-<?= (int) $question['id'] ?>" name="<?= e($name) ?>"
-                <?= $question['required'] ? 'required' : '' ?>>
-          <option value=""><?= te('Choose') ?></option>
-          <?php foreach (screening_choices($question) as $option): ?>
-            <option value="<?= e($option) ?>"><?= e($option) ?></option>
-          <?php endforeach; ?>
-        </select>
-
-      <?php elseif ($question['answer_type'] === 'number'): ?>
-        <input id="sq-<?= (int) $question['id'] ?>" name="<?= e($name) ?>"
-               type="number" step="any" <?= $question['required'] ? 'required' : '' ?>>
-
-      <?php else: ?>
-        <input id="sq-<?= (int) $question['id'] ?>" name="<?= e($name) ?>"
-               maxlength="4000" <?= $question['required'] ? 'required' : '' ?>>
-      <?php endif; ?>
-    </div>
-  <?php endforeach; ?>
+  <?php require __DIR__ . '/_screening-fields.php'; ?>
 <?php endif; ?>
 
 <label><input type="checkbox" name="consent" required style="width:auto"> <?= te('I authorize the hiring agency to review my application and contact me about opportunities.') ?></label> <a href="/privacy" target="_blank" rel="noopener"><?= te('Read the privacy notice') ?></a><button class="btn"><?= te('Apply') ?></button></form>
