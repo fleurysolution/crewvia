@@ -43,4 +43,7 @@ $applications=rows("SELECT a.*,EXISTS(SELECT 1 FROM employment_contracts c WHERE
 require_once __DIR__.'/../job-matches.php';
 $jmWorkerRow=jm_worker();
 $jobsForYou=$jmWorkerRow?count(array_filter(jm_jobs_for($jmWorkerRow),static fn($j)=>!$j['application']||$j['application']['stage']==='withdrawn')):0;
-render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou'));
+// T20: hotel charges the worker pays, from reconciled folios, with what the hotel printed.
+require_once __DIR__.'/../folios.php';
+$hotelCharges=fo_worker_charges((int)$worker['id']);
+render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou','hotelCharges'));

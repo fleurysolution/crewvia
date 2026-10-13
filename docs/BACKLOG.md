@@ -102,7 +102,7 @@ what stops the telephone.
 | T17 | Pay and bill computed from validated hours | R25 R27 | open |
 | T18 | **Per diem rules**, including a missed day | R28 | open |
 | T19 | **Lateness deduction** with the reason visible to the worker | R29 | done 12 Oct (P5-M14): arrival vs shift start, grace then rounded up, reason shown, worker disputes, payroll settles |
-| T20 | Weekly **hotel folio** reconciliation | R30 | open |
+| T20 | Weekly **hotel folio** reconciliation | R30 | done 13 Oct (P5-M15): folio against bookings, differences explained, incidentals per payer, one-click bill in Payables |
 | T21 | Worker sees only their own hours, only while active; **access locked on termination** | R31 | open |
 
 ---

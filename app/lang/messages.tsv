@@ -3669,3 +3669,82 @@ Your late arrival on :date was settled: :decision.	Votre retard du :date a été
 minutes	minutes	minutos
 shift :time	quart :time	turno :time
 week approved for pay	semaine approuvée pour la paie	semana aprobada para pago
+:n line(s) still need a note for the difference, or who pays.	:n ligne(s) attendent encore une note pour l’écart, ou qui paie.	:n línea(s) aún necesitan una nota para la diferencia, o quién paga.
+:n night(s) at :rate	:n nuit(s) à :rate	:n noche(s) a :rate
+:n to check	:n à vérifier	:n por revisar
+A bill from this hotel with this reference is already in Payables.	Une facture de cet hôtel avec cette référence est déjà dans les Fournisseurs.	Ya hay una factura de este hotel con esta referencia en Cuentas por pagar.
+A charge to a worker is shown to them on their portal with what the hotel printed. Payroll recovers it with an adjustment they approve; nothing is taken from pay on its own.	Une charge imputée à un employé lui est montrée sur son portail avec le libellé de l’hôtel. La paie la récupère par un ajustement qu’elle approuve ; rien n’est retenu sur la paie automatiquement.	Un cargo a un trabajador se le muestra en su portal con lo que imprimió el hotel. Nómina lo recupera con un ajuste que aprueba; nunca se descuenta del pago por sí solo.
+A folio is for a week that has started.	Un folio concerne une semaine déjà commencée.	Un folio es de una semana que ya comenzó.
+A folio with nothing billed cannot be reconciled.	Un folio sans rien de facturé ne peut pas être rapproché.	Un folio sin nada facturado no se puede conciliar.
+A guest Crewvia did not book	Un client que Crewvia n’a pas réservé	Un huésped que Crewvia no reservó
+A tax	Une taxe	Un impuesto
+Agency :a · Client :c · Workers :w	Agence :a · Client :c · Employés :w	Agencia :a · Cliente :c · Trabajadores :w
+All folios	Tous les folios	Todos los folios
+An amount above 0.	Un montant supérieur à 0.	Un importe mayor que 0.
+An incidental	Un extra	Un gasto adicional
+Any day of the week	Un jour de la semaine	Cualquier día de la semana
+As printed	Tel qu’imprimé	Tal como está impreso
+Bill in Payables	Facture dans les Fournisseurs	Factura en Cuentas por pagar
+Billed by the hotel	Facturé par l’hôtel	Facturado por el hotel
+Billed on night(s) the worker was absent at roll call	Facturé pour des nuits où l’employé était absent à l’appel	Facturado en noche(s) en que el trabajador estuvo ausente en el pase de lista
+Charges the hotel billed for your room that the agency asks you to pay. Payroll recovers them with an adjustment they approve; ask payroll if one is wrong.	Les frais facturés par l’hôtel pour votre chambre que l’agence vous demande de payer. La paie les récupère par un ajustement qu’elle approuve ; adressez-vous à la paie si l’un est faux.	Cargos que el hotel facturó por su habitación y que la agencia le pide pagar. Nómina los recupera con un ajuste que aprueba; consulte a nómina si alguno es incorrecto.
+Choose a hotel.	Choisissez un hôtel.	Elija un hotel.
+Choose the week.	Choisissez la semaine.	Elija la semana.
+Choose which guest pays it.	Choisissez quel client le paie.	Elija qué huésped lo paga.
+Client (rebill)	Client (refacturé)	Cliente (refacturar)
+Describe the charge as the hotel printed it.	Décrivez la charge comme l’hôtel l’a imprimée.	Describa el cargo como lo imprimió el hotel.
+Each hotel's weekly folio, checked against the rooms booked in Crewvia. Open one and it starts with a line for every guest booked that week; correct the lines to what the hotel billed, explain each difference, then turn it into the hotel's bill.	Le folio hebdomadaire de chaque hôtel, vérifié par rapport aux chambres réservées dans Crewvia. Ouvrez-en un : il commence avec une ligne par client réservé cette semaine ; corrigez les lignes selon la facturation de l’hôtel, expliquez chaque écart, puis faites-en la facture de l’hôtel.	El folio semanal de cada hotel, comparado con las habitaciones reservadas en Crewvia. Abra uno y empieza con una línea por cada huésped reservado esa semana; corrija las líneas según lo que facturó el hotel, explique cada diferencia y conviértalo en la factura del hotel.
+Enter the folio number the hotel printed on it.	Saisissez le numéro de folio imprimé par l’hôtel.	Ingrese el número de folio que imprimió el hotel.
+Fewer nights than booked	Moins de nuits que réservées	Menos noches de las reservadas
+Folio :ref	Folio :ref	Folio :ref
+Folio number	Numéro de folio	Número de folio
+Folio opened with a line for each guest booked that week. Correct each line to what the hotel billed.	Folio ouvert avec une ligne par client réservé cette semaine. Corrigez chaque ligne selon la facturation de l’hôtel.	Folio abierto con una línea por cada huésped reservado esa semana. Corrija cada línea según lo que facturó el hotel.
+Folio reconciled.	Folio rapproché.	Folio conciliado.
+Folios opened for this project appear here, week by week.	Les folios ouverts pour ce projet apparaissent ici, semaine par semaine.	Los folios abiertos para este proyecto aparecen aquí, semana por semana.
+Give the bill its due date.	Indiquez l’échéance de la facture.	Indique la fecha de vencimiento de la factura.
+Give the guest's name as the hotel printed it.	Indiquez le nom du client tel que l’hôtel l’a imprimé.	Indique el nombre del huésped tal como lo imprimió el hotel.
+Guest	Client	Huésped
+Guest or charge	Client ou charge	Huésped o cargo
+Hotel charges to you	Frais d’hôtel à votre charge	Cargos de hotel a su cargo
+Hotel folios	Folios d’hôtel	Folios de hotel
+Incidental	Extra	Gasto adicional
+Laundry	Blanchisserie	Lavandería
+Lines to check	Lignes à vérifier	Líneas por revisar
+Make it the hotel's bill	En faire la facture de l’hôtel	Convertirlo en la factura del hotel
+More nights than booked	Plus de nuits que réservées	Más noches de las reservadas
+Nights	Nuits	Noches
+Nights are 0 to 7, and the nightly rate a number.	Les nuits vont de 0 à 7, et le tarif par nuit est un nombre.	Las noches son de 0 a 7 y la tarifa por noche un número.
+No booking in Crewvia for this guest	Aucune réservation dans Crewvia pour ce client	No hay reserva en Crewvia para este huésped
+No folio yet	Aucun folio pour l’instant	Aún no hay folios
+Not booked	Non réservé	No reservado
+Note or payer	Note ou payeur	Nota o pagador
+Occupancy tax	Taxe de séjour	Impuesto de hospedaje
+Open a folio	Ouvrir un folio	Abrir un folio
+Open in Payables	Ouvrir dans les Fournisseurs	Abrir en Cuentas por pagar
+Open the folio	Ouvrir le folio	Abrir el folio
+Payment due	Échéance du paiement	Vencimiento del pago
+Payroll turns a folio into a bill.	C’est la paie qui fait d’un folio une facture.	Nómina convierte un folio en factura.
+Rate differs from the booking	Le tarif diffère de la réservation	La tarifa difiere de la reserva
+Ready to reconcile	Prêt à rapprocher	Listo para conciliar
+Reconcile	Rapprocher	Conciliar
+Reconcile the folio first.	Rapprochez d’abord le folio.	Primero concilie el folio.
+Reconciled	Rapproché	Conciliado
+Remove the line	Supprimer la ligne	Quitar la línea
+Rooms as booked: :amount	Chambres telles que réservées : :amount	Habitaciones según la reserva: :amount
+Say who pays it: the agency, the client, or the worker.	Indiquez qui paie : l’agence, le client ou l’employé.	Indique quién paga: la agencia, el cliente o el trabajador.
+Tax	Taxe	Impuesto
+That folio is not on this project.	Ce folio n’appartient pas à ce projet.	Ese folio no es de este proyecto.
+The due date is not a date.	L’échéance n’est pas une date.	La fecha de vencimiento no es una fecha.
+The folio is now the hotel's bill in Payables.	Le folio est maintenant la facture de l’hôtel dans les Fournisseurs.	El folio es ahora la factura del hotel en Cuentas por pagar.
+This folio is already a bill in Payables.	Ce folio est déjà une facture dans les Fournisseurs.	Este folio ya es una factura en Cuentas por pagar.
+This folio is already a bill in Payables. Correct the bill there.	Ce folio est déjà une facture dans les Fournisseurs. Corrigez la facture là-bas.	Este folio ya es una factura en Cuentas por pagar. Corrija la factura allí.
+This folio is already reconciled.	Ce folio est déjà rapproché.	Este folio ya está conciliado.
+This folio is open already.	Ce folio est déjà ouvert.	Este folio ya está abierto.
+This folio is reconciled. Reopen it to change a line.	Ce folio est rapproché. Rouvrez-le pour modifier une ligne.	Este folio está conciliado. Reábralo para cambiar una línea.
+This hotel already has a folio for that week on this project.	Cet hôtel a déjà un folio pour cette semaine sur ce projet.	Este hotel ya tiene un folio para esa semana en este proyecto.
+Which guest	Quel client	Qué huésped
+Which guest, when the worker pays	Quel client, quand l’employé paie	Qué huésped, cuando paga el trabajador
+Who pays?	Qui paie ?	¿Quién paga?
+Why the difference is right	Pourquoi l’écart est justifié	Por qué la diferencia es correcta
+due :date	échéance :date	vence :date
+week ending :date	semaine se terminant le :date	semana que termina el :date

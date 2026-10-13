@@ -2244,4 +2244,21 @@ if (! $hadLateness) {
        . 'and can dispute. No project has a shift start yet; payroll sets them on Lateness.' . PHP_EOL;
 }
 
+// ── P5-M15 (T20): weekly hotel folio reconciliation ──
+// Reversed by install/rollback/p5-m15.sql.
+$folioSql = __DIR__ . '/folios.sql';
+if (! is_file($folioSql)) {
+    fwrite(STDERR, "Missing install/folios.sql\n");
+    exit(1);
+}
+$hadFolios = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='hotel_folios'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($folioSql)) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! $hadFolios) {
+    echo 'Hotel folios: each hotel\'s weekly folio checked against the rooms booked, every difference explained, incidentals charged to the agency, '
+       . 'the client or the worker, then made the hotel\'s bill in Payables; ' . (int) val("SELECT COUNT(*) FROM lodging WHERE status <> 'cancelled'") . ' booking(s) to check against.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

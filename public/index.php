@@ -201,6 +201,7 @@ $routes = [
     '/hiring' => 'hiring',
     '/my-jobs' => 'my-jobs',
     '/lateness' => 'lateness',
+    '/folios' => 'folios',
     '/subscription' => 'subscription',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',
