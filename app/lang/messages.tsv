@@ -3603,3 +3603,69 @@ Your years of experience are not on your file yet.	Vos années d’expérience n
 per diem :rate	indemnité journalière :rate	viático :rate
 since :date	depuis le :date	desde el :date
 ≈ :n mi from you	≈ :n mi de chez vous	≈ :n mi de usted
+:n lateness dispute(s) in this week. Settle them on Lateness, re-import the hours, then approve.	:n contestation(s) de retard cette semaine. Réglez-les dans Retards, réimportez les heures, puis approuvez.	:n disputa(s) de retraso esta semana. Resuélvalas en Retrasos, vuelva a importar las horas y luego apruebe.
+:n min	:n min	:n min
+A crew member on another shift	Un membre de l’équipe sur un autre horaire	Un miembro del equipo en otro turno
+A late arrival is already recorded for that day.	Un retard est déjà enregistré pour ce jour.	Ya hay un retraso registrado para ese día.
+A late arrival is measured against the shift start. Within the grace period nothing is docked; past it, the whole lateness is unpaid, rounded up. The worker sees the reason and can dispute it.	Un retard se mesure par rapport au début du quart. Pendant la période de tolérance, rien n’est retenu ; au-delà, tout le retard est non payé, arrondi au-dessus. L’employé voit le motif et peut le contester.	Un retraso se mide contra el inicio del turno. Dentro del período de gracia no se descuenta nada; pasado ese tiempo, todo el retraso no se paga, redondeado hacia arriba. El trabajador ve el motivo y puede disputarlo.
+A supervisor or payroll records late arrivals.	Un superviseur ou la paie enregistre les retards.	Un supervisor o nómina registra los retrasos.
+A worker disputes a late arrival on :date. Settle it before the week is approved.	Un employé conteste un retard du :date. Réglez-le avant l’approbation de la semaine.	Un trabajador disputa un retraso del :date. Resuélvalo antes de aprobar la semana.
+Arrived at	Arrivé à	Llegó a las
+Arrived at the gate after the toolbox talk	Arrivé à l’entrée après la réunion de sécurité	Llegó a la entrada después de la charla de seguridad
+Cancelled - nothing docked	Annulé - rien de retenu	Cancelado - nada descontado
+Choose a day of the assignment, today or before.	Choisissez un jour de la mission, aujourd’hui ou avant.	Elija un día de la asignación, hoy o antes.
+Choose a working project first.	Choisissez d’abord un projet de travail.	Elija primero un proyecto de trabajo.
+Day	Jour	Día
+Decision the worker will read	Décision que l’employé lira	Decisión que leerá el trabajador
+Dispute	Contester	Disputar
+Dispute sent to payroll. Nothing is docked until they settle it.	Contestation envoyée à la paie. Rien n’est retenu avant leur décision.	Disputa enviada a nómina. No se descuenta nada hasta que la resuelvan.
+Disputed - not docked until settled	Contesté - non retenu avant décision	Disputado - sin descuento hasta resolverse
+Docked	Retenu	Descontado
+Enter the arrival time, such as 07:20.	Saisissez l’heure d’arrivée, par exemple 07:20.	Ingrese la hora de llegada, por ejemplo 07:20.
+Enter the shift start as a time, such as 07:00.	Saisissez le début du quart sous forme d’heure, par exemple 07:00.	Ingrese el inicio del turno como una hora, por ejemplo 07:00.
+Give this assignment its details (trade, supervisor) first.	Renseignez d’abord les détails de cette mission (métier, superviseur).	Primero complete los detalles de esta asignación (oficio, supervisor).
+Grace (minutes)	Tolérance (minutes)	Gracia (minutos)
+Grace is 0 to 30 minutes, and rounding is to 1, 5, 6, 10, 15 or 30 minutes.	La tolérance va de 0 à 30 minutes, et l’arrondi se fait à 1, 5, 6, 10, 15 ou 30 minutes.	La gracia es de 0 a 30 minutos y el redondeo es a 1, 5, 6, 10, 15 o 30 minutos.
+Late	Retard	Retraso
+Late arrival recorded for :date: :late minutes late, :docked minutes unpaid. Reason and dispute on Lateness.	Retard enregistré le :date : :late minutes de retard, :docked minutes non payées. Motif et contestation dans Retards.	Retraso registrado el :date: :late minutos tarde, :docked minutos sin pagar. Motivo y disputa en Retrasos.
+Late arrival recorded. The worker sees it with your reason.	Retard enregistré. L’employé le voit avec votre motif.	Retraso registrado. El trabajador lo ve con su motivo.
+Late arrival unavailable.	Retard introuvable.	Retraso no disponible.
+Late arrivals recorded for the crew appear here.	Les retards enregistrés pour l’équipe apparaissent ici.	Los retrasos registrados del equipo aparecen aquí.
+Late arrivals recorded on your days, what was taken off your paid hours, and why. If one is wrong, dispute it: nothing is docked until payroll settles it.	Les retards enregistrés sur vos journées, ce qui a été retiré de vos heures payées, et pourquoi. Si l’un est faux, contestez-le : rien n’est retenu avant la décision de la paie.	Los retrasos registrados en sus días, lo que se descontó de sus horas pagadas y por qué. Si alguno es incorrecto, dispútelo: no se descuenta nada hasta que nómina lo resuelva.
+Lateness	Retards	Retrasos
+Night crews and staggered starts: an assignment's own shift start wins over the project's. Leave it empty to use the project's.	Équipes de nuit et débuts décalés : le début de quart propre à une mission l’emporte sur celui du projet. Laissez vide pour utiliser celui du projet.	Equipos nocturnos e inicios escalonados: el inicio de turno propio de una asignación prevalece sobre el del proyecto. Déjelo vacío para usar el del proyecto.
+No late arrival recorded	Aucun retard enregistré	Ningún retraso registrado
+Nothing has been taken off your hours for lateness.	Rien n’a été retiré de vos heures pour retard.	No se ha descontado nada de sus horas por retraso.
+Only time not worked is docked: no fixed fine is ever taken.	Seul le temps non travaillé est retenu : aucune amende fixe n’est jamais prélevée.	Solo se descuenta el tiempo no trabajado: nunca se cobra una multa fija.
+Payroll settles this.	C’est à la paie de régler cela.	Esto lo resuelve nómina.
+Reason the worker will read	Motif que l’employé lira	Motivo que leerá el trabajador
+Record a late arrival	Enregistrer un retard	Registrar un retraso
+Reduce it to fewer minutes than were docked.	Réduisez-le à moins de minutes que celles retenues.	Redúzcalo a menos minutos de los descontados.
+Reduce to	Réduire à	Reducir a
+Reduced	Réduit	Reducido
+Round up to (minutes)	Arrondir au-dessus à (minutes)	Redondear hacia arriba a (minutos)
+Rules for :project	Règles pour :project	Reglas para :project
+Save the rules	Enregistrer les règles	Guardar las reglas
+Say why in 5 to 1000 characters.	Expliquez pourquoi en 5 à 1000 caractères.	Explique por qué en 5 a 1000 caracteres.
+Select a placement on your crew.	Choisissez une mission de votre équipe.	Seleccione una asignación de su equipo.
+Settle	Régler	Resolver
+Settled. The worker sees your decision.	Réglé. L’employé voit votre décision.	Resuelto. El trabajador ve su decisión.
+Shift start → arrived	Début du quart → arrivée	Inicio del turno → llegada
+Shift starts at	Le quart commence à	El turno empieza a las
+Still bill the client for docked time	Facturer quand même au client le temps retenu	Facturar igualmente al cliente el tiempo descontado
+That arrival is not after the shift start.	Cette arrivée n’est pas après le début du quart.	Esa llegada no es posterior al inicio del turno.
+That late arrival is not yours.	Ce retard ne vous concerne pas.	Ese retraso no es suyo.
+That week is already approved for pay. Settle it as an adjustment.	Cette semaine est déjà approuvée pour la paie. Réglez-la par un ajustement.	Esa semana ya está aprobada para pago. Resuélvala como un ajuste.
+This one is already disputed or settled.	Celui-ci est déjà contesté ou réglé.	Este ya está disputado o resuelto.
+This one is already settled.	Celui-ci est déjà réglé.	Este ya está resuelto.
+This project has no shift start yet. Payroll sets it on the Lateness page.	Ce projet n’a pas encore de début de quart. La paie le définit dans Retards.	Este proyecto aún no tiene inicio de turno. Nómina lo define en Retrasos.
+Upheld	Maintenu	Confirmado
+Uphold	Maintenir	Confirmar
+Why it is wrong	Pourquoi c’est faux	Por qué es incorrecto
+With these rules: :a minutes late docks :b minutes; :c minutes late docks :d.	Avec ces règles : :a minutes de retard retiennent :b minutes ; :c minutes de retard retiennent :d.	Con estas reglas: :a minutos tarde descuentan :b minutos; :c minutos tarde descuentan :d.
+Write the decision the worker will read, 3 to 1000 characters.	Rédigez la décision que l’employé lira, 3 à 1000 caractères.	Escriba la decisión que leerá el trabajador, de 3 a 1000 caracteres.
+Write the reason the worker will read, 3 to 500 characters.	Rédigez le motif que l’employé lira, 3 à 500 caractères.	Escriba el motivo que leerá el trabajador, de 3 a 500 caracteres.
+Your late arrival on :date was settled: :decision.	Votre retard du :date a été réglé : :decision.	Su retraso del :date fue resuelto: :decision.
+minutes	minutes	minutos
+shift :time	quart :time	turno :time
+week approved for pay	semaine approuvée pour la paie	semana aprobada para pago

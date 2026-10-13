@@ -168,6 +168,13 @@ function pay_rules_week_for(array $sheet, array $placement, array $job, ?float $
                    ORDER BY work_date", [$placementId, $start, $weekEnding]) as $d) {
         $days[(string) $d['work_date']] = (float) $d['hours'];
     }
+    // T19: lateness docked from a day comes off that day here too, so daily lines see it.
+    require_once __DIR__ . '/lateness.php';
+    foreach (lateness_docked_by_day($placementId, $start, $weekEnding) as $day => $cut) {
+        if (isset($days[$day])) {
+            $days[$day] = max(0.0, $days[$day] - $cut);
+        }
+    }
 
     $person = row('SELECT p.candidate_id, d.shift_label, e.employment_type, e.flsa_status, e.salary_per_period
                    FROM placements p

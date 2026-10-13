@@ -2217,4 +2217,31 @@ if (! $hadGeo) {
        . ' of ' . (int) val('SELECT COUNT(*) FROM jobs') . ' project site(s) placed from their city, state or ZIP.' . PHP_EOL;
 }
 
+// ── P5-M14 (T19): lateness - docked from pay with the reason shown ──
+// Reversed by install/rollback/p5-m14.sql.
+$latenessSql = __DIR__ . '/lateness.sql';
+if (! is_file($latenessSql)) {
+    fwrite(STDERR, "Missing install/lateness.sql\n");
+    exit(1);
+}
+$hadLateness = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='attendance_lateness'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($latenessSql)) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+foreach ([
+    ['timesheets',         'late_docked_hours', 'DECIMAL(6,2) NOT NULL DEFAULT 0'],
+    ['timesheets',         'late_billed_hours', 'DECIMAL(6,2) NOT NULL DEFAULT 0'],
+    ['assignment_details', 'shift_start',       'TIME NULL'],
+] as [$table, $column, $definition]) {
+    if (! val('SELECT COUNT(*) FROM information_schema.columns
+               WHERE table_schema=DATABASE() AND table_name=? AND column_name=?', [$table, $column])) {
+        q('ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+if (! $hadLateness) {
+    echo 'Lateness: late arrivals against the shift start, docked as unpaid time after a grace period and rounded up, with the reason the worker sees '
+       . 'and can dispute. No project has a shift start yet; payroll sets them on Lateness.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

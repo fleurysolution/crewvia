@@ -101,7 +101,7 @@ what stops the telephone.
 | T16 | Supervisor can validate manually, with a note, when the worker could not clock in | R26 | open |
 | T17 | Pay and bill computed from validated hours | R25 R27 | open |
 | T18 | **Per diem rules**, including a missed day | R28 | open |
-| T19 | **Lateness deduction** with the reason visible to the worker | R29 | open |
+| T19 | **Lateness deduction** with the reason visible to the worker | R29 | done 12 Oct (P5-M14): arrival vs shift start, grace then rounded up, reason shown, worker disputes, payroll settles |
 | T20 | Weekly **hotel folio** reconciliation | R30 | open |
 | T21 | Worker sees only their own hours, only while active; **access locked on termination** | R31 | open |
 

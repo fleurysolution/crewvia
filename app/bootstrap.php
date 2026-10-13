@@ -437,7 +437,8 @@ function week_money(array $t, array $p, array $job): array
     // Billing follows hours actually worked unless the client agreed to carry
     // the guarantee. Until RSS tells us otherwise we bill what was worked,
     // which is the conservative reading and never over-states revenue.
-    $billTotal  = $bill > 0 ? $worked * $bill : 0.0;
+    // T19: where the project still bills docked lateness, those hours are billed though not paid.
+    $billTotal  = $bill > 0 ? ($worked + (float) ($t['late_billed_hours'] ?? 0)) * $bill : 0.0;
 
     return $gross + [
         'guarantee'   => $guarantee,
@@ -448,6 +449,7 @@ function week_money(array $t, array $p, array $job): array
         'bill_rate'   => $bill,
         'labour_cost' => $labourCost,
         'paid_leave_hours' => $leaveHours,
+        'late_docked_hours' => (float) ($t['late_docked_hours'] ?? 0),
         'leave_pay'   => $leavePay,
         'per_diem'    => $perDiemAmt,
         'expenses'    => $expenses,

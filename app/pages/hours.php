@@ -44,8 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $grouped=[];foreach($records as $record)$grouped[$record['placement_id']][]=$record;
         foreach($grouped as $pid=>$source) {
             if(row("SELECT id FROM timesheets WHERE placement_id=? AND week_ending=? AND status IN ('approved','paid')",[$pid,$weekEnding]))continue;
-            $hours=array_sum(array_column($source,'hours'));
-            q('INSERT INTO timesheets(placement_id,week_ending,hours_worked) VALUES (?,?,?) ON DUPLICATE KEY UPDATE hours_worked=VALUES(hours_worked)',[$pid,$weekEnding,$hours]);
+            // T19: each day's docked lateness comes off that day's approved hours.
+            require_once __DIR__.'/../lateness.php';
+            $late=lateness_apply((int)$pid,$source,$start,$weekEnding);$hours=$late['hours'];
+            $billedLate=lateness_policy($jobId)['bill_docked']?$late['docked']:0.0;
+            q('INSERT INTO timesheets(placement_id,week_ending,hours_worked,late_docked_hours,late_billed_hours) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE hours_worked=VALUES(hours_worked),late_docked_hours=VALUES(late_docked_hours),late_billed_hours=VALUES(late_billed_hours)',[$pid,$weekEnding,$hours,$late['docked'],$billedLate]);
             $sheet=(int)val('SELECT id FROM timesheets WHERE placement_id=? AND week_ending=?',[$pid,$weekEnding]);
             q('INSERT INTO attendance_payroll_sources(timesheet_id,attendance_json,imported_by) VALUES (?,?,?) ON DUPLICATE KEY UPDATE attendance_json=VALUES(attendance_json),imported_by=VALUES(imported_by),imported_at=NOW()',[$sheet,json_encode($source,JSON_THROW_ON_ERROR),uid()]);
         }
@@ -106,6 +109,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($do === 'approve_week') {
         $weekEnding = week_ending((string) ($_POST['week_ending'] ?? ''));
+        // T19: a disputed lateness is settled before the week is paid.
+        require_once __DIR__ . '/../lateness.php';
+        if ($open = lateness_open_disputes($jobId, $weekEnding)) {
+            flash(t(':n lateness dispute(s) in this week. Settle them on Lateness, re-import the hours, then approve.', ['n' => $open]), 'err');
+            redirect('/hours?week=' . $weekEnding);
+        }
 
         db()->beginTransaction();
         q('SELECT id FROM jobs WHERE id=? FOR UPDATE',[$jobId]);
