@@ -11,10 +11,16 @@ $statusTag = static fn (string $s): string => match ($s) {
     default      => 'grey',
 };
 
-$assignForm = static function (array $member, array $supervisors): void { ?>
-  <form method="post" action="/operations" class="assign-form">
+// One form at a time: the person whose Reassign was clicked gets the full
+// form; everybody else gets the link that opens it.
+$assignForm = static function (array $member, array $supervisors) use ($assignId): void {
+    if ((int) $member['id'] !== $assignId) { ?>
+  <a class="btn ghost sm assign-open" href="/organization?assign=<?= (int) $member['id'] ?>#person-<?= (int) $member['id'] ?>" data-assign="<?= (int) $member['id'] ?>"><?= $member['supervisor_id'] ? te('Reassign') : te('Assign') ?></a>
+<?php return; } ?>
+  <form method="post" action="/operations" class="assign-form" id="assign-form">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="assignment">
+    <input type="hidden" name="back" value="/organization">
     <input type="hidden" name="placement_id" value="<?= (int) $member['id'] ?>">
 
     <label class="sr-only" for="sv-<?= (int) $member['id'] ?>">
@@ -39,6 +45,7 @@ $assignForm = static function (array $member, array $supervisors): void { ?>
            value="<?= e($member['shift_label'] ?? '') ?>" placeholder="<?= te('Shift') ?>">
 
     <button class="btn sm" type="submit"><?= te('Save') ?></button>
+    <a class="btn ghost sm" href="/organization#person-<?= (int) $member['id'] ?>"><?= te('Cancel') ?></a>
   </form>
 <?php };
 ?>
@@ -91,7 +98,7 @@ $assignForm = static function (array $member, array $supervisors): void { ?>
 
   <ul class="org-crew">
     <?php foreach ($unassigned as $member): ?>
-      <li>
+      <li id="person-<?= (int) $member['id'] ?>">
         <span class="org-person">
           <strong><?= e($member['full_name']) ?></strong>
           <span class="muted small">
@@ -145,7 +152,7 @@ $assignForm = static function (array $member, array $supervisors): void { ?>
 
     <ul class="org-crew">
       <?php foreach ($team['members'] as $member): ?>
-        <li>
+        <li id="person-<?= (int) $member['id'] ?>">
           <span class="org-person">
             <strong><?= e($member['full_name']) ?></strong>
             <span class="muted small">

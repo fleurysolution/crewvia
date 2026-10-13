@@ -58,7 +58,15 @@ foreach (rows("SELECT role, COUNT(*) n, GROUP_CONCAT(name ORDER BY name SEPARATO
 
 $onSite = count(array_filter($crew, static fn ($m) => $m['status'] === 'on_site'));
 
+// The one person being reassigned, if any. The supervisor list is drawn for
+// that person only: drawn for everybody, the page grew with people x staff
+// and a 1,000-person project made a page the server dropped under load.
+$assignId = (int) ($_GET['assign'] ?? 0);
+if (! in_array($assignId, array_map(static fn ($m) => (int) $m['id'], $crew), true)) {
+    $assignId = 0;
+}
+
 $pageTitle = t('Organization') . ' · ' . $config['app_name'];
 
 render('organization', compact('job', 'teams', 'unassigned', 'crew', 'office',
-                               'onSite', 'possibleSupervisors'));
+                               'onSite', 'possibleSupervisors', 'assignId'));

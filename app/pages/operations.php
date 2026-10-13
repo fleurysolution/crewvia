@@ -48,6 +48,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   require_role('recruiter'); $trade=trim((string)($_POST['trade'] ?? '')); $sid=(int)($_POST['supervisor_id'] ?? 0);
   if($sid && !row("SELECT id FROM users WHERE id=? AND is_active=1 AND role<>'worker'",[$sid])) { refuse(422, t('Invalid supervisor.')); }
   if($trade) q('INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE trade=VALUES(trade),supervisor_id=VALUES(supervisor_id),shift_label=VALUES(shift_label)',[$pid,$trade,$sid?:null,trim((string)($_POST['shift_label'] ?? ''))]);
+  // Saved from the organization chart: back to the chart, at that person.
+  if(($_POST['back'] ?? '')==='/organization') { log_activity('operations update','project',$jobId,$do); redirect('/organization#person-'.$pid); }
  }
  if($do==='offboard') {
   require_role('recruiter');
