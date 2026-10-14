@@ -4303,3 +4303,14 @@ CV	CV	CV
 Cover letter	Lettre de motivation	Carta de presentación
 Other document	Autre document	Otro documento
 Attach	Joindre	Adjuntar
+more than one applicant has this name	plusieurs candidats portent ce nom	más de un candidato tiene este nombre
+no applicant with this name	aucun candidat à ce nom	ningún candidato con este nombre
+already on file	déjà au dossier	ya en el expediente
+:n document attached.	:n document joint.	:n documento adjuntado.
+:n documents attached.	:n documents joints.	:n documentos adjuntados.
+Not attached:	Non joints :	No adjuntados:
+Attach CVs to a requisition's applicants	Joindre des CV aux candidats d’une demande	Adjuntar CV a los candidatos de una requisición
+Up to 15 files at a time, PDF or Word. Each one goes to the applicant whose name is in the file name, as Indeed names them (ResumeFirstLast.pdf); a file named CoverLetter… is filed as a cover letter. A file that matches nobody, or two people, is attached to nobody and listed.	Jusqu’à 15 fichiers à la fois, PDF ou Word. Chacun va au candidat dont le nom figure dans le nom du fichier, comme Indeed les nomme (ResumePrenomNom.pdf) ; un fichier nommé CoverLetter… est classé comme lettre de motivation. Un fichier qui ne correspond à personne, ou à deux personnes, n’est joint à personne et il est listé.	Hasta 15 archivos a la vez, PDF o Word. Cada uno va al candidato cuyo nombre está en el nombre del archivo, como los nombra Indeed (ResumeNombreApellido.pdf); un archivo llamado CoverLetter… se archiva como carta de presentación. Un archivo que no coincide con nadie, o con dos personas, no se adjunta a nadie y se lista.
+Files	Fichiers	Archivos
+:n applicant	:n candidat	:n candidato
+:n applicants	:n candidats	:n candidatos

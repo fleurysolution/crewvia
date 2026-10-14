@@ -125,4 +125,28 @@ check('Hiring lists them with what they are', 'Indeed Test One CV.pdf' in body a
 status, body = attach(admin, one['id'], back, 'other', 'notes.txt', b'plain text', 'text/plain')
 check('A file that is not a PDF or a Word document is refused', len(probe('docs', 'in-one@test.invalid')) == 2, status)
 
+# ── P5-M38: CVs in bulk, matched to applicants by the name in the file name ──
+def bulk(client, vacancy, files):
+    client.get('/resumes')
+    b = '----bulk'
+    crlf = chr(13) + chr(10)
+    body = b''
+    for k, v in (('_csrf', client.token), ('do', 'attach_bulk'), ('vacancy_id', vacancy)):
+        body += ('--' + b + crlf + 'Content-Disposition: form-data; name="%s"' % k + crlf + crlf + str(v) + crlf).encode()
+    for name, content in files:
+        body += ('--' + b + crlf + 'Content-Disposition: form-data; name="resumes[]"; filename="%s"' % name + crlf + 'Content-Type: application/pdf' + crlf + crlf).encode() + content + crlf.encode()
+    body += ('--' + b + '--' + crlf).encode()
+    return client.open(urllib.request.Request(base + '/resumes', body, {'Content-Type': 'multipart/form-data; boundary=' + b}))
+
+
+body = admin.get('/resumes')[1]
+check("Resumes offers to attach many CVs to a requisition's applicants", 'id="attach-bulk"' in body and 'name="resumes[]"' in body)
+status, body = bulk(admin, wk['vA'], [('ResumeIndeedTestTwo.pdf', PDF), ('CoverLetterIndeedTestTwo.pdf', PDF), ('ResumeNobodyByThisName.pdf', PDF), ('ResumeIndeedTestOne.pdf', PDF)])
+two = probe('docs', 'in-two@test.invalid')
+check('Each file goes to the applicant named in it: a CV and a cover letter', sorted(d['kind'] for d in two) == ['cover_letter', 'cv'], two)
+check('A name that matches nobody is attached to nobody, and listed', 'ResumeNobodyByThisName.pdf (no applicant with this name)' in body, re.findall(r'class="flash[^"]*"[^>]*>(.*?)</', body, re.S)[:1])
+check('and the person who already had files gets the new CV beside them', len(probe('docs', 'in-one@test.invalid')) == 3)
+status, body = bulk(admin, wk['vA'], [('ResumeIndeedTestTwo.pdf', PDF)])
+check('The same file sent again is not attached twice', len(probe('docs', 'in-two@test.invalid')) == 2 and 'already on file' in body)
+
 json.dump(results, open('work/ii-http-results.json', 'w'), indent=1)

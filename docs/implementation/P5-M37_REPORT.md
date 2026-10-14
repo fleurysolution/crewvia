@@ -34,3 +34,23 @@ file.
   - listed in Hiring;
   - a text file refused.
 - **The walkthrough chain:** 71 checks pass.
+
+## P5-M38 — CVs in bulk
+
+Resumes → "Attach CVs to a requisition's applicants":
+- **Batch size:** up to 15 files at a time.
+- **Matching:** each file goes to the applicant whose name is in its file
+  name, as Indeed names them (ResumeFirstLast.pdf). A file named
+  CoverLetter… is filed as a cover letter.
+- **No guessing:** a file that matches nobody, or more than one applicant on
+  the requisition, is attached to nobody and listed.
+- **Repeats:** the same file sent twice is not attached twice.
+
+Tested in `tests/indeed_import_http.py`:
+- the form;
+- a CV and a cover letter to the right person;
+- an unknown name listed;
+- a second CV beside the first;
+- a repeat refused.
+
+The walkthrough chain passes 76 checks. The full suite passed on M37 (3,563).

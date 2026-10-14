@@ -14,6 +14,38 @@ if(!$own && $_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='attach'
     log_activity('attached a candidate document','candidate',$target,$kind);
     flash(t('Attached. It is on their file, encrypted.'));redirect($back);
 }
+// P5-M38: a job board's CVs, many at once, onto the applicants of one requisition.
+// Each file is matched to an applicant by the name in its file name ("ResumeMarcsonDurolin.pdf").
+// A file that matches nobody, or more than one person, is reported and attached to nobody.
+if(!$own && $_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='attach_bulk') {
+    require_once __DIR__.'/../intake.php';
+    $vacancyId=(int)($_POST['vacancy_id']??0);
+    if(!val('SELECT id FROM vacancies WHERE id=?',[$vacancyId])){refuse(404,t('That requisition does not exist.'),'/resumes');}
+    $key=static fn(string $s):string=>strtolower(preg_replace('/[^A-Za-z]/','',iconv('UTF-8','ASCII//TRANSLIT//IGNORE',$s)?:$s));
+    $people=[];
+    foreach(rows('SELECT c.id,c.full_name FROM applications a JOIN candidates c ON c.id=a.candidate_id WHERE a.vacancy_id=?',[$vacancyId]) as $p){$people[$key((string)$p['full_name'])][]=(int)$p['id'];}
+    $files=$_FILES['resumes']??null;$done=0;$skipped=[];
+    $count=is_array($files['name']??null)?count($files['name']):0;
+    for($i=0;$i<$count;$i++){
+        $name=(string)$files['name'][$i];
+        $stem=preg_replace('/\.(pdf|docx)$/i','',$name);
+        $kind=preg_match('/^cover\s*letter/i',$stem)?'cover_letter':'cv';
+        $who=$key(preg_replace('/^(resume|cv|cover\s*letter)[\s_-]*/i','',$stem));
+        $match=$people[$who]??[];
+        if(count($match)!==1){$skipped[]=$name.' ('.(count($match)?t('more than one applicant has this name'):t('no applicant with this name')).')';continue;}
+        $existing=(int)val('SELECT COUNT(*) FROM candidate_resumes WHERE candidate_id=? AND kind=? AND original_name=?',[$match[0],$kind,mb_substr(basename($name),0,190)]);
+        if($existing){$skipped[]=$name.' ('.t('already on file').')';continue;}
+        $_FILES['resume']=['name'=>$name,'type'=>$files['type'][$i],'tmp_name'=>$files['tmp_name'][$i],'error'=>$files['error'][$i],'size'=>$files['size'][$i]];
+        try{$file=intake_resume_prepare();}catch(RuntimeException $e){$skipped[]=$name.' ('.$e->getMessage().')';continue;}
+        if(!$file){$skipped[]=$name;continue;}
+        q('INSERT INTO candidate_resumes(candidate_id,kind,storage_name,file_hash,extension,original_name,attached_by) VALUES (?,?,?,?,?,?,?)',[$match[0],$kind,$file['storage_name'],$file['file_hash'],$file['extension'],$file['original_name'],uid()]);
+        q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$match[0],uid(),'document attached',($kind==='cv'?'CV':'Cover letter').': '.$file['original_name']]);
+        $done++;
+    }
+    log_activity('attached candidate documents in bulk','vacancy',$vacancyId,$done.' attached, '.count($skipped).' not');
+    flash(tn($done,':n document attached.',':n documents attached.').($skipped?' '.t('Not attached:').' '.implode('; ',array_slice($skipped,0,30)):''),$skipped?'err':'ok');
+    redirect('/resumes?v='.$vacancyId);
+}
 if(isset($_GET['download'])) {
     $doc=row('SELECT * FROM candidate_resumes WHERE id=?',[(int)$_GET['download']]);
     if(!$doc||($own&&(int)$doc['candidate_id']!==$cid)){refuse(404, t('Document unavailable.'));}
@@ -25,4 +57,6 @@ if(isset($_GET['download'])) {
     log_activity('downloaded a CV','resume',(int)$doc['id']);header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="resume-'.(int)$doc['id'].'.'.$doc['extension'].'"');echo $plain;exit;
 }
 $resumes=$cid?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE r.candidate_id=? ORDER BY r.id DESC',[$cid]):(!$own?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id ORDER BY r.id DESC LIMIT 100'):[]);
-render('resumes',compact('resumes'));
+$bulkVacancies=$own?[]:rows("SELECT v.id,v.title,j.title project,(SELECT COUNT(*) FROM applications a WHERE a.vacancy_id=v.id) applicants FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.is_open=1 ORDER BY j.title,v.title");
+$bulkVacancy=(int)($_GET['v']??0);
+render('resumes',compact('resumes','bulkVacancies','bulkVacancy'));
