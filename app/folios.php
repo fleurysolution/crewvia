@@ -154,7 +154,7 @@ function fo_lines(array $folio): array
 function fo_flags(): array
 {
     return ['nights_more' => t('More nights than booked'), 'nights_fewer' => t('Fewer nights than booked'), 'rate' => t('Rate differs from the booking'),
-            'not_ours' => t('No booking in Crewvia for this guest'), 'absent' => t('Billed on night(s) the worker was absent at roll call')];
+            'not_ours' => t('No booking in Crewvia for this guest'), 'absent' => t('Billed for nights the worker was absent at roll call')];
 }
 
 /** @return array{billed:float, booked:float, agency:float, client:float, worker:float} */
@@ -263,7 +263,7 @@ function fo_reconcile(array $folio, int $by): ?string
     }
     $open = count(array_filter($lines, static fn($l) => $l['needs_note'] || $l['needs_charge']));
     if ($open) {
-        return t(':n line(s) still need a note for the difference, or who pays.', ['n' => $open]);
+        return tn($open, ':n line still needs a note for the difference, or who pays.', ':n lines still need a note for the difference, or who pays.');
     }
     q("UPDATE hotel_folios SET status = 'reconciled', reconciled_by = ?, reconciled_at = NOW() WHERE id = ?", [$by, (int) $folio['id']]);
     log_activity('reconciled a hotel folio', 'folio', (int) $folio['id'], (string) $folio['reference']);

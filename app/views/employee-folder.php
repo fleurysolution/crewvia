@@ -31,7 +31,7 @@
 </div>
 <?php elseif (can('recruiter') || can('payroll')): $waiting = count(array_filter($selfService['details'], fn($r) => $r['status'] === 'pending')) + count(array_filter($selfService['bank'], fn($r) => $r['status'] === 'pending')); ?>
 <div class="card" id="self-service-summary"><h2><?= te('Asked for by the worker') ?></h2>
-  <p><?= $waiting ? te(':n change(s) waiting to be checked.', ['n' => $waiting]) . ' <a href="/change-requests">' . te('Check them') . '</a>' : te('Nothing waiting from this person.') ?></p>
+  <p><?= $waiting ? ten($waiting, ':n change waiting to be checked.', ':n changes waiting to be checked.') . ' <a href="/change-requests">' . te('Check them') . '</a>' : te('Nothing waiting from this person.') ?></p>
   <p class="small muted"><?= $selfService['confirmed'] ? te('Last confirmed unchanged on :date.', ['date' => d(substr((string) $selfService['confirmed'], 0, 10))]) : te('Not confirmed yet.') ?></p></div>
 <?php endif; ?>
 <?php if ($comp): $kinds = compensation_kinds(); ?>

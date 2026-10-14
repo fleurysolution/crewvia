@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         case 'remind':
             [$why, $n] = sv_remind($sid);
-            if ($why === null) { flash(t(':n reminder(s) sent.', ['n' => $n])); }
+            if ($why === null) { flash(tn($n, ':n reminder sent.', ':n reminders sent.')); }
             break;
         default:
             refuse(400, t('Unknown action.'));

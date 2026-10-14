@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // T19: a disputed lateness is settled before the week is paid.
         require_once __DIR__ . '/../lateness.php';
         if ($open = lateness_open_disputes($jobId, $weekEnding)) {
-            flash(t(':n lateness dispute(s) in this week. Settle them on Lateness, re-import the hours, then approve.', ['n' => $open]), 'err');
+            flash(tn($open, ':n lateness dispute in this week. Settle it on Lateness, re-import the hours, then approve.', ':n lateness disputes in this week. Settle them on Lateness, re-import the hours, then approve.'), 'err');
             redirect('/hours?week=' . $weekEnding);
         }
 

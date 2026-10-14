@@ -107,7 +107,7 @@ h1 = int(h1['id'])
 status, body = assets_post(hotels, {'do': 'from_po', 'purchase_order_id': ax['room_order'], 'name': 'Rooms', 'tag_prefix': tag + '-R', 'count': '1'})
 check('A lodging order cannot become assets', status == 422, (status, body[:200]))
 status, body = assets_post(hotels, {'do': 'from_po', 'purchase_order_id': ax['harness_order'], 'name': 'Full-body harness', 'category_id': ax['fall'], 'tag_prefix': tag + '-PO', 'count': '3'})
-check('Three cannot be registered when two were received', status == 422 and '2 item(s) received' in body, (status, body[:200]))
+check('Three cannot be registered when two were received', status == 422 and '2 items received' in body, (status, body[:200]))
 status, body = assets_post(hotels, {'do': 'from_po', 'purchase_order_id': ax['harness_order'], 'name': 'Full-body harness', 'category_id': ax['fall'], 'tag_prefix': tag + '-PO', 'count': '2'})
 po1, po2 = item(tag + '-PO-001'), item(tag + '-PO-002')
 check('The two received are registered, numbered, at the order\'s unit price', status == 200 and po1 and po2

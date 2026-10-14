@@ -15,7 +15,7 @@
         <td data-week="<?= e($w) ?>" data-planned="<?= e($wlHours($p['planned'][$w])) ?>" data-capacity="<?= e($wlHours($p['capacity'][$w])) ?>"<?= $p['over'][$w] ? ' style="background:#fde8e6"' : '' ?>>
           <?= e($wlHours($p['planned'][$w])) ?> / <?= e($wlHours($p['capacity'][$w])) ?> h
           <?php if ($p['over'][$w]): ?><span class="tag red"><?= te('Over') ?></span><?php endif; ?>
-          <?php if ($p['leave_days'][$w]): ?><div class="small muted"><?= te(':n day(s) off', ['n' => $p['leave_days'][$w]]) ?></div><?php endif; ?></td>
+          <?php if ($p['leave_days'][$w]): ?><div class="small muted"><?= ten($p['leave_days'][$w], ':n day off', ':n days off') ?></div><?php endif; ?></td>
       <?php endforeach; ?>
       <td class="small"><?= e($wlHours($p['later'])) ?> h</td><td class="small"><?= e($wlHours($p['undated'])) ?> h</td>
       <td class="small"><?= (int) $p['open'] ?><?php if ($p['unestimated']): ?> <span class="muted">(<?= te(':n without an estimate', ['n' => $p['unestimated']]) ?>)</span><?php endif; ?>

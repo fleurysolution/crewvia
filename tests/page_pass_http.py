@@ -2,7 +2,8 @@
   - every page title in a view sits in the standard header, except the
     print documents and two public form cards, which are named;
   - every back link is the shared back-link, not a styled paragraph;
-  - the inline styles and "(s)" counts left in the views may only go down;
+  - the inline styles left in the views may only go down, and no count the
+    app shows says "(s)";
   - a count reads as a person says it, by each language's rule (French says
     "0 demande"), on the probe and on the pages;
   - the section label above a title is the one in the reader's own menu,
@@ -20,7 +21,7 @@ results = []
 # The print documents are their own page, and two public pages hold their title in a form card.
 OWN_PAGE = {'procurement-print.php', 'reports-print.php', 'statements-print.php', 'activate.php', 'application_received.php'}
 # Ceilings measured when wave 4 ended; lower them when more go.
-STYLE_CEILING, PLURAL_CEILING = 294, 13
+STYLE_CEILING = 294
 
 
 class Client:
@@ -82,19 +83,25 @@ loose = [v for v, s in views.items() if re.search(r'<p(?! class="back-link")[^>]
 check('Every back link is the shared back-link', not loose, loose)
 styles = sum(s.count('style="') for s in views.values())
 check('Inline styles in the views: %d, at most %d' % (styles, STYLE_CEILING), styles <= STYLE_CEILING)
-plurals = sum(len(re.findall(r"te?\('[^']*\(s\)[^']*'", s)) for s in views.values())
-check('"(s)" counts in the views: %d, at most %d' % (plurals, PLURAL_CEILING), plurals <= PLURAL_CEILING)
+# Every PHP file of the app the reader sees, not only the views; the catalogues are the translations of these.
+app_php = {f: open(f, encoding='utf-8').read() for f in glob.glob('work/test-app/app/**/*.php', recursive=True) if '/lang/' not in f.replace('\\', '/')}
+plurals = sorted({m for s in app_php.values() for m in re.findall(r"te?\('([^']*\((?:s|es)\)[^']*)'", s)})
+check('No count the app shows says "(s)" (%d files read)' % len(app_php), len(app_php) > 200 and not plurals, plurals)
 css = open('work/test-app/public/assets/crewvia-ui.css', encoding='utf-8').read()
 check('and every helper class the views now use is defined', all(re.search(r'\.%s \{' % c, css) for c in ('m0', 'mt-xs', 'mt-s', 'mt', 'mt-l', 'mb-s', 'mb', 'mb-l', 'f2', 'inline', 'w-auto', 'pre-wrap', 'wrap-any', 'nowrap', 't-amber', 't-red', 't-green', 'faded', 'card-bar', 'row-between', 'back-link')))
 
 # ── counts, by each language's rule ────────────────────────────────────
-pr = {loc: json.loads(subprocess.run([php, 'work/page_pass_probe.php', loc], check=True, capture_output=True, text=True).stdout) for loc in ('en', 'fr', 'es')}
+pr = {loc: json.loads(subprocess.run([php, 'work/page_pass_probe.php', loc], check=True, capture_output=True, encoding='utf-8').stdout) for loc in ('en', 'fr', 'es')}
 check('The probe reads each language', [pr[l]['locale'] for l in ('en', 'fr', 'es')] == ['en', 'fr', 'es'])
 check('English: 0 requests, 1 request, 2 requests', pr['en']['requests'] == ['0 requests waiting', '1 request waiting', '2 requests waiting'], pr['en']['requests'])
 check('French: 0 and 1 are singular, 2 is plural', pr['fr']['requests'] == ['0 demande en attente', '1 demande en attente', '2 demandes en attente'], pr['fr']['requests'])
 check('Spanish: only 1 is singular', pr['es']['requests'] == ['0 solicitudes pendientes', '1 solicitud pendiente', '2 solicitudes pendientes'], pr['es']['requests'])
 check('The overview title: 1 person, 2 people', pr['en']['people'][1] == '1 person out on one job' and pr['en']['people'][2] == '2 people out on one job')
 check('ten() escapes what it prints', pr['en']['escaped'] == '&lt;b&gt;1&lt;/b&gt; one')
+check('A sentence with two counts agrees part by part, in each language',
+      [pr[l]['driving'] for l in ('en', 'fr', 'es')] == ['1 violation, 0 accidents in 3 years', '1 infraction, 0 accident en 3 ans', '1 infracción, 0 accidentes en 3 años'],
+      [pr[l]['driving'] for l in ('en', 'fr', 'es')])
+check('"1 hour ago" in each language', [pr[l]['ago'] for l in ('en', 'fr', 'es')] == ['1 hour ago', 'il y a 1 heure', 'hace 1 hora'], [pr[l]['ago'] for l in ('en', 'fr', 'es')])
 check('The Hours subtitle and the folder title are translated',
       pr['fr']['guarantee'] == 'garantie de 50 heures' and pr['fr']['week'].startswith('Semaine se terminant') and pr['es']['folder'] == 'Expediente del empleado')
 

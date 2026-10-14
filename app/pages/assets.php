@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $left = asset_registrable_from($po);
         if ($count < 1 || $count > $left) {
             db()->rollBack();
-            refuse(422, t('That order has :n item(s) received and not yet registered.', ['n' => $left]));
+            refuse(422, tn($left, 'That order has :n item received and not yet registered.', 'That order has :n items received and not yet registered.'));
         }
         if (! preg_match('/^[A-Z0-9][A-Z0-9-]{1,30}$/', $prefix)) {
             db()->rollBack();
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         db()->commit();
         log_activity('registered assets from an order', 'purchase_order', $po, $count . ' × ' . $prefix);
-        flash(t(':n item(s) registered from :ref.', ['n' => $count, 'ref' => $order['reference']]));
+        flash(tn($count, ':n item registered from :ref.', ':n items registered from :ref.', ['ref' => $order['reference']]));
         redirect('/assets');
     }
 

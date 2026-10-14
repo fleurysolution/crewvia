@@ -582,7 +582,7 @@ function eng_redemption_fulfil(int $id, string $note, int $by): ?string
     db()->commit();
     $name = (string) val('SELECT name FROM reward_catalog WHERE id = ?', [(int) $red['reward_id']]);
     eng_notify((int) $red['user_id'], $red['kind'] === 'time_off'
-        ? t(':name: :n day(s) added to your leave for this year.', ['name' => $name, 'n' => (int) $red['leave_days']])
+        ? tn((int) $red['leave_days'], ':name: :n day added to your leave for this year.', ':name: :n days added to your leave for this year.', ['name' => $name])
         : t('Your reward is ready: :name', ['name' => $name]), '/recognition#rewards');
     log_activity('handed over a reward', 'reward_redemption', $id, $name);
 

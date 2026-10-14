@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($do === 'push_test') {
         [$why, $n] = push_test(uid());
         if ($why !== null) { refuse(422, $why); }
-        flash(t('A test push went to :n phone(s).', ['n' => $n]));
+        flash(tn($n, 'A test push went to :n phone.', 'A test push went to :n phones.'));
         redirect('/devices#push');
     }
     refuse(400, t('Unknown action.'));

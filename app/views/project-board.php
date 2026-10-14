@@ -34,7 +34,7 @@ $pbSprintStatus = pp_sprint_statuses();
         <?= e((string) ($c['assignee_name'] ?? '–')) ?><?= $c['estimate_hours'] !== null ? ' · ' . e(t(':h h', ['h' => rtrim(rtrim((string) $c['estimate_hours'], '0'), '.')])) : '' ?>
         <?php if ($c['due_on']): ?> · <?= e(d($c['due_on'])) ?><?php if ($late): ?> <span class="tag red"><?= te('Overdue') ?></span><?php endif; ?><?php endif; ?></div>
       <?php if ($c['subtasks']): ?><div class="small"><?= te('Subtasks: :done of :live done', ['done' => $c['subtasks']['done'], 'live' => $c['subtasks']['live']]) ?></div><?php endif; ?>
-      <?php if ($c['waiting']): ?><div class="small"><span class="tag amber"><?= te('Waits for :n task(s)', ['n' => $c['waiting']]) ?></span></div><?php endif; ?>
+      <?php if ($c['waiting']): ?><div class="small"><span class="tag amber"><?= ten((int) $c['waiting'], 'Waits for :n task', 'Waits for :n tasks') ?></span></div><?php endif; ?>
       <?php if ($status === 'blocked' && $c['blocked_reason']): ?><div class="small"><?= te('Waiting for') ?>: <?= e($c['blocked_reason']) ?></div><?php endif; ?>
       <?php if ($mayMove): ?>
       <div class="row" style="gap:4px;margin-top:6px">

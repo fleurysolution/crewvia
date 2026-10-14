@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($do === 'sprint_close') {
         [$why, $moved] = pp_sprint_close($jobId, (int) ($_POST['sprint_id'] ?? 0), uid());
         if ($why !== null) { refuse(422, $why); }
-        flash(t('Sprint closed: :n open task(s) back to the backlog.', ['n' => $moved]));
+        flash(tn($moved, 'Sprint closed: :n open task back to the backlog.', 'Sprint closed: :n open tasks back to the backlog.'));
         redirect('/project-board?sprint=-1');
     }
     refuse(400, t('Unknown action.'));

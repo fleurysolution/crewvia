@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'assign':
             [$why, $n] = tr_assign_manual($course, (array) ($_POST['user_ids'] ?? []), (string) ($_POST['due_on'] ?? ''), uid());
             $back = '/training?course=' . $course;
-            if ($why === null) { flash(t(':n assignment(s) made; anyone who has it open or still current was left as they are.', ['n' => $n])); }
+            if ($why === null) { flash(tn($n, ':n assignment made; anyone who has it open or still current was left as they are.', ':n assignments made; anyone who has it open or still current was left as they are.')); }
             break;
         case 'plan_save':
             [$why, $plan] = tr_plan_save($_POST, uid(), $plan);
@@ -50,19 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'plan_assign':
             [$why, $n] = tr_plan_assign($plan, (array) ($_POST['user_ids'] ?? []), uid());
             $back = '/training?plan=' . $plan;
-            if ($why === null) { flash(t(':n assignment(s) made; anyone who has it open or still current was left as they are.', ['n' => $n])); }
+            if ($why === null) { flash(tn($n, ':n assignment made; anyone who has it open or still current was left as they are.', ':n assignments made; anyone who has it open or still current was left as they are.')); }
             break;
         case 'requirement_save':
             $why = tr_requirement_save($_POST, uid());
             $back = '/training#requirements';
-            if ($why === null) { flash(t('Required. :n assignment(s) made.', ['n' => tr_sync()])); }
+            if ($why === null) { flash(tn(tr_sync(), 'Required. :n assignment made.', 'Required. :n assignments made.')); }
             break;
         case 'requirement_stop':
             $why = tr_requirement_stop((int) ($_POST['requirement_id'] ?? 0));
             $back = '/training#requirements';
             break;
         case 'sync':
-            flash(t(':n assignment(s) made from the requirements.', ['n' => tr_sync()]));
+            flash(tn(tr_sync(), ':n assignment made from the requirements.', ':n assignments made from the requirements.'));
             redirect('/training#compliance');
         default:
             refuse(400, t('Unknown action.'));

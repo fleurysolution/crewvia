@@ -21,4 +21,7 @@ $out['guarantee'] = t(':n-hour guarantee', ['n' => 50]);
 $out['week'] = t('Week ending :date', ['date' => 'X']);
 $out['folder'] = t('Employee folder');
 $out['escaped'] = ten(1, '<b>:n</b> one', ':n many');
+// A sentence with two counts: each part agrees with its own number.
+$out['driving'] = t(':violations, :accidents in 3 years', ['violations' => tn(1, ':n violation', ':n violations'), 'accidents' => tn(0, ':n accident', ':n accidents')]);
+$out['ago'] = tn(1, ':n hour ago', ':n hours ago');
 echo json_encode($out, JSON_UNESCAPED_UNICODE);

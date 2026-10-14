@@ -81,7 +81,7 @@ function payroll_run_move(array $run, string $action, int $userId, string $reaso
                 return t('Only an open period is submitted.');
             }
             if ($blocked = payroll_run_blockers((string) $run['week_ending'])) {
-                return t(':n weekly sheet(s) in this week are not approved yet. Approve them on Hours, or set their hours to zero, first.', ['n' => count($blocked)]);
+                return tn(count($blocked), ':n weekly sheet in this week is not approved yet. Approve it on Hours, or set its hours to zero, first.', ':n weekly sheets in this week are not approved yet. Approve them on Hours, or set their hours to zero, first.');
             }
             q("UPDATE payroll_runs SET status='submitted', submitted_by=?, submitted_at=NOW() WHERE id=? AND status='open'", [$userId, $id]);
             break;

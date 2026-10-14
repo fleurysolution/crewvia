@@ -25,7 +25,7 @@ $roles    = roles();
       </h2>
       <?php if ($chain['in_use']): ?>
         <p class="hint" style="margin:6px 0 0">
-          <?= te(':n record(s) are running through this chain. Editing it does not change them.', ['n' => (int) $chain['in_use']]) ?>
+          <?= ten((int) $chain['in_use'], ':n record is running through this chain. Editing it does not change it.', ':n records are running through this chain. Editing it does not change them.') ?>
         </p>
       <?php endif; ?>
     </div>

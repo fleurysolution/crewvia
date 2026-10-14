@@ -10,7 +10,7 @@ $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' =
   <div class="card" data-provider="<?= e($k) ?>" data-enabled="<?= $s['enabled'] ? '1' : '0' ?>"><h2><?= e($names[$k]) ?> <span class="tag <?= $s['enabled'] ? 'green' : 'grey' ?>"><?= $s['enabled'] ? te('On') : te('Off') ?></span></h2>
     <p class="muted"><?= te($s['what']) ?></p>
     <?php if ($k === 'docusign'): ?><p class="small"><?= te('Authentication: :how', ['how' => t($s['auth'])]) ?></p><?php endif; ?>
-    <?php if ($k === 'gmail'): ?><p class="small" id="gmail-counts" data-total="<?= (int) $gmail['total'] ?>" data-reconnect="<?= (int) $gmail['reconnect'] ?>"><?= te(':n connected mailbox(es), :r to reconnect', ['n' => (int) $gmail['total'], 'r' => (int) $gmail['reconnect']]) ?></p><?php endif; ?>
+    <?php if ($k === 'gmail'): ?><p class="small" id="gmail-counts" data-total="<?= (int) $gmail['total'] ?>" data-reconnect="<?= (int) $gmail['reconnect'] ?>"><?= te(':mailboxes, :r to reconnect', ['mailboxes' => tn((int) $gmail['total'], ':n connected mailbox', ':n connected mailboxes'), 'r' => (int) $gmail['reconnect']]) ?></p><?php endif; ?>
   </div>
   <?php endforeach; ?>
 </div>

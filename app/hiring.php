@@ -172,9 +172,9 @@ function hw_ago(?string $when): string
     }
     $s = time() - strtotime($when);
     return match (true) {
-        $s < 3600   => t(':n minute(s) ago', ['n' => max(1, intdiv($s, 60))]),
-        $s < 86400  => t(':n hour(s) ago', ['n' => intdiv($s, 3600)]),
-        $s < 864000 => t(':n day(s) ago', ['n' => intdiv($s, 86400)]),
+        $s < 3600   => tn(max(1, intdiv($s, 60)), ':n minute ago', ':n minutes ago'),
+        $s < 86400  => tn(intdiv($s, 3600), ':n hour ago', ':n hours ago'),
+        $s < 864000 => tn(intdiv($s, 86400), ':n day ago', ':n days ago'),
         default     => d(substr($when, 0, 10)),
     };
 }

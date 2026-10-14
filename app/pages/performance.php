@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'cycle_open':
             [$opened, $skipped, $why] = cycle_open((int) ($_POST['cycle_id'] ?? 0));
             if ($why === null) {
-                $extra = t(':n review(s) opened.', ['n' => $opened]) . ($skipped ? ' ' . t('Not opened: :list', ['list' => implode('; ', array_map(fn($k, $v) => $k . ' (' . $v . ')', array_keys($skipped), $skipped))]) : '');
+                $extra = tn($opened, ':n review opened.', ':n reviews opened.') . ($skipped ? ' ' . t('Not opened: :list', ['list' => implode('; ', array_map(fn($k, $v) => $k . ' (' . $v . ')', array_keys($skipped), $skipped))]) : '');
             }
             break;
         case 'cycle_close':

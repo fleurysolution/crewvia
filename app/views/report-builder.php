@@ -41,7 +41,7 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
 <?php $f = $result['filters']; $src = $catalog[$definition['source']]; ?>
 <div class="page-head"><div><h1><?= e($definition['name']) ?></h1>
 <p class="sub"><?= te('Built on :report', ['report' => t($src['title'])]) ?> · <span id="resolved" data-from="<?= e($f['from']) ?>" data-to="<?= e($f['to']) ?>" data-asof="<?= e($f['asof']) ?>" data-year="<?= (int) $f['year'] ?>"><?= te(($periods[$definition['filters']['period'] ?? 'fixed'] ?? 'Fixed dates')) ?>: <?= e(d($f['from'])) ?> – <?= e(d($f['to'])) ?></span>
-  <?= $definition['conditions'] ? ' · ' . te(':n condition(s)', ['n' => count($definition['conditions'])]) : '' ?></p></div></div>
+  <?= $definition['conditions'] ? ' · ' . ten(count($definition['conditions']), ':n condition', ':n conditions') : '' ?></p></div></div>
 <div class="row">
   <?php if (rb_may_change($definition)): ?><a class="btn ghost" href="/report-builder?edit=<?= (int) $definition['id'] ?>"><?= te('Change') ?></a><?php endif; ?>
   <?php if (rb_can_export((string) $definition['source'])): ?>
@@ -57,7 +57,7 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
     <?php foreach ($schedules as $s): $who = json_decode((string) $s['recipients_json'], true) ?: []; ?>
       <div data-schedule="<?= (int) $s['id'] ?>" data-active="<?= (int) $s['active'] ?>">
         <p><b><?= te(ucfirst((string) $s['frequency'])) ?></b><?= $s['frequency'] === 'weekly' ? ' · ' . e($weekdays[(int) $s['weekday']]) : '' ?><?= $s['frequency'] === 'monthly' ? ' · ' . te('day :n', ['n' => (int) $s['monthday']]) : '' ?> · <?= sprintf('%02d:00', (int) $s['run_hour']) ?>
-          · <?= te(':n recipient(s)', ['n' => count($who)]) ?> · <?= (int) $s['active'] ? te('next :at', ['at' => $s['next_run_at']]) : te('stopped') ?> · <?= te(':n run(s)', ['n' => (int) $s['runs']]) ?></p>
+          · <?= ten(count($who), ':n recipient', ':n recipients') ?> · <?= (int) $s['active'] ? te('next :at', ['at' => $s['next_run_at']]) : te('stopped') ?> · <?= ten((int) $s['runs'], ':n run', ':n runs') ?></p>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="definition_id" value="<?= (int) $definition['id'] ?>"><input type="hidden" name="schedule_id" value="<?= (int) $s['id'] ?>">
           <input type="hidden" name="do" value="<?= (int) $s['active'] ? 'schedule_stop' : 'schedule_start' ?>"><button class="btn sm ghost"><?= (int) $s['active'] ? te('Stop') : te('Restart') ?></button></form>
       </div>
@@ -92,7 +92,7 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
 
 <div class="card scroll" id="deliveries"><h2><?= te('Delivered to you') ?></h2>
   <?php if (! $deliveries): ?><p class="muted"><?= te('Nothing delivered to you.') ?></p><?php else: ?>
-  <table><?php foreach ($deliveries as $r): ?><tr data-delivery="<?= (int) $r['id'] ?>" data-status="<?= e($r['status']) ?>"><td><?= e($r['name']) ?></td><td><?= e($r['period_label']) ?></td><td class="num"><?= te(':n row(s)', ['n' => (int) $r['row_count']]) ?></td>
+  <table><?php foreach ($deliveries as $r): ?><tr data-delivery="<?= (int) $r['id'] ?>" data-status="<?= e($r['status']) ?>"><td><?= e($r['name']) ?></td><td><?= e($r['period_label']) ?></td><td class="num"><?= ten((int) $r['row_count'], ':n row', ':n rows') ?></td>
     <td><?= $r['status'] === 'ready' ? '<a class="btn sm" href="/report-builder?delivery=' . (int) $r['id'] . '">' . te('Download') . '</a> <span class="small muted">' . te('until :d', ['d' => d(substr((string) $r['expires_at'], 0, 10))]) . '</span>' : '<span class="tag grey">' . te($r['status'] === 'expired' ? 'Expired' : 'Not run') . '</span>' ?>
       <?= $r['downloaded_at'] ? '<span class="small muted">' . te('downloaded') . '</span>' : '' ?></td></tr><?php endforeach; ?></table><?php endif; ?>
 </div>

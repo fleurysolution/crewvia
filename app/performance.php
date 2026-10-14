@@ -147,7 +147,7 @@ function cycle_close(int $cycleId, string $note): ?string
     }
     $left = (int) val("SELECT COUNT(*) FROM appraisals WHERE cycle_id = ? AND status NOT IN ('approved','cancelled')", [$cycleId]);
     if ($left && mb_strlen(trim($note)) < 3) {
-        return t(':n review(s) in this cycle are not finished. Say why it closes anyway.', ['n' => $left]);
+        return tn($left, ':n review in this cycle is not finished. Say why it closes anyway.', ':n reviews in this cycle are not finished. Say why it closes anyway.');
     }
     q("UPDATE appraisal_cycles SET status = 'closed', closed_at = NOW(), close_note = ? WHERE id = ?", [trim($note) ?: null, $cycleId]);
 

@@ -3942,3 +3942,77 @@ Employee folder	Dossier salarié	Expediente del empleado
 :n onboarding tasks to complete	:n tâches d’intégration à terminer	:n tareas de incorporación por completar
 :n job offer to answer	:n offre d’emploi en attente de votre réponse	:n oferta de empleo por responder
 :n job offers to answer	:n offres d’emploi en attente de votre réponse	:n ofertas de empleo por responder
+:name: :n day added to your leave for this year.	:name : :n jour ajouté à vos congés de cette année.	:name: :n día añadido a su permiso de este año.
+:name: :n days added to your leave for this year.	:name : :n jours ajoutés à vos congés de cette année.	:name: :n días añadidos a su permiso de este año.
+Billed for nights the worker was absent at roll call	Facturé pour des nuits où l’employé était absent à l’appel	Facturado por noches en que el trabajador estuvo ausente en el pase de lista
+:n line still needs a note for the difference, or who pays.	:n ligne attend encore une note pour l’écart, ou qui paie.	:n línea aún necesita una nota para la diferencia, o quién paga.
+:n lines still need a note for the difference, or who pays.	:n lignes attendent encore une note pour l’écart, ou qui paie.	:n líneas aún necesitan una nota para la diferencia, o quién paga.
+:n minute ago	il y a :n minute	hace :n minuto
+:n minutes ago	il y a :n minutes	hace :n minutos
+:n hour ago	il y a :n heure	hace :n hora
+:n hours ago	il y a :n heures	hace :n horas
+:n day ago	il y a :n jour	hace :n día
+:n days ago	il y a :n jours	hace :n días
+That order has :n item received and not yet registered.	Cette commande a :n article reçu et non encore enregistré.	Esa orden tiene :n artículo recibido sin registrar.
+That order has :n items received and not yet registered.	Cette commande a :n articles reçus et non encore enregistrés.	Esa orden tiene :n artículos recibidos sin registrar.
+:n item registered from :ref.	:n article enregistré depuis :ref.	:n artículo registrado desde :ref.
+:n items registered from :ref.	:n articles enregistrés depuis :ref.	:n artículos registrados desde :ref.
+A test push went to :n phone.	Une notification de test est partie vers :n téléphone.	Se envió una notificación de prueba a :n teléfono.
+A test push went to :n phones.	Une notification de test est partie vers :n téléphones.	Se envió una notificación de prueba a :n teléfonos.
+:n lateness dispute in this week. Settle it on Lateness, re-import the hours, then approve.	:n contestation de retard cette semaine. Réglez-la dans Retards, réimportez les heures, puis approuvez.	:n disputa de retraso esta semana. Resuélvala en Retrasos, vuelva a importar las horas y luego apruebe.
+:n lateness disputes in this week. Settle them on Lateness, re-import the hours, then approve.	:n contestations de retard cette semaine. Réglez-les dans Retards, réimportez les heures, puis approuvez.	:n disputas de retraso esta semana. Resuélvalas en Retrasos, vuelva a importar las horas y luego apruebe.
+:n review opened.	:n évaluation ouverte.	:n evaluación abierta.
+:n reviews opened.	:n évaluations ouvertes.	:n evaluaciones abiertas.
+Sprint closed: :n open task back to the backlog.	Sprint clôturé : :n tâche ouverte renvoyée au carnet.	Sprint cerrado: :n tarea abierta devuelta a la cartera.
+Sprint closed: :n open tasks back to the backlog.	Sprint clôturé : :n tâches ouvertes renvoyées au carnet.	Sprint cerrado: :n tareas abiertas devueltas a la cartera.
+:n reminder sent.	:n rappel envoyé.	:n recordatorio enviado.
+:n reminders sent.	:n rappels envoyés.	:n recordatorios enviados.
+:n assignment made; anyone who has it open or still current was left as they are.	:n attribution faite ; qui l’avait en cours ou encore valide est resté tel quel.	:n asignación hecha; quien la tenía abierta o aún vigente quedó igual.
+:n assignments made; anyone who has it open or still current was left as they are.	:n attributions faites ; qui l’avait en cours ou encore valide est resté tel quel.	:n asignaciones hechas; quien la tenía abierta o aún vigente quedó igual.
+Required. :n assignment made.	Requis. :n attribution faite.	Requerido. :n asignación hecha.
+Required. :n assignments made.	Requis. :n attributions faites.	Requerido. :n asignaciones hechas.
+:n assignment made from the requirements.	:n attribution faite d’après les exigences.	:n asignación hecha según los requisitos.
+:n assignments made from the requirements.	:n attributions faites d’après les exigences.	:n asignaciones hechas según los requisitos.
+:n weekly sheet in this week is not approved yet. Approve it on Hours, or set its hours to zero, first.	:n feuille de la semaine n’est pas encore approuvée. Approuvez-la dans Heures, ou mettez ses heures à zéro, d’abord.	:n hoja de esta semana aún no está aprobada. Apruébela en Horas, o ponga sus horas a cero, primero.
+:n weekly sheets in this week are not approved yet. Approve them on Hours, or set their hours to zero, first.	:n feuilles de la semaine ne sont pas encore approuvées. Approuvez-les dans Heures, ou mettez leurs heures à zéro, d’abord.	:n hojas de esta semana aún no están aprobadas. Apruébelas en Horas, o ponga sus horas a cero, primero.
+:n review in this cycle is not finished. Say why it closes anyway.	:n évaluation de ce cycle n’est pas terminée. Dites pourquoi il se clôt quand même.	:n evaluación de este ciclo no está terminada. Diga por qué se cierra de todos modos.
+:n reviews in this cycle are not finished. Say why it closes anyway.	:n évaluations de ce cycle ne sont pas terminées. Dites pourquoi il se clôt quand même.	:n evaluaciones de este ciclo no están terminadas. Diga por qué se cierra de todos modos.
+Close its open subtask first.	Fermez d’abord sa sous-tâche ouverte.	Cierre primero su subtarea abierta.
+Close its :n open subtasks first.	Fermez d’abord ses :n sous-tâches ouvertes.	Cierre primero sus :n subtareas abiertas.
+Schedule: :installments · :repaid of :amount repaid	Échéancier : :installments · :repaid sur :amount remboursés	Calendario: :installments · :repaid de :amount reembolsados
+:n installment	:n versement	:n cuota
+:n installments	:n versements	:n cuotas
+:n record is running through this chain. Editing it does not change it.	:n enregistrement passe par cette chaîne. La modifier ne le change pas.	:n registro pasa por esta cadena. Modificarla no lo cambia.
+:n records are running through this chain. Editing it does not change them.	:n enregistrements passent par cette chaîne. La modifier ne les change pas.	:n registros pasan por esta cadena. Modificarla no los cambia.
+:violations, :accidents in 3 years	:violations, :accidents en 3 ans	:violations, :accidents en 3 años
+:n violation	:n infraction	:n infracción
+:n violations	:n infractions	:n infracciones
+:n accident	:n accident	:n accidente
+:n accidents	:n accidents	:n accidentes
+:crashes in 5 years; :inspections and :oos in 3 years	:crashes en 5 ans ; :inspections et :oos en 3 ans	:crashes en 5 años; :inspections y :oos en 3 años
+:n crash	:n accident	:n choque
+:n crashes	:n accidents	:n choques
+:n inspection	:n inspection	:n inspección
+:n inspections	:n inspections	:n inspecciones
+:n out-of-service violation	:n infraction d’immobilisation	:n infracción fuera de servicio
+:n out-of-service violations	:n infractions d’immobilisation	:n infracciones fuera de servicio
+:n change waiting to be checked.	:n changement en attente de vérification.	:n cambio pendiente de revisión.
+:n changes waiting to be checked.	:n changements en attente de vérification.	:n cambios pendientes de revisión.
+:mailboxes, :r to reconnect	:mailboxes, :r à reconnecter	:mailboxes, :r por reconectar
+:n connected mailbox	:n boîte connectée	:n buzón conectado
+:n connected mailboxes	:n boîtes connectées	:n buzones conectados
+Waits for :n task	Attend :n tâche	Espera :n tarea
+Waits for :n tasks	Attend :n tâches	Espera :n tareas
+:n day	:n jour	:n día
+:n condition	:n condition	:n condición
+:n conditions	:n conditions	:n condiciones
+:n recipient	:n destinataire	:n destinatario
+:n recipients	:n destinataires	:n destinatarios
+:n run	:n exécution	:n ejecución
+:n runs	:n exécutions	:n ejecuciones
+:n row	:n ligne	:n fila
+:n rows	:n lignes	:n filas
+:n answer	:n réponse	:n respuesta
+:n answers	:n réponses	:n respuestas
+:n day off	:n jour de congé	:n día libre
+:n days off	:n jours de congé	:n días libres

@@ -382,7 +382,7 @@ function pt_update(int $taskId, array $in, int $by): ?string
             if ($s !== $t['status'] && in_array($s, ['done', 'cancelled'], true)
                 && ($open = (int) val("SELECT COUNT(*) FROM project_tasks WHERE parent_id = ? AND status IN ('todo','in_progress','blocked')", [$taskId]))) {
                 db()->rollBack();
-                return t('Close its :n open subtask(s) first.', ['n' => $open]);
+                return tn($open, 'Close its open subtask first.', 'Close its :n open subtasks first.');
             }
             if ($s !== $t['status'] || ($s === 'blocked' && $reason !== (string) $t['blocked_reason'])) {
                 $set['status'] = $s;
