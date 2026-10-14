@@ -76,7 +76,7 @@ $pbSprintStatus = pp_sprint_statuses();
     </tr>
   <?php endforeach; ?></table><?php endif; ?>
   <?php if ($manage): ?>
-  <form method="post" class="row" id="sprint-form" style="margin-top:10px"><?= csrf_field() ?><input type="hidden" name="do" value="sprint_save">
+  <form method="post" class="row mt" id="sprint-form"><?= csrf_field() ?><input type="hidden" name="do" value="sprint_save">
     <label><?= te('New sprint') ?><input name="name" required maxlength="120"></label>
     <label><?= te('From') ?><input type="date" name="starts_on" required></label>
     <label><?= te('To') ?><input type="date" name="ends_on" required></label>

@@ -13,7 +13,7 @@
   <?php if (! $entries): ?><p class="muted"><?= te('Nothing recorded for these filters.') ?></p><?php else: ?>
   <table><tr><th><?= te('When') ?></th><th><?= te('Who') ?></th><th><?= te('What') ?></th><th><?= te('Record') ?></th><th><?= te('Detail') ?></th><th><?= te('Address') ?></th></tr>
   <?php foreach ($entries as $a): ?><tr data-entry="<?= (int) $a['id'] ?>" data-action="<?= e($a['action']) ?>"><td class="small"><?= e((string) $a['created_at']) ?></td><td><?= e((string) ($a['by_name'] ?? '–')) ?></td>
-    <td><?= e($a['action']) ?></td><td class="small mono"><?= e(trim($a['entity'] . ($a['entity_id'] ? ' #' . $a['entity_id'] : ''))) ?></td><td class="small" style="overflow-wrap:anywhere"><?= e((string) $a['detail']) ?></td><td class="small mono"><?= e((string) ($a['ip'] ?? '')) ?></td></tr><?php endforeach; ?></table>
+    <td><?= e($a['action']) ?></td><td class="small mono"><?= e(trim($a['entity'] . ($a['entity_id'] ? ' #' . $a['entity_id'] : ''))) ?></td><td class="small wrap-any"><?= e((string) $a['detail']) ?></td><td class="small mono"><?= e((string) ($a['ip'] ?? '')) ?></td></tr><?php endforeach; ?></table>
   <?php endif; ?>
   <p class="row"><?php if ($page > 1): ?><a class="btn sm ghost" href="/audit-log?<?= e(http_build_query(array_filter($filters) + ['page' => $page - 1])) ?>"><?= te('Newer') ?></a><?php endif; ?>
     <?php if ($more): ?><a class="btn sm ghost" href="/audit-log?<?= e(http_build_query(array_filter($filters) + ['page' => $page + 1])) ?>"><?= te('Older') ?></a><?php endif; ?></p>

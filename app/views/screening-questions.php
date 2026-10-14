@@ -15,7 +15,6 @@ $scope = $vacancyId
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('RECRUITING') ?></span>
     <h1><?= te('Screening questions') ?></h1>
     <p class="sub">
       <?= $scope
@@ -33,7 +32,7 @@ $scope = $vacancyId
 <?php else: ?>
 
 <!-- ── are these the right questions? ──────────────────────────────── -->
-<div class="grid g4" style="margin-bottom:18px">
+<div class="grid g4 mb-l">
   <div class="stat">
     <div class="n"><?= $stats['applications'] ?></div>
     <div class="l"><?= te('Applications') ?></div>
@@ -59,8 +58,8 @@ $scope = $vacancyId
 <!-- ── where they came from ────────────────────────────────────────── -->
 <?php if ($channels): ?>
 <section class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Where these applicants came from') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Where these applicants came from') ?></h2>
   </div>
   <div class="scroll">
     <table>
@@ -93,7 +92,7 @@ $scope = $vacancyId
 <!-- ── how it works, said once ─────────────────────────────────────── -->
 <section class="card" style="background:#F6F9FF">
   <h2><?= te('How this works') ?></h2>
-  <p class="small" style="margin:0">
+  <p class="small m0">
     <?= te('A disqualifying answer flags the applicant and sorts them to the bottom with the reason shown. Nobody is rejected automatically — a person still presses the button. The weight decides how much a good answer is worth in the score, which is a percentage of what was available, so roles with different numbers of questions stay comparable. Changing the questions re-ranks the applications already received.') ?>
   </p>
 </section>
@@ -101,7 +100,7 @@ $scope = $vacancyId
 <!-- ── which role ──────────────────────────────────────────────────── -->
 <?php if ($requisitions): ?>
 <form class="card row" method="get" action="/screening-questions">
-  <div style="flex:2">
+  <div class="f2">
     <label for="scope"><?= te('Questions for') ?></label>
     <select id="scope" name="vacancy" onchange="this.form.submit()">
       <option value="0"><?= te('Every role on this project') ?></option>
@@ -121,8 +120,8 @@ $scope = $vacancyId
 
 <!-- ── the questions ───────────────────────────────────────────────── -->
 <section class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('The questionnaire') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('The questionnaire') ?></h2>
   </div>
 
   <?php if (! $questions): ?>
@@ -239,7 +238,7 @@ $scope = $vacancyId
       <input id="q-weight" name="weight" type="number" min="0" max="100" value="5">
       <span class="hint"><?= te('0 asks without scoring') ?></span>
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="q-knock"><?= te('Disqualifies on this answer') ?></label>
       <input id="q-knock" name="knockout_answer" maxlength="190"
              placeholder="<?= te('e.g. No — leave blank if nothing disqualifies') ?>">
@@ -250,7 +249,7 @@ $scope = $vacancyId
     </label>
   </div>
 
-  <div class="field" style="margin-top:16px">
+  <div class="field mt-l">
     <label for="q-choices"><?= te('Choices, one per line') ?></label>
     <textarea id="q-choices" name="choices" rows="3" maxlength="500"
               placeholder="<?= te('Only for a question answered from a list') ?>"></textarea>

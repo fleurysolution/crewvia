@@ -11,7 +11,7 @@ $figures = static function (array $m): string {
 <p class="sub"><?= te('A bill against an order is paid only when it matches the order and what was received, within the tolerance, or when an administrator has cleared its exceptions with a reason.') ?>
   <?= te('Tolerance: :p % or :a, whichever is more.', ['p' => rtrim(rtrim(number_format($tolerance['percent'], 2), '0'), '.'), 'a' => money($tolerance['amount'])]) ?></p></div></div>
 
-<div class="grid g4" style="margin-bottom:16px">
+<div class="grid g4 mb-l">
   <div class="stat"><div class="n" data-count="exceptions"><?= count($exceptions) ?></div><div class="l"><?= te('Exceptions to clear') ?></div></div>
   <div class="stat"><div class="n" data-count="ready"><?= count($ready) ?></div><div class="l"><?= te('Ready to pay') ?></div></div>
   <div class="stat"><div class="n"><?= e(money(array_sum(array_map(fn($b) => (float) $b['amount'], $ready)))) ?></div><div class="l"><?= te('Ready to pay, in all') ?></div></div>

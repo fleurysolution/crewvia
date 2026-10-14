@@ -82,12 +82,12 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
 
 <?php if ($isBlocked): ?>
   <div class="card do-not-use">
-    <h2 style="margin:0 0 6px">
+    <h2 class="m0 mb-s">
       <?= $standingNow === 'do_not_use'
           ? te('DO NOT USE — do not contact this person')
           : te('No rehire — do not put this person back on a job') ?>
     </h2>
-    <p style="margin:0">
+    <p class="m0">
       <?= e($standing['exclusion_reason'] ?? '') ?>
     </p>
     <p class="small" style="margin:8px 0 0;opacity:.85">
@@ -156,8 +156,8 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <div class="contact-head">
     <div>
       <span class="eyebrow"><?= te('CONTACT') ?></span>
-      <h2 style="margin:4px 0 0"><?= te('Reach :name', ['name' => e($c['full_name'])]) ?></h2>
-      <p class="small muted" style="margin:4px 0 0">
+      <h2 class="m0 mt-xs"><?= te('Reach :name', ['name' => e($c['full_name'])]) ?></h2>
+      <p class="small muted m0 mt-xs">
         <?php if ($c['last_contact_at']): ?>
           <?= te('Last contacted :when by :who', [
               'when' => d($c['last_contact_at']),
@@ -208,7 +208,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?php endforeach; ?>
       </select>
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="callnote"><?= te('What was said or written') ?></label>
       <input id="callnote" name="note" maxlength="500"
              placeholder="<?= te('Optional, but it is what the next recruiter reads') ?>">
@@ -298,7 +298,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?php endif; ?>
 
         <?php if (! in_array($a['stage'], ['accepted','rejected','withdrawn'], true)): ?>
-          <form method="post" class="row" style="margin-top:12px">
+          <form method="post" class="row mt">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="stage">
             <input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>">
@@ -312,7 +312,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
                 <?php endforeach; ?>
               </select>
             </div>
-            <div style="flex:2">
+            <div class="f2">
               <label for="nt-<?= (int) $a['id'] ?>"><?= te('Note, or the offer terms') ?></label>
               <input id="nt-<?= (int) $a['id'] ?>" name="note" maxlength="500"
                      placeholder="<?= te('An offer needs its terms in writing') ?>">
@@ -320,11 +320,11 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
             <button class="btn" type="submit"><?= te('Move') ?></button>
           </form>
 
-          <form method="post" class="row" style="margin-top:10px">
+          <form method="post" class="row mt">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="add_check">
             <input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>">
-            <div style="flex:2">
+            <div class="f2">
               <label for="ac-<?= (int) $a['id'] ?>"><?= te('Add a screening check') ?></label>
               <input id="ac-<?= (int) $a['id'] ?>" name="title" maxlength="190"
                      placeholder="<?= te('e.g. Background check, Drug screen, Reference') ?>">
@@ -691,7 +691,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
             <span class="muted small">
               <?= (int) $skill['confirmed'] ? te('confirmed here') : te('claimed on an application') ?>
             </span>
-            <form method="post" style="display:inline">
+            <form class="inline" method="post">
               <?= csrf_field() ?>
               <input type="hidden" name="do" value="remove_skill">
               <input type="hidden" name="skill" value="<?= e($skill['skill_slug']) ?>">
@@ -702,10 +702,10 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
       </ul>
     <?php endif; ?>
 
-    <form method="post" class="row" style="margin-top:14px">
+    <form method="post" class="row mt">
       <?= csrf_field() ?>
       <input type="hidden" name="do" value="add_skill">
-      <div style="flex:2">
+      <div class="f2">
         <label for="sk"><?= te('Add a skill') ?></label>
         <select id="sk" name="skill" required>
           <option value=""><?= te('Choose a skill…') ?></option>
@@ -750,7 +750,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?= te('Required for No rehire and DO NOT USE. A block with no reason cannot be checked by anybody later, including the person it is about.') ?>
       </span>
 
-      <button class="btn" type="submit" style="margin-top:12px"><?= te('Record the decision') ?></button>
+      <button class="btn mt" type="submit"><?= te('Record the decision') ?></button>
     </form>
   </section>
 
@@ -795,7 +795,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
       <label for="d-phone"><?= te('Telephone') ?></label>
       <input id="d-phone" name="phone" value="<?= e((string) $c['phone']) ?>" maxlength="40">
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="d-email"><?= te('Email') ?></label>
       <input id="d-email" name="email" type="email" value="<?= e((string) $c['email']) ?>" maxlength="190">
     </div>
@@ -813,7 +813,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </div>
   </div>
 
-  <div class="row" style="margin-top:14px">
+  <div class="row mt">
     <div>
       <label for="d-disc"><?= te('Discipline') ?></label>
       <select id="d-disc" name="discipline">
@@ -824,7 +824,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?php endforeach; ?>
       </select>
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="d-degree"><?= te('Degree') ?></label>
       <input id="d-degree" name="degree" value="<?= e((string) $c['degree']) ?>" maxlength="190">
     </div>
@@ -835,7 +835,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </div>
   </div>
 
-  <div class="field" style="margin-top:14px">
+  <div class="field mt">
     <label for="d-notes"><?= te('Notes') ?></label>
     <textarea id="d-notes" name="notes" rows="3" maxlength="4000"><?= e((string) $c['notes']) ?></textarea>
   </div>

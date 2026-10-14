@@ -10,9 +10,9 @@ $cstat = ['open' => t('Open'), 'decided' => t('Outcome recorded'), 'closed' => t
 <div class="card" id="case" data-case="<?= e($c['reference']) ?>" data-case-status="<?= e($c['status']) ?>">
   <h2><?= e($c['reference']) ?> · <?= e(case_categories()[$c['category']]) ?> <span class="tag <?= $ctone[$c['status']] ?>"><?= e($cstat[$c['status']]) ?></span></h2>
   <p class="small muted"><?= te('What happened on :date · opened by :name on :when', ['date' => d((string) $c['incident_on']), 'name' => $c['opened_by_name'] ?? '—', 'when' => d(substr((string) $c['opened_at'], 0, 10))]) ?><?= $c['safety_incident_id'] ? ' · ' . te('safety incident #:n', ['n' => (int) $c['safety_incident_id']]) : '' ?></p>
-  <h3><?= te('The facts') ?></h3><p style="white-space:pre-wrap"><?= e($c['facts']) ?></p>
+  <h3><?= te('The facts') ?></h3><p class="pre-wrap"><?= e($c['facts']) ?></p>
   <?php if ($c['outcome']): ?><h3><?= te('Outcome') ?></h3><p data-outcome="<?= e($c['outcome']) ?>"><strong><?= e(case_outcomes()[$c['outcome']]) ?></strong> · <?= e((string) $c['outcome_note']) ?> · <?= e($c['decided_by_name'] ?? '') ?></p><?php endif; ?>
-  <?php if ($c['response']): ?><h3><?= te('The person\'s account') ?></h3><p style="white-space:pre-wrap" id="case-response"><?= e($c['response']) ?></p><?php endif; ?>
+  <?php if ($c['response']): ?><h3><?= te('The person\'s account') ?></h3><p class="pre-wrap" id="case-response"><?= e($c['response']) ?></p><?php endif; ?>
   <p class="small"><?= $c['acknowledged_at'] ? te('Acknowledged by the person on :date', ['date' => d(substr((string) $c['acknowledged_at'], 0, 10))]) : ($c['outcome'] ? te('Not yet acknowledged by the person.') : '') ?></p>
   <h3><?= te('Record') ?></h3>
   <?php foreach ($notes as $n): ?><div class="small" data-note="<?= e($n['kind']) ?>"><?= e(d(substr((string) $n['created_at'], 0, 10))) ?> · <?= e($n['by_name'] ?? '') ?> · <?= e($n['note']) ?></div><?php endforeach; ?>
@@ -40,7 +40,7 @@ $cstat = ['open' => t('Open'), 'decided' => t('Outcome recorded'), 'closed' => t
 <?php endif; ?>
 
 <?php elseif ($mode === 'person'): ?>
-<?php if ($role !== 'worker'): ?><p><a href="/hr-records">← <?= te('HR records') ?></a></p><?php endif; ?>
+<?php if ($role !== 'worker'): ?><p class="back-link"><a href="/hr-records">← <?= te('HR records') ?></a></p><?php endif; ?>
 <h2 id="person-name"><?= e($person['name']) ?></h2>
 <div class="card scroll" id="recognition"><h3><?= te('Recognition') ?></h3>
   <?php if (! $person['recognition']): ?><p class="muted"><?= te('None yet.') ?></p><?php endif; ?>

@@ -15,7 +15,6 @@ $states = advance_states();
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('PAY AND BILLING') ?></span>
     <h1><?= te('Advances against wages') ?></h1>
     <p class="sub">
       <?= te('Money handed over before it is earned, repaid out of later weeks. Somebody flying in on Monday often needs it before the first cheque.') ?>
@@ -42,7 +41,7 @@ $states = advance_states();
     </div>
   <?php else: ?>
     <div class="row">
-      <div style="flex:2">
+      <div class="f2">
         <label for="a-who"><?= te('Who') ?></label>
         <select id="a-who" name="candidate_id" required>
           <option value=""><?= te('Choose somebody…') ?></option>
@@ -68,7 +67,7 @@ $states = advance_states();
       </div>
     </div>
 
-    <div class="row" style="margin-top:12px">
+    <div class="row mt">
       <div>
         <label for="a-kind"><?= te('Kind') ?></label>
         <select id="a-kind" name="kind"><?php foreach (loan_kinds() as $k => $l): ?><option value="<?= e($k) ?>"><?= e($l) ?></option><?php endforeach; ?></select>
@@ -81,13 +80,13 @@ $states = advance_states();
     </div>
     <p class="small muted"><?= te('Above :limit, or when it takes what the person owes above it, an administrator approves. Whoever records it never approves it.', ['limit' => money($limit)]) ?></p>
 
-    <div class="field" style="margin-top:12px">
+    <div class="field mt">
       <label for="a-reason"><?= te('Why') ?></label>
       <input id="a-reason" name="reason" maxlength="500"
              placeholder="<?= te('e.g. Travelled in Sunday, first cheque is Friday week.') ?>">
     </div>
 
-    <button class="btn" type="submit" style="margin-top:14px"><?= te('Record the advance') ?></button>
+    <button class="btn mt" type="submit"><?= te('Record the advance') ?></button>
   <?php endif; ?>
 </form>
 <?php endif; ?>
@@ -114,12 +113,12 @@ $states = advance_states();
 
 <?php foreach ($advances as $a): ?>
   <article class="card">
-    <div class="page-heading" style="margin:0 0 10px">
+    <div class="page-heading m0 mb">
       <div>
-        <h2 style="margin:0">
+        <h2 class="m0">
           <a href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= e($a['full_name']) ?></a>
         </h2>
-        <p class="small muted" style="margin:4px 0 0">
+        <p class="small muted m0 mt-xs">
           <?= e(loan_kinds()[$a['kind'] ?? 'advance']) ?> · <?= e(money((float) $a['amount'])) ?>
           <?php if (advance_first_week($a)): ?> &middot; <?= te('repaid from the week ending :date', ['date' => d((string) advance_first_week($a))]) ?><?php endif; ?>
           &middot; <?= te(':amount a week', ['amount' => money((float) $a['weekly_repayment'])]) ?>
@@ -148,7 +147,7 @@ $states = advance_states();
       <div class="row" style="align-items:flex-end;gap:10px;flex-wrap:wrap">
         <?php if ($a['needs_admin'] && ! can('admin')): ?><span class="small muted"><?= te('Above the limit: an administrator approves.') ?></span><?php endif; ?>
         <?php if (in_array($a['status'], ['requested'], true)): ?>
-          <form method="post" style="display:inline">
+          <form class="inline" method="post">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="approve">
             <input type="hidden" name="advance_id" value="<?= (int) $a['id'] ?>">
@@ -157,7 +156,7 @@ $states = advance_states();
         <?php endif; ?>
 
         <?php if (in_array($a['status'], ['requested', 'approved'], true)): ?>
-          <form method="post" style="display:inline">
+          <form class="inline" method="post">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="cancel">
             <input type="hidden" name="advance_id" value="<?= (int) $a['id'] ?>">
@@ -166,7 +165,7 @@ $states = advance_states();
         <?php endif; ?>
 
         <?php if ($a['status'] === 'approved'): ?>
-          <form method="post" style="display:inline">
+          <form class="inline" method="post">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="pay_out">
             <input type="hidden" name="advance_id" value="<?= (int) $a['id'] ?>">
@@ -190,7 +189,7 @@ $states = advance_states();
               <input id="rd-<?= (int) $a['id'] ?>" name="paid_on" type="date"
                      value="<?= e(date('Y-m-d')) ?>">
             </div>
-            <div style="flex:2">
+            <div class="f2">
               <label for="rn-<?= (int) $a['id'] ?>"><?= te('Note') ?></label>
               <input id="rn-<?= (int) $a['id'] ?>" name="note" maxlength="255"
                      placeholder="<?= te('e.g. Week ending 17 Oct') ?>">
@@ -201,13 +200,13 @@ $states = advance_states();
             <?= csrf_field() ?><input type="hidden" name="do" value="pause"><input type="hidden" name="advance_id" value="<?= (int) $a['id'] ?>">
             <div><label><?= te('Pause from the week of') ?></label><input name="from_week" type="date" required min="<?= e(date('Y-m-d')) ?>"></div>
             <div><label><?= te('until the week of') ?></label><input name="until_week" type="date" required></div>
-            <div style="flex:2"><label><?= te('Why') ?></label><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('e.g. No hours while the plant is down') ?>"></div>
+            <div class="f2"><label><?= te('Why') ?></label><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('e.g. No hours while the plant is down') ?>"></div>
             <button class="btn ghost" type="submit"><?= te('Pause repayment') ?></button>
           </form>
           <?php if (can('admin')): ?>
           <form method="post" class="row" style="gap:10px;align-items:flex-end;margin:0">
             <?= csrf_field() ?><input type="hidden" name="do" value="write_off"><input type="hidden" name="advance_id" value="<?= (int) $a['id'] ?>">
-            <div style="flex:2"><label><?= te('Write off what is left') ?></label><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why it will not be recovered') ?>"></div>
+            <div class="f2"><label><?= te('Write off what is left') ?></label><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why it will not be recovered') ?>"></div>
             <button class="btn ghost" type="submit"><?= te('Write off') ?></button>
           </form>
           <?php endif; ?>
@@ -217,13 +216,13 @@ $states = advance_states();
 
     <?php if ($a['status'] === 'written_off'): ?><p class="small"><span class="tag grey"><?= te('Written off: :amount', ['amount' => money((float) $a['written_off_amount'])]) ?></span> <?= e((string) $a['written_off_reason']) ?></p><?php endif; ?>
     <?php if ($a['schedule']['rows'] && in_array($a['status'], ['paid_out', 'cleared', 'written_off'], true)): ?>
-      <details style="margin-top:12px" data-schedule="<?= (int) $a['id'] ?>"><summary><?= te('Schedule: :n installment(s) · :repaid of :amount repaid', ['n' => count(array_filter($a['schedule']['rows'], fn($r) => $r['planned'] > 0)), 'repaid' => money($a['schedule']['repaid']), 'amount' => money((float) $a['amount'])]) ?></summary>
+      <details class="mt" data-schedule="<?= (int) $a['id'] ?>"><summary><?= te('Schedule: :n installment(s) · :repaid of :amount repaid', ['n' => count(array_filter($a['schedule']['rows'], fn($r) => $r['planned'] > 0)), 'repaid' => money($a['schedule']['repaid']), 'amount' => money((float) $a['amount'])]) ?></summary>
         <div class="scroll"><table><tr><th><?= te('Week ending') ?></th><th class="num"><?= te('Planned') ?></th><th class="num"><?= te('Taken') ?></th><th class="num"><?= te('Balance') ?></th><th></th></tr>
         <?php foreach ($a['schedule']['rows'] as $r): ?><tr data-week="<?= e($r['week']) ?>" data-state="<?= e($r['state']) ?>"><td><?= e(d($r['week'])) ?></td><td class="num mono"><?= $r['planned'] > 0 ? e(money($r['planned'])) : '' ?></td><td class="num mono"><?= $r['taken'] > 0 ? e(money($r['taken'])) : '' ?></td><td class="num mono"><?= e(money($r['balance'])) ?></td>
           <td class="small"><?= e(['paused' => t('Paused'), 'coming' => t('Coming'), 'taken' => t('Taken'), 'short' => t('Short')][$r['state']]) ?></td></tr><?php endforeach; ?></table></div>
       </details>
     <?php endif; ?>
-    <?php if ($a['events']): ?><div class="small muted" style="margin-top:8px"><?php foreach ($a['events'] as $ev): ?><div><?= e(d(substr((string) $ev['created_at'], 0, 10))) ?> · <?= e(['requested' => t('Recorded'), 'approved' => t('Approved'), 'cancelled' => t('Cancelled'), 'paid_out' => t('Paid out'), 'paused' => t('Paused'), 'written_off' => t('Written off'), 'repaid_by_hand' => t('Repaid by hand')][$ev['event']] ?? $ev['event']) ?><?= $ev['detail'] ? ' · ' . e($ev['detail']) : '' ?> · <?= e($ev['by_name'] ?? '') ?></div><?php endforeach; ?></div><?php endif; ?>
+    <?php if ($a['events']): ?><div class="small muted mt-s"><?php foreach ($a['events'] as $ev): ?><div><?= e(d(substr((string) $ev['created_at'], 0, 10))) ?> · <?= e(['requested' => t('Recorded'), 'approved' => t('Approved'), 'cancelled' => t('Cancelled'), 'paid_out' => t('Paid out'), 'paused' => t('Paused'), 'written_off' => t('Written off'), 'repaid_by_hand' => t('Repaid by hand')][$ev['event']] ?? $ev['event']) ?><?= $ev['detail'] ? ' · ' . e($ev['detail']) : '' ?> · <?= e($ev['by_name'] ?? '') ?></div><?php endforeach; ?></div><?php endif; ?>
 
     <?php if ($a['payments']): ?>
       <h3 style="margin:16px 0 8px"><?= te('Repaid so far') ?></h3>

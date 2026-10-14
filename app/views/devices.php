@@ -24,7 +24,7 @@ $here = $current && (int) $current['user_id'] === uid();
   <?php if (! $mine): ?><p class="muted"><?= te('None.') ?></p><?php else: ?><table>
   <tr><th><?= te('Phone') ?></th><th><?= te('Trusted on') ?></th><th><?= te('Last used') ?></th><th><?= te('Until') ?></th><th><?= te('State') ?></th><th></th></tr>
   <?php foreach ($mine as $g): $st = os_grant_state($g); ?><tr data-grant="<?= (int) $g['id'] ?>" data-state="<?= e($st) ?>">
-    <td class="small" style="overflow-wrap:anywhere"><?= e($g['label']) ?></td><td class="small"><?= e(d(substr((string) $g['created_at'], 0, 10))) ?></td>
+    <td class="small wrap-any"><?= e($g['label']) ?></td><td class="small"><?= e(d(substr((string) $g['created_at'], 0, 10))) ?></td>
     <td class="small"><?= $g['last_used_at'] ? e(d(substr((string) $g['last_used_at'], 0, 10))) : '' ?></td><td class="small"><?= e(d(substr((string) $g['expires_at'], 0, 10))) ?></td>
     <td><span class="tag <?= $dvTone[$st] ?>"><?= e($dvState[$st]) ?></span></td>
     <td><?php if ($st === 'active'): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="revoke"><input type="hidden" name="grant_id" value="<?= (int) $g['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form><?php endif; ?></td></tr><?php endforeach; ?></table><?php endif; ?>
@@ -50,16 +50,16 @@ $here = $current && (int) $current['user_id'] === uid();
     </form>
   <?php endif; ?>
   <?php $live = array_filter($push['mine'], fn($s) => $s['ended_at'] === null); if ($live): ?>
-  <table id="my-push"><?php foreach ($live as $s): ?><tr data-subscription="<?= (int) $s['id'] ?>"><td class="small" style="overflow-wrap:anywhere"><?= e($s['label']) ?></td>
+  <table id="my-push"><?php foreach ($live as $s): ?><tr data-subscription="<?= (int) $s['id'] ?>"><td class="small wrap-any"><?= e($s['label']) ?></td>
     <td class="small"><?= $s['last_sent_at'] ? e(d(substr((string) $s['last_sent_at'], 0, 10))) : '' ?></td>
     <td><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="push_remove"><input type="hidden" name="subscription_id" value="<?= (int) $s['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form></td></tr><?php endforeach; ?></table>
   <?php endif; ?>
   <?php if ($admin): ?>
-  <form method="post" id="push-switch" style="margin-top:12px"><?= csrf_field() ?><input type="hidden" name="do" value="push_switch"><input type="hidden" name="state" value="<?= $push['on'] ? 'off' : 'on' ?>">
+  <form class="mt" method="post" id="push-switch"><?= csrf_field() ?><input type="hidden" name="do" value="push_switch"><input type="hidden" name="state" value="<?= $push['on'] ? 'off' : 'on' ?>">
     <?php if (! $push['key']): ?><p class="small" id="push-no-key"><?= te('The key pair is not made yet. On the server: php install/push-keys.php') ?></p><?php endif; ?>
     <p class="small muted"><?= te('Turning push on lets Crewvia call the push services of Google, Apple, Mozilla and Microsoft. Pushes go out each time the scheduled workflows run, or every minute with php install/push-dispatch.php in cron.') ?></p>
     <button class="btn sm<?= $push['on'] ? ' ghost' : '' ?>"><?= $push['on'] ? te('Turn push notifications off') : te('Turn push notifications on') ?></button></form>
-  <?php if ($push['all']): ?><table id="all-push"><?php foreach ($push['all'] as $s): ?><tr data-any-subscription="<?= (int) $s['id'] ?>"><td><?= e($s['name']) ?></td><td class="small" style="overflow-wrap:anywhere"><?= e($s['label']) ?></td>
+  <?php if ($push['all']): ?><table id="all-push"><?php foreach ($push['all'] as $s): ?><tr data-any-subscription="<?= (int) $s['id'] ?>"><td><?= e($s['name']) ?></td><td class="small wrap-any"><?= e($s['label']) ?></td>
     <td><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="push_remove"><input type="hidden" name="subscription_id" value="<?= (int) $s['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form></td></tr><?php endforeach; ?></table><?php endif; ?>
   <?php endif; ?>
 </div>
@@ -68,7 +68,7 @@ $here = $current && (int) $current['user_id'] === uid();
 <?php if ($admin): ?>
 <div class="card scroll" id="all-phones" data-count="<?= count($everyone) ?>"><h2><?= te('Every trusted phone') ?></h2>
   <?php if (! $everyone): ?><p class="muted"><?= te('None.') ?></p><?php else: ?><table>
-  <?php foreach ($everyone as $g): ?><tr data-any-grant="<?= (int) $g['id'] ?>"><td><?= e($g['name']) ?></td><td class="small" style="overflow-wrap:anywhere"><?= e($g['label']) ?></td>
+  <?php foreach ($everyone as $g): ?><tr data-any-grant="<?= (int) $g['id'] ?>"><td><?= e($g['name']) ?></td><td class="small wrap-any"><?= e($g['label']) ?></td>
     <td class="small"><?= $g['last_used_at'] ? e(d(substr((string) $g['last_used_at'], 0, 10))) : '' ?></td><td class="small"><?= e(d(substr((string) $g['expires_at'], 0, 10))) ?></td>
     <td><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="revoke"><input type="hidden" name="grant_id" value="<?= (int) $g['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form></td></tr><?php endforeach; ?></table><?php endif; ?>
 </div>

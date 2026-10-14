@@ -5,25 +5,25 @@ $next = date('Y-m-d', strtotime($week . ' +7 days'));
 $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : ($job['guarantee_hours'] ?? 50));
 ?>
 
-<h1><?= te('Hours') ?></h1>
+<div class="page-head"><div><h1><?= te('Hours') ?></h1>
 <p class="sub">
-  Week ending <?= e(date('l j F Y', strtotime($week))) ?>
-  &middot; <?= $guarantee ?>-hour guarantee
+  <?= te('Week ending :date', ['date' => d($week)]) ?>
+  &middot; <?= te(':n-hour guarantee', ['n' => $guarantee]) ?>
   <?php if ((int) ($job['strike_live'] ?? 0) === 1): ?>
     <span class="tag red"><?= te('strike live') ?></span>
   <?php endif; ?>
-</p>
+</p></div></div>
 
-<div class="row tight" style="margin-bottom:14px">
+<div class="row tight mb">
   <a class="btn ghost sm" href="/hours?week=<?= e($prev) ?>"><?= te('← Previous week') ?></a>
   <a class="btn ghost sm" href="/hours?week=<?= e(week_ending()) ?>"><?= te('This week') ?></a>
   <a class="btn ghost sm" href="/hours?week=<?= e($next) ?>"><?= te('Next week &rarr;') ?></a>
 </div>
 
-<div class="grid g4" style="margin-bottom:16px">
+<div class="grid g4 mb-l">
   <div class="stat"><div class="n"><?= rtrim(rtrim(number_format($totals['hours'], 1), '0'), '.') ?></div>
     <div class="l"><?= te('Hours worked') ?></div></div>
-  <div class="stat"><div class="n" style="<?= $totals['short'] > 0 ? 'color:var(--amber)' : '' ?>">
+  <div class="stat"><div class="n <?= $totals['short'] > 0 ? 't-amber' : '' ?>">
     <?= rtrim(rtrim(number_format($totals['short'], 1), '0'), '.') ?></div>
     <div class="l"><?= te('Guarantee gap') ?></div><div class="h"><?= te('paid, not worked') ?></div></div>
   <div class="stat"><div class="n"><?= money($totals['perdiem']) ?></div>
@@ -167,7 +167,7 @@ $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules
       <td class="num mono"><?= e(money($g['gross_wages'])) ?></td>
       <td class="small"><?php if (! $g['deductions'] && ! $g['shortfalls']): ?><?= ! empty($g['taken_on_other_sheet']) ? te('Taken on another assignment this week') : '—' ?><?php endif; ?>
         <?php foreach ($g['deductions'] as $d): ?><div><?= e($d['label']) ?>: <span class="mono"><?= e(money($d['amount'])) ?></span><?= $d['pre_tax'] ? ' <span class="tag grey">' . te('pre-tax') . '</span>' : '' ?></div><?php endforeach; ?>
-        <?php foreach ($g['shortfalls'] as $d): ?><div style="color:var(--amber)"><?= te(':item: :amount could not be taken - not enough wages this week', ['item' => $d['label'], 'amount' => money($d['amount'])]) ?></div><?php endforeach; ?></td>
+        <?php foreach ($g['shortfalls'] as $d): ?><div class="t-amber"><?= te(':item: :amount could not be taken - not enough wages this week', ['item' => $d['label'], 'amount' => money($d['amount'])]) ?></div><?php endforeach; ?></td>
       <td class="num mono"><?= e(money($g['reimbursements'])) ?></td>
       <td class="num mono" data-k="net"><?= e(money($g['net_before_tax'])) ?></td>
       <td class="num mono"><?= e(money($g['total_employer'])) ?></td>

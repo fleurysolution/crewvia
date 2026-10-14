@@ -7,7 +7,7 @@
     <thead><tr><th><?= te('Name') ?></th><th><?= te('Email') ?></th><th><?= te('Desk') ?></th><th><?= te('Title') ?></th><th><?= te('Last signed in') ?></th><th class="right"><?= te('Actions') ?></th></tr></thead>
     <tbody>
     <?php foreach ($team as $t): ?>
-      <tr style="<?= (int) $t['is_active'] === 0 ? 'opacity:.5' : '' ?>">
+      <tr class="<?= (int) $t['is_active'] === 0 ? 'faded' : '' ?>">
         <td><strong><?= e($t['name']) ?></strong>
           <?php if ((int) $t['is_active'] === 0): ?><span class="tag red"><?= te('off') ?></span><?php endif; ?>
           <?php if ((int) $t['must_change_pw'] === 1): ?><span class="tag amber"><?= te('temp password') ?></span><?php endif; ?>
@@ -15,7 +15,7 @@
         </td>
         <td class="small muted"><?= e($t['email']) ?></td>
         <td>
-          <form method="post" action="/people" style="display:inline">
+          <form class="inline" method="post" action="/people">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="role">
             <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
@@ -29,20 +29,20 @@
         <td class="small muted"><?= e($t['job_title'] ?? '—') ?></td>
         <td class="small muted"><?= $t['last_login_at'] ? e(date('j M, g:ia', strtotime($t['last_login_at']))) : 'never' ?></td>
         <td class="right">
-          <form method="post" action="/people" style="display:inline">
+          <form class="inline" method="post" action="/people">
             <?= csrf_field() ?><input type="hidden" name="do" value="reset">
             <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
             <button class="btn ghost sm" type="submit"><?= te('Reset password') ?></button>
           </form>
           <?php if (isset($lockedUntil[(int) $t['id']])): ?>
-          <form method="post" action="/people" style="display:inline">
+          <form class="inline" method="post" action="/people">
             <?= csrf_field() ?><input type="hidden" name="do" value="unlock">
             <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
             <button class="btn sm" type="submit"><?= te('Unlock sign-in') ?></button>
           </form>
           <?php endif; ?>
           <?php if ((int) $t['id'] !== uid()): ?>
-          <form method="post" action="/people" style="display:inline">
+          <form class="inline" method="post" action="/people">
             <?= csrf_field() ?><input type="hidden" name="do" value="toggle">
             <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
             <button class="btn ghost sm" type="submit"><?= (int) $t['is_active'] === 1 ? 'Switch off' : 'Switch on' ?></button>
@@ -62,7 +62,7 @@
     <?= csrf_field() ?><input type="hidden" name="do" value="add">
     <div class="row">
       <div><label><?= te('Name') ?></label><input name="name" required></div>
-      <div style="flex:2"><label><?= te('Email') ?></label><input name="email" type="email" required></div>
+      <div class="f2"><label><?= te('Email') ?></label><input name="email" type="email" required></div>
       <div><label><?= te('Telephone') ?></label><input name="phone"></div>
       <div><label><?= te('Desk') ?></label>
         <select name="role">
@@ -78,7 +78,7 @@
 </div>
 
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)"><h2 style="margin:0"><?= te('Recent activity') ?></h2></div>
+  <div class="card-bar"><h2 class="m0"><?= te('Recent activity') ?></h2></div>
   <?php if (! $recent): ?>
     <div class="empty"><?= te('Nothing yet.') ?></div>
   <?php else: ?>

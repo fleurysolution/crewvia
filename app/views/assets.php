@@ -3,10 +3,10 @@ $tagFor = static fn(string $s): string => ['available' => 'green', 'issued' => '
 $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due < date('Y-m-d');
 ?>
 <?php if (isset($item)): ?>
-<p><a href="/assets">← <?= te('Assets') ?></a></p>
-<h1><?= e($item['name']) ?> <span class="mono"><?= e($item['asset_tag']) ?></span></h1>
+<p class="back-link"><a href="/assets">← <?= te('Assets') ?></a></p>
+<div class="page-head"><div><h1><?= e($item['name']) ?> <span class="mono"><?= e($item['asset_tag']) ?></span></h1>
 <p class="sub"><span class="tag <?= $tagFor($item['state']) ?>" id="asset-state" data-state="<?= e($item['state']) ?>"><?= e($statuses[$item['state']]) ?></span>
-  <?php if ($holder): ?> <?= te('with :name on :project since :date', ['name' => $holder['full_name'], 'project' => $holder['project'], 'date' => d(substr((string) $holder['issued_at'], 0, 10))]) ?><?php endif; ?></p>
+  <?php if ($holder): ?> <?= te('with :name on :project since :date', ['name' => $holder['full_name'], 'project' => $holder['project'], 'date' => d(substr((string) $holder['issued_at'], 0, 10))]) ?><?php endif; ?></p></div></div>
 <div class="grid g2">
   <div class="card">
     <h2><?= te('Details') ?></h2>
@@ -77,7 +77,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
     <?php if (! $lifecycle): ?><p class="muted"><?= te('Nothing dated yet.') ?></p><?php else: ?>
     <table><?php foreach ($lifecycle as [$when, $what, $detail]): ?><tr data-stage="<?= e($what) ?>"><td class="small"><?= e(d((string) $when)) ?></td><td><?= e($what) ?></td><td class="small"><?= e($detail) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
     <?php if (can('hotels') && in_array($item['state'], ['retired', 'lost'], true)): ?>
-    <form method="post" class="grid g2" id="asset-dispose-form" style="margin-top:10px"><?= csrf_field() ?><input type="hidden" name="do" value="dispose"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
+    <form method="post" class="grid g2 mt" id="asset-dispose-form"><?= csrf_field() ?><input type="hidden" name="do" value="dispose"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
       <h3 style="grid-column:1/-1;margin:0"><?= te('Dispose of it') ?></h3>
       <label><?= te('How') ?><select name="disposal_method"><?php foreach (al_disposal_methods() as $k => $label): if ($k === 'returned_to_client' && $item['owner_type'] !== 'client') continue; ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select></label>
       <label><?= te('When') ?><input type="date" name="disposed_on" value="<?= e(date('Y-m-d')) ?>" required></label>
@@ -95,7 +95,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
       <td><span class="tag <?= $in['result'] === 'pass' ? 'green' : 'red' ?>"><?= $in['result'] === 'pass' ? te('Passed') : te('Failed') ?></span></td><td class="small"><?= e((string) $in['findings']) ?></td>
       <td class="small"><?= $in['next_due'] ? e(d((string) $in['next_due'])) : '—' ?></td><td class="small"><?= e((string) ($in['by_name'] ?? '')) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
     <?php if (can('hotels') && ! in_array($item['state'], ['lost', 'retired', 'disposed'], true)): ?>
-    <form method="post" class="grid g2" id="asset-inspection-form" style="margin-top:10px"><?= csrf_field() ?><input type="hidden" name="do" value="inspection"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
+    <form method="post" class="grid g2 mt" id="asset-inspection-form"><?= csrf_field() ?><input type="hidden" name="do" value="inspection"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
       <label><?= te('Result') ?><select name="result"><option value="pass"><?= te('Passed') ?></option><option value="fail"><?= te('Failed') ?></option></select></label>
       <label><?= te('On') ?><input type="date" name="inspected_on" value="<?= e(date('Y-m-d')) ?>" required></label>
       <label><?= te('Findings · required when it fails') ?><input name="findings" maxlength="1000"></label>
@@ -111,7 +111,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
       <td class="small<?= $late ? ' err' : '' ?>"><?= $pl['is_active'] ? e(d((string) $pl['next_due'])) . ($late ? ' · ' . te('overdue') : '') : te('Stopped') ?></td><td class="small"><?= $pl['last_done_on'] ? e(d((string) $pl['last_done_on'])) : '—' ?></td>
       <td><?php if (can('hotels') && $pl['is_active']): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="plan_stop"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>"><input type="hidden" name="plan_id" value="<?= (int) $pl['id'] ?>"><button class="btn sm ghost"><?= te('Stop') ?></button></form><?php endif; ?></td></tr><?php endforeach; ?></table><?php endif; ?>
     <?php if (can('hotels') && ! in_array($item['state'], ['retired', 'disposed'], true)): ?>
-    <form method="post" class="grid g2" id="asset-plan-form" style="margin-top:10px"><?= csrf_field() ?><input type="hidden" name="do" value="plan_save"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
+    <form method="post" class="grid g2 mt" id="asset-plan-form"><?= csrf_field() ?><input type="hidden" name="do" value="plan_save"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
       <label><?= te('Maintenance') ?><input name="task" required minlength="3" maxlength="190" placeholder="<?= te('Calibrate the sensor') ?>"></label>
       <label><?= te('Every (days)') ?><input type="number" name="every_days" min="1" max="3650" required></label>
       <label><?= te('First due · empty: one interval from today') ?><input type="date" name="next_due"></label>
@@ -127,7 +127,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
     <td class="small"><?= e((string) ($sv['vendor_name'] ?? $sv['performed_by'] ?? '')) ?></td><td class="num mono"><?= $sv['cost'] !== null ? e(money((float) $sv['cost'])) : '' ?></td>
     <td class="small"><?= $sv['downtime_days'] !== null ? te(':n days', ['n' => (int) $sv['downtime_days']]) : '' ?></td><td class="small mono"><?= e((string) $sv['reference']) ?></td><td class="small"><?= e((string) $sv['notes']) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
   <?php if (can('hotels') && $item['state'] !== 'disposed'): ?>
-  <form method="post" class="grid g4" id="asset-service-form" style="margin-top:10px"><?= csrf_field() ?><input type="hidden" name="do" value="service"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
+  <form method="post" class="grid g4 mt" id="asset-service-form"><?= csrf_field() ?><input type="hidden" name="do" value="service"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
     <label><?= te('What') ?><select name="kind"><?php foreach (al_service_kinds() as $k => $label): ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select></label>
     <label><?= te('For a plan') ?><select name="plan_id"><option value="0">—</option><?php foreach ($plans as $pl): if (! $pl['is_active']) continue; ?><option value="<?= (int) $pl['id'] ?>"><?= e($pl['task']) ?></option><?php endforeach; ?></select></label>
     <label><?= te('On') ?><input type="date" name="performed_on" value="<?= e(date('Y-m-d')) ?>" required></label>
@@ -157,10 +157,10 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
   <?php endforeach; ?></table>
 </div>
 <?php else: ?>
-<h1><?= te('Assets') ?></h1>
+<div class="page-head"><div><h1><?= te('Assets') ?></h1>
 <p class="sub"><?= te('Every item the agency issues: where it is, its state and its next inspection. Items are issued and taken back on Operations.') ?>
-  <?php if (can('hotels', 'payroll')): ?><a href="/asset-valuation"><?= te('Valuation') ?></a><?php endif; ?></p>
-<div class="grid g4" id="asset-counts" style="margin-bottom:16px">
+  <?php if (can('hotels', 'payroll')): ?><a href="/asset-valuation"><?= te('Valuation') ?></a><?php endif; ?></p></div></div>
+<div class="grid g4 mb-l" id="asset-counts">
   <?php foreach (['issued', 'available', 'in_repair', 'lost', 'overdue'] as $k): ?>
   <a class="stat" href="/assets?state=<?= e($k) ?>" data-count="<?= e($k) ?>"><div class="n"><?= (int) $counts[$k] ?></div><div class="l"><?= $k === 'overdue' ? te('Inspection overdue') : e($statuses[$k]) ?></div></a>
   <?php endforeach; ?>

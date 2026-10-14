@@ -5,7 +5,6 @@ $roles    = roles();
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('ADMINISTRATION') ?></span>
     <h1><?= te('Approval chains') ?></h1>
     <p class="sub">
       <?= te('Who is asked before something goes ahead, and in what order. A step in order waits for the steps before it; a step marked any time can be decided whenever. One rejection closes the rest.') ?>
@@ -16,10 +15,10 @@ $roles    = roles();
 
 <?php foreach ($chains as $chain): ?>
 <section class="card">
-  <div class="page-heading" style="margin:0 0 14px">
+  <div class="page-heading m0 mb">
     <div>
       <span class="eyebrow"><?= te($subjects[$chain['applies_to']] ?? $chain['applies_to']) ?></span>
-      <h2 style="margin:4px 0 0">
+      <h2 class="m0 mt-xs">
         <?= e($chain['name']) ?>
         <?php if ($chain['is_default']): ?><span class="tag blue"><?= te('Default') ?></span><?php endif; ?>
         <?php if (! $chain['is_active']): ?><span class="tag grey"><?= te('Off') ?></span><?php endif; ?>
@@ -66,12 +65,12 @@ $roles    = roles();
     </ol>
   <?php endif; ?>
 
-  <form method="post" class="row" style="margin-top:16px">
+  <form method="post" class="row mt-l">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="add_step">
     <input type="hidden" name="chain_id" value="<?= (int) $chain['id'] ?>">
 
-    <div style="flex:2">
+    <div class="f2">
       <label for="l-<?= (int) $chain['id'] ?>"><?= te('Step') ?></label>
       <input id="l-<?= (int) $chain['id'] ?>" name="label" maxlength="120" required
              placeholder="<?= te('e.g. Operations sign-off') ?>">
@@ -107,12 +106,12 @@ $roles    = roles();
   <h2><?= te('Add an approval chain') ?></h2>
 
   <div class="row">
-    <div style="flex:2">
+    <div class="f2">
       <label for="chain-name"><?= te('Name') ?></label>
       <input id="chain-name" name="name" maxlength="120" required
              placeholder="<?= te('e.g. Client order sign-off') ?>">
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="chain-subject"><?= te('What it approves') ?></label>
       <select id="chain-subject" name="applies_to" required>
         <?php foreach ($subjects as $key => $label): ?>

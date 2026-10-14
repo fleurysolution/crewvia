@@ -36,7 +36,6 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('HIRING') ?></span>
     <h1><?= $isWorker ? te('Your contracts') : te('Contracts & signatures') ?></h1>
     <p class="sub">
       <?= $isWorker
@@ -48,9 +47,9 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
 </div>
 
 <?php if (! $isWorker && $contracts): ?>
-<div class="grid g4" style="margin-bottom:18px">
+<div class="grid g4 mb-l">
   <div class="stat">
-    <div class="n" style="color:<?= $waitingOnUs ? 'var(--amber)' : 'var(--green)' ?>"><?= count($waitingOnUs) ?></div>
+    <div class="n <?= $waitingOnUs ? 't-amber' : 't-green' ?>"><?= count($waitingOnUs) ?></div>
     <div class="l"><?= te('Waiting on you') ?></div>
   </div>
   <div class="stat">
@@ -70,8 +69,8 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
 
 <!-- ── the archive, which is really the work queue ──────────────────── -->
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Contracts on this project') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Contracts on this project') ?></h2>
   </div>
 
   <?php if (! $contracts): ?>
@@ -318,7 +317,7 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
     </div>
   <?php else: ?>
   <div class="row">
-    <div style="flex:2">
+    <div class="f2">
       <label for="c-app"><?= te('Application') ?></label>
       <select id="c-app" name="application_id" required>
         <?php foreach ($applications as $a): ?>
@@ -340,7 +339,7 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
     </div>
   </div>
 
-  <div class="field" style="margin-top:16px">
+  <div class="field mt-l">
     <label for="c-title"><?= te('Contract title') ?></label>
     <input id="c-title" name="title" required maxlength="190"
            placeholder="<?= te('e.g. Strike coverage assignment - mechanical engineer') ?>">
@@ -396,7 +395,7 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
     <?= te('Signed contract required before deployment') ?>
   </label>
 
-  <div class="field" style="margin-top:16px">
+  <div class="field mt-l">
     <label for="p-docs"><?= te('Required document types before contract preparation (one per line)') ?></label>
     <textarea id="p-docs" name="document_types" rows="4"><?= e(implode("\n", array_column($requirements, 'document_type'))) ?></textarea>
     <span class="hint"><?= te('Use exact document types from proof uploads. Configure lawful requirements and deadlines; do not require I-9 before an offer by default.') ?></span>

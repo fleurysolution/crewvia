@@ -8,8 +8,8 @@ $tone = ['open' => 'amber', 'answered' => 'blue', 'closed' => 'grey', 'withdrawn
 <div class="card" id="request" data-request="<?= e($r['reference']) ?>" data-request-status="<?= e($r['status']) ?>">
   <h2><?= e($r['reference']) ?> · <?= e($r['subject']) ?> <span class="tag <?= $tone[$r['status']] ?>"><?= e(hr_request_statuses()[$r['status']]) ?></span></h2>
   <p class="small muted"><?= e(hr_request_kinds()[$r['kind']]) ?><?= $role !== 'worker' ? ' · ' . e($r['full_name']) : '' ?> · <?= e(d(substr((string) $r['created_at'], 0, 10))) ?> · <?= $r['desk'] === 'payroll' ? te('Payroll') : te('Recruiting') ?><?= (int) $r['include_pay'] === 1 ? ' · ' . te('the letter is to state the pay rate') : '' ?></p>
-  <p style="white-space:pre-wrap"><?= e($r['detail']) ?></p>
-  <?php foreach ($replies as $x): ?><div class="small" data-reply="<?= (int) $x['by_worker'] ?>" style="border-top:1px solid var(--line);padding:6px 0"><strong><?= (int) $x['by_worker'] === 1 ? te('You') . ($role !== 'worker' ? ' (' . e($r['full_name']) . ')' : '') : e($x['by_name'] ?? t('HR')) ?></strong> · <?= e(d(substr((string) $x['created_at'], 0, 10))) ?><div style="white-space:pre-wrap"><?= e($x['message']) ?></div></div><?php endforeach; ?>
+  <p class="pre-wrap"><?= e($r['detail']) ?></p>
+  <?php foreach ($replies as $x): ?><div class="small" data-reply="<?= (int) $x['by_worker'] ?>" style="border-top:1px solid var(--line);padding:6px 0"><strong><?= (int) $x['by_worker'] === 1 ? te('You') . ($role !== 'worker' ? ' (' . e($r['full_name']) . ')' : '') : e($x['by_name'] ?? t('HR')) ?></strong> · <?= e(d(substr((string) $x['created_at'], 0, 10))) ?><div class="pre-wrap"><?= e($x['message']) ?></div></div><?php endforeach; ?>
   <?php if ($r['letter_text'] !== null): ?><p><a class="btn" href="/hr-requests?letter=<?= (int) $r['id'] ?>" target="_blank" id="letter-link"><?= te('Open the letter') ?></a> <span class="small muted mono" title="SHA-256"><?= e(substr((string) $r['letter_sha256'], 0, 12)) ?></span></p><?php endif; ?>
 </div>
 <?php if (! in_array($r['status'], ['closed', 'withdrawn'], true)): ?>

@@ -24,7 +24,7 @@
   <table><tr><th><?= te('Finished') ?></th><th><?= te('What') ?></th><th><?= te('State') ?></th><th><?= te('Seconds') ?></th><th><?= te('Detail') ?></th></tr>
   <?php foreach ($runs as $r): ?><tr data-run="<?= e($r['kind']) ?>" data-status="<?= e($r['status']) ?>"><td class="small"><?= e((string) $r['finished_at']) ?></td><td><?= e(str_replace('_', ' ', $r['kind'])) ?></td>
     <td><span class="tag <?= ['ok' => 'green', 'warning' => 'amber', 'failed' => 'red'][$r['status']] ?? 'grey' ?>"><?= e($r['status']) ?></span></td><td class="small"><?= e((string) $r['seconds']) ?></td>
-    <td class="small" style="overflow-wrap:anywhere"><?= e(mb_substr((string) $r['detail'], 0, 300)) ?></td></tr><?php endforeach; ?>
+    <td class="small wrap-any"><?= e(mb_substr((string) $r['detail'], 0, 300)) ?></td></tr><?php endforeach; ?>
   </table><?php endif; ?>
 </div>
 <div class="card" id="health-errors" data-count="<?= count($errors) ?>">
@@ -32,6 +32,6 @@
   <?php if (! $groups): ?><p class="muted"><?= te('No error recorded.') ?></p><?php else: ?>
   <table><tr><th><?= te('Times') ?></th><th><?= te('Last') ?></th><th><?= te('Error') ?></th><th><?= te('Where') ?></th><th><?= te('Pages') ?></th></tr>
   <?php foreach ($groups as $g): ?><tr data-error="<?= e($g['fingerprint']) ?>" data-times="<?= (int) $g['count'] ?>"><td><?= (int) $g['count'] ?></td><td class="small"><?= e((string) $g['last']) ?><br><span class="mono"><?= e((string) $g['last_request']) ?></span></td>
-    <td class="small" style="overflow-wrap:anywhere"><?= e($g['class'] . ': ' . $g['message']) ?></td><td class="small mono"><?= e($g['where']) ?></td><td class="small mono"><?= e(implode(' ', array_slice(array_keys($g['paths']), 0, 5))) ?></td></tr><?php endforeach; ?>
+    <td class="small wrap-any"><?= e($g['class'] . ': ' . $g['message']) ?></td><td class="small mono"><?= e($g['where']) ?></td><td class="small mono"><?= e(implode(' ', array_slice(array_keys($g['paths']), 0, 5))) ?></td></tr><?php endforeach; ?>
   </table><?php endif; ?>
 </div>

@@ -8,7 +8,7 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
 <p class="small"><a href="/reports"><?= te('Reports') ?></a> · <a href="/report-builder"><?= te('Report builder') ?></a></p>
 
 <?php if ($form !== null): ?>
-<h1><?= $form['id'] ? te('Change :name', ['name' => $form['name']]) : te('New saved report') ?></h1>
+<div class="page-head"><div><h1><?= $form['id'] ? te('Change :name', ['name' => $form['name']]) : te('New saved report') ?></h1></div></div>
 <form method="get" class="row"><input type="hidden" name="<?= $form['id'] ? 'edit' : 'new' ?>" value="<?= $form['id'] ? (int) $form['id'] : 1 ?>">
   <?php if (! $form['id']): ?><label><?= te('Built on') ?></label><select name="source" onchange="this.form.submit()"><?php foreach ($readable as $k => $r): ?><option value="<?= e($k) ?>"<?= $k === $form['source'] ? ' selected' : '' ?>><?= te($r['title']) ?></option><?php endforeach; ?></select><noscript><button class="btn ghost"><?= te('Choose') ?></button></noscript><?php endif; ?>
 </form>
@@ -39,9 +39,9 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
 
 <?php elseif ($definition !== null): ?>
 <?php $f = $result['filters']; $src = $catalog[$definition['source']]; ?>
-<h1><?= e($definition['name']) ?></h1>
+<div class="page-head"><div><h1><?= e($definition['name']) ?></h1>
 <p class="sub"><?= te('Built on :report', ['report' => t($src['title'])]) ?> · <span id="resolved" data-from="<?= e($f['from']) ?>" data-to="<?= e($f['to']) ?>" data-asof="<?= e($f['asof']) ?>" data-year="<?= (int) $f['year'] ?>"><?= te(($periods[$definition['filters']['period'] ?? 'fixed'] ?? 'Fixed dates')) ?>: <?= e(d($f['from'])) ?> – <?= e(d($f['to'])) ?></span>
-  <?= $definition['conditions'] ? ' · ' . te(':n condition(s)', ['n' => count($definition['conditions'])]) : '' ?></p>
+  <?= $definition['conditions'] ? ' · ' . te(':n condition(s)', ['n' => count($definition['conditions'])]) : '' ?></p></div></div>
 <div class="row">
   <?php if (rb_may_change($definition)): ?><a class="btn ghost" href="/report-builder?edit=<?= (int) $definition['id'] ?>"><?= te('Change') ?></a><?php endif; ?>
   <?php if (rb_can_export((string) $definition['source'])): ?>
@@ -79,8 +79,8 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
 <?php endif; ?>
 
 <?php else: ?>
-<h1><?= te('Report builder') ?></h1>
-<p class="sub"><?= te('Save a report with the columns, period, conditions and order you need, export it, or have it run by itself for the people who need it. Every export is logged.') ?></p>
+<div class="page-head"><div><h1><?= te('Report builder') ?></h1>
+<p class="sub"><?= te('Save a report with the columns, period, conditions and order you need, export it, or have it run by itself for the people who need it. Every export is logged.') ?></p></div></div>
 <p><a class="btn" href="/report-builder?new=1"><?= te('New saved report') ?></a></p>
 
 <div class="card scroll" id="saved"><h2><?= te('Saved reports') ?></h2>

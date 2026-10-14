@@ -26,9 +26,9 @@ $kpiValue = static function ($v, string $type): string {
   .kpi .v { font-size: 1.35em; font-weight: 600; }
   table.report th, table.report td { white-space: nowrap; }
 </style>
-<p class="small"><a href="/analytics"><?= te('Dashboards') ?></a> · <a href="/reports"><?= te('Reports') ?></a></p>
-<h1><?= te($def['title']) ?></h1>
-<p class="sub"><?= te($def['about']) ?></p>
+<p class="back-link"><a href="/analytics"><?= te('Dashboards') ?></a> · <a href="/reports"><?= te('Reports') ?></a></p>
+<div class="page-head"><div><h1><?= te($def['title']) ?></h1>
+<p class="sub"><?= te($def['about']) ?></p></div></div>
 <?php if ($def['filters']): ?>
 <form method="get" class="row" id="dashboard-filters"><input type="hidden" name="d" value="<?= e($dashboard) ?>">
   <?php if (in_array('period', $def['filters'], true)): ?><label><?= te('From') ?></label><input type="date" name="from" value="<?= e($filters['from']) ?>"><label><?= te('To') ?></label><input type="date" name="to" value="<?= e($filters['to']) ?>"><?php endif; ?>

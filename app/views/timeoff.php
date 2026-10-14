@@ -32,7 +32,6 @@ $days = static fn (array $r): int =>
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('RUNNING THE JOB') ?></span>
     <h1><?= te('Time off') ?></h1>
     <p class="sub">
       <?= $isWorker
@@ -44,7 +43,7 @@ $days = static fn (array $r): int =>
 
 <?php if ($isWorker): ?>
   <?php if ($balances): ?>
-    <div class="grid g4" style="margin-bottom:18px">
+    <div class="grid g4 mb-l">
       <?php foreach ($balances as $slug => $b): ?>
         <div class="stat">
           <div class="n"><?= $b['left'] === null ? '&infin;' : e(leave_days_text($b['left'])) ?></div>
@@ -74,7 +73,7 @@ $days = static fn (array $r): int =>
       <h2><?= te('Ask for time off') ?></h2>
 
       <div class="row">
-        <div style="flex:2">
+        <div class="f2">
           <label for="t-job"><?= te('Assignment') ?></label>
           <select id="t-job" name="placement_id" required>
             <?php foreach ($assignments as $a): ?>
@@ -92,8 +91,8 @@ $days = static fn (array $r): int =>
         </div>
       </div>
 
-      <div class="row" style="margin-top:12px">
-        <div style="flex:2">
+      <div class="row mt">
+        <div class="f2">
           <label for="t-kind"><?= te('What kind') ?></label>
           <select id="t-kind" name="leave_type" required>
             <option value=""><?= te('Choose…') ?></option>
@@ -112,12 +111,12 @@ $days = static fn (array $r): int =>
         </div>
       </div>
 
-      <div class="field" style="margin-top:12px">
+      <div class="field mt">
         <label for="t-why"><?= te('Reason (optional)') ?></label>
         <textarea id="t-why" name="reason" rows="3" maxlength="2000"></textarea>
       </div>
 
-      <button class="btn" type="submit" style="margin-top:12px"><?= te('Request approval') ?></button>
+      <button class="btn mt" type="submit"><?= te('Request approval') ?></button>
     </form>
   <?php endif; ?>
 <?php endif; ?>
@@ -131,8 +130,8 @@ $days = static fn (array $r): int =>
 <?php else: ?>
   <?php $waiting = array_filter($requests, static fn ($r) => $r['status'] === 'pending'); ?>
   <div class="card tight">
-    <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-      <h2 style="margin:0">
+    <div class="card-bar">
+      <h2 class="m0">
         <?= $waiting
             ? te(':n waiting on a decision', ['n' => count($waiting)])
             : te('Nothing is waiting on a decision') ?>

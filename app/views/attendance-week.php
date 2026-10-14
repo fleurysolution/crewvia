@@ -4,10 +4,10 @@ $next = date('Y-m-d', strtotime($week . ' +7 days'));
 $good = ['agrees'];
 $warn = ['not_on_sheet', 'nothing_approved', 'changed_since_import', 'typed_without_attendance'];
 ?>
-<p class="small"><a href="/attendance"><?= te('← Daily attendance') ?></a></p>
-<h1><?= te('Week check') ?></h1>
+<p class="back-link"><a href="/attendance"><?= te('← Daily attendance') ?></a></p>
+<div class="page-head"><div><h1><?= te('Week check') ?></h1>
 <p class="sub"><?= te('Week ending :date on :project. Read-only: correct days on the attendance page, import and approve sheets on Hours.',
-    ['date' => d($week), 'project' => (string) ($job['title'] ?? '—')]) ?></p>
+    ['date' => d($week), 'project' => (string) ($job['title'] ?? '—')]) ?></p></div></div>
 
 <p class="row">
   <a class="btn ghost sm" href="/attendance-week?week=<?= e($prev) ?>"><?= te('Previous week') ?></a>

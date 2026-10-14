@@ -9,8 +9,8 @@ $query = $statement === 'balance' ? 'asof=' . rawurlencode($asof) : 'from=' . ra
   table.statement tr.total th, table.statement tr.grand th { border-top: 1px solid var(--line, #ccc); }
   table.statement tr.grand th { font-size: 1.05em; }
 </style>
-<h1><?= te('Financial statements') ?></h1>
-<p class="sub"><?= te('Read from the Crewvia ledger: what Crewvia records, and the journals typed for the rest. Nothing here is entered. They are not audited statements.') ?></p>
+<div class="page-head"><div><h1><?= te('Financial statements') ?></h1>
+<p class="sub"><?= te('Read from the Crewvia ledger: what Crewvia records, and the journals typed for the rest. Nothing here is entered. They are not audited statements.') ?></p></div></div>
 
 <div class="row" id="statement-tabs"><?php foreach ($tabs as $k => $label): ?><a class="btn<?= $k === $statement ? '' : ' ghost' ?>" href="/statements?view=<?= e($k) ?>"><?= e($label) ?></a> <?php endforeach; ?></div>
 

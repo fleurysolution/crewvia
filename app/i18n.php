@@ -167,6 +167,24 @@ function people(int $n): string
     return $n === 1 ? t('1 person') : t(':n people', ['n' => $n]);
 }
 
+/**
+ * A count in words: the singular entry or the plural one, each its own
+ * catalogue entry, chosen by the reader's language. French says "0 demande",
+ * English and Spanish "0 requests". :n is the count unless $vars sets it.
+ */
+function tn(int|float $n, string $one, string $many, array $vars = []): string
+{
+    $single = locale() === 'fr' ? abs($n) < 2 : abs($n) == 1;
+
+    return t($single ? $one : $many, $vars + ['n' => $n]);
+}
+
+/** tn(), escaped for a view. */
+function ten(int|float $n, string $one, string $many, array $vars = []): string
+{
+    return e(tn($n, $one, $many, $vars));
+}
+
 function te(string $text, array $vars = []): string
 {
     // Decode catalogue entities before escaping exactly once. Never decode variables.

@@ -4,7 +4,7 @@
       <input type="hidden" name="do" value="review">
       <input type="hidden" name="placement_id" value="<?= (int) $p['id'] ?>">
 
-      <h3 style="margin:0 0 10px">
+      <h3 class="m0 mb">
         <?= e($p['full_name']) ?>
         <span class="muted small">
           <?= e($p['trade'] ?: ucfirst((string) $p['discipline'])) ?>
@@ -33,7 +33,7 @@
       </div>
 
       <?php if (assignment_review_criteria()): ?>
-        <div class="row" style="margin-top:12px">
+        <div class="row mt">
           <?php foreach (assignment_review_criteria() as $slug => $label): ?>
             <div>
               <label for="s-<?= (int) $p['id'] ?>-<?= e($slug) ?>"><?= te($label) ?></label>
@@ -49,11 +49,11 @@
         </div>
       <?php endif; ?>
 
-      <div class="field" style="margin-top:12px">
+      <div class="field mt">
         <label for="n-<?= (int) $p['id'] ?>"><?= te('What the supervisor said') ?></label>
         <input id="n-<?= (int) $p['id'] ?>" name="note" maxlength="2000"
                placeholder="<?= te('Required if you would not have them back.') ?>">
       </div>
 
-      <button class="btn" type="submit" style="margin-top:12px"><?= te('Record the grade') ?></button>
+      <button class="btn mt" type="submit"><?= te('Record the grade') ?></button>
     </form>

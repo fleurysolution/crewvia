@@ -12,7 +12,7 @@ $stages = candidate_stages();
 
 <form class="card" method="get" action="/candidates">
   <div class="row">
-    <div style="flex:2">
+    <div class="f2">
       <label for="q"><?= te('Search') ?></label>
       <input id="q" name="q" value="<?= e($search) ?>" placeholder="<?= te('Name, phone, email or city') ?>">
     </div>
@@ -65,7 +65,7 @@ $stages = candidate_stages();
       </label>
     </div>
   </div>
-  <div class="row" id="location-filter" style="margin-top:8px">
+  <div class="row mt-s" id="location-filter">
     <div style="max-width:190px">
       <label for="in_state"><?= te('State') ?></label>
       <select id="in_state" name="in_state">
@@ -86,7 +86,7 @@ $stages = candidate_stages();
         <?php foreach (geo_radii() as $r): ?><option value="<?= $r ?>" <?= $geoMiles === $r ? 'selected' : '' ?>><?= te('Within :n miles', ['n' => $r]) ?></option><?php endforeach; ?>
       </select>
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="near"><?= te('of the site of') ?></label>
       <select id="near" name="near">
         <option value=""><?= te('Choose a project') ?></option>
@@ -101,7 +101,7 @@ $stages = candidate_stages();
     </div>
   </div>
   <?php if ($geoMissing): ?><p class="small" id="location-missing" style="color:var(--red,#b42318);margin:6px 0 0"><?= te('That place could not be found: give the project a city and state or a ZIP code, or try another ZIP code.') ?></p><?php endif; ?>
-  <div class="row" style="margin-top:8px">
+  <div class="row mt-s">
     <div class="row tight">
       <button class="btn" type="submit"><?= te('Filter') ?></button>
       <a class="btn ghost" href="/candidates"><?= te('Clear') ?></a>
@@ -112,7 +112,7 @@ $stages = candidate_stages();
 <section class="card" id="talent-pool">
   <span class="eyebrow"><?= te('TALENT POOL') ?></span>
   <h2 style="margin:4px 0 2px"><?= te('Find people by their history with the agency') ?></h2>
-  <p class="small muted" style="margin:0 0 14px">
+  <p class="small muted m0 mb">
     <?= te('Separate from the search above: this looks at what happened last time rather than at who somebody is.') ?>
   </p>
 
@@ -147,7 +147,7 @@ $stages = candidate_stages();
     <?php if ((int) $total === 0): ?>
       <div class="empty">
         <?= te('No candidates yet. They arrive through a requisition QR code, the public talent pool, or a spreadsheet import.') ?>
-        <p style="margin-top:10px">
+        <p class="mt">
           <a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a>
           <a class="btn ghost" href="/imports"><?= te('Import spreadsheets') ?></a>
         </p>

@@ -56,6 +56,10 @@ def user(key):
     return c
 
 
+# P5-M23: the count reads as a person says it (app/i18n.php tn()).
+fits = lambda n: '1 open job fits your file.' if n == 1 else '%d open jobs fit your file.' % n
+
+
 def check(label, condition, detail=''):
     assert condition, label + (' - ' + str(detail)[:700] if detail else '')
     results.append(label)
@@ -99,7 +103,7 @@ check('and says what is missing', 'Your trade is not on your file yet.' in body 
 status, body = banned.get(M)
 check('Someone on the do-not-rehire register is offered nothing, and the page does not say why', every(body) == set() and 'id="no-jobs-for-me"' in body and 'rehire' not in body.lower())
 count = len(every(w.get(M)[1]))
-check('The portal card counts the jobs', 'id="jobs-for-you-card"' in w.get('/portal')[1] and '%d open job(s) fit your file.' % count in w.get('/portal')[1], count)
+check('The portal card counts the jobs', 'id="jobs-for-you-card"' in w.get('/portal')[1] and fits(count) in w.get('/portal')[1], count)
 
 # ── I'm interested ─────────────────────────────────────────────────────
 check('Interest without the required answer is refused, and nothing is made', w.post({'do': 'interest', 'vacancy_id': V['chem']})[0] == 422 and mine(W) == [])
@@ -111,7 +115,7 @@ check('with its answers kept and scored', {(int(a['question_id']), a['answer']) 
 check('and an event saying where it came from, by the worker', [e for e in probe()['events'] if int(e['application_id']) == APP][-1] == {'application_id': APP, 'user_id': IDS['w'], 'stage': 'new', 'note': 'Interested, from the worker portal'})
 body = w.get(M)[1]
 check('It moves to "Jobs you are interested in", received, and leaves the list', 'data-interested="%d"' % V['chem'] in body and 'data-stage="new"' in body and V['chem'] not in offered(body))
-check('The portal card counts one job fewer', ('%d open job(s) fit your file.' % (count - 1) if count > 1 else 'No open job fits your file right now.') in w.get('/portal')[1])
+check('The portal card counts one job fewer', (fits(count - 1) if count > 1 else 'No open job fits your file right now.') in w.get('/portal')[1])
 check('Never twice', w.post({'do': 'interest', 'vacancy_id': V['chem'], 'screening[%d]' % Q: 'Yes'})[0] == 422 and len(mine(W)) == 1)
 check('Never for a job that does not fit', w.post({'do': 'interest', 'vacancy_id': V['senior']})[0] == 422 and w.post({'do': 'interest', 'vacancy_id': V['mech']})[0] == 422)
 check('nor a closed or expired one', w.post({'do': 'interest', 'vacancy_id': V['shut']})[0] == 422 and w.post({'do': 'interest', 'vacancy_id': V['expired']})[0] == 422 and len(mine(W)) == 1)

@@ -7,7 +7,6 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('ADMINISTRATION') ?></span>
     <h1><?= te('Settings') ?></h1>
     <p class="sub"><?= te('Who can reach what, how this workspace is named, and how payroll and the subscription are counted.') ?></p>
   </div>
@@ -42,7 +41,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
             <?php foreach ($desks as $desk => $meta): ?>
               <th class="center">
                 <?= e(ucfirst($desk)) ?>
-                <span class="muted small"><?= te(':n screens', ['n' => count($meta['screens'])]) ?></span>
+                <span class="muted small"><?= ten(count($meta['screens']), ':n screen', ':n screens', ['n' => count($meta['screens'])]) ?></span>
               </th>
             <?php endforeach; ?>
           </tr>
@@ -76,7 +75,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
       </table>
     </div>
 
-    <p class="hint" style="margin-top:12px">
+    <p class="hint mt">
       <?= te('Unticking a box removes the access when you save. Every change is recorded below.') ?>
     </p>
     <button class="btn" type="submit"><?= te('Save permissions') ?></button>
@@ -138,7 +137,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
       </div>
     </div>
 
-    <div class="row" style="margin-top:14px">
+    <div class="row mt">
       <div>
         <label for="s-adpd"><?= te('Per diem') ?></label>
         <input id="s-adpd" name="adp_perdiem_code" maxlength="40"
@@ -160,7 +159,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
                min="0" max="100000" step="0.01"
                value="<?= e((string) $price) ?>">
       </div>
-      <div style="flex:2">
+      <div class="f2">
         <label for="s-basis"><?= te('Counting basis') ?></label>
         <select id="s-basis" name="billing_basis">
           <option value="active_workers" <?= $basis === 'active_workers' ? 'selected' : '' ?>>
@@ -173,7 +172,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
       </div>
     </div>
 
-    <button class="btn" type="submit" style="margin-top:20px"><?= te('Save settings') ?></button>
+    <button class="btn mt-l" type="submit"><?= te('Save settings') ?></button>
   </form>
 
   <!-- ── what that adds up to ───────────────────────────────────────── -->
@@ -181,7 +180,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
     <span class="eyebrow"><?= te('THIS WORKSPACE TODAY') ?></span>
     <h2><?= te('Where you stand') ?></h2>
 
-    <div class="grid g2" style="margin-bottom:16px">
+    <div class="grid g2 mb-l">
       <div class="stat">
         <div class="n"><?= $active ?></div>
         <div class="l"><?= te('Active worker accounts') ?></div>
@@ -203,7 +202,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
       </tbody>
     </table>
 
-    <p style="margin-top:16px">
+    <p class="mt-l">
       <strong><?= te('Estimated monthly software fee:') ?></strong>
       <?= e(money($price * $counted)) ?>
       <span class="muted small">
@@ -224,10 +223,10 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
     <?= te('A trade is what an order asks for. A skill is what a person can do, and somebody can have several. Recruiters search the pool by these: this is how "find me the welders" is answered.') ?>
   </p>
 
-  <form method="post" class="row" style="margin-bottom:18px">
+  <form method="post" class="row mb-l">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="add_skill">
-    <div style="flex:2">
+    <div class="f2">
       <label for="skill-label"><?= te('Add a skill') ?></label>
       <input id="skill-label" name="label" maxlength="90" required
              placeholder="<?= te('e.g. Tank welder, CNC operator, Heavy equipment operator') ?>">
@@ -254,7 +253,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
             </span>
           </td>
           <td class="right nowrap">
-            <form method="post" style="display:inline">
+            <form class="inline" method="post">
               <?= csrf_field() ?>
               <input type="hidden" name="do" value="<?= $skill['active'] ? 'retire_skill' : 'restore_skill' ?>">
               <input type="hidden" name="slug" value="<?= e($skill['slug']) ?>">
@@ -278,10 +277,10 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
     <?= te('These are the trades a scope of work can ask for and a candidate can be filed under. A trade in use is retired rather than deleted, so past orders keep their meaning.') ?>
   </p>
 
-  <form method="post" class="row" style="margin-bottom:18px">
+  <form method="post" class="row mb-l">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="add_trade">
-    <div style="flex:2">
+    <div class="f2">
       <label for="trade-label"><?= te('Add a trade') ?></label>
       <input id="trade-label" name="label" maxlength="90" required
              placeholder="<?= te('e.g. Boilermaker, Rigger, Welder') ?>">
@@ -309,7 +308,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
           </td>
           <td class="right nowrap">
             <?php if ($trade['slug'] !== 'other'): ?>
-              <form method="post" style="display:inline">
+              <form class="inline" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" name="do" value="<?= $trade['active'] ? 'retire_trade' : 'restore_trade' ?>">
                 <input type="hidden" name="slug" value="<?= e($trade['slug']) ?>">

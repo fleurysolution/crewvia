@@ -4,9 +4,9 @@
 
 <?php require __DIR__ . '/_self-service-cards.php'; ?>
 
-<div class="grid g2" style="margin-top:14px">
-<div class="card" id="jobs-for-you-card"><h2><?= te('Jobs for you') ?></h2><p><?= $jobsForYou ? te(':n open job(s) fit your file.', ['n' => $jobsForYou]) : te('No open job fits your file right now.') ?></p><a class="btn<?= $jobsForYou ? '' : ' ghost' ?>" href="/my-jobs"><?= te('See the jobs') ?></a></div>
-<div class="card" id="assignments"><h2><?= te('Assignments') ?></h2><?php if (! $assignments): ?><p class="muted small"><?= te('No assignment yet.') ?></p><?php endif; ?><?php foreach($assignments as $a): ?><p><?= te(':project · :status · :date',['project'=>$a['title'],'status'=>t($a['status']),'date'=>d($a['start_date'])]) ?></p><?php endforeach; ?>
+<div class="grid g2 mt">
+<div class="card" id="jobs-for-you-card"><h2><?= te('Jobs for you') ?></h2><p><?= $jobsForYou ? ten($jobsForYou, ':n open job fits your file.', ':n open jobs fit your file.') : te('No open job fits your file right now.') ?></p><a class="btn<?= $jobsForYou ? '' : ' ghost' ?>" href="/my-jobs"><?= te('See the jobs') ?></a></div>
+<div class="card" id="assignments"><h2><?= te('Assignments') ?></h2><?php if (! $assignments): ?><p class="muted small"><?= te('No assignment yet.') ?></p><?php endif; ?><?php foreach($assignments as $a): ?><p><?= te(':project · :status · :date',['project'=>$a['title'],'status'=>t(placement_word((string) $a['status'])),'date'=>d($a['start_date'])]) ?></p><?php endforeach; ?>
   <?php foreach($details as $d): ?><p class="small muted"><?= te(':project · :trade · :shift · supervisor :name',['project'=>$d['title'],'trade'=>$d['trade'],'shift'=>$d['shift_label'],'name'=>$d['supervisor']]) ?></p><?php endforeach; ?></div>
 </div>
 
@@ -25,5 +25,5 @@
 <?php endif; ?>
 
 <?php if ($applications): ?>
-<div class="card" id="applications"><h2><?= te('Your applications') ?></h2><?php foreach($applications as $a): ?><div class="card"><h3><?= e($a['title'].' · '.$a['project']) ?></h3><p><?= e($a['stage']) ?></p><?php if($a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']): ?><div><?= nl2br(e($a['offer_text'])) ?></div><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="accept_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><input style="width:auto" type="checkbox" name="consent" required> <?= te('I accept the offer terms displayed above and intend to sign electronically.') ?></label><label><?= te('Your full name') ?><input name="signer_name" required maxlength="190" autocomplete="name"></label><button class="btn"><?= te('Sign and accept offer') ?></button></form><?php endif; ?></div><?php endforeach; ?></div>
+<div class="card" id="applications"><h2><?= te('Your applications') ?></h2><?php foreach($applications as $a): ?><div class="card"><h3><?= e($a['title'].' · '.$a['project']) ?></h3><p><?= e($a['stage']) ?></p><?php if($a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']): ?><div><?= nl2br(e($a['offer_text'])) ?></div><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="accept_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><input class="w-auto" type="checkbox" name="consent" required> <?= te('I accept the offer terms displayed above and intend to sign electronically.') ?></label><label><?= te('Your full name') ?><input name="signer_name" required maxlength="190" autocomplete="name"></label><button class="btn"><?= te('Sign and accept offer') ?></button></form><?php endif; ?></div><?php endforeach; ?></div>
 <?php endif; ?>

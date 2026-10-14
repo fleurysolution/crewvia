@@ -12,12 +12,11 @@ $progress  = $target > 0 ? min(100, (int) round($filled / $target * 100)) : 0;
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('YOUR DESK') ?></span>
     <h1>
       <?php if ($total === 0): ?>
         <?= te('Nothing is waiting on you.') ?>
       <?php else: ?>
-        <?= te(':n things are waiting on you', ['n' => $total]) ?>
+        <?= ten($total, ':n thing is waiting on you', ':n things are waiting on you') ?>
       <?php endif; ?>
     </h1>
     <p class="sub">
@@ -33,7 +32,7 @@ $progress  = $target > 0 ? min(100, (int) round($filled / $target * 100)) : 0;
   <div class="headcount-top">
     <div>
       <span class="eyebrow"><?= te('THIS PROJECT') ?></span>
-      <h2 style="margin:4px 0 0"><?= e($job['title']) ?></h2>
+      <h2 class="m0 mt-xs"><?= e($job['title']) ?></h2>
     </div>
     <div class="headcount-figure">
       <strong><?= $remaining ?></strong>

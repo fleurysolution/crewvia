@@ -13,9 +13,8 @@ import http.cookiejar, json, re, urllib.error, urllib.parse, urllib.request
 base = 'http://127.0.0.1:8097'
 results = []
 ROLES = {'admin': 'admin@test.invalid', 'worker': 'worker@test.invalid', 'supervisor': 'supervisor@test.invalid', 'client': 'client@test.invalid'}
-# Detail pages that open with a back link and still have their own header: wave 4 converts them.
-PENDING = {'/appraisals', '/asset-valuation', '/assets', '/attendance-week', '/driver-checks', '/employee-folder', '/feedback', '/hours', '/leave-types',
-           '/my-training', '/pay-grades', '/performance', '/proofs', '/report-builder', '/statements', '/surveys', '/training'}
+# Pages still on their own header. Wave 4 (P5-M23) converted the last of them; keep it empty.
+PENDING = set()
 SKIP = {'/logout', '/inbox'}
 
 

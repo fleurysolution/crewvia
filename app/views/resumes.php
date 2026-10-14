@@ -11,7 +11,6 @@
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('RECRUITING') ?></span>
     <h1><?= te('Candidate resumes') ?></h1>
     <p class="sub">
       <?= te('Attached by applicants when they apply through a requisition link. Stored encrypted: only the recruiting desk and the person themselves can open one.') ?>
@@ -23,14 +22,14 @@
 <?php if (! $resumes): ?>
   <div class="card"><div class="empty">
     <?= te('No résumés on file yet. One arrives when somebody attaches it to a public application.') ?>
-    <p style="margin-top:10px">
+    <p class="mt">
       <a class="btn ghost" href="/requisitions"><?= te('Open requisitions') ?></a>
     </p>
   </div></div>
 <?php else: ?>
   <div class="card tight">
-    <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-      <h2 style="margin:0"><?= te(':n on file', ['n' => count($resumes)]) ?></h2>
+    <div class="card-bar">
+      <h2 class="m0"><?= te(':n on file', ['n' => count($resumes)]) ?></h2>
     </div>
     <div class="scroll">
       <table>

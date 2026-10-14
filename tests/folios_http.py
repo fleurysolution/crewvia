@@ -94,7 +94,7 @@ check('Billed and booked agree', f['totals']['billed'] == 970.0 and f['totals'][
 check('Not twice for the same hotel and week', logistics.post({'do': 'open', 'hotel_id': HOTEL, 'week': fx['any_day'], 'reference': 'RI-4472'})[0] == 422 and len(probe()['folios']) == 1)
 FID = int(f['id'])
 status, body = logistics.get(F + '?folio=%d' % FID)
-check('The folio page shows its lines and what Crewvia booked', 'data-line="%d"' % A['id'] in body and '7 night(s) at $100.00' in body and 'data-flag="absent"' in body)
+check('The folio page shows its lines and what Crewvia booked', 'data-line="%d"' % A['id'] in body and '7 nights at $100.00' in body and 'data-flag="absent"' in body)
 
 # ── correcting it to what the hotel billed ─────────────────────────────
 logistics.post({'do': 'line_save', 'line_id': B['id'], 'nights': 4, 'rate': '90'})

@@ -43,12 +43,12 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
   </div>
 
   <?php if ($blockers): ?>
-    <h3 style="margin:14px 0 6px"><?= te('Not approved yet') ?></h3>
-    <p class="small" style="color:var(--amber)"><?= te('The period is submitted once these are approved on Hours, on their projects.') ?></p>
+    <h3 class="m0 mt mb-s"><?= te('Not approved yet') ?></h3>
+    <p class="small t-amber"><?= te('The period is submitted once these are approved on Hours, on their projects.') ?></p>
     <?php foreach ($blockers as $b): ?><div class="small" data-blocker="<?= (int) $b['id'] ?>"><?= e($b['full_name'] . ' · ' . $b['project']) ?></div><?php endforeach; ?>
   <?php endif; ?>
 
-  <h3 style="margin:14px 0 6px"><?= te('Reconciliation') ?></h3>
+  <h3 class="m0 mt mb-s"><?= te('Reconciliation') ?></h3>
   <?php if (! $summary['people']): ?>
     <p class="muted"><?= te('No approved week and no adjustment in this period yet.') ?></p>
   <?php else: ?>
@@ -71,7 +71,7 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
   <p class="small muted"><?= te('Employer contributions this week: :amount. Taxes are withheld by the payroll provider and are not in these figures.', ['amount' => money($summary['totals']['employer'])]) ?></p>
   <?php endif; ?>
 
-  <h3 style="margin:14px 0 6px"><?= te('Adjustments in this period') ?></h3>
+  <h3 class="m0 mt mb-s"><?= te('Adjustments in this period') ?></h3>
   <?php if (! $adjustments): ?><p class="muted"><?= te('None.') ?></p><?php endif; ?>
   <?php foreach ($adjustments as $a): ?>
     <div class="small" data-adjustment="<?= (int) $a['id'] ?>"><?= e($a['full_name']) ?> · <?= e($kinds[$a['kind']] ?? $a['kind']) ?> · <span class="mono"><?= e(money($a['amount'])) ?></span><?= $a['corrects'] ? ' · ' . te('corrects the week ending :date', ['date' => d($a['corrects'])]) : '' ?> · <?= e($a['reason']) ?> · <?= e($a['by_name'] ?? '') ?></div>
@@ -79,7 +79,7 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
 
   <?php if ($run['status'] === 'open'): ?>
     <?php if ($differences): ?>
-    <h3 style="margin:14px 0 6px"><?= te('Paid weeks that no longer match their days') ?></h3>
+    <h3 class="m0 mt mb-s"><?= te('Paid weeks that no longer match their days') ?></h3>
     <p class="small muted"><?= te('Found by the week check. Each can be settled here; the amount suggested is the hours difference at the person\'s rate.') ?></p>
     <?php foreach ($differences as $x): $diff = round((float) $x['approved_hours'] - (float) $x['hours_worked'], 2); $amt = abs(round($diff * (float) $x['pay_rate'], 2)); ?>
       <form method="post" class="row" data-difference="<?= (int) $x['timesheet_id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="adjust"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>">
@@ -93,7 +93,7 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
     <?php endif; ?>
 
     <?php if ($cashRewards): ?>
-    <h3 style="margin:14px 0 6px"><?= te('Cash rewards to pay') ?></h3>
+    <h3 class="m0 mt mb-s"><?= te('Cash rewards to pay') ?></h3>
     <p class="small muted"><?= te('Approved under Recognition. Paying one adds it to this period as a reward, paid as wages.') ?></p>
     <?php foreach ($cashRewards as $cr): ?>
       <form method="post" class="row" data-cash-reward="<?= (int) $cr['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="pay_reward"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>"><input type="hidden" name="redemption_id" value="<?= (int) $cr['id'] ?>">
@@ -101,8 +101,8 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
     <?php endforeach; ?>
     <?php endif; ?>
 
-    <form method="post" class="card" id="new-adjustment" style="margin-top:12px"><?= csrf_field() ?><input type="hidden" name="do" value="adjust"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>">
-      <h3 style="margin:0 0 8px"><?= te('Record an adjustment') ?></h3>
+    <form method="post" class="card mt" id="new-adjustment"><?= csrf_field() ?><input type="hidden" name="do" value="adjust"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>">
+      <h3 class="m0 mb-s"><?= te('Record an adjustment') ?></h3>
       <div class="grid g2">
         <div><label><?= te('Worker') ?></label><select name="candidate_id"><?php foreach ($people as $p): ?><option value="<?= (int) $p['id'] ?>"><?= e($p['full_name']) ?></option><?php endforeach; ?></select></div>
         <div><label><?= te('Kind') ?></label><select name="kind"><?php foreach ($kinds as $k => $v): if ($k === 'reward') { continue; } ?><option value="<?= e($k) ?>"><?= e($v) ?></option><?php endforeach; ?></select></div>
@@ -114,7 +114,7 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
     </form>
   <?php endif; ?>
 
-  <h3 style="margin:14px 0 6px"><?= te('Audit trail') ?></h3>
+  <h3 class="m0 mt mb-s"><?= te('Audit trail') ?></h3>
   <?php foreach ($events as $ev): ?>
     <div class="small" data-event="<?= e($ev['event']) ?>"><?= e(substr((string) $ev['created_at'], 0, 16)) ?> · <?= e($ev['name'] ?? '—') ?> · <?= e($eventWords[$ev['event']] ?? $ev['event']) ?><?= $ev['detail'] ? ' · ' . e($ev['detail']) : '' ?></div>
   <?php endforeach; ?>

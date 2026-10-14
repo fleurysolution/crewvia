@@ -52,7 +52,6 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('ORGANIZATION') ?></span>
     <h1><?= e($job['title'] ?? t('Select a project')) ?></h1>
     <p class="sub">
       <?= te(':crew on the job, :teams supervisors, :onsite on site right now', [
@@ -88,8 +87,8 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
 <!-- ── nobody's responsibility ─────────────────────────────────────── -->
 <?php if ($unassigned): ?>
 <section class="card" style="border-color:#F0C4C1;background:#FDEEED">
-  <span class="eyebrow" style="color:var(--red)"><?= te('NOBODY IS CARRYING THESE') ?></span>
-  <h2 style="color:var(--red)">
+  <span class="eyebrow t-red"><?= te('NOBODY IS CARRYING THESE') ?></span>
+  <h2 class="t-red">
     <?= te(':n with no supervisor', ['n' => count($unassigned)]) ?>
   </h2>
   <p class="small" style="margin:-4px 0 14px">
@@ -130,10 +129,10 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
 <?php foreach ($teams as $supervisorId => $team): ?>
   <?php $size = count($team['members']); ?>
   <section class="card">
-    <div class="page-heading" style="margin:0 0 12px">
+    <div class="page-heading m0 mb">
       <div>
         <span class="eyebrow"><?= te('CREW') ?></span>
-        <h2 style="margin:4px 0 0"><?= e($team['supervisor']) ?></h2>
+        <h2 class="m0 mt-xs"><?= e($team['supervisor']) ?></h2>
       </div>
       <span class="tag <?= $size > COMFORTABLE_CREW ? 'amber' : 'blue' ?>">
         <?= te(':n people', ['n' => $size]) ?>

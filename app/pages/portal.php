@@ -51,7 +51,7 @@ require_once __DIR__.'/../hr-requests.php';
 $home=self_service_home((int)$worker['id']);
 $extraWaiting=[];
 $pendingTasks=count(array_filter($tasks,static fn($t)=>in_array($t['status'],['pending','rejected'],true)));
-if($pendingTasks){$extraWaiting[]=['#onboarding',t(':n onboarding task(s) to complete',['n'=>$pendingTasks]),'onboarding'];}
+if($pendingTasks){$extraWaiting[]=['#onboarding',tn($pendingTasks,':n onboarding task to complete',':n onboarding tasks to complete'),'onboarding'];}
 $offers=count(array_filter($applications,static fn($a)=>$a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']));
-if($offers){$extraWaiting[]=['#applications',t(':n job offer(s) to answer',['n'=>$offers]),'offer'];}
+if($offers){$extraWaiting[]=['#applications',tn($offers,':n job offer to answer',':n job offers to answer'),'offer'];}
 render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou','hotelCharges','home','extraWaiting'));

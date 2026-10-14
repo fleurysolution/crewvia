@@ -12,7 +12,6 @@ $subjectWord = [
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('APPROVALS') ?></span>
     <h1>
       <?= $mine
           ? te(':n waiting on your decision', ['n' => count($mine)])
@@ -25,8 +24,8 @@ $subjectWord = [
 </div>
 
 <section class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Your decisions') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Your decisions') ?></h2>
   </div>
 
   <?php if (! $mine): ?>
@@ -63,15 +62,15 @@ $subjectWord = [
 </section>
 
 <section class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Everything in the chain') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Everything in the chain') ?></h2>
   </div>
 
   <?php if (! $inFlight): ?>
     <div class="empty">
       <?= te('Nothing has been submitted for approval yet.') ?>
       <?php if (can('admin')): ?>
-        <div class="hint" style="margin-top:8px">
+        <div class="hint mt-s">
           <?= te('Who is asked, and in what order, is set up under Administration.') ?>
           <a href="/approval-chains"><?= te('Approval chains') ?></a>
         </div>

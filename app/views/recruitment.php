@@ -33,7 +33,6 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('RECRUITING') ?></span>
     <h1><?= te('Application screening') ?></h1>
     <p class="sub">
       <?= te('Every application on this project. A person and an application are separate records: the same person can apply twice, and each application carries its own stage and its own screening.') ?>
@@ -48,19 +47,19 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
 <?php if (! $applications): ?>
   <div class="card"><div class="empty">
     <?= te('No applications yet. Create a requisition and share its QR code or public link, or invite somebody from the talent pool.') ?>
-    <p style="margin-top:10px"><a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a></p>
+    <p class="mt"><a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a></p>
   </div></div>
 <?php endif; ?>
 
 <?php foreach ($applications as $a): ?>
   <?php $isSettled = in_array($a['stage'], $settled, true); ?>
   <article class="card">
-    <div class="page-heading" style="margin:0 0 12px">
+    <div class="page-heading m0 mb">
       <div>
-        <h2 style="margin:0">
+        <h2 class="m0">
           <a href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= e($a['full_name']) ?></a>
         </h2>
-        <p class="small muted" style="margin:4px 0 0">
+        <p class="small muted m0 mt-xs">
           <?= te('Applied for :role', ['role' => e($a['title'])]) ?>
           <?php if (! empty($a['created_at'])): ?>
             &middot; <?= te('applied :when', ['when' => d($a['created_at'])]) ?>
@@ -68,7 +67,7 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
           <?php if (isset($a['rate']) && $a['rate'] !== null): ?>
             &middot; <?= te(':amount an hour agreed', ['amount' => money((float) $a['rate'])]) ?>
           <?php else: ?>
-            &middot; <span style="color:var(--amber)"><?= te('no agreed rate behind this order') ?></span>
+            &middot; <span class="t-amber"><?= te('no agreed rate behind this order') ?></span>
           <?php endif; ?>
         </p>
       </div>
@@ -126,7 +125,7 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
                placeholder="<?= te('Why. Recorded against the application.') ?>">
 
         <?php if ($isSettled): ?>
-          <p class="hint" style="margin:4px 0 0">
+          <p class="hint m0 mt-xs">
             <?= te('This application is settled, so its stage no longer moves. Raise a new application for the same person if they come back.') ?>
           </p>
         <?php else: ?>

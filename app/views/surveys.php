@@ -23,9 +23,9 @@ $svForm = static function (?array $s, array $jobs) use ($svAud, $svRoles): void 
 <?php };
 ?>
 <?php if ($take): ?>
-<p><a href="/surveys">← <?= te('Surveys') ?></a></p>
-<h1><?= e($take['title']) ?></h1>
-<p class="sub"><?= te('Until :date', ['date' => d((string) $take['closes_on'])]) ?> · <span id="anonymity" data-anonymous="<?= (int) $take['is_anonymous'] ?>"><?= (int) $take['is_anonymous'] ? te('Anonymous: your name is not kept with your answers, and results show only once enough people have answered.') : te('Not anonymous: your name is kept with your answers.') ?></span></p>
+<p class="back-link"><a href="/surveys">← <?= te('Surveys') ?></a></p>
+<div class="page-head"><div><h1><?= e($take['title']) ?></h1>
+<p class="sub"><?= te('Until :date', ['date' => d((string) $take['closes_on'])]) ?> · <span id="anonymity" data-anonymous="<?= (int) $take['is_anonymous'] ?>"><?= (int) $take['is_anonymous'] ? te('Anonymous: your name is not kept with your answers, and results show only once enough people have answered.') : te('Not anonymous: your name is kept with your answers.') ?></span></p></div></div>
 <?php if ($take['intro']): ?><p><?= e($take['intro']) ?></p><?php endif; ?>
 <?php if ($take['responded_on'] !== null): ?><p class="card" id="answered"><?= te('You answered on :date. Thank you.', ['date' => d((string) $take['responded_on'])]) ?></p>
 <?php elseif ($take['status'] !== 'open' || (string) $take['closes_on'] < date('Y-m-d')): ?><p class="card muted" id="survey-closed"><?= te('That survey is closed.') ?></p>
@@ -42,14 +42,14 @@ $svForm = static function (?array $s, array $jobs) use ($svAud, $svRoles): void 
 <?php endif; ?>
 
 <?php elseif ($survey): ?>
-<p><a href="/surveys">← <?= te('Surveys') ?></a></p>
-<h1><?= e($survey['title']) ?></h1>
-<p class="sub"><span class="tag <?= $svTone[$survey['status']] ?>" id="survey-status" data-status="<?= e($survey['status']) ?>"><?= e($svStatus[$survey['status']]) ?></span> · <?= e($svAud[$survey['audience']]) ?><?= $survey['job_title'] ? ' · ' . e($survey['job_title']) : '' ?><?= $survey['audience_role'] ? ' · ' . e($svRoles[$survey['audience_role']] ?? $survey['audience_role']) : '' ?> · <?= te('Until :date', ['date' => d((string) $survey['closes_on'])]) ?> · <?= (int) $survey['is_anonymous'] ? te('Anonymous') : te('Not anonymous') ?></p>
+<p class="back-link"><a href="/surveys">← <?= te('Surveys') ?></a></p>
+<div class="page-head"><div><h1><?= e($survey['title']) ?></h1>
+<p class="sub"><span class="tag <?= $svTone[$survey['status']] ?>" id="survey-status" data-status="<?= e($survey['status']) ?>"><?= e($svStatus[$survey['status']]) ?></span> · <?= e($svAud[$survey['audience']]) ?><?= $survey['job_title'] ? ' · ' . e($survey['job_title']) : '' ?><?= $survey['audience_role'] ? ' · ' . e($svRoles[$survey['audience_role']] ?? $survey['audience_role']) : '' ?> · <?= te('Until :date', ['date' => d((string) $survey['closes_on'])]) ?> · <?= (int) $survey['is_anonymous'] ? te('Anonymous') : te('Not anonymous') ?></p></div></div>
 <?php if ($survey['status'] === 'draft'): ?>
 <div class="grid g2">
   <?php $svForm($survey, $jobs); ?>
   <div class="card" id="survey-questions" data-count="<?= count($questions) ?>"><h2><?= te('Questions') ?></h2>
-    <?php foreach ($questions as $i => $qq): ?><div class="small" data-question="<?= (int) $qq['id'] ?>" style="margin:6px 0"><strong><?= $i + 1 ?>. <?= e($qq['prompt']) ?></strong> · <?= e($svKinds[$qq['kind']]) ?><?= (int) $qq['is_required'] ? '' : ' · ' . te('optional') ?>
+    <?php foreach ($questions as $i => $qq): ?><div class="small m0 mt-s mb-s" data-question="<?= (int) $qq['id'] ?>"><strong><?= $i + 1 ?>. <?= e($qq['prompt']) ?></strong> · <?= e($svKinds[$qq['kind']]) ?><?= (int) $qq['is_required'] ? '' : ' · ' . te('optional') ?>
       <?php if ($qq['options']): ?><ol type="a"><?php foreach ($qq['options'] as $op): ?><li><?= e($op) ?></li><?php endforeach; ?></ol><?php endif; ?>
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="question_remove"><input type="hidden" name="survey_id" value="<?= (int) $survey['id'] ?>"><input type="hidden" name="question_id" value="<?= (int) $qq['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form></div><?php endforeach; ?>
     <form method="post" id="question-form"><?= csrf_field() ?><input type="hidden" name="do" value="question_add"><input type="hidden" name="survey_id" value="<?= (int) $survey['id'] ?>">
@@ -85,8 +85,8 @@ $svForm = static function (?array $s, array $jobs) use ($svAud, $svRoles): void 
 <?php endif; ?>
 
 <?php else: ?>
-<h1><?= te('Surveys') ?></h1>
-<p class="sub"><?= te('Short surveys on how it is to work here. Anonymous ones keep no name with the answers.') ?></p>
+<div class="page-head"><div><h1><?= te('Surveys') ?></h1>
+<p class="sub"><?= te('Short surveys on how it is to work here. Anonymous ones keep no name with the answers.') ?></p></div></div>
 <div class="card" id="my-surveys" data-count="<?= count($mine) ?>"><h2><?= te('Sent to me') ?></h2>
   <?php if (! $mine): ?><p class="muted"><?= te('No survey has been sent to you.') ?></p><?php else: ?><table>
   <?php foreach ($mine as $m): ?><tr data-my-survey="<?= (int) $m['id'] ?>" data-answered="<?= $m['responded_on'] !== null ? 1 : 0 ?>"><td><a href="/surveys?take=<?= (int) $m['id'] ?>"><?= e($m['title']) ?></a></td><td class="small"><?= te('Until :date', ['date' => d((string) $m['closes_on'])]) ?></td>

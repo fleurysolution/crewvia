@@ -36,7 +36,7 @@ $jmMine = array_filter($jmJobs, static fn($j) => $j['application'] && $j['applic
     <?php foreach ($j['notes'] as $note): ?><p class="small muted" data-note="<?= (int) $j['id'] ?>">ⓘ <?= e($note) ?></p><?php endforeach; ?>
     <form method="post" action="/my-jobs" data-interest-form="<?= (int) $j['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="interest"><input type="hidden" name="vacancy_id" value="<?= (int) $j['id'] ?>">
       <?php if ($screening): ?><h3 class="small" style="margin:10px 0 4px"><?= te('A few questions for this job') ?></h3><?php require __DIR__ . '/_screening-fields.php'; ?><?php endif; ?>
-      <button class="btn" style="margin-top:8px"><?= te('I\'m interested') ?></button>
+      <button class="btn mt-s"><?= te('I\'m interested') ?></button>
     </form>
   </section>
 <?php endforeach; ?>

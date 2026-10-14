@@ -37,7 +37,7 @@ $sum = static fn(array $entries, string $side): float => round(array_sum(array_m
       <td><?= $b['status'] === 'reversed' ? '<span class="tag grey">' . te('Reversed by :n', ['n' => (int) $b['reversed_by_batch_id']]) . '</span>' : '<span class="tag green">' . te('Standing') . '</span>' ?></td>
       <td><a class="btn sm ghost" href="/accounting?download=<?= (int) $b['id'] ?>"><?= te('Download') ?></a> <span class="small muted mono" title="SHA-256"><?= e(substr((string) $b['file_sha256'], 0, 12)) ?></span>
         <?php if ($b['kind'] === 'export' && $b['status'] === 'exported'): ?>
-        <form method="post" class="row" style="margin-top:6px"><?= csrf_field() ?><input type="hidden" name="do" value="reverse"><input type="hidden" name="batch_id" value="<?= (int) $b['id'] ?>">
+        <form method="post" class="row mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="reverse"><input type="hidden" name="batch_id" value="<?= (int) $b['id'] ?>">
           <input type="date" name="date" value="<?= e(date('Y-m-d')) ?>" max="<?= e(date('Y-m-d')) ?>"><input name="reason" placeholder="<?= te('Why it is reversed') ?>" required minlength="3" maxlength="500"><button class="btn sm ghost"><?= te('Reverse') ?></button></form>
         <?php endif; ?></td></tr>
   <?php endforeach; ?></table><?php endif; ?>

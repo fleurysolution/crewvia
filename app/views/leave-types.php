@@ -31,8 +31,8 @@ $form = static function (?array $t) use ($employment) { $chosen = $t && $t['elig
   </form>
 <?php };
 ?>
-<h1><?= te('Leave types') ?></h1>
-<p class="sub"><?= te('The kinds of time off, how each is earned, how much carries over and who may take it. Balances are always worked out from these rules and the approved requests, never typed.') ?></p>
+<div class="page-head"><div><h1><?= te('Leave types') ?></h1>
+<p class="sub"><?= te('The kinds of time off, how each is earned, how much carries over and who may take it. Balances are always worked out from these rules and the approved requests, never typed.') ?></p></div></div>
 
 <div class="card scroll" id="leave-type-list">
   <table>

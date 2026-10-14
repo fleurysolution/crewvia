@@ -4,7 +4,7 @@
 <div class="grid g2">
   <div class="card scroll" id="templates" data-count="<?= count($templates) ?>"><h2><?= te('Messages') ?></h2>
     <table><?php foreach ($templates as $tpl): ?><tr data-template="<?= (int) $tpl['id'] ?>"<?= (int) $tpl['is_active'] ? '' : ' class="muted"' ?>>
-      <td><a href="/message-templates?id=<?= (int) $tpl['id'] ?>"><?= e($tpl['name']) ?></a><div class="small" style="overflow-wrap:anywhere"><?= e($tpl['body']) ?></div></td>
+      <td><a href="/message-templates?id=<?= (int) $tpl['id'] ?>"><?= e($tpl['name']) ?></a><div class="small wrap-any"><?= e($tpl['body']) ?></div></td>
       <td class="small"><?= e(strtoupper($tpl['language'])) ?></td><td class="small"><?= e($mtPurpose[$tpl['purpose']]) ?></td></tr><?php endforeach; ?></table>
   </div>
   <form method="post" class="card" id="template-form"><?= csrf_field() ?><input type="hidden" name="template_id" value="<?= (int) ($edit['id'] ?? 0) ?>">

@@ -25,7 +25,7 @@ $tones = ['ok' => 'green', 'duplicate' => 'blue', 'ignored' => 'grey', 'retry' =
     <label><?= te('Twilio number') ?><input name="from_number" placeholder="+15551234567"></label>
     <label><?= te('Messaging service SID (optional)') ?><input name="messaging_service_sid" placeholder="MG…"></label>
     <button class="btn sm"><?= te('Save the credentials') ?></button></form>
-  <?php if ($twilio['configured']): ?><form method="post" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="twilio_check"><button class="btn sm ghost"><?= te('Check the account (the sandbox trial)') ?></button></form><?php endif; ?>
+  <?php if ($twilio['configured']): ?><form class="mt-s" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="twilio_check"><button class="btn sm ghost"><?= te('Check the account (the sandbox trial)') ?></button></form><?php endif; ?>
   <p class="small muted"><?= te('In Twilio, set the number\'s incoming messages to :inbound and the status callback is sent with each text. Texting US numbers from a business also needs A2P 10DLC registration (brand and campaign) in Twilio.', ['inbound' => $twilio['inbound_url']]) ?></p>
   <?php if ($twilio['recent']): ?><table id="twilio-recent"><?php foreach ($twilio['recent'] as $m): ?><tr data-sms="<?= (int) $m['id'] ?>" data-status="<?= e($m['status']) ?>"><td class="small"><?= e(substr((string) $m['created_at'], 0, 16)) ?></td><td class="small"><?= $m['direction'] === 'in' ? '←' : '→' ?> <?= e((string) ($m['full_name'] ?? $m['phone'])) ?></td><td class="small"><?= e($m['mode']) ?> · <?= e($m['status']) ?><?= $m['error_code'] ? ' · ' . e($m['error_code']) : '' ?></td></tr><?php endforeach; ?></table><?php endif; ?>
 </div>

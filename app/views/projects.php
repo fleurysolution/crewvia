@@ -1,6 +1,5 @@
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('AGREEMENTS') ?></span>
     <h1><?= te('Projects') ?></h1>
     <p class="sub">
       <?= te('Each one is an agreement with a client: what the work is, where, for how long, and what it covers. How many of each trade and what they are paid is the scope of work, written on the project itself.') ?>
@@ -14,12 +13,12 @@
   <h2><?= te('Take on a project') ?></h2>
 
   <div class="row">
-    <div style="flex:2">
+    <div class="f2">
       <label for="p-client"><?= te('Client') ?></label>
       <input id="p-client" name="client" required maxlength="190"
              placeholder="<?= te('Company the crew works for') ?>">
     </div>
-    <div style="flex:2">
+    <div class="f2">
       <label for="p-title"><?= te('Project name') ?></label>
       <input id="p-title" name="title" required maxlength="190"
              placeholder="<?= te('e.g. Strike coverage - plant engineers') ?>">
@@ -31,7 +30,7 @@
     </div>
   </div>
 
-  <div class="field" style="margin-top:16px">
+  <div class="field mt-l">
     <label for="p-desc"><?= te('Scope of the agreement') ?></label>
     <textarea id="p-desc" name="description" rows="4" maxlength="8000"
               placeholder="<?= te('e.g. Provide skilled labour support to the client plant for the duration of the work stoppage, in accordance with the attached scope of work.') ?>"></textarea>
@@ -39,7 +38,7 @@
   </div>
 
   <div class="row">
-    <div style="flex:2">
+    <div class="f2">
       <label for="p-site"><?= te('Site') ?></label>
       <input id="p-site" name="site_name" maxlength="190"
              placeholder="<?= te('Plant or facility name') ?>">
@@ -86,15 +85,15 @@
     </label>
   </div>
 
-  <button class="btn" type="submit" style="margin-top:20px"><?= te('Create the agreement') ?></button>
+  <button class="btn mt-l" type="submit"><?= te('Create the agreement') ?></button>
   <span class="hint" style="display:inline-block;margin-left:12px">
     <?= te('You will land on its scope of work, where the trades and their rates are written.') ?>
   </span>
 </form>
 
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Agreements') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Agreements') ?></h2>
   </div>
 
   <?php if (! $projects): ?>

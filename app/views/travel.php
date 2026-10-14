@@ -8,8 +8,8 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
 
 <?php if ($needTravel): ?>
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Needs a flight in') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Needs a flight in') ?></h2>
   </div>
   <div class="scroll">
   <table>
@@ -51,7 +51,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
             <input type="datetime-local" name="arrive_time" style="width:auto;padding:4px 6px;font-size:12.5px">
             <input name="cost" type="number" step="0.01" placeholder="$" style="width:75px;padding:4px 8px;font-size:13px">
             <label style="display:flex;align-items:center;gap:4px;margin:0;font-weight:400;color:var(--ink);font-size:12px">
-              <input type="checkbox" name="pickup_needed" value="1" checked style="width:auto"> <?= te('pickup') ?>
+              <input class="w-auto" type="checkbox" name="pickup_needed" value="1" checked> <?= te('pickup') ?>
             </label>
             <button class="btn sm" type="submit"><?= te('Save') ?></button>
           </form>
@@ -65,7 +65,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
 <?php endif; ?>
 
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)"><h2 style="margin:0"><?= te('Booked') ?></h2></div>
+  <div class="card-bar"><h2 class="m0"><?= te('Booked') ?></h2></div>
   <?php if (! $booked): ?>
     <div class="empty"><?= te('Nothing booked yet.') ?></div>
   <?php else: ?>
@@ -109,10 +109,10 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
       <div><label><?= te('Date') ?></label><input type="date" name="runs_on" value="<?= e(date('Y-m-d')) ?>" required></div>
       <div><label><?= te('Departs') ?></label><input type="time" name="depart_time"></div>
       <div><label><?= te('Returns') ?></label><input type="time" name="return_time"></div>
-      <div style="flex:2"><label><?= te('Pick-up point') ?></label><input name="pickup_point" placeholder="<?= te('Hotel lobby') ?>"></div>
+      <div class="f2"><label><?= te('Pick-up point') ?></label><input name="pickup_point" placeholder="<?= te('Hotel lobby') ?>"></div>
       <div><label><?= te('Driver') ?></label><input name="driver"></div>
       <div style="max-width:90px"><label><?= te('Seats') ?></label><input name="seats" type="number" min="1"></div>
-      <div style="flex:2"><label><?= te('Note for the crew') ?></label><input name="notes" maxlength="500" placeholder="<?= te('e.g. back by 20:00, ask for Marco') ?>"></div>
+      <div class="f2"><label><?= te('Note for the crew') ?></label><input name="notes" maxlength="500" placeholder="<?= te('e.g. back by 20:00, ask for Marco') ?>"></div>
       <div class="row tight"><button class="btn" type="submit"><?= te('Add run') ?></button></div>
     </div>
   </form>

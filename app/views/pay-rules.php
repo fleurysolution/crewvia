@@ -46,7 +46,7 @@ $draft = $current && $current['status'] === 'draft';
     </table>
     <?php if ($current['notes']): ?><p class="small"><?= e($current['notes']) ?></p><?php endif; ?>
 
-    <div class="row" style="margin-top:10px">
+    <div class="row mt">
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="copy"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>"><button class="btn ghost sm"><?= te('Copy into a new draft') ?></button></form>
       <?php if ($job && $current['status'] === 'active' && (int) ($job['pay_rule_set_id'] ?? 0) !== (int) $current['id']): ?>
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="assign"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>"><button class="btn sm"><?= te('Use for this project') ?></button></form>
@@ -57,7 +57,7 @@ $draft = $current && $current['status'] === 'draft';
     </div>
 
     <?php if (can('admin') && $draft): ?>
-    <form method="post" style="margin-top:12px" id="activate"><?= csrf_field() ?><input type="hidden" name="do" value="activate"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>">
+    <form class="mt" method="post" id="activate"><?= csrf_field() ?><input type="hidden" name="do" value="activate"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>">
       <label><?= te('Who confirmed these values for the jurisdiction') ?></label><input name="confirmed_by" required minlength="3" maxlength="190" placeholder="<?= te('for example: our payroll provider, 9 Oct 2026') ?>">
       <button class="btn"><?= te('Activate') ?></button>
     </form>
@@ -78,7 +78,7 @@ $draft = $current && $current['status'] === 'draft';
         <span><?= e(d($d['holiday_date'])) ?> · <?= e($d['name']) ?></span><?php if ($current['status'] !== 'retired'): ?><button class="btn ghost sm"><?= te('Remove') ?></button><?php endif; ?></form>
     <?php endforeach; ?>
     <?php if ($current['status'] !== 'retired'): ?>
-    <form method="post" class="row" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="holiday_add"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>">
+    <form method="post" class="row mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="holiday_add"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>">
       <input type="date" name="holiday_date" required aria-label="<?= te('Date') ?>"><input name="holiday_name" required minlength="2" maxlength="120" placeholder="<?= te('Name') ?>" aria-label="<?= te('Name') ?>"><button class="btn sm"><?= te('Add holiday') ?></button></form>
     <?php endif; ?>
   </div>
@@ -91,7 +91,7 @@ $draft = $current && $current['status'] === 'draft';
         <span><?= e($s['shift_label']) ?> · <?= e(money($s['amount_per_hour'])) ?>/h</span><?php if ($draft): ?><button class="btn ghost sm"><?= te('Remove') ?></button><?php endif; ?></form>
     <?php endforeach; ?>
     <?php if ($draft): ?>
-    <form method="post" class="row" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="shift_add"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>">
+    <form method="post" class="row mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="shift_add"><input type="hidden" name="rule_set_id" value="<?= (int) $current['id'] ?>">
       <input name="shift_label" required maxlength="190" placeholder="<?= te('Shift, e.g. Night shift') ?>" aria-label="<?= te('Shift') ?>"><input name="amount_per_hour" type="number" min="0.01" max="100" step="0.01" required placeholder="<?= te('Per hour') ?>" aria-label="<?= te('Per hour') ?>"><button class="btn sm"><?= te('Add premium') ?></button></form>
     <?php endif; ?>
   </div>

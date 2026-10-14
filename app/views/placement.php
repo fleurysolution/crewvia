@@ -9,8 +9,8 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
                       : (int) ($p['guarantee_hours'] ?? 0));
 ?>
 
-<p class="small"><a href="/roster"><?= te('← Roster') ?></a></p>
-<h1><?= e($p['full_name']) ?></h1>
+<p class="back-link"><a href="/roster"><?= te('← Roster') ?></a></p>
+<div class="page-head"><div><h1><?= e($p['full_name']) ?></h1>
 <p class="sub">
   <span class="tag <?= $p['status'] === 'on_site' ? 'green' : ($p['status'] === 'cancelled' ? 'red' : 'blue') ?>">
     <?= e(ucfirst(str_replace('_', ' ', $p['status']))) ?></span>
@@ -19,10 +19,10 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
   <?php if ($p['phone'] && $textPanel['preferences']['no_calls_since'] === null): ?>
     &middot; <a href="tel:<?= e(preg_replace('/[^0-9+]/', '', $p['phone'])) ?>"><?= e($p['phone']) ?></a>
   <?php endif; ?>
-</p>
+</p></div></div>
 <?php require __DIR__ . '/_text-panel.php'; ?>
 
-<div class="grid g4" style="margin-bottom:16px">
+<div class="grid g4 mb-l">
   <div class="stat">
     <div class="n"><?= $pay !== null ? money((float) $pay) : '&mdash;' ?></div>
     <div class="l"><?= te('Per hour') ?></div>
@@ -46,14 +46,14 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
   <div class="card">
     <h2><?= te('Bed') ?></h2>
     <?php if ($lodge): ?>
-      <p style="margin:0 0 6px"><strong><?= e($lodge['hotel']) ?></strong>
+      <p class="m0 mb-s"><strong><?= e($lodge['hotel']) ?></strong>
         <?php if ((int) $lodge['private_room'] === 1): ?>
           <span class="tag green"><?= te('own room') ?></span>
         <?php else: ?>
           <span class="tag red"><?= te('sharing &mdash; we promised otherwise') ?></span>
         <?php endif; ?>
       </p>
-      <p class="small muted" style="margin:0 0 8px"><?= e($lodge['address'] ?? '') ?>
+      <p class="small muted m0 mb-s"><?= e($lodge['address'] ?? '') ?>
         <?php if ($lodge['hotel_phone']): ?>&middot; <?= e($lodge['hotel_phone']) ?><?php endif; ?></p>
       <table style="max-width:340px">
         <tr><td class="small muted"><?= te('Room') ?></td><td class="mono"><?= e($lodge['room_number'] ?? '—') ?></td></tr>
@@ -95,7 +95,7 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
 
 <?php if (can('payroll') && $sheets): ?>
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)"><h2 style="margin:0"><?= te('Weeks') ?></h2></div>
+  <div class="card-bar"><h2 class="m0"><?= te('Weeks') ?></h2></div>
   <div class="scroll">
   <table>
     <thead><tr><th><?= te('Week ending') ?></th><th class="num"><?= te('Worked') ?></th><th class="num"><?= te('Paid') ?></th>
@@ -106,7 +106,7 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
         <td><?= e(date('j M Y', strtotime($s['week_ending']))) ?></td>
         <td class="num mono"><?= rtrim(rtrim(number_format($m['worked'], 1), '0'), '.') ?></td>
         <td class="num mono"><?= rtrim(rtrim(number_format($m['paid_hours'], 1), '0'), '.') ?>
-          <?php if ($m['short_by'] > 0): ?><span class="small" style="color:var(--amber)">+gtd</span><?php endif; ?></td>
+          <?php if ($m['short_by'] > 0): ?><span class="small t-amber">+gtd</span><?php endif; ?></td>
         <td class="num mono"><?= money($m['per_diem']) ?></td>
         <td class="num mono"><?= money($m['pay_total']) ?></td>
         <td><span class="tag <?= in_array($s['status'], ['approved','paid'], true) ? 'green' : 'amber' ?>">
@@ -123,18 +123,18 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
 <div class="card" id="terms-origin">
   <h2><?= te('Where these terms come from') ?></h2>
   <?php if ($p['line_recorded'] && $origin): ?>
-    <p class="small" style="margin:0"><?= te('Recorded when the assignment was made: requisition :req, line :line of the scope of work.',
+    <p class="small m0"><?= te('Recorded when the assignment was made: requisition :req, line :line of the scope of work.',
         ['req' => $origin['title'], 'line' => $line['role_title']]) ?></p>
   <?php elseif ($line): ?>
     <p class="small" style="margin:0;color:var(--amber)"><?= te('Not recorded on the assignment. Inferred from the latest application on this project: line :line. Check it if the person applied for two trades.',
         ['line' => $line['role_title']]) ?></p>
   <?php else: ?>
-    <p class="small muted" style="margin:0"><?= te('No requisition or line of the scope is linked to this assignment. Its rates were set on the assignment itself.') ?></p>
+    <p class="small muted m0"><?= te('No requisition or line of the scope is linked to this assignment. Its rates were set on the assignment itself.') ?></p>
   <?php endif; ?>
 
-  <h3 style="margin:14px 0 6px"><?= te('Rate changes') ?></h3>
+  <h3 class="m0 mt mb-s"><?= te('Rate changes') ?></h3>
   <?php if (! $rateChanges): ?>
-    <p class="small muted" style="margin:0"><?= te('No change since the assignment was made. It is on the terms it started with.') ?></p>
+    <p class="small muted m0"><?= te('No change since the assignment was made. It is on the terms it started with.') ?></p>
   <?php else: ?>
     <div class="scroll"><table>
       <thead><tr><th><?= te('When') ?></th><th><?= te('By') ?></th><th class="num"><?= te('Pay') ?></th>

@@ -18,7 +18,6 @@ $stages = candidate_stages();
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('RECRUITING') ?></span>
     <h1><?= te('Talent search') ?></h1>
     <p class="sub">
       <?= te('Reads the text of résumés, degrees and recruiter notes across every candidate on file, on any project. Use it to answer whether the agency could field a trade before committing to it.') ?>
@@ -51,18 +50,18 @@ $stages = candidate_stages();
 <?php elseif (! $matches): ?>
   <div class="card"><div class="empty">
     <?= te('Nobody on file matches :term.', ['term' => e($query)]) ?>
-    <div class="hint" style="margin-top:8px">
+    <div class="hint mt-s">
       <?= te('Résumé text is only searchable for people who attached one to a public application.') ?>
     </div>
   </div></div>
 <?php else: ?>
   <div class="card tight">
-    <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-      <h2 style="margin:0">
+    <div class="card-bar">
+      <h2 class="m0">
         <?= te(':n match :term', ['n' => count($matches), 'term' => e($query)]) ?>
       </h2>
       <?php if (count($matches) >= 100): ?>
-        <p class="small muted" style="margin:4px 0 0">
+        <p class="small muted m0 mt-xs">
           <?= te('The first 100 are shown. Narrow the term to see the rest.') ?>
         </p>
       <?php endif; ?>

@@ -10,16 +10,16 @@ $fbList = static function (array $list, string $id, bool $showAbout) use ($fbKin
         echo '<div class="small" data-feedback="' . (int) $f['id'] . '" data-shared="' . (int) $f['is_shared'] . '" style="margin:8px 0"><span class="tag ' . $fbTone[$f['kind']] . '">' . e($fbKinds[$f['kind']]) . '</span> ';
         echo '<strong>' . e($f['from_name']) . '</strong>' . ($showAbout ? ' → <strong>' . e($f['about_name']) . '</strong>' : '');
         echo (int) $f['is_shared'] ? '' : ' <span class="tag grey">' . te('Not shared with the person') . '</span>';
-        echo ' <span class="muted">' . e(d(substr((string) $f['created_at'], 0, 10))) . '</span><div style="white-space:pre-wrap;overflow-wrap:anywhere">' . e($f['body']) . '</div></div>';
+        echo ' <span class="muted">' . e(d(substr((string) $f['created_at'], 0, 10))) . '</span><div class="pre-wrap wrap-any">' . e($f['body']) . '</div></div>';
     }
     echo '</div>';
 };
 ?>
 <?php if ($answer): ?>
-<p><a href="/feedback">← <?= te('Feedback') ?></a></p>
-<h1><?= te('Feedback about :name', ['name' => $answer['about_name']]) ?></h1>
-<p class="sub"><?= te('Asked by :name', ['name' => $answer['asked_name']]) ?><?= $answer['due_on'] ? ' · ' . te('Due') . ': ' . e(d((string) $answer['due_on'])) : '' ?></p>
-<div class="card"><p style="white-space:pre-wrap"><?= e($answer['question']) ?></p></div>
+<p class="back-link"><a href="/feedback">← <?= te('Feedback') ?></a></p>
+<div class="page-head"><div><h1><?= te('Feedback about :name', ['name' => $answer['about_name']]) ?></h1>
+<p class="sub"><?= te('Asked by :name', ['name' => $answer['asked_name']]) ?><?= $answer['due_on'] ? ' · ' . te('Due') . ': ' . e(d((string) $answer['due_on'])) : '' ?></p></div></div>
+<div class="card"><p class="pre-wrap"><?= e($answer['question']) ?></p></div>
 <?php if ($answer['answered_at'] !== null): ?><p class="muted" id="already-answered"><?= te('You have already answered that request.') ?></p>
 <?php else: ?>
 <form method="post" class="card" id="answer-form"><?= csrf_field() ?><input type="hidden" name="do" value="give"><input type="hidden" name="request_id" value="<?= (int) $answer['id'] ?>"><input type="hidden" name="about_user_id" value="<?= (int) $answer['about_user_id'] ?>">
@@ -30,21 +30,21 @@ $fbList = static function (array $list, string $id, bool $showAbout) use ($fbKin
 <?php endif; ?>
 
 <?php elseif ($request): ?>
-<p><a href="/feedback">← <?= te('Feedback') ?></a></p>
-<h1><?= te('Feedback about :name', ['name' => $request['about_name']]) ?></h1>
-<div class="card"><p style="white-space:pre-wrap"><?= e($request['question']) ?></p>
+<p class="back-link"><a href="/feedback">← <?= te('Feedback') ?></a></p>
+<div class="page-head"><div><h1><?= te('Feedback about :name', ['name' => $request['about_name']]) ?></h1></div></div>
+<div class="card"><p class="pre-wrap"><?= e($request['question']) ?></p>
   <p class="small" id="request-people"><?php foreach ($request['people'] as $p): ?><span class="tag <?= $p['answered_at'] ? 'green' : 'grey' ?>" data-asked="<?= (int) $p['user_id'] ?>"><?= e($p['name']) ?></span> <?php endforeach; ?></p></div>
 <div class="card"><h2><?= te('Answers') ?></h2><?php $fbList($entries, 'request-answers', false); ?></div>
 
 <?php elseif ($about): ?>
-<p><a href="/feedback">← <?= te('Feedback') ?></a></p>
-<h1><?= te('Feedback about :name', ['name' => $about['name']]) ?></h1>
-<p class="sub"><?= te('Everything given about this person, shared or not. Opening it is logged.') ?></p>
+<p class="back-link"><a href="/feedback">← <?= te('Feedback') ?></a></p>
+<div class="page-head"><div><h1><?= te('Feedback about :name', ['name' => $about['name']]) ?></h1>
+<p class="sub"><?= te('Everything given about this person, shared or not. Opening it is logged.') ?></p></div></div>
 <div class="card"><?php $fbList($entries, 'about-entries', false); ?></div>
 
 <?php else: ?>
-<h1><?= te('Feedback') ?></h1>
-<p class="sub"><?= te('Give feedback to the people you work with, and ask for it. It is not a performance review, and a concern here does not open an HR case: report conduct to HR.') ?></p>
+<div class="page-head"><div><h1><?= te('Feedback') ?></h1>
+<p class="sub"><?= te('Give feedback to the people you work with, and ask for it. It is not a performance review, and a concern here does not open an HR case: report conduct to HR.') ?></p></div></div>
 <div class="grid g2">
   <form method="post" class="card" id="give-form"><?= csrf_field() ?><input type="hidden" name="do" value="give">
     <h2><?= te('Give feedback') ?></h2>

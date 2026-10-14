@@ -1,6 +1,5 @@
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('RECRUITMENT / REQUISITIONS') ?></span>
     <h1><?= te('Open the next opportunity.') ?></h1>
     <p class="sub"><?= te('One requisition. One scannable application QR. Every candidate arrives in your workspace.') ?></p>
   </div>
@@ -16,7 +15,7 @@
       <?php if (! empty($job['title'])): ?>
         <?= te('For') ?> <strong><?= e($job['title']) ?></strong>
       <?php else: ?>
-        <span style="color:var(--amber)"><?= te('Choose a working project first — use the selector above.') ?></span>
+        <span class="t-amber"><?= te('Choose a working project first — use the selector above.') ?></span>
       <?php endif; ?>
     </p>
 
@@ -33,7 +32,7 @@
           <?= te('or close a requisition below that is no longer being recruited.') ?>
         </p>
       <?php else: ?>
-        <div class="field" style="margin-bottom:18px">
+        <div class="field mb-l">
           <label for="r-line"><?= te('Line of the scope of work') ?></label>
           <select id="r-line" name="order_line_id" required>
             <option value=""><?= te('Choose what the agreement covers…') ?></option>
@@ -58,7 +57,7 @@
     <?php endif; ?>
 
     <div class="row">
-      <div style="flex:2">
+      <div class="f2">
         <label for="r-title"><?= te('Role / trade') ?></label>
         <input id="r-title" name="title" required maxlength="190" placeholder="<?= te('e.g. Mechanical engineer') ?>">
       </div>
@@ -73,7 +72,7 @@
       </div>
     </div>
 
-    <div class="row" style="margin-top:16px">
+    <div class="row mt-l">
       <div>
         <label for="r-open"><?= te('How many needed') ?></label>
         <input id="r-open" name="openings" type="number" min="1" max="9999" value="1" required>
@@ -83,14 +82,14 @@
         <input id="r-start" type="date" name="starts_on"
                value="<?= e($job['starts_on'] ?? '') ?>">
       </div>
-      <div style="flex:2">
+      <div class="f2">
         <label for="r-shift"><?= te('Shift') ?></label>
         <input id="r-shift" name="shift" maxlength="60" placeholder="<?= te('e.g. Days, 12 hours, 6 on 1 off') ?>">
       </div>
     </div>
 
-    <div class="row" style="margin-top:16px">
-      <div style="flex:2">
+    <div class="row mt-l">
+      <div class="f2">
         <label for="r-degree"><?= te('Degree required') ?></label>
         <input id="r-degree" name="degree" maxlength="190" placeholder="<?= te('e.g. BSc Mechanical or Chemical Engineering') ?>">
       </div>
@@ -100,7 +99,7 @@
       </div>
     </div>
 
-    <div class="field" style="margin-top:16px">
+    <div class="field mt-l">
       <label for="r-req"><?= te('Must-haves') ?></label>
       <textarea id="r-req" name="requirements" maxlength="4000" rows="3"
                 placeholder="<?= te('Certifications, clearances, licences — one per line') ?>"></textarea>
@@ -108,7 +107,7 @@
     </div>
 
     <h3 style="margin:22px 0 4px"><?= te('Override the agreed rates') ?></h3>
-    <p class="hint" style="margin:0 0 14px">
+    <p class="hint m0 mb">
       <?= te('Leave these blank — and almost always do. The rates were settled with the client on the line of the scope above, and the requisition inherits them; a number retyped here is how the order and the agreement start disagreeing. Fill one in only when this particular requisition really was agreed differently.') ?>
     </p>
 
@@ -174,9 +173,9 @@
     <span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>">
       <?= $requisition['is_open'] ? te('Open') : te('Closed') ?>
     </span>
-    <h2 style="margin-top:10px"><?= e($requisition['title']) ?></h2>
+    <h2 class="mt"><?= e($requisition['title']) ?></h2>
 
-    <p class="muted small" style="margin:0 0 12px">
+    <p class="muted small m0 mb">
       <?= te(ucfirst((string) ($requisition['discipline'] ?? 'other'))) ?>
       &middot; <?= (int) ($requisition['openings'] ?? 1) ?> <?= te('needed') ?>
       <?php $where = trim((string)$requisition['site_city'] . ' ' . (string)$requisition['site_state']); ?>
@@ -209,7 +208,7 @@
       <?php endif; ?>
     </p>
 
-    <p class="small muted" style="margin:0 0 10px">
+    <p class="small muted m0 mb">
       <?php if (! empty($requisition['line_role'])): ?>
         <?= te('Against :role on the scope (:n covered)', [
             'role' => e($requisition['line_role']),
@@ -222,7 +221,7 @@
     </p>
 
     <?php if (! empty($requisition['degree'])): ?>
-      <p class="small" style="margin:0 0 10px"><strong><?= te('Degree required') ?>:</strong> <?= e($requisition['degree']) ?></p>
+      <p class="small m0 mb"><strong><?= te('Degree required') ?>:</strong> <?= e($requisition['degree']) ?></p>
     <?php endif; ?>
 
     <div class="application-qr" data-vacancy="<?= (int)$requisition['id'] ?>"
@@ -234,7 +233,7 @@
     $left   = max(0, $asked - $placed);
     ?>
 
-    <p class="small" style="margin-top:10px">
+    <p class="small mt">
       <strong><?= $left ?></strong>
       <?= te('of :asked still to place', ['asked' => $asked]) ?>
       <span class="muted">
@@ -242,7 +241,7 @@
       </span>
     </p>
 
-    <div class="headcount-bar" style="margin-top:6px">
+    <div class="headcount-bar mt-s">
       <span style="width:<?= (int) round($placed / $asked * 100) ?>%"></span>
     </div>
     <p class="small">

@@ -1,7 +1,7 @@
 <?php $avMoney = fn($v) => $v === null ? '—' : money((float) $v); ?>
-<?php if (can('recruiter', 'hotels')): ?><p><a href="/assets">← <?= te('Assets') ?></a></p><?php endif; ?>
-<h1><?= te('Asset valuation') ?></h1>
-<p class="sub"><?= te('What each agency-owned item is worth on a date: straight-line depreciation of its cost down to its residual value over its useful life, from the day it went into service. A management figure: equipment is expensed when bought, and nothing here is posted to the ledger.') ?></p>
+<?php if (can('recruiter', 'hotels')): ?><p class="back-link"><a href="/assets">← <?= te('Assets') ?></a></p><?php endif; ?>
+<div class="page-head"><div><h1><?= te('Asset valuation') ?></h1>
+<p class="sub"><?= te('What each agency-owned item is worth on a date: straight-line depreciation of its cost down to its residual value over its useful life, from the day it went into service. A management figure: equipment is expensed when bought, and nothing here is posted to the ledger.') ?></p></div></div>
 <form method="get" class="card row" id="valuation-filters">
   <label><?= te('On') ?><input type="date" name="as_of" value="<?= e($asOf) ?>"></label>
   <label><?= te('Class') ?><select name="class"><option value=""><?= te('Every class') ?></option><?php foreach (al_classes() as $k => $label): ?><option value="<?= e($k) ?>"<?= $class === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>

@@ -4,7 +4,6 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('DEPLOYMENT VIEW') ?></span>
     <h1><?= e($job['title'] ?? t('Select a project')) ?></h1>
     <p class="sub">
       <?= te('Who is on the site today, what the crew is made of, and the calendar it runs on. The agreement and its rates are on the project itself.') ?>
@@ -29,7 +28,7 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
       <h2 style="margin:4px 0 2px">
         <?= te(':n of :total on site', ['n' => $onSiteToday, 'total' => count($rollCall)]) ?>
       </h2>
-      <p class="small muted" style="margin:0">
+      <p class="small muted m0">
         <?= te('Marked at the gate. This is presence, not hours: hours are recorded on Attendance and go to payroll.') ?>
         <?php if ($unmarked): ?>
           &middot; <span class="tag amber"><?= te(':n not marked yet', ['n' => count($unmarked)]) ?></span>
@@ -74,14 +73,14 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
                   <?php endif; ?>
                 </td>
                 <td class="right nowrap">
-                  <form method="post" action="/structure" style="display:inline">
+                  <form class="inline" method="post" action="/structure">
                     <?= csrf_field() ?>
                     <input type="hidden" name="do" value="checkin">
                     <input type="hidden" name="placement_id" value="<?= (int) $r['id'] ?>">
                     <input type="hidden" name="present" value="1">
                     <button class="btn sm" type="submit"><?= te('On site') ?></button>
                   </form>
-                  <form method="post" action="/structure" style="display:inline">
+                  <form class="inline" method="post" action="/structure">
                     <?= csrf_field() ?>
                     <input type="hidden" name="do" value="checkin">
                     <input type="hidden" name="placement_id" value="<?= (int) $r['id'] ?>">
@@ -159,7 +158,7 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
         <?php endforeach; ?>
         </tbody>
       </table>
-      <p class="hint" style="margin-top:12px">
+      <p class="hint mt">
         <?= te('Trades and shifts come from each person\'s assignment, not from a second list — so this is always what is actually on site.') ?>
       </p>
     <?php endif; ?>
@@ -192,10 +191,10 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
     <div class="empty"><?= te('No departments recorded for this site.') ?></div>
   <?php endif; ?>
 
-  <form method="post" class="row" style="margin-top:16px">
+  <form method="post" class="row mt-l">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="department">
-    <div style="flex:2">
+    <div class="f2">
       <label for="dept"><?= te('Department name') ?></label>
       <input id="dept" name="name" required maxlength="190"
              placeholder="<?= te('e.g. Boiler house, Unit 4, Tank farm') ?>">
@@ -241,7 +240,7 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
     </div>
   </div>
 
-  <p class="hint" style="margin-top:14px">
+  <p class="hint mt">
     <?= te('This records what the crew was told. It does not move money or change a statutory deadline — payroll runs weekly and ADP pays.') ?>
   </p>
 

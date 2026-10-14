@@ -16,8 +16,8 @@ $form = static function (?array $g) { ?>
   </form>
 <?php };
 ?>
-<h1><?= te('Pay grades') ?></h1>
-<p class="sub"><?= te('A grade, and the band its pay is expected to sit in. Pay outside the band of somebody\'s grade can only be set by an administrator, with the reason, and it is marked.') ?></p>
+<div class="page-head"><div><h1><?= te('Pay grades') ?></h1>
+<p class="sub"><?= te('A grade, and the band its pay is expected to sit in. Pay outside the band of somebody\'s grade can only be set by an administrator, with the reason, and it is marked.') ?></p></div></div>
 <div class="card scroll" id="grade-list">
   <?php if (! $grades): ?><p class="muted"><?= te('No grade yet. Pay is not compared with any band until there is one.') ?></p><?php else: ?>
   <table>

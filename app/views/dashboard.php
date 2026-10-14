@@ -53,7 +53,7 @@ $steps = [
   </div>
 </div>
 
-<div class="grid g4" style="margin-bottom:16px">
+<div class="grid g4 mb-l">
   <div class="stat">
     <div class="n"><?= $placed ?><span class="muted" style="font-size:17px">/<?= $target ?></span></div>
     <div class="l"><?= te('Crew secured') ?></div>
@@ -65,27 +65,27 @@ $steps = [
     <div class="h"><?= $uncalled ?> never contacted</div>
   </div>
   <div class="stat">
-    <div class="n" style="<?= ($noBed + $sharedRoom) > 0 ? 'color:var(--red)' : 'color:var(--green)' ?>">
+    <div class="n <?= ($noBed + $sharedRoom) > 0 ? 't-red' : 't-green' ?>">
       <?= $noBed ?>
     </div>
     <div class="l"><?= te('Without a bed') ?></div>
     <div class="h">
       <?php if ($sharedRoom > 0): ?>
-        <span style="color:var(--red)"><?= $sharedRoom ?> sharing &mdash; promised private</span>
+        <span class="t-red"><?= $sharedRoom ?> sharing &mdash; promised private</span>
       <?php else: ?>
         every room private
       <?php endif; ?>
     </div>
   </div>
   <div class="stat">
-    <div class="n" style="<?= $noFlight > 0 ? 'color:var(--amber)' : '' ?>"><?= $noFlight ?></div>
+    <div class="n <?= $noFlight > 0 ? 't-amber' : '' ?>"><?= $noFlight ?></div>
     <div class="l"><?= te('Travel unbooked') ?></div>
     <div class="h"><?= $offered ?> offers outstanding</div>
   </div>
 </div>
 
 <?php if (can('payroll')): ?>
-<div class="grid g4" style="margin-bottom:16px">
+<div class="grid g4 mb-l">
   <div class="stat">
     <div class="n"><?= money($payTotal) ?></div>
     <div class="l"><?= te('Week\'s payroll') ?></div>
@@ -97,14 +97,14 @@ $steps = [
     <div class="h"><?= $billTotal > 0 ? 'at the client rate' : 'no bill rate set' ?></div>
   </div>
   <div class="stat">
-    <div class="n" style="<?= ($billTotal - $payTotal) < 0 ? 'color:var(--red)' : 'color:var(--green)' ?>">
+    <div class="n <?= ($billTotal - $payTotal) < 0 ? 't-red' : 't-green' ?>">
       <?= $billTotal > 0 ? money($billTotal - $payTotal) : '—' ?>
     </div>
     <div class="l"><?= te('Margin') ?></div>
     <div class="h"><?= te('before overhead') ?></div>
   </div>
   <div class="stat">
-    <div class="n" style="<?= $shortHours > 0 ? 'color:var(--amber)' : '' ?>">
+    <div class="n <?= $shortHours > 0 ? 't-amber' : '' ?>">
       <?= rtrim(rtrim(number_format($shortHours, 1), '0'), '.') ?>h
     </div>
     <div class="l"><?= te('Guarantee gap') ?></div>
@@ -114,8 +114,8 @@ $steps = [
 <?php endif; ?>
 
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
-    <h2 style="margin:0"><?= te('Arriving') ?></h2>
+  <div class="card-bar row-between">
+    <h2 class="m0"><?= te('Arriving') ?></h2>
     <a class="btn ghost sm" href="/roster"><?= te('Full roster') ?></a>
   </div>
   <?php if (! $arrivals): ?>

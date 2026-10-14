@@ -3,8 +3,8 @@ $trTone = ['due' => 'blue', 'overdue' => 'red', 'done' => 'green', 'expiring' =>
 $trStatus = tr_statuses();
 ?>
 <?php if (isset($course)): ?>
-<p><a href="/training">← <?= te('Training') ?></a></p>
-<h1><?= e($course['title']) ?></h1>
+<p class="back-link"><a href="/training">← <?= te('Training') ?></a></p>
+<div class="page-head"><div><h1><?= e($course['title']) ?></h1></div></div>
 <div class="grid g2">
   <form method="post" class="card" id="course-form"><?= csrf_field() ?><input type="hidden" name="do" value="course_save"><input type="hidden" name="course_id" value="<?= (int) $course['id'] ?>">
     <h2><?= te('The course') ?></h2>
@@ -24,7 +24,7 @@ $trStatus = tr_statuses();
     <h2><?= te('Assessment') ?></h2>
     <p class="small muted"><?= te('With questions, the course is passed at the pass mark; without, the person confirms they read and understood it.') ?></p>
     <?php foreach ($questions as $qi => $qq): $opts = json_decode($qq['options_json'], true); ?>
-    <div class="small" data-question="<?= (int) $qq['id'] ?>" style="margin:6px 0"><strong><?= $qi + 1 ?>. <?= e($qq['question']) ?></strong>
+    <div class="small m0 mt-s mb-s" data-question="<?= (int) $qq['id'] ?>"><strong><?= $qi + 1 ?>. <?= e($qq['question']) ?></strong>
       <ol type="a"><?php foreach ($opts as $oi => $op): ?><li><?= e($op) ?><?= $oi === (int) $qq['correct_index'] ? ' <span class="tag green">' . te('right answer') . '</span>' : '' ?></li><?php endforeach; ?></ol>
       <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="question_remove"><input type="hidden" name="course_id" value="<?= (int) $course['id'] ?>"><input type="hidden" name="question_id" value="<?= (int) $qq['id'] ?>"><button class="btn sm ghost"><?= te('Remove') ?></button></form></div>
     <?php endforeach; ?>
@@ -49,8 +49,8 @@ $trStatus = tr_statuses();
 </div>
 
 <?php elseif (isset($plan)): ?>
-<p><a href="/training">← <?= te('Training') ?></a></p>
-<h1><?= e($plan['name']) ?></h1>
+<p class="back-link"><a href="/training">← <?= te('Training') ?></a></p>
+<div class="page-head"><div><h1><?= e($plan['name']) ?></h1></div></div>
 <div class="grid g2">
   <div class="card" id="plan-courses" data-count="<?= count($planCourses) ?>"><h2><?= te('Courses, in order') ?></h2>
     <?php if (! $planCourses): ?><p class="muted"><?= te('No course yet.') ?></p><?php else: ?>
@@ -70,8 +70,8 @@ $trStatus = tr_statuses();
 </div>
 
 <?php else: ?>
-<h1><?= te('Training') ?></h1>
-<p class="sub"><?= te('Agency courses, their assessments, plans, and the training required of each desk role, trade or project. Project briefings stay under Safety & learning.') ?></p>
+<div class="page-head"><div><h1><?= te('Training') ?></h1>
+<p class="sub"><?= te('Agency courses, their assessments, plans, and the training required of each desk role, trade or project. Project briefings stay under Safety & learning.') ?></p></div></div>
 <div class="grid g4" id="compliance-counts">
   <?php foreach (['overdue', 'expired', 'expiring', 'due', 'done'] as $k): ?><a class="stat" href="/training?status=<?= e($k) ?>#compliance" data-count="<?= e($k) ?>"><div class="n"><?= (int) ($counts[$k] ?? 0) ?></div><div class="l"><?= e($trStatus[$k]) ?></div></a><?php endforeach; ?>
 </div>
@@ -101,7 +101,7 @@ $trStatus = tr_statuses();
     <td><?= e(tr_scopes()[$rq['scope']]) ?>: <strong><?= e($rq['scope'] === 'staff_role' ? (tr_staff_roles()[$rq['staff_role']] ?? $rq['staff_role']) : ($rq['scope'] === 'trade' ? $rq['trade'] : (string) $rq['job_title'])) ?></strong></td>
     <td class="small"><?= te(':n days', ['n' => (int) $rq['due_days']]) ?></td>
     <td><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="requirement_stop"><input type="hidden" name="requirement_id" value="<?= (int) $rq['id'] ?>"><button class="btn sm ghost"><?= te('Stop requiring it') ?></button></form></td></tr><?php endforeach; ?></table><?php endif; ?>
-  <form method="post" class="row" id="requirement-form" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="requirement_save">
+  <form method="post" class="row mt-s" id="requirement-form"><?= csrf_field() ?><input type="hidden" name="do" value="requirement_save">
     <label><?= te('Course') ?><select name="course_id"><?php foreach ($courses as $co): if (! (int) $co['is_active']) continue; ?><option value="<?= (int) $co['id'] ?>"><?= e($co['title']) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Required of') ?><select name="scope"><?php foreach (tr_scopes() as $k => $label): ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Desk role') ?><select name="staff_role"><?php foreach (tr_staff_roles() as $k => $label): ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select></label>
@@ -114,7 +114,7 @@ $trStatus = tr_statuses();
   <form method="get" class="row"><label><?= te('Required of') ?><select name="scope"><option value=""><?= te('Anyone') ?></option><?php foreach (tr_scopes() as $k => $label): ?><option value="<?= e($k) ?>"<?= $filter['scope'] === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
     <label><?= te('State') ?><select name="status"><option value=""><?= te('Any') ?></option><?php foreach ($trStatus as $k => $label): ?><option value="<?= e($k) ?>"<?= $filter['status'] === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
     <button class="btn ghost"><?= te('Show') ?></button></form>
-  <form method="post" style="margin:6px 0"><?= csrf_field() ?><input type="hidden" name="do" value="sync"><button class="btn sm ghost"><?= te('Assign what is required now') ?></button> <span class="small muted"><?= te('This also runs with the scheduled workflows.') ?></span></form>
+  <form class="m0 mt-s mb-s" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="sync"><button class="btn sm ghost"><?= te('Assign what is required now') ?></button> <span class="small muted"><?= te('This also runs with the scheduled workflows.') ?></span></form>
   <?php if (! $compliance): ?><p class="muted"><?= te('Nobody for these filters.') ?></p><?php else: ?>
   <table><tr><th><?= te('Person') ?></th><th><?= te('Course') ?></th><th><?= te('State') ?></th><th><?= te('Due') ?></th><th><?= te('Counts until') ?></th></tr>
   <?php foreach ($compliance as $cm): $as = $cm['assignment']; ?><tr data-person="<?= (int) $cm['user_id'] ?>" data-course="<?= (int) $cm['requirement']['course_id'] ?>" data-status="<?= e($cm['status']) ?>">

@@ -26,12 +26,12 @@ $ltHm = static fn(?string $t): string => $t ? substr($t, 0, 5) : '—';
 <form method="post" action="/lateness" class="card" id="lateness-record"><?= csrf_field() ?><input type="hidden" name="do" value="record">
   <h2><?= te('Record a late arrival') ?></h2>
   <div class="row">
-    <div style="flex:2"><label for="lr-who"><?= te('Worker') ?></label><select id="lr-who" name="placement_id" required><option value=""><?= te('Choose') ?></option><?php foreach ($ltCrew as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['full_name']) ?><?= $c['shift_start'] ? ' · ' . te('shift :time', ['time' => $ltHm($c['shift_start'])]) : '' ?></option><?php endforeach; ?></select></div>
+    <div class="f2"><label for="lr-who"><?= te('Worker') ?></label><select id="lr-who" name="placement_id" required><option value=""><?= te('Choose') ?></option><?php foreach ($ltCrew as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['full_name']) ?><?= $c['shift_start'] ? ' · ' . te('shift :time', ['time' => $ltHm($c['shift_start'])]) : '' ?></option><?php endforeach; ?></select></div>
     <div style="max-width:170px"><label for="lr-day"><?= te('Day') ?></label><input id="lr-day" name="work_date" type="date" value="<?= e(date('Y-m-d')) ?>" max="<?= e(date('Y-m-d')) ?>" required></div>
     <div style="max-width:130px"><label for="lr-at"><?= te('Arrived at') ?></label><input id="lr-at" name="arrived_at" placeholder="07:20" maxlength="5" required></div>
   </div>
   <label for="lr-why"><?= te('Reason the worker will read') ?></label><input id="lr-why" name="reason" maxlength="500" required placeholder="<?= te('Arrived at the gate after the toolbox talk') ?>">
-  <button class="btn" style="margin-top:8px"><?= te('Record') ?></button>
+  <button class="btn mt-s"><?= te('Record') ?></button>
 </form>
 <?php endif; ?>
 
@@ -53,12 +53,12 @@ $ltHm = static fn(?string $t): string => $t ? substr($t, 0, 5) : '—';
     <td style="min-width:220px">
       <?php if ($ltOwn && $l['status'] === 'recorded' && ! $l['frozen']): ?>
         <form method="post" action="/lateness" data-dispute="<?= (int) $l['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="dispute"><input type="hidden" name="lateness_id" value="<?= (int) $l['id'] ?>">
-          <input name="note" maxlength="1000" required placeholder="<?= te('Why it is wrong') ?>"><button class="btn ghost sm" style="margin-top:4px"><?= te('Dispute') ?></button></form>
+          <input name="note" maxlength="1000" required placeholder="<?= te('Why it is wrong') ?>"><button class="btn ghost sm mt-xs"><?= te('Dispute') ?></button></form>
       <?php elseif ($ltPayroll && in_array($l['status'], ['recorded', 'disputed'], true) && ! $l['frozen']): ?>
         <form method="post" action="/lateness" data-decide="<?= (int) $l['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="decide"><input type="hidden" name="lateness_id" value="<?= (int) $l['id'] ?>">
           <select name="decision" aria-label="<?= te('Decision') ?>"><option value="upheld"><?= te('Uphold') ?></option><option value="reduced"><?= te('Reduce to') ?></option><option value="cancelled"><?= te('Cancel') ?></option></select>
           <input name="minutes" type="number" min="0" max="<?= (int) $l['docked_minutes'] ?>" placeholder="<?= te('minutes') ?>" style="width:90px">
-          <input name="note" maxlength="1000" required placeholder="<?= te('Decision the worker will read') ?>" style="margin-top:4px"><button class="btn ghost sm" style="margin-top:4px"><?= te('Settle') ?></button></form>
+          <input class="mt-xs" name="note" maxlength="1000" required placeholder="<?= te('Decision the worker will read') ?>"><button class="btn ghost sm mt-xs"><?= te('Settle') ?></button></form>
       <?php endif; ?>
     </td>
   </tr><?php endforeach; ?>
@@ -69,7 +69,7 @@ $ltHm = static fn(?string $t): string => $t ? substr($t, 0, 5) : '—';
 <form method="post" action="/lateness" class="card" id="assignment-shift"><?= csrf_field() ?><input type="hidden" name="do" value="assignment_shift">
   <h2><?= te('A crew member on another shift') ?></h2>
   <p class="small muted"><?= te('Night crews and staggered starts: an assignment\'s own shift start wins over the project\'s. Leave it empty to use the project\'s.') ?></p>
-  <div class="row"><div style="flex:2"><select name="placement_id" aria-label="<?= te('Worker') ?>"><?php foreach ($ltCrew as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['full_name']) ?><?= $c['shift_start'] ? ' · ' . e($ltHm($c['shift_start'])) : '' ?></option><?php endforeach; ?></select></div>
+  <div class="row"><div class="f2"><select name="placement_id" aria-label="<?= te('Worker') ?>"><?php foreach ($ltCrew as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['full_name']) ?><?= $c['shift_start'] ? ' · ' . e($ltHm($c['shift_start'])) : '' ?></option><?php endforeach; ?></select></div>
     <div style="max-width:130px"><input name="shift_start" placeholder="19:00" maxlength="5" aria-label="<?= te('Shift starts at') ?>"></div>
     <div><button class="btn ghost"><?= te('Save') ?></button></div></div>
 </form>

@@ -7,7 +7,7 @@ $pct = static fn(?float $v): string => $v === null ? '—' : number_format($v, 1
 <?php else: ?>
 <p class="sub"><?= e($job['title']) ?> · <?= te('project to date, from approved weeks and approved or paid invoices and claims. Nothing here creates a transaction.') ?></p>
 
-<div class="grid g4" style="margin-bottom:16px" id="cost-summary">
+<div class="grid g4 mb-l" id="cost-summary">
   <div class="stat"><div class="n" data-figure="revenue"><?= e(money($costs['actual']['revenue'])) ?></div><div class="l"><?= te('Revenue') ?></div></div>
   <div class="stat"><div class="n" data-figure="direct"><?= e(money($profit['direct'])) ?></div><div class="l"><?= te('Direct cost') ?></div></div>
   <div class="stat"><div class="n" data-figure="gross"><?= e(money($profit['gross'])) ?></div><div class="l"><?= te('Gross margin') ?> · <?= e($pct($profit['gross_pct'])) ?></div></div>

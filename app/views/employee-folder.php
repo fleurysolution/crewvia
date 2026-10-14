@@ -1,5 +1,6 @@
-<p><a class="btn ghost" href="/contracts"><?= te('Contracts & signatures') ?></a></p><p><?= te('Employee number') ?>: <?= e($profile['employee_number']??'') ?></p>
-<h1>Employee folder · <?= e($c['full_name']) ?></h1><p class="sub"><?= te('Persistent identity, applications, assignments, credentials and audit history across projects.') ?></p><div class="grid g2"><div class="card"><h2><?= te('Employee profile') ?></h2><p><?= e($c['email'].' · '.$c['phone']) ?></p><p><?= e((employment_types()[$profile['employment_type']] ?? $profile['employment_type']).' · '.(flsa_statuses()[$profile['flsa_status'] ?? 'not_determined'] ?? '')) ?></p><p><?= e($profile['availability'].' · rehire '.$profile['rehire_status']) ?></p><?php if(can('recruiter')): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="profile"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><label><?= te('Availability') ?></label><select name="availability"><?php foreach(['available','unavailable','on_assignment'] as $x): ?><option <?= $x===$profile['availability']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><label><?= te('Rehire assessment') ?></label><select name="rehire_status"><?php foreach(['review','eligible','ineligible'] as $x): ?><option <?= $x===$profile['rehire_status']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><button class="btn"><?= te('Save profile') ?></button></form><?php endif; ?></div>
+<div class="page-head"><div><h1><?= te('Employee folder') ?> · <?= e($c['full_name']) ?></h1><p class="sub"><?= te('Persistent identity, applications, assignments, credentials and audit history across projects.') ?></p>
+  <div class="meta"><?= te('Employee number') ?>: <?= e($profile['employee_number']??'') ?></div></div>
+  <div class="actions"><a class="btn ghost" href="/contracts"><?= te('Contracts & signatures') ?></a></div></div><div class="grid g2"><div class="card"><h2><?= te('Employee profile') ?></h2><p><?= e($c['email'].' · '.$c['phone']) ?></p><p><?= e((employment_types()[$profile['employment_type']] ?? $profile['employment_type']).' · '.(flsa_statuses()[$profile['flsa_status'] ?? 'not_determined'] ?? '')) ?></p><p><?= e($profile['availability'].' · '.t('Rehire').' '.$profile['rehire_status']) ?></p><?php if(can('recruiter')): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="profile"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><label><?= te('Availability') ?></label><select name="availability"><?php foreach(['available','unavailable','on_assignment'] as $x): ?><option <?= $x===$profile['availability']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><label><?= te('Rehire assessment') ?></label><select name="rehire_status"><?php foreach(['review','eligible','ineligible'] as $x): ?><option <?= $x===$profile['rehire_status']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><button class="btn"><?= te('Save profile') ?></button></form><?php endif; ?></div>
 <?php if($own): $fields = self_service_fields(); $states = ['pending' => t('Waiting to be checked'), 'approved' => t('Accepted'), 'rejected' => t('Refused')]; ?>
 <div class="card" id="my-details">
   <h2><?= te('My details') ?></h2>
@@ -7,7 +8,7 @@
   <table><?php foreach ($fields as $k => $label): ?><tr><td class="muted"><?= e($label) ?></td><td><?= e((string) ($c[$k] ?? '')) ?: '—' ?></td></tr><?php endforeach; ?></table>
   <p class="small"><?= $selfService['confirmed'] ? te('Last confirmed unchanged on :date.', ['date' => d(substr((string) $selfService['confirmed'], 0, 10))]) : te('Not confirmed yet.') ?></p>
   <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="self_confirm"><button class="btn"><?= te('Nothing has changed') ?></button></form>
-  <form method="post" class="row" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="self_detail">
+  <form method="post" class="row mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="self_detail">
     <select name="field" aria-label="<?= te('Detail') ?>"><?php foreach ($fields as $k => $label): ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select>
     <input name="value" required maxlength="190" placeholder="<?= te('New value') ?>" aria-label="<?= te('New value') ?>">
     <input name="reason" maxlength="500" placeholder="<?= te('Why (optional)') ?>" aria-label="<?= te('Why (optional)') ?>">
@@ -18,7 +19,7 @@
   <h2><?= te('My bank details') ?></h2>
   <?php if ($ownBank): ?><p><?= te('In use: :bank, account ending :last.', ['bank' => $ownBank['bank_label'], 'last' => $ownBank['last_four']]) ?></p><?php else: ?><p class="muted"><?= te('No bank details on file yet.') ?></p><?php endif; ?>
   <?php foreach ($selfService['bank'] as $r): ?><div class="small" data-bank-request="<?= (int) $r['id'] ?>"><?= te('Sent :date: :bank, ending :last', ['date' => d(substr((string) $r['submitted_at'], 0, 10)), 'bank' => $r['bank_label'], 'last' => $r['last_four']]) ?> · <span class="tag <?= $r['status'] === 'approved' ? 'green' : ($r['status'] === 'rejected' ? 'red' : 'amber') ?>"><?= e($states[$r['status']]) ?></span><?= $r['review_note'] ? ' · ' . e($r['review_note']) : '' ?></div><?php endforeach; ?>
-  <form method="post" style="margin-top:8px" autocomplete="off"><?= csrf_field() ?><input type="hidden" name="do" value="self_bank">
+  <form class="mt-s" method="post" autocomplete="off"><?= csrf_field() ?><input type="hidden" name="do" value="self_bank">
     <div class="grid g2">
       <div><label for="bank-holder"><?= te('Name on the account') ?></label><input id="bank-holder" name="account_holder" required maxlength="190" value="<?= e($c['full_name']) ?>"></div>
       <div><label for="bank-name"><?= te('Bank') ?></label><input id="bank-name" name="bank_name" required maxlength="90"></div>
@@ -38,7 +39,7 @@
   <h2><?= te('Pay and grade') ?></h2>
   <p><?= te('Grade: :grade', ['grade' => $comp['grade']['label'] ?? t('none')]) ?><?php if ($comp['grade']): ?> <span class="small muted"><?= te('hourly :rate · salary :salary', ['rate' => ($comp['grade']['rate_min'] !== null ? money($comp['grade']['rate_min']) : '…') . '–' . ($comp['grade']['rate_max'] !== null ? money($comp['grade']['rate_max']) : '…'), 'salary' => ($comp['grade']['salary_min'] !== null ? money($comp['grade']['salary_min']) : '…') . '–' . ($comp['grade']['salary_max'] !== null ? money($comp['grade']['salary_max']) : '…')]) ?></span><?php endif; ?></p>
   <?php foreach ($comp['current'] as $a): ?><div class="small"><?= e($a['title']) ?>: <?= $a['pay_rate'] !== null ? e(money($a['pay_rate'])) . '/h' : te('rate from the scope of work') ?></div><?php endforeach; ?>
-  <form method="post" style="margin-top:10px"><?= csrf_field() ?><input type="hidden" name="do" value="comp_record"><input type="hidden" name="candidate_id" value="<?= $cid ?>">
+  <form class="mt" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="comp_record"><input type="hidden" name="candidate_id" value="<?= $cid ?>">
     <div class="grid g2">
       <div><label><?= te('What changes') ?></label><select name="kind"><?php foreach ($kinds as $k => $v): ?><option value="<?= e($k) ?>"><?= e($v) ?></option><?php endforeach; ?></select></div>
       <div><label><?= te('Assignment, for an hourly rate') ?></label><select name="placement_id"><option value=""><?= te('Not an hourly rate') ?></option><?php foreach ($comp['current'] as $a): ?><option value="<?= (int) $a['id'] ?>"><?= e($a['title']) ?></option><?php endforeach; ?></select></div>
@@ -51,7 +52,7 @@
     <button class="btn"><?= te('Record the change') ?></button>
   </form>
   <?php if ($comp['changes']): ?>
-  <div class="scroll"><table style="margin-top:10px">
+  <div class="scroll"><table class="mt">
     <tr><th><?= te('From') ?></th><th><?= te('What') ?></th><th><?= te('Change') ?></th><th><?= te('Reason') ?></th><th></th></tr>
     <?php foreach ($comp['changes'] as $ch): $future = $ch['cancelled_at'] === null && $ch['applied_at'] === null && $ch['effective_from'] > date('Y-m-d'); ?>
     <tr data-change="<?= (int) $ch['id'] ?>"<?= $ch['cancelled_at'] ? ' class="muted"' : '' ?>>
@@ -76,7 +77,7 @@
   <?php foreach ($employment as $ev): ?><div class="small" data-history="1"><?= e(d($ev['date'])) ?> · <strong><?= e($ev['what']) ?></strong><?= $ev['detail'] !== '' ? ' · ' . e($ev['detail']) : '' ?><?= $ev['amount'] !== null ? ' · <span class="mono">' . e($ev['amount']) . '</span>' : '' ?></div><?php endforeach; ?>
 </div>
 <?php endif; ?>
-<?php if(can('payroll') && !$own): ?><div class="card" id="pay-items"><h2><?= te('Deductions and contributions') ?></h2><p class="muted"><?= te('Taken from each approved week, or paid on top by the employer, from the start date. Advances are repaid automatically and are not set here.') ?></p><?php if(!$payItems): ?><p class="muted"><?= te('Nothing is taken from this person\'s pay, and the employer adds nothing.') ?></p><?php else: ?><table><tr><th><?= te('Item') ?></th><th class="num"><?= te('Amount') ?></th><th><?= te('From') ?></th><th><?= te('Until') ?></th></tr><?php foreach($payItems as $pi): ?><tr data-pay-item="<?= e($pi['code']) ?>"><td><?= e(t((string)$pi['label'])) ?><div class="small muted"><?= e(pay_item_sides()[$pi['side']] ?? $pi['side']) ?></div></td><td class="num mono"><?= $pi['method']==='percent_of_gross' ? e((string)(float)$pi['amount']).'%' : e(money($pi['amount'])) ?></td><td><?= e(d($pi['starts_on'])) ?></td><td><?php if($pi['ends_on']): ?><?= e(d($pi['ends_on'])) ?><?php else: ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="pay_item_end"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><input type="hidden" name="employee_pay_item_id" value="<?= (int)$pi['id'] ?>"><input type="date" name="ends_on" required aria-label="<?= te('Until') ?>"><button class="btn ghost sm"><?= te('End') ?></button></form><?php endif; ?></td></tr><?php endforeach; ?></table><?php endif; ?><?php if($payItemChoices): ?><form method="post" class="row" style="margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="pay_item_add"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><select name="pay_item_id" aria-label="<?= te('Item') ?>"><?php foreach($payItemChoices as $ch): ?><option value="<?= (int)$ch['id'] ?>"><?= e(t((string)$ch['label'])) ?> · <?= e(pay_item_methods()[$ch['method']] ?? '') ?></option><?php endforeach; ?></select><input name="amount" type="number" min="0.01" step="0.01" required placeholder="<?= te('Amount or %') ?>" aria-label="<?= te('Amount') ?>" style="max-width:8em"><input type="date" name="starts_on" required value="<?= e(date('Y-m-d')) ?>" aria-label="<?= te('From') ?>"><input name="note" maxlength="255" placeholder="<?= te('Note') ?>" aria-label="<?= te('Note') ?>"><button class="btn sm"><?= te('Add') ?></button></form><?php else: ?><p class="small muted"><?= te('No pay item yet. Create them on the Pay items page.') ?></p><?php endif; ?></div><?php endif; ?>
+<?php if(can('payroll') && !$own): ?><div class="card" id="pay-items"><h2><?= te('Deductions and contributions') ?></h2><p class="muted"><?= te('Taken from each approved week, or paid on top by the employer, from the start date. Advances are repaid automatically and are not set here.') ?></p><?php if(!$payItems): ?><p class="muted"><?= te('Nothing is taken from this person\'s pay, and the employer adds nothing.') ?></p><?php else: ?><table><tr><th><?= te('Item') ?></th><th class="num"><?= te('Amount') ?></th><th><?= te('From') ?></th><th><?= te('Until') ?></th></tr><?php foreach($payItems as $pi): ?><tr data-pay-item="<?= e($pi['code']) ?>"><td><?= e(t((string)$pi['label'])) ?><div class="small muted"><?= e(pay_item_sides()[$pi['side']] ?? $pi['side']) ?></div></td><td class="num mono"><?= $pi['method']==='percent_of_gross' ? e((string)(float)$pi['amount']).'%' : e(money($pi['amount'])) ?></td><td><?= e(d($pi['starts_on'])) ?></td><td><?php if($pi['ends_on']): ?><?= e(d($pi['ends_on'])) ?><?php else: ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="pay_item_end"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><input type="hidden" name="employee_pay_item_id" value="<?= (int)$pi['id'] ?>"><input type="date" name="ends_on" required aria-label="<?= te('Until') ?>"><button class="btn ghost sm"><?= te('End') ?></button></form><?php endif; ?></td></tr><?php endforeach; ?></table><?php endif; ?><?php if($payItemChoices): ?><form method="post" class="row mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="pay_item_add"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><select name="pay_item_id" aria-label="<?= te('Item') ?>"><?php foreach($payItemChoices as $ch): ?><option value="<?= (int)$ch['id'] ?>"><?= e(t((string)$ch['label'])) ?> · <?= e(pay_item_methods()[$ch['method']] ?? '') ?></option><?php endforeach; ?></select><input name="amount" type="number" min="0.01" step="0.01" required placeholder="<?= te('Amount or %') ?>" aria-label="<?= te('Amount') ?>" style="max-width:8em"><input type="date" name="starts_on" required value="<?= e(date('Y-m-d')) ?>" aria-label="<?= te('From') ?>"><input name="note" maxlength="255" placeholder="<?= te('Note') ?>" aria-label="<?= te('Note') ?>"><button class="btn sm"><?= te('Add') ?></button></form><?php else: ?><p class="small muted"><?= te('No pay item yet. Create them on the Pay items page.') ?></p><?php endif; ?></div><?php endif; ?>
 <?php if(!$own): ?><div class="card" id="classification"><h2><?= te('Employment classification') ?></h2><p class="muted"><?= te('Decides whether a week is paid by the hour or as a salary, and whether overtime applies. Each change keeps the date it took effect and why.') ?></p><?php if(can('recruiter') || can('payroll')): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="classification"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><label><?= te('Kind of employment') ?></label><select name="employment_type"><?php foreach(employment_types() as $slug=>$label): ?><option value="<?= e($slug) ?>" <?= $slug===$profile['employment_type']?'selected':'' ?>><?= e($label) ?></option><?php endforeach; ?></select><label><?= te('Overtime status') ?></label><select name="flsa_status"><?php foreach(flsa_statuses() as $slug=>$label): ?><option value="<?= e($slug) ?>" <?= $slug===($profile['flsa_status'] ?? '')?'selected':'' ?>><?= e($label) ?></option><?php endforeach; ?></select><label><?= te('Takes effect on') ?></label><input type="date" name="effective_from" required max="<?= e(date('Y-m-d')) ?>" value="<?= e(date('Y-m-d')) ?>"><label><?= te('Reason') ?></label><input name="reason" required minlength="3" maxlength="500"><button class="btn"><?= te('Record the change') ?></button></form><?php endif; ?><?php if(!$classifications): ?><p class="muted"><?= te('No change recorded yet. The profile shows the classification held since the record was created.') ?></p><?php else: ?><table><tr><th><?= te('From') ?></th><th><?= te('Kind of employment') ?></th><th><?= te('Overtime status') ?></th><th><?= te('Reason') ?></th><th><?= te('Recorded by') ?></th></tr><?php foreach($classifications as $k): ?><tr><td><?= $k['effective_from'] ? e(d($k['effective_from'])) : te('Before history was kept') ?></td><td><?= e(employment_types()[$k['employment_type']] ?? $k['employment_type']) ?></td><td><?= e(flsa_statuses()[$k['flsa_status']] ?? $k['flsa_status']) ?></td><td><?= e($k['reason']==='Held before classification history was kept.' ? t('Held before classification history was kept.') : $k['reason']) ?></td><td><?= e(($k['recorded_by_name'] ?? '') !== '' ? $k['recorded_by_name'].' · '.d(substr((string)$k['recorded_at'],0,10)) : '—') ?></td></tr><?php endforeach; ?></table><?php endif; ?></div><?php endif; ?>
 
 <?php if(can('payroll')): ?><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="payment"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><h2><?= te('Payroll setup') ?></h2><label><?= te('Payment method') ?></label><select name="payment_method"><?php foreach(['direct_deposit','check','cash'] as $x): ?><option <?= $x===$profile['payment_method']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><label><?= te('ADP employee ID') ?></label><input name="adp_employee_id" value="<?= e($profile['adp_employee_id']) ?>"><p class="small"><?= te('Salary per payroll period · salaried workers') ?>: <strong><?= $profile['salary_per_period'] !== null ? e(money($profile['salary_per_period'])) : '—' ?></strong> · <?= te('changed under Pay and grade, with a date and a reason') ?></p><button class="btn"><?= te('Save payment setup') ?></button><p class="muted"><?= te('No bank account data is entered here. Use the approved ADP enrollment process.') ?></p></form><?php endif; ?></div>
@@ -119,7 +120,7 @@
 
     <?php if ($bankFull && empty($bankFull['unreadable'])): ?>
       <div class="card" style="background:#FDF6E7;border-color:#EEDCB0">
-        <p class="small" style="margin:0 0 8px">
+        <p class="small m0 mb-s">
           <strong><?= te('Full record — this read has been logged.') ?></strong>
         </p>
         <table><tbody>
@@ -132,7 +133,7 @@
         </tbody></table>
       </div>
     <?php elseif ($bankFull && ! empty($bankFull['unreadable'])): ?>
-      <p class="small" style="color:var(--red)">
+      <p class="small t-red">
         <?= te('This record cannot be decrypted. The encryption key has changed since it was saved; re-enter the details.') ?>
       </p>
     <?php else: ?>
@@ -142,25 +143,25 @@
     <?php endif; ?>
   <?php endif; ?>
 
-  <form method="post" style="margin-top:14px">
+  <form class="mt" method="post">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="bank">
     <input type="hidden" name="candidate_id" value="<?= (int) $cid ?>">
-    <h3 style="margin:0 0 10px">
+    <h3 class="m0 mb">
       <?= $bank ? te('Replace these details') : te('Record bank details') ?>
     </h3>
     <div class="row">
-      <div style="flex:2">
+      <div class="f2">
         <label for="b-holder"><?= te('Name on the account') ?></label>
         <input id="b-holder" name="account_holder" maxlength="190"
                value="<?= e($c['full_name']) ?>">
       </div>
-      <div style="flex:2">
+      <div class="f2">
         <label for="b-bank"><?= te('Bank') ?></label>
         <input id="b-bank" name="bank_name" maxlength="90" required>
       </div>
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="row mt">
       <div>
         <label for="b-routing"><?= te('Routing number') ?></label>
         <input id="b-routing" name="routing_number" maxlength="9" required

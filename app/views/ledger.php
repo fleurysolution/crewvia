@@ -83,10 +83,10 @@ $linesTable = static function (array $ls) use ($acctName, $amount): string {
       <p><b>#<?= (int) $j['id'] ?></b> · <?= e(d((string) $j['doc_date'])) ?> · <?= e($j['memo']) ?> · <span class="mono"><?= e(money($j['total'])) ?></span> · <span class="muted"><?= te('by :name', ['name' => (string) ($j['by_name'] ?? '')]) ?></span></p>
       <?= $linesTable($lines[(int) $j['id']] ?? []) ?>
       <?php if ((int) $j['created_by'] !== uid()): ?>
-      <form method="post" class="row" style="display:inline"><?= csrf_field() ?><input type="hidden" name="do" value="approve"><input type="hidden" name="journal_id" value="<?= (int) $j['id'] ?>"><button class="btn sm"><?= te('Post it') ?></button></form>
+      <form method="post" class="row inline"><?= csrf_field() ?><input type="hidden" name="do" value="approve"><input type="hidden" name="journal_id" value="<?= (int) $j['id'] ?>"><button class="btn sm"><?= te('Post it') ?></button></form>
       <?php else: ?><span class="small muted"><?= te('Someone else posts it.') ?></span><?php endif; ?>
       <?php if ((int) $j['created_by'] === uid() || can('admin')): ?>
-      <form method="post" class="row" style="display:inline"><?= csrf_field() ?><input type="hidden" name="do" value="discard"><input type="hidden" name="journal_id" value="<?= (int) $j['id'] ?>"><button class="btn sm ghost"><?= te('Discard') ?></button></form>
+      <form method="post" class="row inline"><?= csrf_field() ?><input type="hidden" name="do" value="discard"><input type="hidden" name="journal_id" value="<?= (int) $j['id'] ?>"><button class="btn sm ghost"><?= te('Discard') ?></button></form>
       <?php endif; ?>
     </div>
   <?php endforeach; ?>

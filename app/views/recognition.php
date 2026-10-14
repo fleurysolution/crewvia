@@ -22,9 +22,9 @@ $rcSource = ['award' => t('Award'), 'kudos' => t('Thanks'), 'grant' => t('Grante
   </form>
   <div class="card scroll" id="wall" data-count="<?= count($wall) ?>"><h2><?= te('Thanks') ?></h2>
     <?php if (! $wall): ?><p class="muted"><?= te('None yet.') ?></p><?php endif; ?>
-    <?php foreach ($wall as $k): ?><div class="small" data-kudos="<?= (int) $k['id'] ?>" data-public="<?= (int) $k['is_public'] ?>" style="margin:6px 0">
+    <?php foreach ($wall as $k): ?><div class="small m0 mt-s mb-s" data-kudos="<?= (int) $k['id'] ?>" data-public="<?= (int) $k['is_public'] ?>">
       <strong><?= e($k['from_name']) ?></strong> → <strong><?= e($k['to_name']) ?></strong><?= (int) $k['is_public'] ? '' : ' <span class="tag grey">' . te('Private') . '</span>' ?><?= (int) $k['points'] ? ' <span class="tag green">+' . (int) $k['points'] . '</span>' : '' ?>
-      <div style="overflow-wrap:anywhere"><?= e($k['message']) ?></div><span class="muted"><?= e(d(substr((string) $k['created_at'], 0, 10))) ?></span></div><?php endforeach; ?>
+      <div class="wrap-any"><?= e($k['message']) ?></div><span class="muted"><?= e(d(substr((string) $k['created_at'], 0, 10))) ?></span></div><?php endforeach; ?>
   </div>
 </div>
 
@@ -32,7 +32,7 @@ $rcSource = ['award' => t('Award'), 'kudos' => t('Thanks'), 'grant' => t('Grante
 <div class="grid g2">
   <div class="card" id="programs">
     <?php if (! $programs): ?><p class="muted"><?= te('No award is given yet.') ?></p><?php endif; ?>
-    <?php foreach ($programs as $pr): ?><div data-program="<?= (int) $pr['id'] ?>" style="margin-bottom:12px">
+    <?php foreach ($programs as $pr): ?><div class="mb" data-program="<?= (int) $pr['id'] ?>">
       <strong><?= e($pr['name']) ?></strong> · <span class="small"><?= e($rcPeriods[$pr['period']]) ?> · <?= e($rcEligible[$pr['eligible']]) ?><?= (int) $pr['points'] ? ' · ' . te(':n points', ['n' => (int) $pr['points']]) : '' ?></span>
       <?php if ($pr['description']): ?><div class="small"><?= e($pr['description']) ?></div><?php endif; ?>
       <?php if ($pr['may_nominate'] && $pr['nominees']): ?>
@@ -57,7 +57,7 @@ $rcSource = ['award' => t('Award'), 'kudos' => t('Thanks'), 'grant' => t('Grante
 <div class="grid g2">
   <div class="card" id="catalog"><p id="points" data-balance="<?= (int) $balance ?>"><strong><?= te('Your points: :n', ['n' => (int) $balance]) ?></strong></p>
     <?php if (! $rewards): ?><p class="muted"><?= te('No reward is offered to you yet.') ?></p><?php endif; ?>
-    <?php foreach ($rewards as $rw): ?><form method="post" data-reward="<?= (int) $rw['id'] ?>" style="margin-bottom:10px"><?= csrf_field() ?><input type="hidden" name="do" value="redeem"><input type="hidden" name="reward_id" value="<?= (int) $rw['id'] ?>">
+    <?php foreach ($rewards as $rw): ?><form class="mb" method="post" data-reward="<?= (int) $rw['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="redeem"><input type="hidden" name="reward_id" value="<?= (int) $rw['id'] ?>">
       <strong><?= e($rw['name']) ?></strong> · <span class="small"><?= e($rcKinds[$rw['kind']]) ?> · <?= te(':n points', ['n' => (int) $rw['points_cost']]) ?><?= $rw['stock'] !== null ? ' · ' . te(':n left', ['n' => (int) $rw['stock']]) : '' ?></span>
       <?php if ($rw['description']): ?><div class="small"><?= e($rw['description']) ?></div><?php endif; ?>
       <div class="row"><input name="note" maxlength="500" placeholder="<?= te('Note (optional)') ?>" aria-label="<?= te('Note (optional)') ?>"><button class="btn sm"<?= $balance < (int) $rw['points_cost'] ? ' disabled' : '' ?>><?= te('Ask for it') ?></button></div></form><?php endforeach; ?>

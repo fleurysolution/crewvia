@@ -2,13 +2,13 @@
 $tone = static fn(string $s): string => ['self_review' => 'blue', 'supervisor_review' => 'amber', 'awaiting_approval' => 'amber', 'approved' => 'green', 'cancelled' => 'grey'][$s] ?? 'grey';
 ?>
 <?php if (isset($a)): ?>
-<p><a href="/appraisals">← <?= te('Performance reviews') ?></a></p>
-<h1><?= e($a['full_name']) ?> · <?= te($a['template']) ?></h1>
+<p class="back-link"><a href="/appraisals">← <?= te('Performance reviews') ?></a></p>
+<div class="page-head"><div><h1><?= e($a['full_name']) ?> · <?= te($a['template']) ?></h1>
 <p class="sub"><span class="tag <?= $tone($a['status']) ?>" id="appraisal-status" data-status="<?= e($a['status']) ?>"><?= e($statuses[$a['status']]) ?></span>
   <?= e($a['project']) ?><?= $a['period_from'] ? ' · ' . e(d((string) $a['period_from'])) . ' – ' . e(d((string) ($a['period_to'] ?? $a['period_from']))) : '' ?>
-  · <?= te('Reviewer') ?>: <?= e($a['reviewer'] ?? '—') ?></p>
+  · <?= te('Reviewer') ?>: <?= e($a['reviewer'] ?? '—') ?></p></div></div>
 <?php if ($showSupervisor && $a['score_percent'] !== null): ?>
-<div class="grid g4" style="margin-bottom:16px" id="appraisal-result">
+<div class="grid g4 mb-l" id="appraisal-result">
   <div class="stat"><div class="n" data-percent="<?= e((string) $a['score_percent']) ?>"><?= e(number_format((float) $a['score_percent'], 1)) ?>%</div><div class="l"><?= te('Weighted score') ?></div></div>
   <div class="stat"><div class="n" data-grade="<?= e((string) $a['grade']) ?>"><?= e((string) $a['grade']) ?></div><div class="l"><?= te('Grade') ?></div></div>
   <div class="stat"><div class="n"><?= (int) $a['would_rehire'] === 1 ? te('Yes') : te('No') ?></div><div class="l"><?= te('Would have them back') ?></div></div>
@@ -82,9 +82,9 @@ $tone = static fn(string $s): string => ['self_review' => 'blue', 'supervisor_re
 <?php endif; ?>
 
 <?php else: ?>
-<h1><?= te('Performance reviews') ?></h1>
+<div class="page-head"><div><h1><?= te('Performance reviews') ?></h1>
 <p class="sub"><?= $role === 'worker' ? te('Your reviews: the ones waiting for your own view, and those approved.')
-                                       : te('A review moves from the worker\'s own view, to the reviewer\'s scores, to approval by somebody else.') ?></p>
+                                       : te('A review moves from the worker\'s own view, to the reviewer\'s scores, to approval by somebody else.') ?></p></div></div>
 <?php if ($role !== 'worker'): ?>
 <form class="card row" method="get"><select name="status"><option value=""><?= te('Any state') ?></option><?php foreach ($statuses as $k => $label): ?><option value="<?= e($k) ?>"<?= $status === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select><button class="btn"><?= te('Filter') ?></button></form>
 <?php endif; ?>

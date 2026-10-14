@@ -19,13 +19,13 @@ $hwScore = static function (?string $s): string {
 ?>
 <?php if (! isset($hwVacancy)): ?>
 <div class="page-head">
-  <div><h1><?= te('Hiring') ?></h1><p class="sub" style="margin:0"><?= te('Every requisition and where its applicants stand. Open one to review its applicants, move them along, or add people from the talent pool.') ?></p></div>
+  <div><h1><?= te('Hiring') ?></h1><p class="sub m0"><?= te('Every requisition and where its applicants stand. Open one to review its applicants, move them along, or add people from the talent pool.') ?></p></div>
   <div class="actions"><a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a></div>
 </div>
 <form method="get" class="filterbar" id="jobs-filter">
   <select name="status" aria-label="<?= te('Status') ?>"><?php foreach (['open' => t('Open'), 'closed' => t('Closed'), 'all' => t('All')] as $k => $l): ?><option value="<?= $k ?>"<?= $hwStatus === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
   <select name="project" aria-label="<?= te('Project') ?>"><option value="0"><?= te('All projects') ?></option><?php foreach ($hwProjects as $p): ?><option value="<?= (int) $p['id'] ?>"<?= (int) ($_GET['project'] ?? 0) === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['title']) ?></option><?php endforeach; ?></select>
-  <button class="btn ghost"><?= te('Show') ?></button> <span class="small muted"><?= te(':n requisition(s)', ['n' => count($hwJobs)]) ?></span>
+  <button class="btn ghost"><?= te('Show') ?></button> <span class="small muted"><?= ten(count($hwJobs), ':n requisition', ':n requisitions') ?></span>
 </form>
 <?php if (! $hwJobs): ?>
 <div class="card empty-state" id="no-jobs"><h3><?= te('No requisition here yet') ?></h3><p><?= te('Create a requisition for a project: applicants then arrive here, by its public link and QR code, or from the talent pool.') ?></p><a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a></div>
@@ -47,10 +47,10 @@ $hwScore = static function (?string $s): string {
 <?php endif; ?>
 
 <?php else: $v = $hwVacancy; ?>
-<p class="small" style="margin:0 0 6px"><a href="/hiring">← <?= te('All requisitions') ?></a></p>
+<p class="back-link"><a href="/hiring">← <?= te('All requisitions') ?></a></p>
 <div class="page-head">
   <div><h1 id="vacancy-title"><?= e($v['title']) ?></h1>
-    <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= te(':n opening(s)', ['n' => (int) $v['openings']]) ?><?= $v['starts_on'] ? ' · ' . te('starts :date', ['date' => d((string) $v['starts_on'])]) : '' ?>
+    <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= ten((int) $v['openings'], ':n opening', ':n openings') ?><?= $v['starts_on'] ? ' · ' . te('starts :date', ['date' => d((string) $v['starts_on'])]) : '' ?>
       · <span class="tag <?= (int) $v['is_open'] ? 'green' : 'grey' ?>"><?= (int) $v['is_open'] ? te('Open') : te('Closed') ?></span></div></div>
   <div class="actions"><a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
 </div>
@@ -124,7 +124,7 @@ $hwScore = static function (?string $s): string {
           <p class="small"><a href="/recruitment"><?= te('Manage checks on Application screening') ?></a></p>
         </div>
         <div class="card" id="background"><h3><?= te('Background') ?></h3>
-          <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . te(':n year(s) of experience', ['n' => (int) $a['years_exp']]) : '' ?></p>
+          <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
           <?php if ($a['skills']): ?><p class="small"><?php foreach ($a['skills'] as $sk): ?><span class="tag <?= (int) $sk['confirmed'] ? 'green' : 'grey' ?>"><?= e((string) $sk['skill_slug']) ?><?= $sk['years'] ? ' · ' . (int) $sk['years'] . 'y' : '' ?></span> <?php endforeach; ?></p><?php endif; ?>
           <?php foreach ($a['resumes'] as $r): ?><p class="small"><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
           <?php if (! $a['resumes']): ?><p class="small muted"><?= te('No résumé on file.') ?></p><?php endif; ?>
@@ -174,7 +174,7 @@ $hwScore = static function (?string $s): string {
   <?php foreach ($hwMatches as $m): ?><div class="row-item" data-match="<?= (int) $m['id'] ?>">
     <div class="who"><span class="avatar" aria-hidden="true"><?= e(hw_initials((string) $m['full_name'])) ?></span><div><a class="name" href="/candidates/<?= (int) $m['id'] ?>"><?= e($m['full_name']) ?></a><div class="sm"><?= e(trim(($m['city'] ?? '') . ', ' . ($m['state'] ?? ''), ', ')) ?><?= $m['miles_away'] !== null ? ' · <span data-miles="' . (int) $m['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $m['miles_away'])]) . '</span>' : '' ?></div></div></div>
     <div class="sm"><?= $m['degree'] ? e($m['degree']) : te('No degree on file') ?><?= $m['years_exp'] !== null ? ' · ' . te(':n yr', ['n' => (int) $m['years_exp']]) : '' ?></div>
-    <div class="sm"><?= (int) $m['past_jobs'] ? te(':n past assignment(s)', ['n' => (int) $m['past_jobs']]) : te('No assignment yet') ?><div><?= $m['last_contact_at'] ? te('Last contact :when', ['when' => hw_ago((string) $m['last_contact_at'])]) : te('Not contacted yet') ?></div></div>
+    <div class="sm"><?= (int) $m['past_jobs'] ? ten((int) $m['past_jobs'], ':n past assignment', ':n past assignments') : te('No assignment yet') ?><div><?= $m['last_contact_at'] ? te('Last contact :when', ['when' => hw_ago((string) $m['last_contact_at'])]) : te('Not contacted yet') ?></div></div>
     <div><?php if ((int) $v['is_open']): ?><form method="post" action="/hiring"><?= csrf_field() ?><input type="hidden" name="do" value="add"><input type="hidden" name="vacancy_id" value="<?= (int) $v['id'] ?>"><input type="hidden" name="candidate_id" value="<?= (int) $m['id'] ?>"><input type="hidden" name="back" value="<?= e($hwUrl(['tab' => 'matches', 'q' => $hwFilter['q']])) ?>"><button class="btn sm"><?= te('Add to this job') ?></button></form><?php endif; ?></div>
   </div><?php endforeach; ?>
 </div><?php endif; ?>

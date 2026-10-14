@@ -12,7 +12,6 @@ $stages = candidate_stages();
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('HIRING') ?></span>
     <h1><?= te('Employee folders') ?></h1>
     <p class="sub">
       <?= te('One folder per person, kept across every project they work: their identity, applications, assignments, credentials and the history of what was done to the record.') ?>
@@ -38,8 +37,8 @@ $stages = candidate_stages();
 </form>
 
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0">
+  <div class="card-bar">
+    <h2 class="m0">
       <?= $search !== ''
           ? te(':n match :term', ['n' => count($people), 'term' => e($search)])
           : te('Most recently added') ?>

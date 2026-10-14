@@ -32,7 +32,6 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('DEPLOYMENT') ?></span>
     <h1><?= te('Roster') ?></h1>
     <p class="sub">
       <?= te(':n on :project', ['n' => count($crew), 'project' => $job['title'] ?? t('the job')]) ?>
@@ -42,24 +41,24 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
 </div>
 
 <?php if ($crew): ?>
-<div class="grid g4" style="margin-bottom:18px">
+<div class="grid g4 mb-l">
   <div class="stat">
     <div class="n"><?= count($deployed) ?></div>
     <div class="l"><?= te('Deployed') ?></div>
   </div>
   <div class="stat">
-    <div class="n" style="color:<?= $notClear ? 'var(--amber)' : 'var(--green)' ?>"><?= count($notClear) ?></div>
+    <div class="n <?= $notClear ? 't-amber' : 't-green' ?>"><?= count($notClear) ?></div>
     <div class="l"><?= te('Blocked from deploying') ?></div>
   </div>
   <div class="stat">
-    <div class="n" style="color:<?= $noBed ? 'var(--red)' : 'var(--green)' ?>"><?= count($noBed) ?></div>
+    <div class="n <?= $noBed ? 't-red' : 't-green' ?>"><?= count($noBed) ?></div>
     <div class="l"><?= te('Without a bed') ?></div>
     <?php if ($sharing): ?>
       <div class="h"><?= te(':n sharing a room', ['n' => count($sharing)]) ?></div>
     <?php endif; ?>
   </div>
   <div class="stat">
-    <div class="n" style="color:<?= $noFlight ? 'var(--amber)' : 'var(--green)' ?>"><?= count($noFlight) ?></div>
+    <div class="n <?= $noFlight ? 't-amber' : 't-green' ?>"><?= count($noFlight) ?></div>
     <div class="l"><?= te('Travel not booked') ?></div>
   </div>
   <?php
@@ -69,7 +68,7 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
   $ungraded   = array_filter($finished, fn ($p) => ! isset($reviews[(int) $p['id']]));
   ?>
   <div class="stat">
-    <div class="n" style="color:<?= $ungraded ? 'var(--amber)' : 'var(--green)' ?>"><?= count($ungraded) ?></div>
+    <div class="n <?= $ungraded ? 't-amber' : 't-green' ?>"><?= count($ungraded) ?></div>
     <div class="l"><?= te('Finished, not graded') ?></div>
     <?php if ($finished): ?>
       <div class="h"><?= te(':n finished on this job', ['n' => count($finished)]) ?></div>
@@ -192,7 +191,7 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
 
         <?php if (can('recruiter')): ?>
         <td class="right">
-          <form method="post" action="/roster" style="display:inline">
+          <form class="inline" method="post" action="/roster">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="status">
             <input type="hidden" name="placement_id" value="<?= (int) $p['id'] ?>">
@@ -231,7 +230,7 @@ $toGrade = array_filter($crew, fn ($p) => $p['status'] === 'completed'
     <h2 style="margin:4px 0 2px">
       <?= te(':n finished assignments to grade', ['n' => count($toGrade)]) ?>
     </h2>
-    <p class="small muted" style="margin:0">
+    <p class="small muted m0">
       <?= te('Asked now, while somebody still remembers. A year from now this is the only thing that answers whether this person is worth calling back.') ?>
     </p>
   </div>

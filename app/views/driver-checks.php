@@ -5,10 +5,10 @@ $dkTone = ['acceptable' => 'green', 'review' => 'amber', 'not_acceptable' => 're
 $dkDue = ['overdue' => t('Overdue'), 'due' => t('Due within the month'), 'current' => t('Current')];
 ?>
 <?php if (isset($check)): $k = $check['kind']; ?>
-<p><a href="/driver-checks?candidate=<?= (int) $check['candidate_id'] ?>">← <?= e($check['full_name']) ?></a></p>
-<h1><?= e($dkKinds[$k]) ?></h1>
+<p class="back-link"><a href="/driver-checks?candidate=<?= (int) $check['candidate_id'] ?>">← <?= e($check['full_name']) ?></a></p>
+<div class="page-head"><div><h1><?= e($dkKinds[$k]) ?></h1>
 <p class="sub"><?= e($check['full_name']) ?> · <?= e($check['state']) ?> <?= te('licence ending :last4', ['last4' => $check['license_last4']]) ?><?= $check['query_type'] ? ' · ' . e($check['query_type'] === 'full' ? t('Full query') : t('Limited query')) : '' ?>
-  · <span class="tag <?= $dkTone[$check['status'] === 'completed' ? (string) $check['decision'] : $check['status']] ?>" id="check-status" data-status="<?= e($check['status']) ?>"><?= e($check['status'] === 'completed' ? $dkDecisions[$check['decision']] : t(ucfirst($check['status']))) ?></span></p>
+  · <span class="tag <?= $dkTone[$check['status'] === 'completed' ? (string) $check['decision'] : $check['status']] ?>" id="check-status" data-status="<?= e($check['status']) ?>"><?= e($check['status'] === 'completed' ? $dkDecisions[$check['decision']] : t(ucfirst($check['status']))) ?></span></p></div></div>
 <div class="grid g2">
   <div class="card" id="consent">
     <h2><?= te('Consent') ?></h2>
@@ -64,14 +64,14 @@ $dkDue = ['overdue' => t('Overdue'), 'due' => t('Due within the month'), 'curren
     <?php if ($check['adverse_notice_on']): ?><p class="small"><?= te('Pre-adverse notice sent on :date', ['date' => d((string) $check['adverse_notice_on'])]) ?></p><?php endif; ?>
     <?php if ($check['next_due_on']): ?><p class="small" id="next-due"><?= te('Due again on :date', ['date' => d((string) $check['next_due_on'])]) ?></p><?php endif; ?>
     <?php endif; ?>
-    <?php if ($check['notes']): ?><p class="small" style="white-space:pre-wrap"><?= e($check['notes']) ?></p><?php endif; ?>
+    <?php if ($check['notes']): ?><p class="small pre-wrap"><?= e($check['notes']) ?></p><?php endif; ?>
   </div>
   <?php endif; ?>
 </div>
 
 <?php else: ?>
-<h1><?= te('Driving records') ?></h1>
-<p class="sub"><?= te('The motor vehicle record (MVRNOW), the FMCSA Clearinghouse and PSP. Each is run in the provider\'s own site; Crewvia keeps the consent, the result, the decision and when it is due again. A valid CDL and a medical certificate go into Qualifications.') ?></p>
+<div class="page-head"><div><h1><?= te('Driving records') ?></h1>
+<p class="sub"><?= te('The motor vehicle record (MVRNOW), the FMCSA Clearinghouse and PSP. Each is run in the provider\'s own site; Crewvia keeps the consent, the result, the decision and when it is due again. A valid CDL and a medical certificate go into Qualifications.') ?></p></div></div>
 <?php if ($person): ?>
 <h2 id="person"><?= e($person['full_name']) ?></h2>
 <div class="grid g2">

@@ -33,12 +33,12 @@ $who = (string) (user()['name'] ?? '');
     </table><?php endif; ?></section>
   <section class="card" id="home-reach"><h2><?= te('Reaching the pool') ?></h2>
     <ul class="attention-list">
-      <li><a href="/campaigns"><strong data-figure="sending"><?= (int) $hd['campaigns']['sending'] ?></strong> <?= te('campaign(s) going out') ?></a></li>
-      <li><a href="/campaigns"><strong data-figure="approval"><?= (int) $hd['campaigns']['waiting'] ?></strong> <?= te('campaign(s) waiting for an administrator') ?></a></li>
-      <li><a href="/campaigns"><strong><?= (int) $hd['campaigns']['drafts'] ?></strong> <?= te('draft(s) not sent') ?></a></li>
-      <li><a href="/candidates?stage=new"><strong data-figure="never_called"><?= (int) $hd['never_called'] ?></strong> <?= te('new people nobody has contacted') ?></a></li>
+      <li><a href="/campaigns"><strong data-figure="sending"><?= (int) $hd['campaigns']['sending'] ?></strong> <?= ten((int) $hd['campaigns']['sending'], 'campaign going out', 'campaigns going out') ?></a></li>
+      <li><a href="/campaigns"><strong data-figure="approval"><?= (int) $hd['campaigns']['waiting'] ?></strong> <?= ten((int) $hd['campaigns']['waiting'], 'campaign waiting for an administrator', 'campaigns waiting for an administrator') ?></a></li>
+      <li><a href="/campaigns"><strong><?= (int) $hd['campaigns']['drafts'] ?></strong> <?= ten((int) $hd['campaigns']['drafts'], 'draft not sent', 'drafts not sent') ?></a></li>
+      <li><a href="/candidates?stage=new"><strong data-figure="never_called"><?= (int) $hd['never_called'] ?></strong> <?= ten((int) $hd['never_called'], 'new person nobody has contacted', 'new people nobody has contacted') ?></a></li>
     </ul>
-    <p style="margin-top:12px"><a class="btn ghost sm" href="/campaigns"><?= te('Campaign email') ?></a> <a class="btn ghost sm" href="/requisitions"><?= te('Requisitions') ?></a></p></section>
+    <p class="mt"><a class="btn ghost sm" href="/campaigns"><?= te('Campaign email') ?></a> <a class="btn ghost sm" href="/requisitions"><?= te('Requisitions') ?></a></p></section>
 </div>
 
 <?php elseif ($homeRole === 'hotels'): $p = $hd['problems']; ?>
@@ -57,9 +57,9 @@ $who = (string) (user()['name'] ?? '');
     </table><?php endif; ?></section>
   <section class="card" id="home-waiting"><h2><?= te('Waiting on Logistics') ?></h2>
     <ul class="attention-list">
-      <li><a href="/folios"><strong data-figure="folios"><?= (int) $hd['folios_open'] ?></strong> <?= te('hotel folio(s) to finish') ?></a></li>
-      <li><a href="/procurement"><strong data-figure="purchases"><?= (int) $hd['purchases'] ?></strong> <?= te('purchase request(s) to order') ?></a></li>
-      <li><a href="/roster"><strong><?= (int) $p['blocked'] ?></strong> <?= te('people blocked from deploying') ?></a></li>
+      <li><a href="/folios"><strong data-figure="folios"><?= (int) $hd['folios_open'] ?></strong> <?= ten((int) $hd['folios_open'], 'hotel folio to finish', 'hotel folios to finish') ?></a></li>
+      <li><a href="/procurement"><strong data-figure="purchases"><?= (int) $hd['purchases'] ?></strong> <?= ten((int) $hd['purchases'], 'purchase request to order', 'purchase requests to order') ?></a></li>
+      <li><a href="/roster"><strong><?= (int) $p['blocked'] ?></strong> <?= ten((int) $p['blocked'], 'person blocked from deploying', 'people blocked from deploying') ?></a></li>
       <li><a href="/roster"><strong><?= (int) $p['onsite'] ?></strong> <?= te('people on site now') ?></a></li>
     </ul></section>
 </div>
@@ -74,9 +74,9 @@ $who = (string) (user()['name'] ?? '');
 <div class="grid g2">
   <section class="card" id="home-checks"><h2><?= te('To check') ?></h2>
     <ul class="attention-list">
-      <li><a href="/change-requests"><strong data-figure="changes"><?= (int) $hd['changes'] ?></strong> <?= te('detail or bank change(s) waiting for a check') ?></a></li>
-      <li><a href="/timeoff"><strong data-figure="timeoff"><?= (int) $hd['timeoff'] ?></strong> <?= te('time-off request(s) to decide') ?></a></li>
-      <li><a href="/accounts-payable"><strong data-figure="bills_week"><?= (int) $hd['bills_week'] ?></strong> <?= te('bill(s) due in the next 7 days') ?></a></li>
+      <li><a href="/change-requests"><strong data-figure="changes"><?= (int) $hd['changes'] ?></strong> <?= ten((int) $hd['changes'], 'detail or bank change waiting for a check', 'detail or bank changes waiting for a check') ?></a></li>
+      <li><a href="/timeoff"><strong data-figure="timeoff"><?= (int) $hd['timeoff'] ?></strong> <?= ten((int) $hd['timeoff'], 'time-off request to decide', 'time-off requests to decide') ?></a></li>
+      <li><a href="/accounts-payable"><strong data-figure="bills_week"><?= (int) $hd['bills_week'] ?></strong> <?= ten((int) $hd['bills_week'], 'bill due in the next 7 days', 'bills due in the next 7 days') ?></a></li>
     </ul></section>
   <section class="card" id="home-run"><h2><?= te('Run the week') ?></h2>
     <ol class="small" style="margin:0;padding-left:18px;line-height:1.9">

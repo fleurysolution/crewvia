@@ -9,8 +9,8 @@ $actionRow = static function (array $a, bool $closable): void { ?>
         <input name="outcome" required minlength="3" maxlength="1000" placeholder="<?= te('What came of it') ?>" style="max-width:12em"><button class="btn sm" name="as" value="done"><?= te('Done') ?></button><button class="btn ghost sm" name="as" value="cancelled"><?= te('Cancel') ?></button></form><?php endif; ?></td></tr>
 <?php };
 ?>
-<h1><?= te('Performance') ?></h1>
-<p class="sub"><?= te('Review cycles, goals and how they progress, and the development plan with whoever follows it up.') ?></p>
+<div class="page-head"><div><h1><?= te('Performance') ?></h1>
+<p class="sub"><?= te('Review cycles, goals and how they progress, and the development plan with whoever follows it up.') ?></p></div></div>
 
 <?php if ($person): ?>
 <div class="card" id="person"><h2><?= e($person['name']) ?></h2>

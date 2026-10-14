@@ -22,9 +22,8 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
         <?= te('No projects yet') ?>
       <?php else: ?>
         <?= $totals['running'] === 1
-            ? te(':n people out on one job', ['n' => $totals['placed']])
-            : te(':n people out across :jobs jobs',
-                 ['n' => $totals['placed'], 'jobs' => $totals['running']]) ?>
+            ? ten($totals['placed'], ':n person out on one job', ':n people out on one job')
+            : ten($totals['placed'], ':n person out across :jobs jobs', ':n people out across :jobs jobs', ['jobs' => $totals['running']]) ?>
       <?php endif; ?>
     </h1>
     <p class="sub">
@@ -38,7 +37,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
   <div class="card">
     <div class="empty">
       <?= te('Nothing has been set up yet. A project holds the client, the site, the rates and the guarantee — everything else hangs off it.') ?>
-      <p style="margin-top:12px"><a class="btn" href="/projects"><?= te('Create the first project') ?></a></p>
+      <p class="mt"><a class="btn" href="/projects"><?= te('Create the first project') ?></a></p>
     </div>
   </div>
 <?php else: ?>
@@ -54,15 +53,15 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
     <div class="overview-figures">
       <div><div class="n" data-figure="onsite"><?= $totals['onsite'] ?></div><div class="l"><?= te('On site now') ?></div></div>
       <div><div class="n" data-figure="placed"><?= $totals['placed'] ?></div><div class="l"><?= te('Confirmed, travelling or on site') ?></div></div>
-      <div><div class="n" data-figure="unplaced" style="color:<?= $unplaced ? 'var(--amber)' : 'var(--green)' ?>"><?= $unplaced ?></div><div class="l"><?= te('Still to place, of :n asked for', ['n' => $totals['target']]) ?></div></div>
+      <div><div class="n <?= $unplaced ? 't-amber' : 't-green' ?>" data-figure="unplaced"><?= $unplaced ?></div><div class="l"><?= te('Still to place, of :n asked for', ['n' => $totals['target']]) ?></div></div>
     </div>
     <?php if ($fillRate !== null): ?><div class="headcount-bar" style="margin:10px 0 4px"><span style="width:<?= min(100, $fillRate) ?>%"></span></div><div class="small muted" data-figure="fill"><?= te(':n% of the headcount filled', ['n' => $fillRate]) ?></div><?php endif; ?>
     <div class="overview-sub">
       <span class="small muted"><?= te('Hiring') ?>:</span>
-      <a href="/hiring" data-figure="new_week"><?= te(':n new applicant(s) this week', ['n' => (int) $hiring['new_week']]) ?></a>
+      <a href="/hiring" data-figure="new_week"><?= ten((int) $hiring['new_week'], ':n new applicant this week', ':n new applicants this week') ?></a>
       · <a href="/hiring" data-figure="reviewing"><?= te(':n being reviewed', ['n' => (int) $hiring['reviewing']]) ?></a>
-      · <a href="/hiring" data-figure="offered"><?= te(':n offer(s) out', ['n' => (int) $hiring['offered']]) ?></a>
-      · <span class="small muted"><?= te(':n open requisition(s)', ['n' => (int) $hiring['open_reqs']]) ?></span>
+      · <a href="/hiring" data-figure="offered"><?= ten((int) $hiring['offered'], ':n offer out', ':n offers out') ?></a>
+      · <span class="small muted"><?= ten((int) $hiring['open_reqs'], ':n open requisition', ':n open requisitions') ?></span>
     </div>
   </section>
 
@@ -71,7 +70,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
     <div class="overview-figures money">
       <div><div class="n" data-figure="pay"><?= e($whole($totals['weekly_pay'])) ?></div><div class="l"><?= te('Crew cost') ?></div></div>
       <div><div class="n" data-figure="bill"><?= $totals['weekly_bill'] > 0 ? e($whole($totals['weekly_bill'])) : '—' ?></div><div class="l"><?= te('Billed to clients') ?></div></div>
-      <div><div class="n" data-figure="margin" style="color:<?= $margin < 0 ? 'var(--red)' : 'inherit' ?>"><?= $totals['weekly_bill'] > 0 ? e($whole($margin)) : '—' ?></div><div class="l"><?= $marginPct !== null ? te('Margin, :n% of billing', ['n' => $marginPct]) : te('Margin: no client rates agreed') ?></div></div>
+      <div><div class="n <?= $margin < 0 ? 't-red' : '' ?>" data-figure="margin"><?= $totals['weekly_bill'] > 0 ? e($whole($margin)) : '—' ?></div><div class="l"><?= $marginPct !== null ? te('Margin, :n% of billing', ['n' => $marginPct]) : te('Margin: no client rates agreed') ?></div></div>
     </div>
     <div class="overview-sub small muted"><?= te('What one week of the people out costs and bills, at their agreed rates.') ?> <a href="/project-costs"><?= te('Project costs') ?></a></div>
   </section>
@@ -82,7 +81,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
       <p class="small" style="color:var(--green)"><?= te('Nothing waiting. Every project is clear.') ?></p>
     <?php else: ?>
       <ul class="attention-list">
-        <?php foreach ($attention as $x): ?><li data-attention="<?= e($x['where']) ?>"><span class="dot <?= e($x['tone']) ?>"></span><a href="<?= e($x['where']) ?>"><strong><?= (int) $x['count'] ?></strong> <?= te($x['label']) ?></a><?php if ($x['projects']): ?> <span class="small muted"><?= te('on :n project(s)', ['n' => $x['projects']]) ?></span><?php endif; ?></li><?php endforeach; ?>
+        <?php foreach ($attention as $x): ?><li data-attention="<?= e($x['where']) ?>"><span class="dot <?= e($x['tone']) ?>"></span><a href="<?= e($x['where']) ?>"><strong><?= (int) $x['count'] ?></strong> <?= te($x['label']) ?></a><?php if ($x['projects']): ?> <span class="small muted"><?= ten($x['projects'], 'on :n project', 'on :n projects') ?></span><?php endif; ?></li><?php endforeach; ?>
       </ul>
     <?php endif; ?>
   </section>

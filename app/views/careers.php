@@ -78,7 +78,7 @@
     </div>
 
     <?php if ($pay === null): ?>
-      <p class="small muted" style="margin:0 0 12px">
+      <p class="small muted m0 mb">
         <?= te('The rate for this position is confirmed when we speak to you.') ?>
       </p>
     <?php endif; ?>
@@ -107,7 +107,7 @@
       </ul>
     <?php endif; ?>
 
-    <p style="margin-top:18px">
+    <p class="mt-l">
       <a class="btn" href="/apply?id=<?= (int) $o['id'] ?>"><?= te('Apply for this') ?></a>
       <span class="muted small">
         <?= te(':n needed', ['n' => (int) $o['openings']]) ?>

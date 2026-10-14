@@ -16,13 +16,13 @@
   </div>
 </form>
 
-<div class="grid g4" style="margin-bottom:16px">
+<div class="grid g4 mb-l">
   <div class="stat"><div class="n"><?= money($grand['bill']) ?></div><div class="l"><?= te('Billable') ?></div>
     <div class="h"><?= rtrim(rtrim(number_format($grand['hours'], 1), '0'), '.') ?> hours worked</div></div>
   <div class="stat"><div class="n"><?= money($grand['pay']) ?></div><div class="l"><?= te('Payroll cost') ?></div>
     <div class="h">includes <?= money($grand['perdiem']) ?> per diem</div></div>
   <div class="stat">
-    <div class="n" style="<?= $grand['margin'] < 0 ? 'color:var(--red)' : 'color:var(--green)' ?>">
+    <div class="n <?= $grand['margin'] < 0 ? 't-red' : 't-green' ?>">
       <?= $grand['bill'] > 0 ? money($grand['margin']) : '—' ?>
     </div>
     <div class="l"><?= te('Gross margin') ?></div>
@@ -42,7 +42,7 @@
     <tr><td><?= te('Hotels and travel') ?></td><td class="num mono">(<?= money($bedNights + $travelCost) ?>)</td></tr>
     <tr style="font-weight:700;border-top:2px solid var(--line)">
       <td><?= te('Left before overhead') ?></td>
-      <td class="num mono" style="<?= ($grand['margin'] - $bedNights - $travelCost) < 0 ? 'color:var(--red)' : 'color:var(--green)' ?>">
+      <td class="num mono <?= ($grand['margin'] - $bedNights - $travelCost) < 0 ? 't-red' : 't-green' ?>">
         <?= money($grand['margin'] - $bedNights - $travelCost) ?>
       </td>
     </tr>
@@ -64,7 +64,7 @@
 <?php foreach ($weeks as $wk => $w): ?>
 <div class="card tight">
   <div style="padding:13px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-    <h2 style="margin:0">Week ending <?= e(date('j F Y', strtotime($wk))) ?></h2>
+    <h2 class="m0">Week ending <?= e(date('j F Y', strtotime($wk))) ?></h2>
     <div class="small muted">
       <?= $w['count'] ?> engineer<?= $w['count'] === 1 ? '' : 's' ?>
       &middot; <?= $w['approved'] ?> approved
@@ -84,7 +84,7 @@
         <td class="num mono"><?= rtrim(rtrim(number_format($m['worked'], 1), '0'), '.') ?></td>
         <td class="num mono"><?= rtrim(rtrim(number_format($m['paid_hours'], 1), '0'), '.') ?>
           <?php if ($m['short_by'] > 0): ?>
-            <div class="small" style="color:var(--amber)">+<?= rtrim(rtrim(number_format($m['short_by'], 1), '0'), '.') ?> gtd</div>
+            <div class="small t-amber">+<?= rtrim(rtrim(number_format($m['short_by'], 1), '0'), '.') ?> gtd</div>
           <?php endif; ?>
         </td>
         <td class="num mono"><?= money($m['per_diem']) ?></td>

@@ -9,8 +9,8 @@
 
 <?php if ($sharing): ?>
 <div class="card" style="border-color:#F0C4C1;background:#FDEEED">
-  <h2 style="color:var(--red)"><?= te('Sharing a room') ?></h2>
-  <p class="small" style="margin:0 0 10px"><?= te('Every engineer was told in writing they would not have a roommate. These are the ones who do.') ?></p>
+  <h2 class="t-red"><?= te('Sharing a room') ?></h2>
+  <p class="small m0 mb"><?= te('Every engineer was told in writing they would not have a roommate. These are the ones who do.') ?></p>
   <?php foreach ($sharing as $s): ?>
     <div class="small"><strong><?= e($s['full_name']) ?></strong> &mdash;
       <?= e($s['hotel']) ?>, room <?= e($s['room_number'] ?? '?') ?></div>
@@ -20,8 +20,8 @@
 
 <?php if ($needBed): ?>
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Needs a bed') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Needs a bed') ?></h2>
   </div>
   <div class="scroll">
   <table>
@@ -101,8 +101,8 @@
 <?php endif; ?>
 
 <div class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0"><?= te('Rooms booked') ?></h2>
+  <div class="card-bar">
+    <h2 class="m0"><?= te('Rooms booked') ?></h2>
   </div>
   <?php if (! $booked): ?>
     <div class="empty"><?= te('No rooms booked yet.') ?></div>
@@ -142,17 +142,17 @@
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="add_hotel">
     <div class="row">
-      <div style="flex:2"><label><?= te('Name') ?></label><input name="name" required placeholder="<?= te('Hampton Inn') ?>"></div>
-      <div style="flex:2"><label><?= te('Address') ?></label><input name="address"></div>
+      <div class="f2"><label><?= te('Name') ?></label><input name="name" required placeholder="<?= te('Hampton Inn') ?>"></div>
+      <div class="f2"><label><?= te('Address') ?></label><input name="address"></div>
       <div><label><?= te('City') ?></label><input name="city"></div>
       <div style="max-width:90px"><label><?= te('State') ?></label><input name="state" maxlength="2"></div>
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="row mt">
       <div><label><?= te('Phone') ?></label><input name="phone"></div>
       <div><label><?= te('Nightly rate') ?></label><input name="nightly_rate" type="number" step="0.01" placeholder="129.00"></div>
-      <div style="flex:2"><label><?= te('Who we book through') ?></label><input name="confirmation_contact"></div>
+      <div class="f2"><label><?= te('Who we book through') ?></label><input name="confirmation_contact"></div>
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="row mt">
       <div>
         <label for="h-held"><?= te('Rooms held') ?></label>
         <input id="h-held" name="rooms_held" type="number" min="0" max="2000" placeholder="20">

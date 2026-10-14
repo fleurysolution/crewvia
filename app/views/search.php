@@ -6,7 +6,6 @@ $stages = ['new' => 'Never contacted', 'contacted' => 'Contacted', 'screening' =
 
 <div class="page-heading">
   <div>
-    <span class="eyebrow"><?= te('SEARCH') ?></span>
     <h1>
       <?php if ($q === ''): ?>
         <?= te('Find anybody, anywhere') ?>
@@ -50,8 +49,8 @@ $stages = ['new' => 'Never contacted', 'contacted' => 'Contacted', 'screening' =
 
 <?php foreach ($groups as $group): ?>
 <section class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
-    <h2 style="margin:0">
+  <div class="card-bar">
+    <h2 class="m0">
       <?= te($group['title']) ?>
       <span class="muted small"><?= count($group['rows']) ?></span>
     </h2>
@@ -169,10 +168,10 @@ $stages = ['new' => 'Never contacted', 'contacted' => 'Contacted', 'screening' =
 
 <?php if ($q === '' && $scope !== ''): ?>
 <section class="card tight">
-  <div style="padding:14px 18px;border-bottom:1px solid var(--line)">
+  <div class="card-bar">
     <span class="eyebrow"><?= te('WHO IS WHERE') ?></span>
     <h2 style="margin:4px 0 2px"><?= te(':n out on a project', ['n' => count($directory)]) ?></h2>
-    <p class="small muted" style="margin:0"><?= te($scope) ?></p>
+    <p class="small muted m0"><?= te($scope) ?></p>
   </div>
 
   <?php if (! $directory): ?>

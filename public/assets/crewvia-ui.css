@@ -236,3 +236,31 @@ main { min-width: 0; }
   .acct-who { display: none; }
   input:not([type=checkbox]):not([type=radio]), select, textarea, .btn { font-size: 16px; }
 }
+
+/* Wave 4: the spacing and text helpers the pages used to write inline.
+   Marked important because each replaces an inline style, which outranked
+   the page's own rules; one scale instead of seven nearby margins. */
+.m0 { margin: 0 !important; }
+.mt-xs { margin-top: 4px !important; }
+.mt-s { margin-top: 8px !important; }
+.mt { margin-top: 12px !important; }
+.mt-l { margin-top: 16px !important; }
+.mb-s { margin-bottom: 8px !important; }
+.mb { margin-bottom: 12px !important; }
+.mb-l { margin-bottom: 16px !important; }
+.f2 { flex: 2 !important; }
+.inline { display: inline !important; }
+.w-auto { width: auto !important; }
+.pre-wrap { white-space: pre-wrap !important; }
+.wrap-any { overflow-wrap: anywhere !important; }
+.nowrap { white-space: nowrap !important; }
+.t-amber { color: var(--amber) !important; }
+.t-red { color: var(--red) !important; }
+.t-green { color: var(--green) !important; }
+/* A row that no longer counts: a switched-off account, a closed item. */
+.faded { opacity: .5; }
+/* The strip across the top of a card whose body is a table or a list. */
+.card-bar { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.row-between { display: flex; justify-content: space-between; align-items: center; }
+/* The way back from a detail page, above its header. */
+.back-link { font-size: 13px; margin: 0 0 6px; }
