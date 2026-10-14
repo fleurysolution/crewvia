@@ -54,7 +54,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
       // P5-M36: what the board knew about them comes with them: experience and education on the file, the board as the source.
       $board=$item['source']!==''?mb_substr('Indeed ('.$item['source'].')',0,60):'Spreadsheet import';
       $summary=trim(($item['experience']!==''?"Relevant experience: ".$item['experience']."\n":'').($item['education']!==''?"Education: ".$item['education']:''));
-      q("INSERT INTO candidates(full_name,email,phone,city,state,source,resume_text,discipline) VALUES (?,?,?,?,?,?,?,?)",[$name,$item['email']?:null,$item['phone']?:null,$item['city']?:null,$item['state']?:null,$board,$summary!==''?$summary:null,$target==='applicants'?(string)val('SELECT discipline FROM vacancies WHERE id=?',[(int)$vacancy['id']]):null]);$cid=(int)db()->lastInsertId();
+      q("INSERT INTO candidates(full_name,email,phone,city,state,source,resume_text,discipline) VALUES (?,?,?,?,?,?,?,?)",[$name,$item['email']?:null,$item['phone']?:null,$item['city']?:null,$item['state']?:null,$board,$summary!==''?$summary:null,$target==='applicants'?((string)val('SELECT discipline FROM vacancies WHERE id=?',[(int)$vacancy['id']])?:'other'):'other']);$cid=(int)db()->lastInsertId();
       q('INSERT INTO employee_profiles(candidate_id,employee_number,employment_type,payment_method,adp_employee_id,salary_per_period) VALUES (?,?,?,?,?,?)',[$cid,$item['employee_number']?:null,$employment,$payment,$item['adp_employee_id']?:null,$salary]);
       // The spreadsheet says what they are, not since when, so no date is invented.
       classification_record_initial($cid,$employment,mb_substr('Imported from '.$input['filename'].' row '.($i+2),0,500),uid());
