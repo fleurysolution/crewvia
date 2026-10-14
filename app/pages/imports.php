@@ -18,7 +18,12 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
    if(!$preview) throw new RuntimeException(t('Preview a file first.'));$input=token_decrypt($preview);$mapping=$_POST['mapping'] ?? [];
    if(($mapping['full_name'] ?? '')==='') throw new RuntimeException(t('Map the employee name column.'));
    if(row('SELECT id FROM import_batches WHERE file_hash=?',[$input['hash']])) throw new RuntimeException(t('This exact file was already imported.'));
-   $jobId=(int)(current_job()['id'] ?? 0);db()->beginTransaction();
+   // Walkthrough finding 31: an import always placed everybody, as offered, on the working project,
+   // so a job board's applicant export skipped screening, offer and signature. The person importing says what the rows become.
+   $target=in_array($_POST['target'] ?? '',['roster','applicants','pool'],true)?$_POST['target']:'roster';
+   $vacancy=null;
+   if($target==='applicants'){$vacancy=row("SELECT v.id,v.job_id FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.id=? AND v.is_open=1 AND j.status<>'closed'",[(int)($_POST['vacancy_id'] ?? 0)]);if(!$vacancy) throw new RuntimeException(t('Choose the open requisition the applicants are for.'));}
+   $jobId=$target==='applicants'?(int)$vacancy['job_id']:($target==='pool'?0:(int)(current_job()['id'] ?? 0));db()->beginTransaction();
    q('INSERT INTO import_batches(filename,file_hash,job_id,imported_by,row_count) VALUES (?,?,?,?,?)',[$input['filename'],$input['hash'],$jobId?:null,uid(),count($input['data'])]);$batch=(int)db()->lastInsertId();
    foreach($input['data'] as $i=>$source) {
     $item=[];foreach($fields as $field) { $column=$mapping[$field] ?? ''; $item[$field]=$column!==''?trim((string)($source[(int)$column] ?? '')):''; }
@@ -41,7 +46,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
       q('INSERT INTO employee_profiles(candidate_id,employee_number,employment_type,payment_method,adp_employee_id,salary_per_period) VALUES (?,?,?,?,?,?)',[$cid,$item['employee_number']?:null,$employment,$payment,$item['adp_employee_id']?:null,$salary]);
       // The spreadsheet says what they are, not since when, so no date is invented.
       classification_record_initial($cid,$employment,mb_substr('Imported from '.$input['filename'].' row '.($i+2),0,500),uid());
-      if($jobId) { q("INSERT INTO placements(candidate_id,job_id,status,created_by,start_date,end_date,pay_rate,bill_rate,per_diem_rate) VALUES (?,?,'offered',?,?,?,?,?,?)",[$cid,$jobId,uid(),$start,$end,$pay,$bill,$diem]);$pid=(int)db()->lastInsertId();if($item['trade']||$item['shift']) q('INSERT INTO assignment_details(placement_id,trade,shift_label) VALUES (?,?,?)',[$pid,mb_substr($item['trade']?:'Unassigned',0,190),$item['shift']]); }
+      if($target==='applicants') { q("INSERT INTO applications(candidate_id,vacancy_id,source) VALUES (?,?,'Spreadsheet import')",[$cid,(int)$vacancy['id']]); }
+      elseif($target==='roster' && $jobId) { q("INSERT INTO placements(candidate_id,job_id,status,created_by,start_date,end_date,pay_rate,bill_rate,per_diem_rate) VALUES (?,?,'offered',?,?,?,?,?,?)",[$cid,$jobId,uid(),$start,$end,$pay,$bill,$diem]);$pid=(int)db()->lastInsertId();if($item['trade']||$item['shift']) q('INSERT INTO assignment_details(placement_id,trade,shift_label) VALUES (?,?,?)',[$pid,mb_substr($item['trade']?:'Unassigned',0,190),$item['shift']]); }
       $status='imported';$note='Identity imported; screening/onboarding remains required.';
       q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$cid,uid(),'spreadsheet import',$input['filename'].' row '.($i+2)]);
      }
@@ -55,4 +61,5 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 $preview=$preview?token_decrypt($preview):null;
 $batches=rows('SELECT b.*,SUM(r.status="imported") imported,SUM(r.status="duplicate_review") duplicates,SUM(r.status="invalid") invalid FROM import_batches b LEFT JOIN import_records r ON r.batch_id=b.id GROUP BY b.id ORDER BY b.id DESC');
 $reviews=rows("SELECT r.id,r.batch_id,r.row_number,r.candidate_id,r.status,r.note,c.full_name FROM import_records r LEFT JOIN candidates c ON c.id=r.candidate_id WHERE r.status<>'imported' ORDER BY r.id DESC LIMIT 100");
-render('imports',compact('preview','fields','batches','reviews','error'));
+$openVacancies=rows("SELECT v.id,v.title,j.title project FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.is_open=1 AND j.status<>'closed' ORDER BY j.title,v.title");
+render('imports',compact('preview','fields','batches','reviews','error','openVacancies'));

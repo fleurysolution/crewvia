@@ -1,6 +1,6 @@
 <?php
 require_role('payroll');require_once __DIR__.'/../compensation.php';compensation_apply_due();$jobId=(int)(current_job()['id'] ?? 0);$week=week_ending($_GET['week'] ?? null);
-$sheets=rows("SELECT t.*,s.result_json snapshot_json,p.pay_rate,p.bill_rate,p.per_diem_rate,c.full_name,e.adp_employee_id,e.employment_type,e.payment_method,e.salary_per_period FROM timesheets t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id LEFT JOIN employee_profiles e ON e.candidate_id=c.id LEFT JOIN pay_snapshots s ON s.timesheet_id=t.id WHERE p.job_id=? AND t.week_ending=? AND t.status IN ('approved','paid') ORDER BY c.full_name",[$jobId,$week]);
+$sheets=rows("SELECT t.*,s.result_json snapshot_json,p.pay_rate,p.bill_rate,p.per_diem_rate,p.per_diem_taxable,c.full_name,e.adp_employee_id,e.employment_type,e.payment_method,e.salary_per_period FROM timesheets t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id LEFT JOIN employee_profiles e ON e.candidate_id=c.id LEFT JOIN pay_snapshots s ON s.timesheet_id=t.id WHERE p.job_id=? AND t.week_ending=? AND t.status IN ('approved','paid') ORDER BY c.full_name",[$jobId,$week]);
 $job=current_job();$settings=array_column(rows('SELECT * FROM platform_settings'),'setting_value','setting_key');
 require_once __DIR__.'/../connectors.php';$mode=connector_mode('adp_run');
 // P4-M05: a payroll file kept is handed out again only as it was made.
@@ -9,6 +9,20 @@ if(isset($_GET['download'])){$e=row('SELECT * FROM payroll_exports WHERE id=?',[
  if(!hash_equals((string)$e['sha256'],hash('sha256',(string)$e['csv']))){refuse(409,t('This payroll file no longer matches its recorded fingerprint. Nothing was downloaded.'));}
  log_activity('downloaded a payroll file again','payroll_export',(int)$e['id']);
  header('Content-Type: text/csv; charset=utf-8');header('Content-Disposition: attachment; filename="'.($e['kind']==='review'?'payroll-review':($e['kind']==='adp_test'?'adp-run-TEST':'adp-run')).'-'.$e['week_ending'].'-'.$e['id'].'.csv"');header('X-Content-SHA256: '.$e['sha256']);echo $e['csv'];exit;}
+// P5-M31: workers register with ADP themselves; payroll gives the code and each employee ID.
+require_once __DIR__.'/../adp-registration.php';
+// P5-M34: a local worker's per diem is taxable wages; a travelling worker's is not.
+if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='per_diem_tax') {
+ $pid=(int)val("SELECT id FROM placements WHERE id=? AND job_id=?",[(int)($_POST['placement_id']??0),$jobId]);
+ if(!$pid){refuse(404,t('That assignment is not on this project.'),'/payroll-export?week='.$week.'#adp-registration');}
+ q('UPDATE placements SET per_diem_taxable=? WHERE id=?',[($_POST['taxable']??'0')==='1'?1:0,$pid]);log_activity('set per diem taxability','placement',$pid,($_POST['taxable']??'0')==='1'?'taxable':'tax-free');
+ flash(t('Saved. Weeks already approved keep what was frozen.'));redirect('/payroll-export?week='.$week.'#adp-registration');
+}
+if($_SERVER['REQUEST_METHOD']==='POST' && in_array($_POST['do']??'',['adp_registration','adp_employee_id'],true)) {
+ $why=$_POST['do']==='adp_registration'?adp_reg_save($_POST,uid()):adp_reg_set_id((int)($_POST['candidate_id']??0),(string)($_POST['adp_employee_id']??''));
+ if($why!==null){refuse(422,$why,'/payroll-export?week='.$week.'#adp-registration');}
+ flash($_POST['do']==='adp_registration'?t('ADP registration saved. Workers see the steps in their portal.'):t('ADP employee ID saved.'));redirect('/payroll-export?week='.$week.'#adp-registration');
+}
 if($_SERVER['REQUEST_METHOD']==='POST' && in_array($_POST['do']??'',['confirm_import','reconcile'],true)) {
  if($_POST['do']==='confirm_import'){
   db()->beginTransaction();$why=adp_confirm_import((int)($_POST['export_id']??0),(string)($_POST['batch_ref']??''),(string)($_POST['result']??''),(string)($_POST['note']??''));
@@ -35,6 +49,8 @@ if(isset($_GET['export'])) {
  $itemCodes=array_column(rows('SELECT code,provider_code FROM pay_items WHERE provider_code IS NOT NULL'),'provider_code','code');
  $adp=$_GET['export']==='adp_run';$company=$settings['adp_company_code'] ?? '';$code=$settings['adp_hours_code'] ?? '';$diemCode=$settings['adp_perdiem_code'] ?? '';$otCode=$settings['adp_overtime_code']??'';
  if($adp && (!$company || !$code || !preg_match('/^[A-Za-z0-9_-]+$/',$company) || !preg_match('/^[A-Za-z0-9_-]+$/',$code))) { refuse(422, t('Configure ADP RUN company and earnings codes from your actual ADP template first.')); }
+ $diemTaxCode=$settings['adp_perdiem_taxable_code']??'';
+ foreach($sheets as $sheet) if($adp && (int)($sheet['per_diem_taxable']??0) && (float)$sheet['per_diem_days']>0 && !preg_match('/^[A-Za-z0-9_-]+$/',$diemTaxCode)) { refuse(422, t('A worker\'s per diem is taxable: configure the ADP earnings code for taxable per diem in Settings before export.')); }
  foreach($sheets as $sheet) if($adp && (!$sheet['adp_employee_id'] || !preg_match('/^[A-Za-z0-9_-]+$/',$sheet['adp_employee_id']) || !in_array($sheet['employment_type'],['hourly','salaried'],true) || ($sheet['employment_type']==='salaried' && $sheet['salary_per_period']===null) || ((float)$sheet['per_diem_days']>0 && !$diemCode) || (float)$sheet['expenses']>0)) { refuse(422, t('ADP export blocked: check employee IDs/categories, salary setup, per-diem code and separately reconcile expenses.')); }
  foreach($sheets as $sheet){$m=week_money($sheet,$sheet,$job?:[]);if($adp&&($m['overtime_hours']??0)>0&&(!$otCode||!preg_match('/^[A-Za-z0-9_-]+$/',$otCode))){refuse(422, t('Configure the ADP overtime earnings code before export.'));}if($adp&&(($m['double_hours']??0)>0||($m['holiday_hours']??0)>0)){refuse(422, t('Double-time and holiday hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.'));}if($adp&&($m['paid_leave_hours']??0)>0){refuse(422, t('Paid leave hours have no ADP earnings code yet. Use the review export and enter them in ADP by hand.'));}foreach(($m['gross_to_net']['deductions']??[]) as $d){$d['provider_code']=$itemCodes[$d['code']]??$d['provider_code'];if($adp&&(!$d['provider_code']||!preg_match('/^[A-Za-z0-9_-]+$/',$d['provider_code']))){refuse(422, t('A deduction has no ADP deduction code: :item. Set its provider code on the Pay items page, or use the review export.',['item'=>$d['label']]));}}}
  // P4-M05: ADP's connector state. Disabled: no ADP file. Sandbox: a TEST file, for ADP's preview or a test company.
@@ -48,7 +64,7 @@ if(isset($_GET['export'])) {
    $prefix=[$company,'W',date('m/d/Y',strtotime($week.' -6 days')),date('m/d/Y',strtotime($week)),$sheet['adp_employee_id']];
    fputcsv($out,[...$prefix,$code,$sheet['employment_type']==='salaried'?'':($m['regular_hours']??$m['paid_hours']),$sheet['employment_type']==='salaried'?$sheet['salary_per_period']:'','','',1]);
    if(($m['overtime_hours']??0)>0)fputcsv($out,[...$prefix,$otCode,$m['overtime_hours'],'','','',1]);
-   if($m['per_diem']>0) fputcsv($out,[...$prefix,$diemCode,'',$m['per_diem'],'','','']);
+   if($m['per_diem']>0) fputcsv($out,[...$prefix,(int)($sheet['per_diem_taxable']??0)?$diemTaxCode:$diemCode,'',$m['per_diem'],'','','']);
    foreach(($m['gross_to_net']['deductions']??[]) as $d) fputcsv($out,[...$prefix,$itemCodes[$d['code']]??$d['provider_code'],'',number_format(-(float)$d['amount'],2,'.',''),'','','']);
   }else { $name=preg_match('/^[=+@-]/',$sheet['full_name'])?"'".$sheet['full_name']:$sheet['full_name'];fputcsv($out,[$name,csv_cell((string)$sheet['adp_employee_id']),$sheet['employment_type'],$sheet['payment_method'],$m['worked'],$m['paid_hours'],$m['pay_total'],$m['per_diem'],$m['expenses'],$sheet['status'],$m['gross_to_net']['gross_wages']??'',$m['gross_to_net']['total_deductions']??'',$m['gross_to_net']['net_before_tax']??'',$m['gross_to_net']['total_employer']??'']); }
  }
@@ -62,4 +78,5 @@ if(isset($_GET['export'])) {
 $exports=rows('SELECT x.*,u.name AS by_name,c.name AS confirmed_name FROM payroll_exports x LEFT JOIN users u ON u.id=x.created_by LEFT JOIN users c ON c.id=x.confirmed_by WHERE x.week_ending=? ORDER BY x.id DESC LIMIT 20',[$week]);
 $recon=isset($_GET['reconciliation'])?row('SELECT * FROM adp_reconciliations WHERE id=?',[(int)$_GET['reconciliation']]):row('SELECT * FROM adp_reconciliations WHERE week_ending=? ORDER BY id DESC LIMIT 1',[$week]);
 $registerColumns=[$settings['adp_register_id_column']??'Employee ID',$settings['adp_register_gross_column']??'Gross Pay'];
-render('payroll-export',compact('sheets','week','mode','exports','recon','registerColumns'));
+$adpReg=adp_reg_settings();$adpPeople=adp_reg_people($jobId);
+render('payroll-export',compact('sheets','week','mode','exports','recon','registerColumns','adpReg','adpPeople'));

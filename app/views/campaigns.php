@@ -15,9 +15,11 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
 </form>
 <?php endif; ?>
 
-<?php if (! $cmCampaign): ?>
-<form method="get" action="/campaigns" class="card" id="campaign-new">
+<?php if (! $cmCampaign): $cmText = $cmForm['channel'] === 'text'; ?>
+<form method="get" action="/campaigns" class="card" id="campaign-new" data-channel="<?= e($cmForm['channel']) ?>">
   <h2><?= te('New campaign') ?></h2>
+  <p class="small m0 mb-s" id="campaign-channel"><?= te('Send it as:') ?> <?php foreach (['email' => t('Email'), 'text' => t('Text message')] as $k => $label): ?><?= $cmForm['channel'] === $k ? '<strong>' . e($label) . '</strong>' : '<a href="/campaigns?channel=' . $k . '">' . e($label) . '</a>' ?> <?php endforeach; ?></p>
+  <input type="hidden" name="channel" value="<?= e($cmForm['channel']) ?>">
   <div class="row">
     <div class="f2"><label for="cm-v"><?= te('Requisition') ?></label><select id="cm-v" name="vacancy_id" required><option value=""><?= te('Choose') ?></option><?php foreach ($cmVacancies as $v): ?><option value="<?= (int) $v['id'] ?>"<?= $cmForm['vacancy_id'] === (int) $v['id'] ? ' selected' : '' ?>><?= e($v['project'] . ' · ' . $v['title']) ?></option><?php endforeach; ?></select></div>
     <div class="in-l"><label for="cm-l"><?= te('Language') ?></label><select id="cm-l" name="language"><option value="en"<?= $cmForm['language'] === 'en' ? ' selected' : '' ?>>English</option><option value="es"<?= $cmForm['language'] === 'es' ? ' selected' : '' ?>>Español</option></select></div>
@@ -33,11 +35,14 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
     <label class="tick"><input type="checkbox" name="available" value="1"<?= $cmForm['available'] ? ' checked' : '' ?>> <?= te('Marked available') ?></label>
     <label class="tick"><input type="checkbox" name="worked" value="1"<?= $cmForm['worked'] ? ' checked' : '' ?>> <?= te('Worked for the agency before') ?></label>
   </div>
+  <?php if ($cmText): ?><p class="small muted"><?= te('Never included: people who replied STOP, people on the do-not-rehire register, switched-off accounts, people with no mobile number, and people already on this requisition.') ?></p>
+  <h3 class="small m0 mt mb-xs"><?= te('The text') ?></h3><?php else: ?>
   <p class="small muted"><?= te('Never included: people who unsubscribed, people on the do-not-rehire register, switched-off accounts, people with no valid email, and people already on this requisition.') ?></p>
-  <h3 class="small m0 mt mb-xs"><?= te('The email') ?></h3>
+  <h3 class="small m0 mt mb-xs"><?= te('The email') ?></h3><?php endif; ?>
   <label for="cm-s"><?= te('Subject') ?></label><input id="cm-s" name="subject" maxlength="190" value="<?= e($cmForm['subject']) ?>" required>
   <label for="cm-b"><?= te('Message') ?></label><textarea id="cm-b" name="body" rows="11" maxlength="8000" required><?= e($cmForm['body']) ?></textarea>
-  <p class="small muted"><?= te('Filled in for each person: :list. The unsubscribe link and the postal address are added at the foot.', ['list' => implode(' ', cm_placeholders())]) ?></p>
+  <?php if ($cmText): ?><p class="small muted"><?= te('Filled in for each person: :list. "Reply STOP to stop these texts." is added at the end. Up to :n characters.', ['list' => implode(' ', cm_placeholders()), 'n' => CAMPAIGN_TEXT_MAX]) ?></p><?php else: ?>
+  <p class="small muted"><?= te('Filled in for each person: :list. The unsubscribe link and the postal address are added at the foot.', ['list' => implode(' ', cm_placeholders())]) ?></p><?php endif; ?>
   <button class="btn ghost" name="preview" value="1"><?= te('See who it goes to') ?></button>
   <?php if ($cmPreview !== null): ?>
     <div class="mt" id="campaign-preview" data-count="<?= (int) $cmPreview['count'] ?>">
@@ -51,7 +56,7 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
 <?php if ($cmPreview !== null && $cmPreview['count']): ?>
 <!-- A separate POST form: the preview above is a GET, and a form token must never travel in an address. -->
 <form method="post" action="/campaigns" id="campaign-create-form"><?= csrf_field() ?><input type="hidden" name="do" value="create">
-  <?php foreach (['vacancy_id', 'language', 'subject', 'body', 'discipline', 'skill', 'state', 'miles'] as $k): ?><input type="hidden" name="<?= $k ?>" value="<?= e((string) $cmForm[$k]) ?>"><?php endforeach; ?>
+  <?php foreach (['vacancy_id', 'channel', 'language', 'subject', 'body', 'discipline', 'skill', 'state', 'miles'] as $k): ?><input type="hidden" name="<?= $k ?>" value="<?= e((string) $cmForm[$k]) ?>"><?php endforeach; ?>
   <?php if ($cmForm['available']): ?><input type="hidden" name="available" value="1"><?php endif; ?><?php if ($cmForm['worked']): ?><input type="hidden" name="worked" value="1"><?php endif; ?>
   <button class="btn m0 pull-up mb" id="campaign-create"><?= te('Create the draft for these :n people', ['n' => $cmPreview['count']]) ?></button>
 </form>
@@ -60,7 +65,7 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
 <?php if ($cmList): ?>
 <div class="card tight" id="campaigns"><table>
   <tr><th><?= te('Campaign') ?></th><th><?= te('Requisition') ?></th><th class="num"><?= te('People') ?></th><th class="num"><?= te('Sent') ?></th><th><?= te('Status') ?></th></tr>
-  <?php foreach ($cmList as $m): ?><tr data-campaign="<?= (int) $m['id'] ?>"><td><a href="/campaigns?c=<?= (int) $m['id'] ?>"><?= e($m['subject']) ?></a><div class="small muted"><?= e($m['created_by_name']) ?> · <?= e(d(substr((string) $m['created_at'], 0, 10))) ?></div></td>
+  <?php foreach ($cmList as $m): ?><tr data-campaign="<?= (int) $m['id'] ?>" data-channel="<?= e($m['channel']) ?>"><td><?php if ($m['channel'] === 'text'): ?><span class="tag blue"><?= te('Text') ?></span> <?php endif; ?><a href="/campaigns?c=<?= (int) $m['id'] ?>"><?= e($m['subject']) ?></a><div class="small muted"><?= e($m['created_by_name']) ?> · <?= e(d(substr((string) $m['created_at'], 0, 10))) ?></div></td>
     <td><?= e($m['vacancy_title']) ?></td><td class="num"><?= (int) $m['recipients'] ?></td><td class="num"><?= (int) $m['sent'] ?></td><td><span class="tag <?= $cmTone[$m['status']] ?>"><?= e($cmStatus[$m['status']]) ?></span></td></tr><?php endforeach; ?>
 </table></div>
 <?php endif; ?>
@@ -72,7 +77,7 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
     · <span class="tag <?= $cmTone[$m['status']] ?>" id="campaign-status" data-status="<?= e($m['status']) ?>"><?= e($cmStatus[$m['status']]) ?></span></div></div>
   <div class="actions">
     <?php $act = static function (string $do, string $label, string $class = 'btn ghost') use ($m): void { ?><form class="inline" method="post" action="/campaigns"><?= csrf_field() ?><input type="hidden" name="do" value="<?= e($do) ?>"><input type="hidden" name="campaign_id" value="<?= (int) $m['id'] ?>"><button class="<?= e($class) ?>" data-action="<?= e($do) ?>"><?= e($label) ?></button></form><?php }; ?>
-    <?php if (in_array($m['status'], ['draft', 'awaiting_approval', 'sending'], true)): ?><?php $act('test', t('Send me a test')); ?><?php endif; ?>
+    <?php if ($m['channel'] !== 'text' && in_array($m['status'], ['draft', 'awaiting_approval', 'sending'], true)): ?><?php $act('test', t('Send me a test')); ?><?php endif; ?>
     <?php if ($m['status'] === 'draft'): ?><?php $act('send', (int) $m['recipients'] > CAMPAIGN_DIRECT_LIMIT && ! can('admin') ? t('Ask for approval') : t('Send'), 'btn'); ?><?php endif; ?>
     <?php if ($m['status'] === 'awaiting_approval' && can('admin')): ?><?php $act('approve', t('Approve and send'), 'btn'); ?><?php endif; ?>
     <?php if (in_array($m['status'], ['draft', 'awaiting_approval', 'sending'], true)): ?><?php $act('cancel', t('Cancel')); ?><?php endif; ?>
@@ -80,7 +85,7 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
 </div>
 <div class="grid g4 mb" id="campaign-counts"><?php foreach ($cmCounts as $k => $n): ?><div class="card"><div class="small muted"><?= e($cmOne[$k]) ?></div><div class="big-figure" data-count="<?= e($k) ?>"><?= (int) $n ?></div></div><?php endforeach; ?></div>
 <?php if ($cmSample): ?><div class="card" id="campaign-sample"><h2><?= te('As the first person will read it') ?></h2><div class="small muted"><?= te('Subject') ?>: <strong><?= e($cmSample['subject']) ?></strong></div><pre class="pre-wrap t-font m0 mt"><?= e($cmSample['body']) ?></pre></div><?php endif; ?>
-<div class="card tight" id="campaign-recipients"><table><tr><th><?= te('Person') ?></th><th><?= te('Email') ?></th><th><?= te('Status') ?></th></tr>
-  <?php foreach ($cmRecipients as $r): ?><tr data-recipient="<?= (int) $r['candidate_id'] ?>" data-status="<?= e($r['status']) ?>"><td><a href="/candidates/<?= (int) $r['candidate_id'] ?>"><?= e($r['full_name']) ?></a></td><td class="small"><?= e($r['email']) ?></td><td><?= e($cmOne[$r['status']]) ?><?= $r['error'] ? ' <span class="small muted">(' . e($r['error']) . ')</span>' : '' ?></td></tr><?php endforeach; ?>
+<div class="card tight" id="campaign-recipients" data-channel="<?= e($m['channel']) ?>"><table><tr><th><?= te('Person') ?></th><th><?= $m['channel'] === 'text' ? te('Mobile') : te('Email') ?></th><th><?= te('Status') ?></th></tr>
+  <?php foreach ($cmRecipients as $r): ?><tr data-recipient="<?= (int) $r['candidate_id'] ?>" data-status="<?= e($r['status']) ?>"><td><a href="/candidates/<?= (int) $r['candidate_id'] ?>"><?= e($r['full_name']) ?></a></td><td class="small"><?= e($r['email'] ?? $r['phone']) ?></td><td><?= e($cmOne[$r['status']]) ?><?= $r['error'] ? ' <span class="small muted">(' . e($r['error']) . ')</span>' : '' ?></td></tr><?php endforeach; ?>
 </table></div>
 <?php endif; ?>

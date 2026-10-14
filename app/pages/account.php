@@ -33,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['auth_version']=(int)val('SELECT session_version FROM account_security WHERE user_id=?',[uid()]);
     log_activity('changed their password');
     flash(t('Password changed.'));
-    redirect('/');
+    // Walkthrough finding: a first sign-in ended on the project dashboard; land on the role's home, as a sign-in does.
+    require_once __DIR__ . '/../home.php';
+    redirect(home_for((string) ($me['role'] ?? '')));
 }
 
 $me = row('SELECT * FROM users WHERE id = ?', [uid()]);

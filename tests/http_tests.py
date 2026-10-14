@@ -150,7 +150,7 @@ check('Historical rejection survives reconsideration','worker@test.invalid' in a
 admin.post('/recruitment',{'do':'stage','application_id':data['historyApp'],'stage':'offered','note':'Synthetic offer terms: hourly role for project A.'})
 check('Offer terms appear in private portal','Synthetic offer terms' in worker.get('/portal')[1])
 _,offerBody=worker.post('/portal',{'do':'accept_offer','application_id':data['historyApp'],'signer_name':'Test worker','consent':'1'})
-check('Signed offer acceptance completes','accepted' in offerBody and 'Synthetic offer terms' not in offerBody)
+check('Signed offer acceptance completes','Hired' in offerBody and 'Synthetic offer terms' not in offerBody)  # P5-M26: the stage reads in words
 check('Employee directory renders',admin.get('/employees')[0]==200)
 for route in ['/requisitions','/channels','/ai-review','/email-delivery','/structure']:
  check('New workspace screen '+route,admin.get(route)[0]==200)

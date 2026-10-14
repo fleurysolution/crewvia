@@ -27,6 +27,7 @@ const SETTINGS_TEXT = [
     'adp_hours_code'    => 40,
     'adp_perdiem_code'  => 40,
     'adp_overtime_code' => 40,
+    'adp_perdiem_taxable_code' => 40,
 ];
 
 function settings_put(string $key, string $value): void

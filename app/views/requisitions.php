@@ -106,6 +106,7 @@
       <span class="hint"><?= te('What disqualifies somebody if it is missing. Screened before an offer.') ?></span>
     </div>
 
+    <?php if (can('admin')): ?>
     <h3 class="m0 mt-xl mb-xs"><?= te('Override the agreed rates') ?></h3>
     <p class="hint m0 mb">
       <?= te('Leave these blank — and almost always do. The rates were settled with the client on the line of the scope above, and the requisition inherits them; a number retyped here is how the order and the agreement start disagreeing. Fill one in only when this particular requisition really was agreed differently.') ?>
@@ -135,6 +136,9 @@
                placeholder="<?= te('from the line') ?>">
       </div>
     </div>
+    <?php else: ?>
+    <p class="hint mt-l" id="rates-from-line"><?= te('Pay, bill rate, per diem and guarantee come from the line of the scope. Only an administrator can override them.') ?></p>
+    <?php endif; ?>
 
     <div class="field">
       <label for="r-desc"><?= te('Job description shown to candidates') ?></label>

@@ -4016,3 +4016,281 @@ Waits for :n tasks	Attend :n tâches	Espera :n tareas
 :n answers	:n réponses	:n respuestas
 :n day off	:n jour de congé	:n día libre
 :n days off	:n jours de congé	:n días libres
+:n account	:n compte	:n cuenta
+:n accounts	:n comptes	:n cuentas
+a desk decides what somebody sees, not how senior they are	un poste décide de ce que l’on voit, pas l’ancienneté	un puesto decide lo que uno ve, no la antigüedad
+A worker signs in through the invitation sent from their candidate file, not by changing a desk.	Un ouvrier se connecte par l’invitation envoyée depuis sa fiche candidat, pas en changeant de poste.	Un trabajador entra con la invitación enviada desde su ficha de candidato, no cambiando de puesto.
+:people across :lines	:people sur :lines	:people en :lines
+:n person	:n personne	:n persona
+:n line	:n ligne	:n línea
+:n lines	:n lignes	:n líneas
+Only an administrator can override the rates agreed on the scope of work.	Seul un administrateur peut modifier les tarifs convenus dans le périmètre des travaux.	Solo un administrador puede cambiar las tarifas acordadas en el alcance del trabajo.
+Pay, bill rate, per diem and guarantee come from the line of the scope. Only an administrator can override them.	La paie, le tarif facturé, l’indemnité journalière et la garantie viennent de la ligne du périmètre. Seul un administrateur peut les modifier.	El pago, la tarifa facturada, los viáticos y la garantía vienen de la línea del alcance. Solo un administrador puede cambiarlos.
+For a number, a minimum: <2 disqualifies anything under 2.	Pour un nombre, un minimum : <2 écarte tout ce qui est en dessous de 2.	Para un número, un mínimo: <2 descarta todo lo que esté por debajo de 2.
+Question changed, and every application re-ranked with the answers it already has.	Question modifiée, et chaque candidature reclassée avec les réponses déjà reçues.	Pregunta cambiada, y cada solicitud reordenada con las respuestas ya recibidas.
+Removing it discards the :n answer already received. Remove it?	La retirer efface la :n réponse déjà reçue. La retirer ?	Quitarla borra la :n respuesta ya recibida. ¿Quitarla?
+Removing it discards the :n answers already received. Remove it?	La retirer efface les :n réponses déjà reçues. La retirer ?	Quitarla borra las :n respuestas ya recibidas. ¿Quitarla?
+That question is not on this project.	Cette question n’est pas sur ce projet.	Esa pregunta no está en este proyecto.
+Pay: :rate an hour	Paie : :rate de l’heure	Pago: :rate por hora
+Per diem: :rate a day	Indemnité journalière : :rate par jour	Viáticos: :rate por día
+Guaranteed: :n hours a week	Garanti : :n heures par semaine	Garantizado: :n horas por semana
+Starts: :date	Début : :date	Empieza: :date
+Shift: :shift	Poste : :shift	Turno: :shift
+Where: :place	Lieu : :place	Dónde: :place
+From recruiting:	Du recrutement :	De reclutamiento:
+Note: with an offer, the candidate reads it beside the agreed terms	Note : avec une offre, le candidat la lit à côté des conditions convenues	Nota: con una oferta, el candidato la lee junto a las condiciones acordadas
+Where you live, so we can tell you about work near you. Optional.	Où vous habitez, pour vous signaler du travail près de chez vous. Facultatif.	Dónde vive, para avisarle de trabajo cerca de usted. Opcional.
+Dates saved.	Dates enregistrées.	Fechas guardadas.
+Save the dates	Enregistrer les dates	Guardar las fechas
+Arrivals, roll call and pay read these dates.	Les arrivées, l’appel et la paie lisent ces dates.	Las llegadas, el pase de lista y la paga leen estas fechas.
+Room :n	Chambre :n	Habitación :n
+Travel not booked.	Voyage non réservé.	Viaje no reservado.
+Going	Aller	Ida
+Coming home	Retour	Vuelta
+Waiting for the form	En attente du formulaire	Esperando el formulario
+Submitted, waiting for the employer	Remis, en attente de l’employeur	Entregado, esperando al empleador
+Completed by the employer	Complété par l’employeur	Completado por el empleador
+Submitted, waiting for review	Remis, en attente de vérification	Entregado, esperando revisión
+Reviewed	Vérifié	Revisado
+First day	Premier jour	Primer día
+Review due	Vérification due	Revisión pendiente
+Verifier	Vérificateur	Verificador
+Only a task the worker has submitted can be approved or sent back.	Seule une tâche remise par l’ouvrier peut être approuvée ou renvoyée.	Solo una tarea entregada por el trabajador puede aprobarse o devolverse.
+Task approved.	Tâche approuvée.	Tarea aprobada.
+Task sent back to the worker.	Tâche renvoyée à l’ouvrier.	Tarea devuelta al trabajador.
+Waiting for the worker	En attente de l’ouvrier	Esperando al trabajador
+Submitted, to review	Remise, à vérifier	Entregada, por revisar
+Sent back to the worker	Renvoyée à l’ouvrier	Devuelta al trabajador
+Send back	Renvoyer	Devolver
+leaves :time	part :time	sale :time
+arrives :time	arrive :time	llega :time
+Mark only your own crew who are on site.	Marquez seulement votre équipe sur site.	Marque solo a su equipo en el sitio.
+:name marked present today.	:name noté présent aujourd’hui.	:name marcado presente hoy.
+:name marked absent today.	:name noté absent aujourd’hui.	:name marcado ausente hoy.
+Roll call today:	Appel aujourd’hui :	Pase de lista hoy:
+not marked	non noté	sin marcar
+present	présent	presente
+Choose the open requisition the applicants are for.	Choisissez la demande ouverte à laquelle ces candidats répondent.	Elija la requisición abierta a la que responden estos candidatos.
+What the people in this file become	Ce que deviennent les personnes de ce fichier	En qué se convierten las personas de este archivo
+Employees, offered an assignment on the working project	Des salariés, à qui une mission est proposée sur le projet en cours	Empleados, con una asignación ofrecida en el proyecto actual
+Applicants to a requisition (from a job board), to be screened and offered	Des candidats à une demande (d’un site d’emploi), à présélectionner et à qui faire une offre	Solicitantes a una requisición (de una bolsa de empleo), por evaluar y ofrecer
+Choose the requisition…	Choisissez la demande…	Elija la requisición…
+The talent pool only, on no project	Le vivier seulement, sur aucun projet	Solo la reserva de talento, en ningún proyecto
+Matching employee IDs/emails go into review without changing existing records.	Les identifiants ou courriels déjà connus passent en vérification sans modifier les dossiers existants.	Los ID o correos ya conocidos pasan a revisión sin cambiar los registros existentes.
+Markup on pay (%)	Majoration sur la paie (%)	Recargo sobre el pago (%)
+Leave the bill rate blank and the markup sets it: pay x (1 + markup).	Laissez le tarif facturé vide et la majoration le fixe : paie x (1 + majoration).	Deje la tarifa facturada vacía y el recargo la fija: pago x (1 + recargo).
+:pct% margin	marge de :pct %	:pct % de margen
+THE PLANT	LE SITE	LA PLANTA
+Shifts and buses	Postes et navettes	Turnos y autobuses
+When each shift starts and ends, and when the bus leaves the hotels. A worker given a shift is late, marked and clocked against its start.	Quand chaque poste commence et finit, et quand la navette quitte les hôtels. Un ouvrier affecté à un poste est compté en retard, noté et pointé selon son début.	Cuándo empieza y termina cada turno, y cuándo sale el autobús de los hoteles. Un trabajador asignado a un turno se cuenta tarde, se marca y ficha según su inicio.
+Add the usual day and night shifts	Ajouter les postes de jour et de nuit habituels	Añadir los turnos de día y de noche habituales
+Bus leaves	Départ de la navette	Sale el autobús
+New shift	Nouveau poste	Nuevo turno
+e.g. Swing	ex. Après-midi	p. ej. Tarde
+Add the shift	Ajouter le poste	Añadir el turno
+The usual day and night shifts added. Change their hours below if this plant works others.	Postes de jour et de nuit ajoutés. Changez leurs horaires ci-dessous si ce site en a d’autres.	Turnos de día y de noche añadidos. Cambie sus horas abajo si esta planta tiene otros.
+This plant already has its day and night shifts.	Ce site a déjà ses postes de jour et de nuit.	Esta planta ya tiene sus turnos de día y de noche.
+:name removed. Whoever worked it keeps its hours on their assignment.	:name retiré. Ceux qui y travaillaient gardent ses horaires sur leur affectation.	:name quitado. Quienes lo trabajaban conservan sus horas en su asignación.
+That shift is not on this project.	Ce poste n’est pas sur ce projet.	Ese turno no está en este proyecto.
+Shift saved.	Poste enregistré.	Turno guardado.
+A shift needs a name and its start and end as hours, like 06:00 and 18:00; the bus time too, if given.	Un poste a besoin d’un nom, d’un début et d’une fin en heures, comme 06:00 et 18:00 ; l’heure de la navette aussi, si elle est donnée.	Un turno necesita un nombre y su inicio y fin en horas, como 06:00 y 18:00; también la hora del autobús, si se da.
+This plant already has a shift called :name.	Ce site a déjà un poste appelé :name.	Esta planta ya tiene un turno llamado :name.
+(next day)	(lendemain)	(día siguiente)
+bus :time	navette :time	autobús :time
+:name is sent for validation. The candidate gets the offer once it is approved; you will be told either way.	:name est envoyé pour validation. Le candidat reçoit l’offre une fois approuvée ; vous serez prévenu dans les deux cas.	:name se envía para validación. El candidato recibe la oferta una vez aprobada; se le avisará en cualquier caso.
+This offer is already waiting for validation.	Cette offre attend déjà sa validation.	Esta oferta ya espera su validación.
+Validated, but the offer could not go out for :name: :why	Validée, mais l’offre n’a pas pu partir pour :name : :why	Validada, pero la oferta no pudo salir para :name: :why
+:name was validated; the offer for :job is with the candidate.	:name a été validé ; l’offre pour :job est chez le candidat.	:name fue validado; la oferta para :job ya está con el candidato.
+You have been selected for :job. Your offer is in your portal.	Vous avez été retenu pour :job. Votre offre est dans votre portail.	Ha sido seleccionado para :job. Su oferta está en su portal.
+The offer for :name was not validated:	L’offre pour :name n’a pas été validée :	La oferta para :name no fue validada:
+no reason given.	sans raison donnée.	sin motivo.
+Offer validated.	Offre validée.	Oferta validada.
+New order on :project: :n x :role. Raise the requisition.	Nouvelle commande sur :project : :n x :role. Créez la demande.	Nuevo pedido en :project: :n x :role. Cree la requisición.
+Choose an active staff member as the project manager.	Choisissez un membre actif du personnel comme chef de projet.	Elija a un miembro activo del personal como jefe de proyecto.
+You manage :project. Its orders and requisitions will be sent to you.	Vous gérez :project. Ses commandes et demandes vous seront envoyées.	Usted gestiona :project. Sus pedidos y requisiciones le serán enviados.
+Project manager	Chef de projet	Jefe de proyecto
+Nobody yet	Personne pour l’instant	Nadie por ahora
+Told of each order and requisition on this plant.	Prévenu de chaque commande et demande sur ce site.	Avisado de cada pedido y requisición en esta planta.
+New requisition on :project: :n x :title:start. Find the candidates.	Nouvelle demande sur :project : :n x :title:start. Trouvez les candidats.	Nueva requisición en :project: :n x :title:start. Busque a los candidatos.
+starting :date	à partir du :date	a partir del :date
+Sent for validation. The candidate gets the offer once it is approved.	Envoyé pour validation. Le candidat reçoit l’offre une fois approuvée.	Enviado para validación. El candidato recibe la oferta una vez aprobada.
+The offer was not validated. Change it and send it again, or move the applicant on.	L’offre n’a pas été validée. Modifiez-la et renvoyez-la, ou faites avancer le candidat autrement.	La oferta no fue validada. Cámbiela y envíela de nuevo, o avance al candidato de otra forma.
+Write the text in 20 to :n characters: it goes as up to three text messages.	Écrivez le texto en 20 à :n caractères : il part en trois SMS au plus.	Escriba el texto en 20 a :n caracteres: sale en hasta tres mensajes de texto.
+A campaign text to :n people waits for your approval.	Une campagne par texto à :n personnes attend votre approbation.	Una campaña por texto a :n personas espera su aprobación.
+A text campaign has no test send: the sample on this page is exactly what each person receives.	Une campagne par texto n’a pas d’envoi de test : l’exemple sur cette page est exactement ce que chaque personne reçoit.	Una campaña por texto no tiene envío de prueba: el ejemplo de esta página es exactamente lo que recibe cada persona.
+Send it as:	L’envoyer par :	Enviarla por:
+Text message	Texto (SMS)	Mensaje de texto
+Mobile	Portable	Móvil
+Never included: people who replied STOP, people on the do-not-rehire register, switched-off accounts, people with no mobile number, and people already on this requisition.	Jamais inclus : les personnes qui ont répondu STOP, celles du registre de non-réembauche, les comptes désactivés, les personnes sans numéro de portable, et celles déjà sur cette demande.	Nunca se incluye: a quien respondió STOP, a quien figura en el registro de no recontratación, las cuentas desactivadas, a quien no tiene número móvil, y a quien ya está en esta requisición.
+The text	Le texto	El texto
+Filled in for each person: :list. "Reply STOP to stop these texts." is added at the end. Up to :n characters.	Rempli pour chaque personne : :list. « Reply STOP to stop these texts. » est ajouté à la fin. :n caractères au plus.	Se completa para cada persona: :list. «Reply STOP to stop these texts.» se añade al final. Hasta :n caracteres.
+Enter your name exactly as it is on your ID.	Saisissez votre nom exactement comme sur votre pièce d’identité.	Escriba su nombre exactamente como en su identificación.
+Enter your home address: street, city, state and ZIP code.	Saisissez votre adresse : rue, ville, État et code postal.	Escriba su domicilio: calle, ciudad, estado y código postal.
+Enter the airport you would fly from, for example IAH or Houston Bush.	Saisissez l’aéroport de départ, par exemple IAH ou Houston Bush.	Escriba el aeropuerto de salida, por ejemplo IAH o Houston Bush.
+Keep the note under 500 characters.	Gardez la note sous 500 caractères.	Mantenga la nota por debajo de 500 caracteres.
+:name entered their travel details: flies from :airport.	:name a saisi ses informations de voyage : part de :airport.	:name ingresó sus datos de viaje: sale de :airport.
+Coming to the job	Arrivée sur le chantier	Llegada al trabajo
+confirmation :ref	confirmation :ref	confirmación :ref
+Leaves :from, arrives :to	Part de :from, arrive à :to	Sale de :from, llega a :to
+Someone from the agency picks you up at the airport.	Quelqu’un de l’agence vient vous chercher à l’aéroport.	Alguien de la agencia lo recoge en el aeropuerto.
+No airport pickup: make your own way to the hotel.	Pas de navette à l’aéroport : rejoignez l’hôtel par vos propres moyens.	Sin recogida en el aeropuerto: llegue al hotel por su cuenta.
+Your travel for :project is booked. Your itinerary is in your portal.	Votre voyage pour :project est réservé. Votre itinéraire est dans votre portail.	Su viaje para :project está reservado. Su itinerario está en su portal.
+Hello :name,	Bonjour :name,	Hola :name:
+Your travel for :project is booked.	Votre voyage pour :project est réservé.	Su viaje para :project está reservado.
+Your ticket	Votre billet	Su boleto
+Before you travel	Avant de partir	Antes de viajar
+The same details are in your portal: :url	Les mêmes informations sont dans votre portail : :url	Los mismos datos están en su portal: :url
+Your travel for :project	Votre voyage pour :project	Su viaje para :project
+Bring a government photo ID. The name on it must match the name on your ticket.	Apportez une pièce d’identité officielle avec photo. Le nom doit être celui du billet.	Traiga una identificación oficial con foto. El nombre debe coincidir con el del boleto.
+Be at the airport two hours before your flight leaves.	Soyez à l’aéroport deux heures avant le départ du vol.	Esté en el aeropuerto dos horas antes de la salida del vuelo.
+Airlines charge for checked bags. Check what your ticket includes before you pack.	Les compagnies font payer les bagages en soute. Vérifiez ce que votre billet comprend avant de faire votre valise.	Las aerolíneas cobran el equipaje documentado. Revise qué incluye su boleto antes de empacar.
+Bring a debit or credit card. Hotels and airlines often do not take cash.	Apportez une carte de débit ou de crédit. Hôtels et compagnies aériennes refusent souvent l’argent liquide.	Traiga una tarjeta de débito o crédito. Hoteles y aerolíneas a menudo no aceptan efectivo.
+Paste at most 5000 characters of the ticket.	Collez au plus 5000 caractères du billet.	Pegue como máximo 5000 caracteres del boleto.
+The itinerary is on its way to them by email, and in their portal.	L’itinéraire part par e-mail et figure dans son portail.	El itinerario va por correo y está en su portal.
+They see it in their portal.	Il le voit dans son portail.	Lo ve en su portal.
+The operations VP writes the advice for travellers.	Le VP des opérations rédige les conseils aux voyageurs.	El VP de operaciones escribe los consejos para viajeros.
+Write the advice in 5 to 300 characters.	Rédigez le conseil en 5 à 300 caractères.	Escriba el consejo en 5 a 300 caracteres.
+Advice for travellers saved. Every itinerary from now on carries it.	Conseils aux voyageurs enregistrés. Chaque itinéraire les contiendra désormais.	Consejos para viajeros guardados. Cada itinerario los llevará a partir de ahora.
+flies from :airport	part de :airport	sale de :airport
+Travel details not entered yet	Informations de voyage pas encore saisies	Datos de viaje aún no ingresados
+The ticket, pasted	Le billet, collé	El boleto, pegado
+Paste the airline's confirmation: flights, times, seat, baggage.	Collez la confirmation de la compagnie : vols, horaires, siège, bagages.	Pegue la confirmación de la aerolínea: vuelos, horarios, asiento, equipaje.
+Email the itinerary to them	Lui envoyer l’itinéraire par e-mail	Enviarle el itinerario por correo
+Advice for travellers	Conseils aux voyageurs	Consejos para viajeros
+This project's advice. It goes with every itinerary, in the portal and by email.	Les conseils de ce projet. Ils accompagnent chaque itinéraire, dans le portail et par e-mail.	Los consejos de este proyecto. Acompañan cada itinerario, en el portal y por correo.
+The agency's advice, until this project has its own. It goes with every itinerary.	Les conseils de l’agence, tant que ce projet n’a pas les siens. Ils accompagnent chaque itinéraire.	Los consejos de la agencia, hasta que este proyecto tenga los suyos. Acompañan cada itinerario.
+No advice yet. It goes with every itinerary, in the portal and by email.	Pas encore de conseils. Ils accompagnent chaque itinéraire, dans le portail et par e-mail.	Aún no hay consejos. Acompañan cada itinerario, en el portal y por correo.
+Start from the usual advice	Partir des conseils habituels	Empezar con los consejos habituales
+e.g. Keep your boarding pass: the agency reimburses checked bags.	ex. Gardez votre carte d’embarquement : l’agence rembourse les bagages.	p. ej. Guarde su pase de abordar: la agencia reembolsa el equipaje.
+The operations VP writes it.	Le VP des opérations les rédige.	Los escribe el VP de operaciones.
+Thank you. The travel coordinator books your trip from these details.	Merci. Le coordinateur voyage réserve votre trajet à partir de ces informations.	Gracias. El coordinador de viajes reserva su viaje con estos datos.
+Your travel details for the booking	Vos informations de voyage pour la réservation	Sus datos de viaje para la reserva
+Your travel details	Vos informations de voyage	Sus datos de viaje
+The travel coordinator books your flight and hotel from these. Your address is kept encrypted. Never enter your Social Security number here.	Le coordinateur voyage réserve votre vol et votre hôtel à partir de ces informations. Votre adresse est chiffrée. Ne saisissez jamais votre numéro de sécurité sociale ici.	El coordinador de viajes reserva su vuelo y hotel con estos datos. Su domicilio se guarda cifrado. Nunca escriba aquí su número de Seguro Social.
+Your name exactly as on your ID	Votre nom exactement comme sur votre pièce d’identité	Su nombre exactamente como en su identificación
+The airport you fly from	L’aéroport de départ	El aeropuerto de salida
+e.g. IAH or Houston Bush	ex. IAH ou Houston Bush	p. ej. IAH o Houston Bush
+Your home address	Votre adresse	Su domicilio
+Street, city, state, ZIP code	Rue, ville, État, code postal	Calle, ciudad, estado, código postal
+Anything the coordinator should know (optional)	Ce que le coordinateur doit savoir (facultatif)	Lo que el coordinador debe saber (opcional)
+e.g. I can only fly after 10 am	ex. Je ne peux voler qu’après 10 h	p. ej. Solo puedo volar después de las 10 am
+Send my travel details	Envoyer mes informations de voyage	Enviar mis datos de viaje
+Going home	Retour à la maison	Regreso a casa
+:n leg booked	:n trajet réservé	:n trayecto reservado
+:n legs booked	:n trajets réservés	:n trayectos reservados
+:n still to book	:n encore à réserver	:n por reservar
+The registration code is 4 to 40 letters, digits or dashes, exactly as ADP gave it.	Le code d’inscription fait 4 à 40 lettres, chiffres ou tirets, exactement comme ADP l’a donné.	El código de registro tiene de 4 a 40 letras, dígitos o guiones, tal como lo dio ADP.
+The address must be ADP's own site over https, for example https://my.adp.com.	L’adresse doit être le site d’ADP en https, par exemple https://my.adp.com.	La dirección debe ser el sitio de ADP con https, por ejemplo https://my.adp.com.
+:name registered with ADP.	:name s’est inscrit chez ADP.	:name se registró en ADP.
+Your ADP employee ID is ready. Register with ADP from your portal to be paid.	Votre identifiant ADP est prêt. Inscrivez-vous chez ADP depuis votre portail pour être payé.	Su ID de empleado de ADP está listo. Regístrese en ADP desde su portal para cobrar.
+ADP registration saved. Workers see the steps in their portal.	Inscription ADP enregistrée. Les travailleurs voient les étapes dans leur portail.	Registro de ADP guardado. Los trabajadores ven los pasos en su portal.
+ADP employee ID saved.	Identifiant ADP enregistré.	ID de empleado de ADP guardado.
+Workers registering with ADP	Inscription des travailleurs chez ADP	Registro de los trabajadores en ADP
+Each worker creates their own ADP account with the registration code ADP gave you, and proves who they are on ADP's site. Crewvia shows them the steps and never asks for a Social Security number or ITIN.	Chaque travailleur crée son compte ADP avec le code d’inscription fourni par ADP et prouve son identité sur le site d’ADP. Crewvia lui montre les étapes et ne demande jamais de numéro de sécurité sociale ni d’ITIN.	Cada trabajador crea su cuenta de ADP con el código de registro que le dio ADP y prueba su identidad en el sitio de ADP. Crewvia le muestra los pasos y nunca pide un número de Seguro Social ni un ITIN.
+Registration code from ADP	Code d’inscription d’ADP	Código de registro de ADP
+e.g. RSSINC-2026	ex. RSSINC-2026	p. ej. RSSINC-2026
+ADP's site	Site d’ADP	Sitio de ADP
+A note for workers (optional)	Une note pour les travailleurs (facultatif)	Una nota para los trabajadores (opcional)
+e.g. Register before your first Friday: pay goes to the account you set up there.	ex. Inscrivez-vous avant votre premier vendredi : la paie va sur le compte choisi là-bas.	p. ej. Regístrese antes de su primer viernes: el pago va a la cuenta que configure allí.
+:done of :n registered with ADP	:done sur :n inscrits chez ADP	:done de :n registrados en ADP
+no portal	sans portail	sin portal
+Payroll has not set up ADP registration yet.	La paie n’a pas encore configuré l’inscription ADP.	Nómina aún no ha configurado el registro en ADP.
+Thank you. Payroll can see you registered with ADP.	Merci. La paie voit que vous êtes inscrit chez ADP.	Gracias. Nómina puede ver que se registró en ADP.
+Register with ADP to be paid	Inscrivez-vous chez ADP pour être payé	Regístrese en ADP para cobrar
+You told payroll you registered with ADP on :date.	Vous avez indiqué à la paie votre inscription chez ADP le :date.	Le dijo a nómina que se registró en ADP el :date.
+Go to ADP:	Allez sur ADP :	Vaya a ADP:
+and choose to create an account.	et choisissez de créer un compte.	y elija crear una cuenta.
+Enter the registration code:	Saisissez le code d’inscription :	Escriba el código de registro:
+ADP asks you to prove who you are.	ADP vous demande de prouver votre identité.	ADP le pide que demuestre quién es.
+Your employee ID is:	Votre identifiant d’employé :	Su ID de empleado es:
+Payroll gives you your employee ID; until then, ADP may let you use another way.	La paie vous donne votre identifiant d’employé ; d’ici là, ADP peut proposer un autre moyen.	Nómina le da su ID de empleado; mientras tanto, ADP puede ofrecerle otra forma.
+ADP may also ask for your Social Security number or ITIN and your date of birth: enter those on ADP's site only.	ADP peut aussi demander votre numéro de sécurité sociale ou ITIN et votre date de naissance : saisissez-les uniquement sur le site d’ADP.	ADP también puede pedirle su número de Seguro Social o ITIN y su fecha de nacimiento: escríbalos solo en el sitio de ADP.
+Choose how you are paid there (direct deposit or a pay card).	Choisissez-y votre mode de paiement (virement ou carte de paie).	Elija allí cómo se le paga (depósito directo o tarjeta de pago).
+Crewvia never asks for your Social Security number or ITIN. If anyone asks for them here or by text, do not answer.	Crewvia ne demande jamais votre numéro de sécurité sociale ni votre ITIN. Si quelqu’un les demande ici ou par texto, ne répondez pas.	Crewvia nunca pide su número de Seguro Social ni su ITIN. Si alguien se los pide aquí o por texto, no responda.
+I have registered with ADP	Je me suis inscrit chez ADP	Ya me registré en ADP
+Enter the room number on your key card, for example 214.	Saisissez le numéro de chambre de votre carte-clé, par exemple 214.	Escriba el número de habitación de su tarjeta llave, por ejemplo 214.
+No hotel stay is waiting for a room number.	Aucun séjour à l’hôtel n’attend de numéro de chambre.	Ninguna estancia de hotel espera un número de habitación.
+:name is in room :room at :hotel.	:name est en chambre :room à :hotel.	:name está en la habitación :room en :hotel.
+There is no assignment to clock in to.	Aucune affectation où pointer.	No hay asignación para marcar entrada.
+Your assignment starts on :date. Clock in from that day.	Votre affectation commence le :date. Pointez à partir de ce jour.	Su asignación empieza el :date. Marque entrada desde ese día.
+Enter your room number at :hotel first. Without it you cannot clock in.	Saisissez d’abord votre numéro de chambre à :hotel. Sans lui, vous ne pouvez pas pointer.	Escriba primero su número de habitación en :hotel. Sin él no puede marcar entrada.
+You are already clocked in for this shift.	Vous avez déjà pointé pour ce poste.	Ya marcó entrada para este turno.
+:name clocked in at :time. Validate by :by.	:name a pointé à :time. Validez avant :by.	:name marcó entrada a las :time. Valide antes de las :by.
+Validate only your own crew's clock-ins.	Validez seulement les pointages de votre équipe.	Valide solo las entradas de su propio equipo.
+This clock-in is already decided.	Ce pointage est déjà traité.	Esta entrada ya está decidida.
+Your supervisor validated your clock-in.	Votre superviseur a validé votre pointage.	Su supervisor validó su entrada.
+Your supervisor did not see you on site. Call them now.	Votre superviseur ne vous a pas vu sur le site. Appelez-le maintenant.	Su supervisor no lo vio en el sitio. Llámelo ahora.
+Your hotel: :hotel, room :room, from :date.	Votre hôtel : :hotel, chambre :room, à partir du :date.	Su hotel: :hotel, habitación :room, desde el :date.
+Your hotel: :hotel, from :date. When you check in, enter your room number in your portal within 4 hours: you cannot clock in without it.	Votre hôtel : :hotel, à partir du :date. À votre arrivée, saisissez votre numéro de chambre dans votre portail sous 4 heures : sans lui, vous ne pouvez pas pointer.	Su hotel: :hotel, desde el :date. Al registrarse, escriba su número de habitación en su portal en 4 horas: sin él no puede marcar entrada.
+Room number saved. You can clock in.	Numéro de chambre enregistré. Vous pouvez pointer.	Número de habitación guardado. Puede marcar entrada.
+Clocked in. Your supervisor validates it.	Pointage enregistré. Votre superviseur le valide.	Entrada marcada. Su supervisor la valida.
+Enter your room number at :hotel	Saisissez votre numéro de chambre à :hotel	Escriba su número de habitación en :hotel
+Today on :project	Aujourd’hui sur :project	Hoy en :project
+starts :time	commence à :time	empieza a las :time
+Your room number at :hotel was due by :time. Enter it now: you cannot clock in without it.	Votre numéro de chambre à :hotel était attendu avant :time. Saisissez-le maintenant : sans lui, vous ne pouvez pas pointer.	Su número de habitación en :hotel debía estar antes de :time. Escríbalo ahora: sin él no puede marcar entrada.
+Enter your room number at :hotel by :time. You cannot clock in without it.	Saisissez votre numéro de chambre à :hotel avant :time. Sans lui, vous ne pouvez pas pointer.	Escriba su número de habitación en :hotel antes de :time. Sin él no puede marcar entrada.
+Room number	Numéro de chambre	Número de habitación
+Save my room number	Enregistrer mon numéro de chambre	Guardar mi número de habitación
+Clock in	Pointer	Marcar entrada
+Clocked in at :time.	Pointé à :time.	Entrada a las :time.
+Waiting for your supervisor	En attente de votre superviseur	Esperando a su supervisor
+Validated	Validé	Validado
+Not seen on site: call your supervisor	Pas vu sur le site : appelez votre superviseur	No visto en el sitio: llame a su supervisor
+Clock-in validated.	Pointage validé.	Entrada validada.
+Marked not on site. They are told to call you.	Noté absent du site. On lui demande de vous appeler.	Marcado como fuera del sitio. Se le pide que lo llame.
+:n clock-in to validate	:n pointage à valider	:n entrada por validar
+:n clock-ins to validate	:n pointages à valider	:n entradas por validar
+Clock-ins	Pointages	Entradas
+Validate each one by 30 minutes after the shift starts. A validation after that is kept, and marked late.	Validez chacun dans les 30 minutes après le début du poste. Une validation plus tardive est gardée, et notée en retard.	Valide cada una dentro de los 30 minutos tras el inicio del turno. Una validación posterior se guarda, marcada como tardía.
+in at :time	arrivé à :time	entró a las :time
+:n min late	:n min de retard	:n min tarde
+was due by :time	attendu avant :time	debía ser antes de las :time
+validate by :time	à valider avant :time	validar antes de las :time
+Validate	Valider	Validar
+validated late	validé en retard	validado tarde
+:name has not entered their room number at :hotel: they cannot clock in.	:name n’a pas saisi son numéro de chambre à :hotel : il ne peut pas pointer.	:name no ha escrito su número de habitación en :hotel: no puede marcar entrada.
+A private room and valid check-in/out dates are required; a room number is letters and digits.	Une chambre individuelle et des dates d’arrivée et de départ valides sont requises ; un numéro de chambre est fait de lettres et de chiffres.	Se requiere una habitación privada y fechas de entrada y salida válidas; un número de habitación lleva letras y dígitos.
+At check-in	À l’arrivée	Al registrarse
+Choose an active staff member.	Choisissez un membre actif du personnel.	Elija a un miembro activo del personal.
+Too many tries. Ask the coordinator for a new code in 15 minutes.	Trop d’essais. Demandez un nouveau code au coordinateur dans 15 minutes.	Demasiados intentos. Pida un código nuevo al coordinador en 15 minutos.
+That code is not valid. Ask the coordinator in front of you for a new one.	Ce code n’est pas valide. Demandez-en un nouveau au coordinateur en face de vous.	Ese código no es válido. Pida uno nuevo al coordinador frente a usted.
+Choose your scanned W-4.	Choisissez votre W-4 numérisé.	Elija su W-4 escaneado.
+Confirm that you completed and signed this W-4 yourself.	Confirmez que vous avez rempli et signé ce W-4 vous-même.	Confirme que usted mismo completó y firmó este W-4.
+Your W-4 is already reviewed. Ask payroll to change it.	Votre W-4 est déjà vérifié. Demandez à la paie de le modifier.	Su W-4 ya fue revisado. Pida a nómina que lo cambie.
+:name signed their W-4 in front of you.	:name a signé son W-4 devant vous.	:name firmó su W-4 frente a usted.
+This identity document is restricted since it was validated. An administrator can open it.	Cette pièce d’identité est restreinte depuis sa validation. Un administrateur peut l’ouvrir.	Este documento de identidad está restringido desde su validación. Un administrador puede abrirlo.
+Identity document	Pièce d’identité	Documento de identidad
+Restricted since it was validated: an administrator can open it.	Restreint depuis sa validation : un administrateur peut l’ouvrir.	Restringido desde su validación: un administrador puede abrirlo.
+Who may open identity documents	Qui peut ouvrir les pièces d’identité	Quién puede abrir documentos de identidad
+Passports, Social Security cards, IDs, birth and citizenship papers and I-9s are encrypted. Once validated, only the worker, administrators and the people ticked here open them; the coordinator who checked them no longer can.	Passeports, cartes de sécurité sociale, pièces d’identité, actes de naissance et de citoyenneté et I-9 sont chiffrés. Une fois validés, seuls le travailleur, les administrateurs et les personnes autorisées ici les ouvrent ; le coordinateur qui les a vérifiés ne le peut plus.	Pasaportes, tarjetas de Seguro Social, identificaciones, actas de nacimiento y ciudadanía e I-9 están cifrados. Una vez validados, solo el trabajador, los administradores y las personas autorizadas aquí los abren; el coordinador que los revisó ya no puede.
+Authorize	Autoriser	Autorizar
+The worker signs from their own portal.	Le travailleur signe depuis son propre portail.	El trabajador firma desde su propio portal.
+Your W-4 is signed, witnessed in person. Payroll reviews it.	Votre W-4 est signé, en présence d’un témoin. La paie le vérifie.	Su W-4 está firmado, con testigo en persona. Nómina lo revisa.
+W-4 signed in person	W-4 signé en personne	W-4 firmado en persona
+Signed in person	Signé en personne	Firmado en persona
+:date, witnessed by :name	:date, témoin :name	:date, testigo :name
+Show this to :name. They enter it in their portal, under Employment, with their W-4. It works once, until :time.	Montrez-le à :name. Il le saisit dans son portail, sous Emploi, avec son W-4. Il ne sert qu’une fois, jusqu’à :time.	Muéstrelo a :name. Lo escribe en su portal, en Empleo, con su W-4. Sirve una vez, hasta las :time.
+With the worker in front of you: scan their completed W-4 under Documents, then make a one-time code. They sign by entering it, or scanning its QR code, from their own phone.	Avec le travailleur en face de vous : numérisez son W-4 rempli dans Documents, puis créez un code à usage unique. Il signe en le saisissant, ou en scannant son code QR, depuis son téléphone.	Con el trabajador frente a usted: escanee su W-4 completo en Documentos y cree un código de un solo uso. Firma escribiéndolo, o escaneando su código QR, desde su propio teléfono.
+Make a signing code	Créer un code de signature	Crear un código de firma
+Sign your W-4 with the coordinator	Signez votre W-4 avec le coordinateur	Firme su W-4 con el coordinador
+Enter the code the coordinator shows you. It proves you signed in person.	Saisissez le code que le coordinateur vous montre. Il prouve que vous avez signé en personne.	Escriba el código que le muestra el coordinador. Prueba que firmó en persona.
+Your scanned W-4	Votre W-4 numérisé	Su W-4 escaneado
+I completed and signed this W-4 myself.	J’ai rempli et signé ce W-4 moi-même.	Yo mismo completé y firmé este W-4.
+Sign my W-4	Signer mon W-4	Firmar mi W-4
+The guarantee stands	La garantie tient	La garantía se mantiene
+Each unexcused absence takes a day off the guarantee	Chaque absence injustifiée retire une journée de la garantie	Cada ausencia injustificada quita un día de la garantía
+An unexcused absence loses the week's guarantee	Une absence injustifiée fait perdre la garantie de la semaine	Una ausencia injustificada hace perder la garantía de la semana
+Pay guaranteed hours above the threshold as overtime (50 = 40 regular + 10 overtime)	Payer les heures garanties au-delà du seuil en heures supplémentaires (50 = 40 normales + 10 supplémentaires)	Pagar las horas garantizadas por encima del umbral como horas extra (50 = 40 normales + 10 extra)
+An unexcused absence	Une absence injustifiée	Una ausencia injustificada
+Hours in a day of the guarantee	Heures d’une journée de garantie	Horas de un día de la garantía
+An absence is a day marked absent at roll call, or clocked in and not seen on site, that no approved time off covers.	Une absence est un jour noté absent à l’appel, ou pointé sans être vu sur le site, qu’aucun congé approuvé ne couvre.	Una ausencia es un día marcado ausente al pasar lista, o con entrada marcada sin ser visto en el sitio, que ningún permiso aprobado cubre.
+:n unexcused absence	:n absence injustifiée	:n ausencia injustificada
+:n unexcused absences	:n absences injustifiées	:n ausencias injustificadas
+That assignment is not on this project.	Cette affectation n’est pas sur ce projet.	Esa asignación no está en este proyecto.
+Saved. Weeks already approved keep what was frozen.	Enregistré. Les semaines déjà approuvées gardent ce qui a été figé.	Guardado. Las semanas ya aprobadas conservan lo congelado.
+A worker's per diem is taxable: configure the ADP earnings code for taxable per diem in Settings before export.	Le per diem d’un travailleur est imposable : configurez le code de gains ADP du per diem imposable dans Paramètres avant l’export.	El viático de un trabajador es gravable: configure el código de ingresos de ADP para viático gravable en Configuración antes de exportar.
+taxable (local)	imposable (local)	gravable (local)
+tax-free (travelling)	non imposable (en déplacement)	exento (de viaje)
+Make tax-free	Rendre non imposable	Hacer exento
+Make taxable	Rendre imposable	Hacer gravable
+Per diem, taxable	Per diem, imposable	Viático, gravable

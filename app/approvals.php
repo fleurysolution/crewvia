@@ -246,6 +246,13 @@ function approval_decide(int $requestId, string $decision, string $comments = ''
 
     approval_notify((string) $r['subject_type'], (int) $r['subject_id']);
 
+    // P5-M28: once the whole chain is decided, the record it governs moves on.
+    $settled = approval_state((string) $r['subject_type'], (int) $r['subject_id']);
+    if (in_array($settled, ['approved', 'rejected'], true) && $r['subject_type'] === 'offer') {
+        require_once __DIR__ . '/hiring.php';
+        hiring_offer_settled((int) $r['subject_id'], $settled, $r);
+    }
+
     return ['ok' => true, 'message' => $decision === 'approved'
         ? 'Approved.'
         : 'Rejected. The rest of the chain is closed.'];

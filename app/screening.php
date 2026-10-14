@@ -62,6 +62,14 @@ function screening_is_knockout(array $question, string $answer): bool
         return false;
     }
 
+    // A number question can set a minimum: "<2" disqualifies anything under 2
+    // (walkthrough finding: "2 years required" could not be screened, so one
+    // year scored the same as six). Any other knockout is the exact answer.
+    if (($question['answer_type'] ?? '') === 'number' && preg_match('/^<\s*(\d+(?:\.\d+)?)$/', $knockout, $min)) {
+        $given = trim($answer);
+        return is_numeric($given) && (float) $given < (float) $min[1];
+    }
+
     return mb_strtolower(trim($answer)) === mb_strtolower($knockout);
 }
 

@@ -77,6 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $_SESSION['job_id'] = (int) db()->lastInsertId();
     db()->commit();
+    // P5-M27: the usual two, day and night, each with its bus; changed on the agreement.
+    require_once __DIR__ . '/../shifts.php';
+    shifts_seed_defaults((int) $_SESSION['job_id']);
 
     log_activity('created project', 'job', $_SESSION['job_id'], $title . ' for ' . $client);
     flash(t(':name created. Now write the scope of work — how many of each trade, and what each one is paid.',

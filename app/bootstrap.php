@@ -409,6 +409,14 @@ function week_money(array $t, array $p, array $job): array
 
     $guarantee = (int) ($job['strike_live'] ? $job['strike_hours'] : $job['guarantee_hours']);
     $worked    = (float) $t['hours_worked'];
+    // P5-M34: unexcused absences, under the project's rule, before leave is counted.
+    $absences = 0;
+    $absenceRule = (string) ($job['guarantee_absence_rule'] ?? 'keep');
+    if ($absenceRule !== 'keep' && $guarantee > 0 && !empty($t['placement_id']) && !empty($t['week_ending'])) {
+        require_once __DIR__.'/guarantee-policy.php';
+        $absences = gp_unexcused_absences((int) $t['placement_id'], (string) $t['week_ending']);
+        $guarantee = (int) floor(gp_guarantee_after((float) $guarantee, $absences, $absenceRule, (float) ($job['guarantee_day_hours'] ?? 10)));
+    }
     // Paid leave is paid at the base rate and counts toward the guarantee -
     // a week of leave is not also topped up to the guarantee - but it is not
     // time worked, so it never makes overtime.
@@ -423,7 +431,7 @@ function week_money(array $t, array $p, array $job): array
     $expenses   = (float) $t['expenses'];
 
     require_once __DIR__.'/payroll-calculation.php';
-    $gross=payroll_gross($worked,(float)$guarantee,$pay,isset($job['weekly_overtime_after'])?(float)$job['weekly_overtime_after']:null,(float)($job['overtime_multiplier']??1.5),($p['employment_type']??'')==='salaried'&&isset($p['salary_per_period'])?(float)$p['salary_per_period']:null);
+    $gross=payroll_gross($worked,(float)$guarantee,$pay,isset($job['weekly_overtime_after'])?(float)$job['weekly_overtime_after']:null,(float)($job['overtime_multiplier']??1.5),($p['employment_type']??'')==='salaried'&&isset($p['salary_per_period'])?(float)$p['salary_per_period']:null,!empty($job['guarantee_overtime']));
     // A project given a confirmed pay rule set is paid under it: daily and
     // weekly lines, double time, holidays, shift premiums, the person's
     // other assignments. A project without one is paid exactly as above.
@@ -442,6 +450,9 @@ function week_money(array $t, array $p, array $job): array
 
     return $gross + [
         'guarantee'   => $guarantee,
+        'unexcused_absences' => $absences,
+        'guarantee_rule' => $absenceRule,
+        'per_diem_taxable' => (int) ($p['per_diem_taxable'] ?? 0),
         'worked'      => $worked,
         'paid_hours'  => $paidHours,
         'short_by'    => $shortBy,
@@ -541,6 +552,31 @@ function roles(): array
  * come to disagree about what a stage is called. The database is the
  * authority for the keys; this is the authority for the words.
  */
+/**
+ * Keep a candidate's own stage in step with how far an application has gone,
+ * forward only: a person interviewed or hired is no longer "never contacted"
+ * (walkthrough finding: Hiring moved the application and left the person at
+ * "new", so Today counted hired people among those nobody had contacted).
+ * Declined and rejected are a person's own story, never set from here.
+ */
+function candidate_follow_application(int $applicationId): void
+{
+    $a = row('SELECT candidate_id, stage FROM applications WHERE id = ?', [$applicationId]);
+    $to = ['screening' => 'screening', 'interview' => 'screening', 'offered' => 'offered', 'accepted' => 'accepted'][$a['stage'] ?? ''] ?? null;
+    if (! $a || $to === null) {
+        return;
+    }
+    $rank = ['new' => 0, 'contacted' => 1, 'screening' => 2, 'offered' => 3, 'accepted' => 4, 'placed' => 5];
+    $now = (string) val('SELECT stage FROM candidates WHERE id = ?', [(int) $a['candidate_id']]);
+    if (isset($rank[$now]) && $rank[$now] >= $rank[$to]) {
+        return;
+    }
+    if (! isset($rank[$now]) && $now !== '') {
+        return;   // declined, rejected: left as the recruiter set them
+    }
+    q('UPDATE candidates SET stage = ? WHERE id = ?', [$to, (int) $a['candidate_id']]);
+}
+
 function candidate_stages(): array
 {
     return [
@@ -732,7 +768,7 @@ function current_job(): ?array {
         if ($id) { $_SESSION['job_id'] = $id; }
     }
 
-    return $id ? row('SELECT j.*, c.name AS client_name, pp.weekly_overtime_after,pp.overtime_multiplier FROM jobs j LEFT JOIN clients c ON c.id=j.client_id LEFT JOIN project_pay_policies pp ON pp.job_id=j.id WHERE j.id=?', [$id]) : null;
+    return $id ? row('SELECT j.*, c.name AS client_name, pp.weekly_overtime_after,pp.overtime_multiplier,pp.guarantee_absence_rule,pp.guarantee_day_hours,pp.guarantee_overtime FROM jobs j LEFT JOIN clients c ON c.id=j.client_id LEFT JOIN project_pay_policies pp ON pp.job_id=j.id WHERE j.id=?', [$id]) : null;
 }
 /** P4-M06: the projects a supervisor works on: a crew they supervise there, or its budget. */
 function supervised_job_ids(int $userId): array {

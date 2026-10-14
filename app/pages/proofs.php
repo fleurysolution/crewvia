@@ -3,6 +3,7 @@ require_login();$isWorker=is_worker_account();global $config;
 $key=base64_decode($config['encryption_key'] ?? '',true);$storage=workforce_storage_path($config).'/documents';$configured=$key && strlen($key)===32;
 $candidate=$isWorker?row('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):null;
 if(!$isWorker) require_role('recruiter','payroll');
+require_once __DIR__.'/../identity-docs.php';
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  if($do==='upload') {
@@ -18,9 +19,16 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if($encrypted===false) throw new RuntimeException(t('Encryption failed.'));
   if(!is_dir($storage)) mkdir($storage,0700,true);$name=bin2hex(random_bytes(32));$path=$storage.'/'.$name;
   if(file_put_contents($path,$iv.$tag.$encrypted,LOCK_EX)===false) throw new RuntimeException(t('Document storage unavailable.'));
-  try { q('INSERT INTO worker_documents(candidate_id,uploaded_by,document_type,original_name,storage_name,mime_type,file_hash) VALUES (?,?,?,?,?,?,?)',[$uploadCandidate,uid(),$type,mb_substr(basename($file['name']),0,190),$name,$mime,hash('sha256',$content)]); }
+  // P5-M33: a document proving who someone is is restricted once it is validated.
+  try { q('INSERT INTO worker_documents(candidate_id,uploaded_by,document_type,restricted,original_name,storage_name,mime_type,file_hash) VALUES (?,?,?,?,?,?,?,?)',[$uploadCandidate,uid(),$type,doc_is_identity($type)?1:0,mb_substr(basename($file['name']),0,190),$name,$mime,hash('sha256',$content)]); }
   catch(Throwable $e) { unlink($path);throw $e; }
   log_activity('uploaded proof','document',(int)db()->lastInsertId());
+ }
+ // P5-M33: an administrator authorizes who else may open validated identity documents.
+ if($do==='identity_reader') {
+  require_role('admin');
+  if($why=id_reader_set((int)($_POST['user_id']??0),($_POST['allowed']??'1')==='1',uid())){refuse(422,$why,'/proofs#identity-readers');}
+  flash(t('Saved.'));redirect('/proofs#identity-readers');
  }
  if($do==='review') {
   require_role('recruiter');$status=$_POST['status'] ?? '';
@@ -31,7 +39,11 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 if(isset($_GET['download'])) {
  $doc=row('SELECT * FROM worker_documents WHERE id=?',[(int)$_GET['download']]);
  if(!$doc || ($isWorker && (int)$doc['candidate_id']!==(int)$candidate['candidate_id'])) { refuse(404, t('Document unavailable.')); }
- if(!$isWorker && !can('recruiter') && !row("SELECT d.id FROM worker_documents d WHERE d.id=? AND (d.document_type IN ('W4','payroll_authorization') OR EXISTS(SELECT 1 FROM expense_claims e WHERE e.receipt_document_id=d.id))",[$doc['id']])) { refuse(404, t('Document unavailable.')); }
+ // P5-M33: a validated identity document opens only for the worker, an administrator and an authorized reader.
+ if(!doc_can_open($doc,$isWorker,$isWorker?(int)$candidate['candidate_id']:null)) {
+  if(!(int)$doc['restricted']) { refuse(404, t('Document unavailable.')); }
+  log_activity('was refused an identity document','worker_document',(int)$doc['id'],$doc['document_type']);refuse(403, t('This identity document is restricted since it was validated. An administrator can open it.'));
+ }
  if(!$configured) { refuse(503, t('Document encryption key is unavailable.')); }
  $raw=file_get_contents($storage.'/'.$doc['storage_name']);require_once __DIR__.'/../crypto.php';$plain=$raw===false?null:crypto_open($raw);
  if($plain===null || !hash_equals($doc['file_hash'],hash('sha256',$plain))) { refuse(500, t('Document integrity check failed.')); }
@@ -50,4 +62,7 @@ $people = rows("SELECT c.id, c.full_name, c.discipline, c.city, c.state
                 FROM candidates c
                 ORDER BY c.full_name LIMIT 500");
 
-render('proofs',compact('isWorker','configured','documents','people'));
+foreach($documents as &$doc){$doc['can_open']=doc_can_open($doc,$isWorker,$isWorker?(int)$candidate['candidate_id']:null);}
+unset($doc);
+$readers=can('admin')?rows("SELECT u.id,u.name,u.role,(r.user_id IS NOT NULL) AS allowed FROM users u LEFT JOIN identity_readers r ON r.user_id=u.id WHERE u.is_active=1 AND u.role NOT IN ('worker','client','admin') ORDER BY allowed DESC,u.name LIMIT 300"):[];
+render('proofs',compact('isWorker','configured','documents','people','readers'));

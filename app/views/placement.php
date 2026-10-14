@@ -13,7 +13,7 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
 <div class="page-head"><div><h1><?= e($p['full_name']) ?></h1>
 <p class="sub">
   <span class="tag <?= $p['status'] === 'on_site' ? 'green' : ($p['status'] === 'cancelled' ? 'red' : 'blue') ?>">
-    <?= e(ucfirst(str_replace('_', ' ', $p['status']))) ?></span>
+    <?= te(placement_word((string) $p['status'])) ?></span>
   &middot; <?= e($p['line_role'] ?: ucfirst((string) $p['discipline'])) ?>
   &middot; <?= e($p['job_title']) ?>
   <?php if ($p['phone'] && $textPanel['preferences']['no_calls_since'] === null): ?>
@@ -41,6 +41,15 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
     <div class="l"><?= te('Hours to date') ?></div></div>
   <div class="stat"><div class="n"><?= money($totals['pay']) ?></div><div class="l"><?= te('Paid to date') ?></div></div>
 </div>
+
+<?php if (can('recruiter', 'hotels')): ?>
+<form method="post" class="card row items-end mb-l" id="placement-dates"><?= csrf_field() ?><input type="hidden" name="do" value="dates">
+  <div><label for="pl-start"><?= te('Starts') ?></label><input id="pl-start" type="date" name="start_date" value="<?= e((string) ($p['start_date'] ?? '')) ?>"></div>
+  <div><label for="pl-end"><?= te('Ends') ?></label><input id="pl-end" type="date" name="end_date" value="<?= e((string) ($p['end_date'] ?? '')) ?>"></div>
+  <button class="btn" type="submit"><?= te('Save the dates') ?></button>
+  <span class="hint"><?= te('Arrivals, roll call and pay read these dates.') ?></span>
+</form>
+<?php endif; ?>
 
 <div class="grid g2">
   <div class="card">

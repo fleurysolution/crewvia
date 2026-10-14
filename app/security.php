@@ -2,6 +2,16 @@
 /** Authentication primitives; secrets and recovery messages are encrypted at rest. */
 function security_rate_limit(string $purpose, string $identity, int $maximum=10, int $window=900): bool
 {
+    // Walkthrough findings 30 and 35: twenty applications an hour, or twenty portal activations in
+    // fifteen minutes, from one connection stops a hiring event or an onboarding day on one wifi.
+    // The server's configuration may set a limit per purpose: 'rate_limits' => ['public-application' => [200, 3600]].
+    // Nothing set, nothing changes.
+    global $config;
+    $override = $config['rate_limits'][$purpose] ?? null;
+    if (is_array($override) && isset($override[0], $override[1])) {
+        $maximum = max(1, (int) $override[0]);
+        $window = max(1, (int) $override[1]);
+    }
     $bucket=hash('sha256',$purpose.'|'.$identity);
     $now=time();
     q('INSERT INTO auth_rate_limits(bucket,window_start,attempts) VALUES (?,?,1) ON DUPLICATE KEY UPDATE attempts=IF(window_start<=?,1,attempts+1),window_start=IF(window_start<=?,VALUES(window_start),window_start)',[$bucket,$now,$now-$window,$now-$window]);

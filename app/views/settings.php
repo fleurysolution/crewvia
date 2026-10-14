@@ -148,6 +148,11 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
         <input id="s-adpo" name="adp_overtime_code" maxlength="40"
                value="<?= e($settings['adp_overtime_code'] ?? '') ?>">
       </div>
+      <div>
+        <label for="s-adpdt"><?= te('Per diem, taxable') ?></label>
+        <input id="s-adpdt" name="adp_perdiem_taxable_code" maxlength="40"
+               value="<?= e($settings['adp_perdiem_taxable_code'] ?? '') ?>">
+      </div>
     </div>
 
     <h3 id="subscription" class="mt-xl"><?= te('Subscription') ?></h3>

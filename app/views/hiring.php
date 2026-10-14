@@ -93,10 +93,14 @@ $hwScore = static function (?string $s): string {
           <?php if ($a['position']): ?><span class="small muted"><?= te(':i of :n', ['i' => (int) $a['position'], 'n' => count($hwList)]) ?></span><?php endif; ?>
         </div>
       </div>
+      <?php if (($a['validation'] ?? 'none') === 'pending'): ?><p class="flash" data-validation="pending"><?= te('Sent for validation. The candidate gets the offer once it is approved.') ?> <a href="/approvals"><?= te('Approvals') ?></a></p><?php elseif (($a['validation'] ?? 'none') === 'rejected' && $a['stage'] !== 'offered'): ?><p class="flash err" data-validation="rejected"><?= te('The offer was not validated. Change it and send it again, or move the applicant on.') ?></p><?php endif; ?>
+      <?php foreach ($a['matches'] ?? [] as $match): ?>
+      <p class="flash err" data-match="<?= (int) $match['id'] ?>"><?= te('Possible existing candidate:') ?> <a href="/candidates/<?= (int) $match['id'] ?>"><?= e($match['full_name'] . ' · ' . (candidate_stages()[$match['stage']] ?? $match['stage'])) ?></a><?= te('. Verify identity and prior decisions before continuing. A matching contact or name does not prove identity.') ?></p>
+      <?php endforeach; ?>
       <?php if (! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
       <form method="post" action="/hiring" class="detail-actions" id="move-form"><?= csrf_field() ?><input type="hidden" name="do" value="move"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
         <select name="stage" aria-label="<?= te('Move to') ?>"><?php foreach (['screening', 'interview', 'offered', 'new', 'withdrawn'] as $s): if ($s === $a['stage']) { continue; } ?><option value="<?= $s ?>"><?= te('Move to :stage', ['stage' => hw_stages()[$s]]) ?></option><?php endforeach; ?></select>
-        <input name="note" maxlength="2000" placeholder="<?= te('Note (required for an offer: its terms)') ?>" aria-label="<?= te('Note') ?>" class="f1 min-w-s">
+        <input name="note" maxlength="2000" placeholder="<?= te('Note: with an offer, the candidate reads it beside the agreed terms') ?>" aria-label="<?= te('Note') ?>" class="f1 min-w-s">
         <button class="btn"><?= te('Move') ?></button>
       </form>
       <form method="post" action="/hiring" class="detail-actions" id="reject-form"><?= csrf_field() ?><input type="hidden" name="do" value="reject"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">

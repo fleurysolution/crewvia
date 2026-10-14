@@ -29,11 +29,11 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 
   if(in_array($stage,['new','screening','interview','offered','accepted','rejected','withdrawn'],true)) {
    if(in_array($stage,['offered','accepted'],true) && (int)val("SELECT COUNT(*) FROM screening_checks WHERE application_id=? AND status<>'passed'",[$id])) { flash(t('Complete screening checks before offering this job.'),'err');redirect('/recruitment'); }
-   if(in_array($stage,['offered','accepted'],true) && (int)val("SELECT COUNT(*) FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id=q.id AND s.application_id=? WHERE q.job_id=? AND q.required=1 AND (s.answer IS NULL OR TRIM(s.answer)='')",[$id,$jobId])) {flash(t('Complete required screening questions before offering this job.'),'err');redirect('/recruitment');}
+   if(in_array($stage,['offered','accepted'],true) && (int)val("SELECT COUNT(*) FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id=q.id AND s.application_id=? WHERE q.job_id=? AND q.required=1 AND (s.answer IS NULL OR TRIM(s.answer)='') AND (q.vacancy_id IS NULL OR q.vacancy_id = (SELECT vacancy_id FROM applications WHERE id = ?))",[$id,$jobId,$id])) {flash(t('Complete required screening questions before offering this job.'),'err');redirect('/recruitment');}
    if($stage==='offered' && (contract_document_gaps((int)$a['candidate_id'],$jobId)||contract_latest($id)||val('SELECT required_before_deployment FROM contract_policies WHERE job_id=?',[$jobId]))) {flash(t('Use the contract workflow after required document verification.'),'err');redirect('/recruitment');}
    if($stage==='offered' && !trim((string)($_POST['note'] ?? ''))) { flash(t('Enter the complete offer terms before issuing an offer.'),'err');redirect('/recruitment'); }
    if($stage==='accepted') { flash(t('The candidate must accept their offer in their private portal.'),'err');redirect('/recruitment'); }
-   q('UPDATE applications SET stage=? WHERE id=?',[$stage,$id]);
+   q('UPDATE applications SET stage=? WHERE id=?',[$stage,$id]);candidate_follow_application($id);
    q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$id,uid(),$stage,trim((string)($_POST['note'] ?? ''))]);
    if(in_array($stage,['screening','offered'],true)) {
     require_once __DIR__.'/../invitations.php';

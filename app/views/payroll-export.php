@@ -30,3 +30,26 @@
   <?php endforeach; ?></table>
   <?php endif; ?>
 </div>
+
+<div class="card" id="adp-registration" data-code="<?= $adpReg['code'] !== '' ? 'set' : 'none' ?>">
+  <h2><?= te('Workers registering with ADP') ?></h2>
+  <p class="small muted m0 pull-up mb"><?= te('Each worker creates their own ADP account with the registration code ADP gave you, and proves who they are on ADP\'s site. Crewvia shows them the steps and never asks for a Social Security number or ITIN.') ?></p>
+  <form method="post" action="/payroll-export?week=<?= e($week) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="adp_registration">
+    <div class="row">
+      <div><label for="adp-code"><?= te('Registration code from ADP') ?></label><input id="adp-code" name="code" maxlength="40" value="<?= e($adpReg['code']) ?>" placeholder="<?= te('e.g. RSSINC-2026') ?>"></div>
+      <div class="f2"><label for="adp-url"><?= te('ADP\'s site') ?></label><input id="adp-url" name="url" maxlength="190" value="<?= e($adpReg['url']) ?>"></div>
+    </div>
+    <label for="adp-note"><?= te('A note for workers (optional)') ?></label><input id="adp-note" name="note" maxlength="500" value="<?= e($adpReg['note']) ?>" placeholder="<?= te('e.g. Register before your first Friday: pay goes to the account you set up there.') ?>">
+    <button class="btn ghost mt-s"><?= te('Save') ?></button>
+  </form>
+  <?php if ($adpPeople): $done = count(array_filter($adpPeople, static fn($p) => $p['adp_registered_at'] !== null)); ?>
+  <p class="mt" data-adp-registered="<?= $done ?>" data-adp-people="<?= count($adpPeople) ?>"><strong><?= te(':done of :n registered with ADP', ['done' => $done, 'n' => count($adpPeople)]) ?></strong></p>
+  <div class="scroll"><table><tr><th><?= te('Person') ?></th><th><?= te('ADP employee ID') ?></th><th><?= te('Registered') ?></th><th><?= te('Per diem') ?></th></tr>
+  <?php foreach ($adpPeople as $p): ?><tr data-adp-person="<?= (int) $p['id'] ?>" data-adp-state="<?= $p['adp_registered_at'] ? 'registered' : ($p['adp_employee_id'] ? 'id' : 'missing') ?>">
+    <td><?= e($p['full_name']) ?><?php if (! (int) $p['has_portal']): ?> <span class="tag grey"><?= te('no portal') ?></span><?php endif; ?></td>
+    <td><form method="post" action="/payroll-export?week=<?= e($week) ?>" class="row tight gap-s"><?= csrf_field() ?><input type="hidden" name="do" value="adp_employee_id"><input type="hidden" name="candidate_id" value="<?= (int) $p['id'] ?>"><input name="adp_employee_id" maxlength="40" class="fw-s pad-s t-13" value="<?= e((string) $p['adp_employee_id']) ?>" aria-label="<?= te('ADP employee ID') ?>"><button class="btn sm ghost"><?= te('Save') ?></button></form></td>
+    <td><?= $p['adp_registered_at'] ? '<span class="tag green">' . e(d(substr((string) $p['adp_registered_at'], 0, 10))) . '</span>' : '<span class="tag amber">' . te('not yet') . '</span>' ?></td>
+    <td data-per-diem-tax="<?= (int) $p['per_diem_taxable'] ? 'taxable' : 'free' ?>"><form method="post" action="/payroll-export?week=<?= e($week) ?>" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="per_diem_tax"><input type="hidden" name="placement_id" value="<?= (int) $p['placement_id'] ?>"><input type="hidden" name="taxable" value="<?= (int) $p['per_diem_taxable'] ? '0' : '1' ?>"><span class="small"><?= (int) $p['per_diem_taxable'] ? te('taxable (local)') : te('tax-free (travelling)') ?></span> <button class="link small"><?= (int) $p['per_diem_taxable'] ? te('Make tax-free') : te('Make taxable') ?></button></form></td></tr><?php endforeach; ?>
+  </table></div>
+  <?php endif; ?>
+</div>

@@ -18,6 +18,7 @@ require_role('admin');
 require_once __DIR__ . '/../lifecycle.php';
 require_once __DIR__ . '/../projects.php';
 require_once __DIR__ . '/../scope.php';
+require_once __DIR__ . '/../shifts.php';
 
 $job = current_job();
 
@@ -59,6 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
                 : (float) $given;
         }
 
+        // P5-M27: a markup on the pay prices the line when no bill rate is typed.
+        $markup = trim((string) ($_POST['markup'] ?? ''));
+        if ($markup !== '') {
+            if (! is_numeric($markup) || (float) $markup < 0 || (float) $markup > 1000) {
+                return ['error' => 'markup'];
+            }
+            if ($terms['bill_rate'] === null && $terms['pay_rate'] !== null) {
+                $terms['bill_rate'] = round($terms['pay_rate'] * (1 + (float) $markup / 100), 2);
+            }
+        }
+
         return $terms;
     };
 
@@ -98,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
 
         if (isset($terms['error'])) {
             flash(t('Check the :field on that line: the number entered is negative or impossible.',
-                    ['field' => t(scope_term_label((string) $terms['error']))]), 'err');
+                    ['field' => $terms['error'] === 'markup' ? t('Markup on pay (%)') : t(scope_term_label((string) $terms['error']))]), 'err');
             redirect('/job#scope');
         }
 
@@ -163,7 +175,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
                      $quantity . ' x ' . $role);
 
         flash(t(':n x :role added to the scope of work.', ['n' => $quantity, 'role' => $role]));
+        // P5-M28: the order is recruiting's work now; they, and the plant's project manager, are told.
+        if (! ($editing ?? false)) {
+            require_once __DIR__ . '/../notices.php';
+            $msg = t('New order on :project: :n x :role. Raise the requisition.', ['project' => $job['title'], 'n' => $quantity, 'role' => $role]);
+            notify_desks(['recruiter'], $msg, '/requisitions', uid());
+            if (! empty($job['project_manager_id']) && (int) $job['project_manager_id'] !== uid()) { notify_user((int) $job['project_manager_id'], $msg, '/my-team'); }
+        }
         redirect('/job#scope');
+    }
+
+    // ── P5-M27: the plant's shifts ──────────────────────────────────────
+    if (in_array($_POST['do'] ?? '', ['shift_save', 'shift_remove', 'shift_defaults'], true)) {
+        $do = (string) $_POST['do'];
+        if ($do === 'shift_defaults') {
+            $n = shifts_seed_defaults($jobId);
+            flash($n ? t('The usual day and night shifts added. Change their hours below if this plant works others.') : t('This plant already has its day and night shifts.'));
+        } elseif ($do === 'shift_remove') {
+            $shift = shift_of($jobId, (int) ($_POST['shift_id'] ?? 0));
+            if ($shift) {
+                // Whoever worked it keeps its label and start time; only the link goes.
+                q('UPDATE assignment_details SET shift_id = NULL WHERE shift_id = ?', [(int) $shift['id']]);
+                q('DELETE FROM project_shifts WHERE id = ?', [(int) $shift['id']]);
+                log_activity('removed a shift', 'job', $jobId, $shift['name']);
+                flash(t(':name removed. Whoever worked it keeps its hours on their assignment.', ['name' => $shift['name']]));
+            }
+        } else {
+            $id = (int) ($_POST['shift_id'] ?? 0);
+            if ($id && ! shift_of($jobId, $id)) {
+                refuse(404, t('That shift is not on this project.'), '/job#shifts');
+            }
+            if ($why = shift_save($jobId, $id ?: null, $_POST)) {
+                flash($why, 'err');
+                redirect('/job#shifts');
+            }
+            log_activity($id ? 'changed a shift' : 'added a shift', 'job', $jobId, trim((string) ($_POST['name'] ?? '')));
+            flash(t('Shift saved.'));
+        }
+        redirect('/job#shifts');
     }
 
     if (($_POST['do'] ?? '') === 'remove_line') {
@@ -216,6 +265,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
     db()->beginTransaction();
     q('SELECT id FROM jobs WHERE id = ? FOR UPDATE', [$jobId]);
 
+    // P5-M28: the person who manages the plant: staff, never a worker or a client.
+    if (array_key_exists('project_manager_id', $_POST)) {
+        $pm = (int) $_POST['project_manager_id'];
+        if ($pm && ! val("SELECT id FROM users WHERE id = ? AND is_active = 1 AND role NOT IN ('worker','client')", [$pm])) {
+            db()->rollBack();
+            refuse(422, t('Choose an active staff member as the project manager.'), '/job');
+        }
+        if ($pm !== (int) ($job['project_manager_id'] ?? 0)) {
+            q('UPDATE jobs SET project_manager_id = ? WHERE id = ?', [$pm ?: null, $jobId]);
+            if ($pm) {
+                require_once __DIR__ . '/../notices.php';
+                notify_user($pm, t('You manage :project. Its orders and requisitions will be sent to you.', ['project' => $job['title']]), '/my-team');
+            }
+        }
+    }
     q('UPDATE jobs SET title = ?, description = ?, order_reference = ?,
          site_name = ?, site_city = ?, site_state = ?, site_zip = ?,
          lodging_provided = ?, travel_provided = ?, transport_provided = ?,
@@ -311,5 +375,7 @@ if ($job && isset($_GET['line'])) {
 
 $pageTitle = ($job['title'] ?? t('Project setup')) . ' · ' . $config['app_name'];
 
+$shifts = shifts_for((int) $job['id']);
+$staff = rows("SELECT id, name, role FROM users WHERE is_active = 1 AND role NOT IN ('worker','client') ORDER BY name");
 render('job', compact('job', 'stage', 'signals', 'next', 'figures',
-                      'supervisors', 'scope', 'totals', 'editLine'));
+                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff'));

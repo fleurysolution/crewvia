@@ -27,12 +27,15 @@ function intake_receive(?int $vacancyId=null): void
     require_once __DIR__.'/security.php';
     if(!security_rate_limit('public-application',(string)($_SERVER['REMOTE_ADDR']??''),20,3600)||time()-(int)($_SESSION['last_application']??0)<60){http_response_code(429);exit(t('Please wait before submitting again.'));}
     $name=trim((string)($_POST['name']??''));$email=trim((string)($_POST['email']??''));$phone=trim((string)($_POST['phone']??''));
+    // Walkthrough finding 9: where somebody lives, optional, so the distance filters can place them.
+    require_once __DIR__.'/geo.php';
+    $city=mb_substr(trim((string)($_POST['city']??'')),0,120);$state=mb_substr(trim((string)($_POST['state']??'')),0,60);$zip=geo_zip((string)($_POST['zip']??''));
     if(!$name||mb_strlen($name)>190||!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($email)>190||strlen($phone)>40||!isset($_POST['consent'])){http_response_code(422);exit(t('Valid contact details and consent are required.'));}
     try{$resume=intake_resume_prepare();}catch(RuntimeException $e){http_response_code(422);exit(e($e->getMessage()));}
     db()->beginTransaction();
     try {
         if(is_worker_account()&&mb_strtolower((string)user()['email'])===mb_strtolower($email))$cid=(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]);
-        else {q('INSERT INTO candidates(full_name,email,phone,source) VALUES (?,?,?,?)',[$name,$email,$phone,$vacancyId?'Platform application':'Talent pool application']);$cid=(int)db()->lastInsertId();}
+        else {q('INSERT INTO candidates(full_name,email,phone,city,state,zip,source) VALUES (?,?,?,?,?,?,?)',[$name,$email,$phone,$city?:null,$state?:null,$zip,$vacancyId?'Platform application':'Talent pool application']);$cid=(int)db()->lastInsertId();geo_refresh_candidate($cid);}
         q('INSERT INTO candidate_events(candidate_id,event_type,detail) VALUES (?,?,?)',[$cid,'application received',$vacancyId?'Platform vacancy '.$vacancyId:'Public talent pool; applicant consent recorded']);
         // P4-M06: the consent itself, against the privacy notice version shown.
         require_once __DIR__.'/privacy.php';privacy_record_consent($cid,'review and contact about work',$vacancyId?'application form':'talent pool form');

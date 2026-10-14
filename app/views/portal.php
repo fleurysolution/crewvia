@@ -13,9 +13,55 @@
 <?php if ($lodging || $travel || $routes): ?>
 <div class="grid g3" id="trip">
 <div class="card"><h2><?= te('Your accommodation') ?></h2><?php foreach($lodging as $l): ?><p><?= te(':hotel · room :room · :start to :end',['hotel'=>$l['name'],'room'=>$l['room_number'],'start'=>d($l['check_in']),'end'=>d($l['check_out'])]) ?></p><?php endforeach; ?></div>
-<div class="card"><h2><?= te('Your travel') ?></h2><?php foreach($travel as $t): ?><p><?= e($t['carrier'].' · '.$t['depart_from'].' → '.$t['arrive_at'].' · '.$t['depart_time']) ?></p><?php endforeach; ?></div>
+<div class="card" id="itinerary"><h2><?= te('Your travel') ?></h2><?php foreach($travel as $t): ?><div class="mb-s" data-leg="<?= e($t['direction']) ?>"><?php foreach($t['lines'] as $i => $line): ?><p class="m0<?= $i ? ' small' : '' ?>"><?= $i ? e($line) : '<strong>' . e($line) . '</strong>' ?></p><?php endforeach; ?><?php if (trim((string) $t['ticket_details']) !== ''): ?><details class="mt-xs"><summary class="small"><?= te('Your ticket') ?></summary><pre class="pre-wrap t-font small m0"><?= e($t['ticket_details']) ?></pre></details><?php endif; ?></div><?php endforeach; ?>
+  <?php if ($travelAdvice): ?><h3 class="small m0 mt-s"><?= te('Before you travel') ?></h3><ul class="small m0" id="travel-advice"><?php foreach($travelAdvice as $a): ?><li><?= e($a['body']) ?></li><?php endforeach; ?></ul><?php endif; ?></div>
 <div class="card"><h2><?= te('Your pickups') ?></h2><?php foreach($routes as $r): ?><p><?= te(':date :time · :stop · driver :name',['date'=>d($r['runs_on']),'time'=>$r['depart_time'],'stop'=>$r['pickup_stop'],'name'=>$r['driver']]) ?></p><?php endforeach; ?></div>
 </div>
+<?php endif; ?>
+
+<?php foreach ($clock as $k): $ci = $k['today']; ?>
+<div class="card" id="clock" data-clock="<?= $k['room'] ? 'room' : ($ci ? e($ci['status']) : 'ready') ?>">
+  <h2><?= te('Today on :project', ['project' => $k['project']]) ?></h2>
+  <?php if ($k['shift'] !== '' || $k['start']): ?><p class="small muted"><?= e(trim($k['shift'] . ($k['start'] ? ' · ' . t('starts :time', ['time' => date('g:i a', strtotime($k['start']))]) : ''), ' ·')) ?></p><?php endif; ?>
+  <?php if ($k['room']): ?>
+    <p<?= $k['room']['overdue'] ? ' class="t-red"' : '' ?>><?= $k['room']['overdue'] ? te('Your room number at :hotel was due by :time. Enter it now: you cannot clock in without it.', ['hotel' => $k['room']['hotel'], 'time' => date('D j M, g:i a', strtotime($k['room']['deadline']))]) : te('Enter your room number at :hotel by :time. You cannot clock in without it.', ['hotel' => $k['room']['hotel'], 'time' => date('D j M, g:i a', strtotime($k['room']['deadline']))]) ?></p>
+    <form method="post" action="/portal" class="row tight gap-s"><?= csrf_field() ?><input type="hidden" name="do" value="room_number"><input type="hidden" name="placement_id" value="<?= (int) $k['placement_id'] ?>"><label class="sr-only" for="room-<?= (int) $k['placement_id'] ?>"><?= te('Room number') ?></label><input id="room-<?= (int) $k['placement_id'] ?>" name="room_number" maxlength="12" required class="fw-s" placeholder="<?= te('Room') ?>"><button class="btn"><?= te('Save my room number') ?></button></form>
+  <?php elseif (! $ci): ?>
+    <form method="post" action="/portal"><?= csrf_field() ?><input type="hidden" name="do" value="clock_in"><input type="hidden" name="placement_id" value="<?= (int) $k['placement_id'] ?>"><button class="btn"><?= te('Clock in') ?></button></form>
+  <?php else: ?>
+    <p><?= te('Clocked in at :time.', ['time' => date('g:i a', strtotime($ci['clocked_in_at']))]) ?> <?php if ($ci['status'] === 'waiting'): ?><span class="tag amber"><?= te('Waiting for your supervisor') ?></span><?php elseif ($ci['status'] === 'validated'): ?><span class="tag green"><?= te('Validated') ?></span><?php else: ?><span class="tag red"><?= te('Not seen on site: call your supervisor') ?></span><?php endif; ?></p>
+  <?php endif; ?>
+</div>
+<?php endforeach; ?>
+
+<?php if ($adpShow): ?>
+<div class="card" id="adp" data-registered="<?= $adpStatus['adp_registered_at'] ? '1' : '0' ?>">
+  <h2><?= te('Register with ADP to be paid') ?></h2>
+  <?php if ($adpStatus['adp_registered_at']): ?><p><span class="tag green"><?= te('Done') ?></span> <?= te('You told payroll you registered with ADP on :date.', ['date' => d(substr((string) $adpStatus['adp_registered_at'], 0, 10))]) ?></p><?php endif; ?>
+  <ol class="m0">
+    <li><?= te('Go to ADP:') ?> <a href="<?= e($adpReg['url']) ?>" target="_blank" rel="noopener noreferrer"><?= e($adpReg['url']) ?></a> <?= te('and choose to create an account.') ?></li>
+    <li><?= te('Enter the registration code:') ?> <strong class="mono" id="adp-code"><?= e($adpReg['code']) ?></strong></li>
+    <li><?= te('ADP asks you to prove who you are.') ?> <?php if ($adpStatus['adp_employee_id']): ?><?= te('Your employee ID is:') ?> <strong class="mono" id="adp-employee-id"><?= e($adpStatus['adp_employee_id']) ?></strong>. <?php else: ?><?= te('Payroll gives you your employee ID; until then, ADP may let you use another way.') ?> <?php endif; ?><?= te('ADP may also ask for your Social Security number or ITIN and your date of birth: enter those on ADP\'s site only.') ?></li>
+    <li><?= te('Choose how you are paid there (direct deposit or a pay card).') ?></li>
+  </ol>
+  <?php if ($adpReg['note'] !== ''): ?><p class="small"><?= e($adpReg['note']) ?></p><?php endif; ?>
+  <p class="small muted"><?= te('Crewvia never asks for your Social Security number or ITIN. If anyone asks for them here or by text, do not answer.') ?></p>
+  <?php if (! $adpStatus['adp_registered_at']): ?><form method="post" action="/portal"><?= csrf_field() ?><input type="hidden" name="do" value="adp_registered"><button class="btn"><?= te('I have registered with ADP') ?></button></form><?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php if ($tripAhead || $travelProfile): $tp = $travelProfile; ?>
+<form method="post" action="/portal" class="card" id="travel-details" data-entered="<?= $tp ? '1' : '0' ?>"><?= csrf_field() ?><input type="hidden" name="do" value="travel_profile">
+  <h2><?= te('Your travel details') ?></h2>
+  <p class="small muted"><?= te('The travel coordinator books your flight and hotel from these. Your address is kept encrypted. Never enter your Social Security number here.') ?></p>
+  <div class="row">
+    <div class="f2"><label for="tp-name"><?= te('Your name exactly as on your ID') ?></label><input id="tp-name" name="legal_name" maxlength="190" required value="<?= e($tp['legal_name'] ?? $worker['full_name']) ?>"></div>
+    <div><label for="tp-airport"><?= te('The airport you fly from') ?></label><input id="tp-airport" name="airport" maxlength="120" required value="<?= e($tp['airport'] ?? '') ?>" placeholder="<?= te('e.g. IAH or Houston Bush') ?>"></div>
+  </div>
+  <label for="tp-address"><?= te('Your home address') ?></label><textarea id="tp-address" name="address" rows="2" maxlength="300" required placeholder="<?= te('Street, city, state, ZIP code') ?>"><?= e($tp['address'] ?? '') ?></textarea>
+  <label for="tp-notes"><?= te('Anything the coordinator should know (optional)') ?></label><input id="tp-notes" name="travel_notes" maxlength="500" value="<?= e($tp['notes'] ?? '') ?>" placeholder="<?= te('e.g. I can only fly after 10 am') ?>">
+  <button class="btn mt-s"><?= $tp ? te('Save the changes') : te('Send my travel details') ?></button>
+</form>
 <?php endif; ?>
 
 <?php if ($hotelCharges): ?><div class="card" id="hotel-charges"><h2><?= te('Hotel charges to you') ?></h2><p class="small muted"><?= te('Charges the hotel billed for your room that the agency asks you to pay. Payroll recovers them with an adjustment they approve; ask payroll if one is wrong.') ?></p><table><?php foreach ($hotelCharges as $hc): ?><tr><td><?= e(d((string) $hc['week_ending'])) ?></td><td><?= e($hc['hotel']) ?></td><td><?= e($hc['description']) ?><?= $hc['accepted_note'] ? '<div class="small muted">' . e($hc['accepted_note']) . '</div>' : '' ?></td><td class="num"><?= e(money($hc['amount'])) ?></td></tr><?php endforeach; ?></table></div><?php endif; ?>
@@ -25,5 +71,5 @@
 <?php endif; ?>
 
 <?php if ($applications): ?>
-<div class="card" id="applications"><h2><?= te('Your applications') ?></h2><?php foreach($applications as $a): ?><div class="card"><h3><?= e($a['title'].' · '.$a['project']) ?></h3><p><?= e($a['stage']) ?></p><?php if($a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']): ?><div><?= nl2br(e($a['offer_text'])) ?></div><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="accept_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><input class="w-auto" type="checkbox" name="consent" required> <?= te('I accept the offer terms displayed above and intend to sign electronically.') ?></label><label><?= te('Your full name') ?><input name="signer_name" required maxlength="190" autocomplete="name"></label><button class="btn"><?= te('Sign and accept offer') ?></button></form><?php endif; ?></div><?php endforeach; ?></div>
+<div class="card" id="applications"><h2><?= te('Your applications') ?></h2><?php foreach($applications as $a): ?><div class="card"><h3><?= e($a['title'].' · '.$a['project']) ?></h3><p><?= e($a['stage_word'] ?? $a['stage']) ?></p><?php if($a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']): ?><?php if(!empty($a['terms'])): ?><ul class="steps" id="offer-terms-<?= (int)$a['id'] ?>"><?php foreach($a['terms'] as $term): ?><li><?= e($term) ?></li><?php endforeach; ?></ul><?php endif; ?><?php if(trim((string)$a['offer_text'])!==''): ?><p class="small mt-s"><strong><?= te('From recruiting:') ?></strong> <?= nl2br(e($a['offer_text'])) ?></p><?php endif; ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="accept_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><input class="w-auto" type="checkbox" name="consent" required> <?= te('I accept the offer terms displayed above and intend to sign electronically.') ?></label><label><?= te('Your full name') ?><input name="signer_name" required maxlength="190" autocomplete="name"></label><button class="btn"><?= te('Sign and accept offer') ?></button></form><?php endif; ?></div><?php endforeach; ?></div>
 <?php endif; ?>

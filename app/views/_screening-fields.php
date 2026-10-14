@@ -2,12 +2,14 @@
   <?php foreach ($screening as $question): ?>
     <?php $name = 'screening[' . (int) $question['id'] . ']'; ?>
     <div class="field">
-      <label for="sq-<?= e($sqPrefix ?? '') ?><?= (int) $question['id'] ?>">
+      <?php $sqId = 'sq-' . ($sqPrefix ?? '') . (int) $question['id']; ?>
+      <?php // Walkthrough finding: a yes/no question's label pointed at an id no radio had; it now names the group. ?>
+      <label <?= $question['answer_type'] === 'yes_no' ? 'id="' . e($sqId) . '-label"' : 'for="' . e($sqId) . '"' ?>>
         <?= e($question['question']) ?>
       </label>
 
       <?php if ($question['answer_type'] === 'yes_no'): ?>
-        <div class="answer-choices">
+        <div class="answer-choices" role="radiogroup" aria-labelledby="<?= e($sqId) ?>-label">
           <?php foreach (['Yes', 'No'] as $option): ?>
             <label class="own-room">
               <input type="radio" name="<?= e($name) ?>" value="<?= e($option) ?>"

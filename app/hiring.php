@@ -135,7 +135,8 @@ function hw_applicants(array $v, string $tab, array $f, ?array $site = null): ar
     foreach (rows("SELECT application_id, status, COUNT(*) AS n FROM screening_checks WHERE application_id IN ($ids) GROUP BY application_id, status") as $r) {
         $checks[(int) $r['application_id']][$r['status']] = (int) $r['n'];
     }
-    $required = (int) val('SELECT COUNT(*) FROM screening_questions WHERE job_id = ? AND required = 1', [(int) $v['job_id']]);
+    // Only the questions this role asks: the project's, plus its own (walkthrough finding 12).
+    $required = (int) val('SELECT COUNT(*) FROM screening_questions WHERE job_id = ? AND required = 1 AND (vacancy_id IS NULL OR vacancy_id = ?)', [(int) $v['job_id'], (int) $v['id']]);
     $answered = [];
     foreach (rows("SELECT s.application_id, COUNT(*) AS n FROM screening_answers s JOIN screening_questions q ON q.id = s.question_id
                    WHERE s.application_id IN ($ids) AND q.required = 1 AND TRIM(s.answer) <> '' GROUP BY s.application_id") as $r) {
@@ -215,7 +216,7 @@ function hw_note(int $id, string $note, int $by): ?string
  * Move an application, by the screening screen's rules. Returns the
  * refusal, or null.
  */
-function hw_move(int $id, string $stage, string $note, int $by): ?string
+function hw_move(int $id, string $stage, string $note, int $by, bool $validated = false): ?string
 {
     require_once __DIR__ . '/contracts.php';
     $a = hw_application($id);
@@ -228,15 +229,39 @@ function hw_move(int $id, string $stage, string $note, int $by): ?string
     if ($stage === 'offered') {
         if ((int) val("SELECT COUNT(*) FROM screening_checks WHERE application_id = ? AND status <> 'passed'", [$id])) { return t('Complete screening checks before offering this job.'); }
         if ((int) val("SELECT COUNT(*) FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id = q.id AND s.application_id = ?
-                       WHERE q.job_id = ? AND q.required = 1 AND (s.answer IS NULL OR TRIM(s.answer) = '')", [$id, $jobId])) {
+                       WHERE q.job_id = ? AND q.required = 1 AND (s.answer IS NULL OR TRIM(s.answer) = '')
+                         AND (q.vacancy_id IS NULL OR q.vacancy_id = (SELECT vacancy_id FROM applications WHERE id = ?))", [$id, $jobId, $id])) {
             return t('Answer every required screening question before offering this job.');
         }
         if (contract_document_gaps((int) $a['candidate_id'], $jobId) || contract_latest($id) || val('SELECT required_before_deployment FROM contract_policies WHERE job_id = ?', [$jobId])) {
             return t('Use the contract workflow after required document verification.');
         }
         if ($note === '') { return t('Enter the complete offer terms before issuing an offer.'); }
+        // P5-M28: where the agency validates offers (an "Offer before it reaches the candidate"
+        // approval chain), the offer waits for that validation; the candidate hears nothing yet.
+        // The chain was configurable before, but nothing ever started it.
+        if (! $validated) {
+            require_once __DIR__ . '/approvals.php';
+            if (approvals_available() && approval_chain_for('offer')) {
+                $state = approval_state('offer', $id);
+                if ($state === 'pending') { return t('This offer is already waiting for validation.'); }
+                if ($state !== 'approved') {
+                    // Turned down before: a new submission starts the chain again.
+                    q("UPDATE approval_requests SET status = 'cancelled' WHERE subject_type = 'offer' AND subject_id = ? AND status = 'rejected'", [$id]);
+                    q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, 'validation', $note]);
+                    $who = (string) val('SELECT c.full_name FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE a.id = ?', [$id]);
+                    $title = (string) val('SELECT v.title FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ?', [$id]);
+                    $started = approval_start('offer', $id, $who . ' · ' . $title, $jobId);
+                    if (! $started['ok']) { return t($started['message']); }
+                    log_activity('sent an offer for validation', 'application', $id, $who);
+                    flash(t(':name is sent for validation. The candidate gets the offer once it is approved; you will be told either way.', ['name' => $who]));
+                    return null;
+                }
+            }
+        }
     }
     q('UPDATE applications SET stage = ? WHERE id = ?', [$stage, $id]);
+    candidate_follow_application($id);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, $stage, $note]);
     log_activity('moved an application', 'application', $id, $stage);
     if (in_array($stage, ['screening', 'offered'], true)) {
@@ -312,4 +337,33 @@ function hw_timeline(array $a): array
     usort($out, static fn($x, $y) => strcmp((string) $y['when'], (string) $x['when']));
 
     return $out;
+}
+
+/**
+ * P5-M28: an offer's validation, decided. Approved, the offer goes out with the
+ * note the recruiter wrote (and the invitation, as a move to Offered sends it);
+ * the recruiter and the candidate are told. Turned down, the recruiter is told why.
+ */
+function hiring_offer_settled(int $applicationId, string $state, array $request): void
+{
+    require_once __DIR__ . '/notices.php';
+    $a = row('SELECT a.candidate_id, a.vacancy_id, c.full_name, v.title FROM applications a JOIN candidates c ON c.id = a.candidate_id JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ?', [$applicationId]);
+    if (! $a) {
+        return;
+    }
+    $recruiter = (int) ($request['requested_by'] ?? 0);
+    $back = '/hiring?v=' . (int) $a['vacancy_id'] . '&app=' . $applicationId;
+    if ($state === 'approved') {
+        $note = (string) val("SELECT note FROM application_events WHERE application_id = ? AND stage = 'validation' ORDER BY id DESC LIMIT 1", [$applicationId]);
+        $why = hw_move($applicationId, 'offered', $note !== '' ? $note : t('Offer validated.'), $recruiter ?: uid(), true);
+        if ($why !== null) {
+            notify_user($recruiter, t('Validated, but the offer could not go out for :name: :why', ['name' => $a['full_name'], 'why' => $why]), $back);
+            return;
+        }
+        notify_user($recruiter, t(':name was validated; the offer for :job is with the candidate.', ['name' => $a['full_name'], 'job' => $a['title']]), $back);
+        notify_candidate((int) $a['candidate_id'], t('You have been selected for :job. Your offer is in your portal.', ['job' => $a['title']]));
+    } else {
+        $comments = trim((string) val("SELECT comments FROM approval_requests WHERE subject_type = 'offer' AND subject_id = ? AND status = 'rejected' ORDER BY decided_at DESC LIMIT 1", [$applicationId]));
+        notify_user($recruiter, t('The offer for :name was not validated:', ['name' => $a['full_name']]) . ' ' . ($comments !== '' ? $comments : t('no reason given.')), $back);
+    }
 }

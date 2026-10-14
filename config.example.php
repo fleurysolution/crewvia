@@ -19,4 +19,7 @@ return [
     'ai_enabled' => false,
     'recruiting_webhooks' => [],
     'docusign' => ['enabled' => false],
+    // Optional: a limit per purpose, [attempts, seconds], from one connection (or one account).
+    // The defaults stop bulk abuse; a hiring event or an onboarding day on one wifi may need more:
+    // 'rate_limits' => ['public-application' => [200, 3600], 'activation-ip' => [200, 900]],
 ];

@@ -89,6 +89,19 @@ function geo_site(array $job): ?array
 }
 
 /** Works out the coordinates of every candidate whose city, state or ZIP changed since last time. Returns how many. */
+/** One candidate's point, from the city, state and ZIP on their file (an application, say). */
+function geo_refresh_candidate(int $candidateId): void
+{
+    $c = row('SELECT id, city, state, zip FROM candidates WHERE id = ?', [$candidateId]);
+    if (! $c) {
+        return;
+    }
+    $p = geo_point($c['city'], $c['state'], $c['zip']);
+    q('UPDATE candidates SET geo_lat = ?, geo_lng = ?, geo_from = ?, geo_state = ?, geo_basis = ? WHERE id = ?',
+      [$p['lat'] ?? null, $p['lng'] ?? null, $p['from'] ?? null, geo_state_code($c['state']),
+       implode('|', [(string) ($c['city'] ?? ''), (string) ($c['state'] ?? ''), (string) ($c['zip'] ?? '')]), $candidateId]);
+}
+
 function geo_refresh_candidates(int $limit = 20000): int
 {
     $basis = "CONCAT_WS('|', COALESCE(city, ''), COALESCE(state, ''), COALESCE(zip, ''))";

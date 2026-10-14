@@ -57,7 +57,6 @@ if (isset($_GET['c']) && ! $cmCampaign) {
     refuse(404, t('That campaign does not exist.'), '/campaigns');
 }
 $cmVacancies = cm_open_vacancies();
-$cmNotReady = cm_not_ready();
 $cmAddress = cm_postal_address();
 $cmPreview = null;
 $cmForm = [];
@@ -66,7 +65,7 @@ $cmCounts = null;
 $cmRecipients = [];
 if ($cmCampaign) {
     $cmCounts = cm_counts((int) $cmCampaign['id']);
-    $cmRecipients = rows('SELECT r.status, r.sent_at, r.error, c.id AS candidate_id, c.full_name, r.email FROM email_campaign_recipients r JOIN candidates c ON c.id = r.candidate_id
+    $cmRecipients = rows('SELECT r.status, r.sent_at, r.error, c.id AS candidate_id, c.full_name, r.email, r.phone FROM email_campaign_recipients r JOIN candidates c ON c.id = r.candidate_id
                           WHERE r.campaign_id = ? ORDER BY r.id LIMIT 200', [(int) $cmCampaign['id']]);
     $first = row('SELECT r.token, c.full_name, w.user_id FROM email_campaign_recipients r JOIN candidates c ON c.id = r.candidate_id LEFT JOIN worker_accounts w ON w.candidate_id = c.id
                   WHERE r.campaign_id = ? ORDER BY r.id LIMIT 1', [(int) $cmCampaign['id']]);
@@ -76,15 +75,17 @@ if ($cmCampaign) {
     }
 } else {
     $language = ($_GET['language'] ?? 'en') === 'es' ? 'es' : 'en';
-    $cmForm = ['vacancy_id' => (int) ($_GET['vacancy_id'] ?? 0), 'language' => $language] + cm_default($language) + cm_filters($_GET);
+    $channel = cm_channel($_GET);
+    $cmForm = ['vacancy_id' => (int) ($_GET['vacancy_id'] ?? 0), 'language' => $language, 'channel' => $channel] + cm_default($language, $channel) + cm_filters($_GET);
     if (isset($_GET['subject'])) { $cmForm['subject'] = (string) $_GET['subject']; }
     if (isset($_GET['body'])) { $cmForm['body'] = (string) $_GET['body']; }
     if (isset($_GET['preview']) && ($vacancy = cm_vacancy($cmForm['vacancy_id']))) {
-        $people = cm_audience($vacancy, cm_filters($_GET));
+        $people = cm_audience($vacancy, cm_filters($_GET), $channel);
         $cmPreview = ['count' => count($people), 'people' => array_slice($people, 0, 25), 'site' => geo_site($vacancy) !== null];
     }
 }
-$cmList = rows('SELECT m.id, m.status, m.subject, m.recipients, m.created_at, v.title AS vacancy_title, u.name AS created_by_name,
+$cmNotReady = cm_not_ready((string) ($cmCampaign['channel'] ?? $cmForm['channel'] ?? 'email'));
+$cmList = rows('SELECT m.id, m.channel, m.status, m.subject, m.recipients, m.created_at, v.title AS vacancy_title, u.name AS created_by_name,
                        (SELECT COUNT(*) FROM email_campaign_recipients r WHERE r.campaign_id = m.id AND r.status = \'sent\') AS sent
                 FROM email_campaigns m JOIN vacancies v ON v.id = m.vacancy_id JOIN users u ON u.id = m.created_by ORDER BY m.id DESC LIMIT 100');
 $pageTitle = t('Campaign email') . ' · ' . $config['app_name'];

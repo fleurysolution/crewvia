@@ -19,6 +19,27 @@ if (! $p) {
     exit;
 }
 
+// Walkthrough finding 22: nothing could change a placement's dates once it
+// existed, and one made at acceptance had none. Arrivals, roll call and pay
+// all read them. Recruiting and Logistics set them; each change is logged.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'dates') {
+    require_role('recruiter', 'hotels');
+    $start = trim((string) ($_POST['start_date'] ?? ''));
+    $end   = trim((string) ($_POST['end_date'] ?? ''));
+    $valid = static fn(string $d): bool => $d === '' || (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/D', $d) && checkdate((int) substr($d, 5, 2), (int) substr($d, 8, 2), (int) substr($d, 0, 4));
+    if (! $valid($start) || ! $valid($end) || ($start !== '' && $end !== '' && $end < $start)) {
+        flash(t('Check the dates: the end cannot come before the start.'), 'err');
+        redirect('/placements/' . $id);
+    }
+    q('UPDATE placements SET start_date = ?, end_date = ? WHERE id = ?', [$start ?: null, $end ?: null, $id]);
+    $was = ($p['start_date'] ?? '—') . ' → ' . ($p['end_date'] ?? '—');
+    $now = ($start ?: '—') . ' → ' . ($end ?: '—');
+    q('INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?, ?, ?, ?)', [(int) $p['candidate_id'], uid(), 'placement dates', $was . ' became ' . $now]);
+    log_activity('changed placement dates', 'placement', $id, $was . ' became ' . $now);
+    flash(t('Dates saved.'));
+    redirect('/placements/' . $id);
+}
+
 // Where this person's terms come from when their placement did not record
 // its own: the line of the scope of work they were recruited against. There
 // is no project-wide rate to fall back to any more, because one rate was

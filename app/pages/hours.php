@@ -34,7 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if($do==='policy') {
         $threshold=trim((string)($_POST['weekly_overtime_after']??''));$multiplier=(float)($_POST['overtime_multiplier']??1.5);
         if(!$jobId||($threshold!==''&&(!is_numeric($threshold)||(float)$threshold<0||(float)$threshold>168))||!is_finite($multiplier)||$multiplier<1||$multiplier>5){refuse(422, t('Invalid weekly payroll policy.'));}
-        q('INSERT INTO project_pay_policies(job_id,weekly_overtime_after,overtime_multiplier,reviewed_by) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE weekly_overtime_after=VALUES(weekly_overtime_after),overtime_multiplier=VALUES(overtime_multiplier),reviewed_by=VALUES(reviewed_by),reviewed_at=NOW()',[$jobId,$threshold!==''?(float)$threshold:null,$multiplier,uid()]);
+        // P5-M34: what an absence does to the guarantee, and whether guaranteed hours make overtime.
+        require_once __DIR__.'/../guarantee-policy.php';
+        $rule=(string)($_POST['guarantee_absence_rule']??'keep');$dayHours=(float)($_POST['guarantee_day_hours']??10);
+        if(!array_key_exists($rule,GUARANTEE_ABSENCE_RULES)||!is_finite($dayHours)||$dayHours<0||$dayHours>24){refuse(422, t('Invalid weekly payroll policy.'));}
+        q('INSERT INTO project_pay_policies(job_id,weekly_overtime_after,overtime_multiplier,guarantee_absence_rule,guarantee_day_hours,guarantee_overtime,reviewed_by) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE weekly_overtime_after=VALUES(weekly_overtime_after),overtime_multiplier=VALUES(overtime_multiplier),guarantee_absence_rule=VALUES(guarantee_absence_rule),guarantee_day_hours=VALUES(guarantee_day_hours),guarantee_overtime=VALUES(guarantee_overtime),reviewed_by=VALUES(reviewed_by),reviewed_at=NOW()',[$jobId,$threshold!==''?(float)$threshold:null,$multiplier,$rule,$dayHours,isset($_POST['guarantee_overtime'])?1:0,uid()]);
         log_activity('configured gross payroll policy','project',$jobId);redirect('/hours');
     }
     if($do==='import_attendance') {

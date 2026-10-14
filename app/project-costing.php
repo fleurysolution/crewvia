@@ -85,7 +85,7 @@ function project_budget_set(int $jobId, string $category, string $amount, string
  */
 function project_costs(int $jobId): array
 {
-    $job = row('SELECT j.*, pp.weekly_overtime_after, pp.overtime_multiplier FROM jobs j
+    $job = row('SELECT j.*, pp.weekly_overtime_after, pp.overtime_multiplier, pp.guarantee_absence_rule, pp.guarantee_day_hours, pp.guarantee_overtime FROM jobs j
                 LEFT JOIN project_pay_policies pp ON pp.job_id = j.id WHERE j.id = ?', [$jobId]) ?: [];
     $burdenRate = (float) ($job['burden_percent'] ?? 0);
     $overheadRate = (float) ($job['overhead_percent'] ?? 0);

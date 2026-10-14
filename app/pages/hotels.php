@@ -78,8 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('/hotels');
         }
 
-        if (!valid_date($in) || !valid_date($out) || $out <= $in || !$priv || $room === '') {
-            flash(t('A private room, room number, and valid check-in/out dates are required.'), 'err'); redirect('/hotels');
+        // P5-M32: the room number is optional here; the hotel gives it at check-in and the worker enters it.
+        if (!valid_date($in) || !valid_date($out) || $out <= $in || !$priv || ($room !== '' && ! preg_match('/^[A-Za-z0-9 -]{1,12}$/D', $room))) {
+            flash(t('A private room and valid check-in/out dates are required; a room number is letters and digits.'), 'err'); redirect('/hotels');
         }
         db()->beginTransaction();
         q('SELECT id FROM hotels WHERE id=? FOR UPDATE', [$hid]);
@@ -134,6 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                $h['nightly_rate'], 'booked']);
         }
 
+        // P5-M32: the worker is told their hotel; without a room number they cannot clock in.
+        q('UPDATE lodging SET room_told_at = NOW() WHERE placement_id = ? AND status IN (\'held\',\'booked\',\'checked_in\')', [$pid]);
+        require_once __DIR__ . '/../notices.php';
+        notify_candidate((int) val('SELECT candidate_id FROM placements WHERE id = ?', [$pid]), $room !== ''
+            ? t('Your hotel: :hotel, room :room, from :date.', ['hotel' => $h['name'], 'room' => $room, 'date' => $in ? d($in) : '—'])
+            : t('Your hotel: :hotel, from :date. When you check in, enter your room number in your portal within 4 hours: you cannot clock in without it.', ['hotel' => $h['name'], 'date' => $in ? d($in) : '—']), '/portal#clock');
         require_once __DIR__ . '/../procurement.php';
         procurement_lodging_booked($pid);
         db()->commit();
@@ -168,10 +175,11 @@ $booked = rows(
 
 // Anybody who is coming, or already here, and has nowhere to sleep.
 $needBed = rows(
-    "SELECT p.id, c.full_name, c.discipline, d.trade, p.status, p.start_date, p.end_date
+    "SELECT p.id, c.full_name, c.discipline, COALESCE(NULLIF(d.trade, ''), ol.role_title) AS trade, p.status, p.start_date, p.end_date
      FROM placements p
      JOIN candidates c ON c.id = p.candidate_id
      LEFT JOIN assignment_details d ON d.placement_id = p.id
+     LEFT JOIN job_order_lines ol ON ol.id = p.order_line_id
      LEFT JOIN lodging l ON l.placement_id = p.id AND l.status IN ('held','booked','checked_in')
      WHERE p.job_id = ? AND p.status IN ('confirmed','travelling','on_site') AND l.id IS NULL
      ORDER BY p.start_date IS NULL, p.start_date, c.full_name", [$jobId]);

@@ -82,8 +82,16 @@ if (isset($_GET['app'])) {
     $hwApp['prev'] = $at !== false && $at > 0 ? $ids[$at - 1] : null;
     $hwApp['next'] = $at !== false && $at < count($ids) - 1 ? $ids[$at + 1] : null;
     $hwApp['position'] = $at !== false ? $at + 1 : null;
+    // Walkthrough finding 21: somebody applying again arrives as a new record (identity is a person's call,
+    // never the email's). Application screening said so; Hiring, where the recruiter works now, did not.
+    $hwApp['matches'] = rows("SELECT old.id, old.full_name, old.stage FROM candidates nc JOIN candidates old ON old.id <> nc.id
+                                AND ((nc.normalized_email IS NOT NULL AND nc.normalized_email <> '' AND old.normalized_email = nc.normalized_email)
+                                  OR (nc.normalized_phone IS NOT NULL AND nc.normalized_phone <> '' AND old.normalized_phone = nc.normalized_phone))
+                              WHERE nc.id = ? ORDER BY old.id LIMIT 5", [(int) $hwApp['candidate_id']]);
+    require_once __DIR__ . '/../approvals.php';
+    $hwApp['validation'] = approvals_available() ? approval_state('offer', (int) $hwApp['id']) : 'none';
     $hwApp['questions'] = rows('SELECT q.id, q.question, q.required, s.answer FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id = q.id AND s.application_id = ?
-                                WHERE q.job_id = ? ORDER BY q.id', [(int) $hwApp['id'], (int) $hwVacancy['job_id']]);
+                                WHERE q.job_id = ? AND (q.vacancy_id IS NULL OR q.vacancy_id = (SELECT vacancy_id FROM applications WHERE id = ?)) ORDER BY q.sort_order, q.id', [(int) $hwApp['id'], (int) $hwVacancy['job_id'], (int) $hwApp['id']]);
     $hwApp['checks'] = rows('SELECT * FROM screening_checks WHERE application_id = ? ORDER BY id', [(int) $hwApp['id']]);
     $hwApp['resumes'] = rows('SELECT id, original_name, created_at FROM candidate_resumes WHERE candidate_id = ? ORDER BY id DESC', [(int) $hwApp['candidate_id']]);
     $hwApp['timeline'] = hw_timeline($hwApp);

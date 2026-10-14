@@ -13,7 +13,7 @@ $statusTag = static fn (string $s): string => match ($s) {
 
 // One form at a time: the person whose Reassign was clicked gets the full
 // form; everybody else gets the link that opens it.
-$assignForm = static function (array $member, array $supervisors) use ($assignId): void {
+$assignForm = static function (array $member, array $supervisors) use ($assignId, $shifts): void {
     if ((int) $member['id'] !== $assignId) { ?>
   <a class="btn ghost sm assign-open" href="/organization?assign=<?= (int) $member['id'] ?>#person-<?= (int) $member['id'] ?>" data-assign="<?= (int) $member['id'] ?>"><?= $member['supervisor_id'] ? te('Reassign') : te('Assign') ?></a>
 <?php return; } ?>
@@ -38,11 +38,17 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
 
     <label class="sr-only" for="tr-<?= (int) $member['id'] ?>"><?= te('Trade') ?></label>
     <input id="tr-<?= (int) $member['id'] ?>" name="trade" maxlength="60" required
-           value="<?= e($member['trade'] ?? '') ?>" placeholder="<?= te('Trade') ?>">
+           value="<?= e(($member['trade'] ?? '') ?: ($member['line_role'] ?? '')) ?>" placeholder="<?= te('Trade') ?>">
 
     <label class="sr-only" for="sh-<?= (int) $member['id'] ?>"><?= te('Shift') ?></label>
+    <?php if ($shifts): ?>
+    <select id="sh-<?= (int) $member['id'] ?>" name="shift_id">
+      <?php foreach ($shifts as $sh): ?><option value="<?= (int) $sh['id'] ?>"<?= (int) ($member['shift_id'] ?? 0) === (int) $sh['id'] || (! ($member['shift_id'] ?? null) && ($member['shift_label'] ?? '') === $sh['name']) ? ' selected' : '' ?>><?= e($sh['name'] . ' · ' . shift_hours($sh)) ?></option><?php endforeach; ?>
+    </select>
+    <?php else: ?>
     <input id="sh-<?= (int) $member['id'] ?>" name="shift_label" maxlength="60"
            value="<?= e($member['shift_label'] ?? '') ?>" placeholder="<?= te('Shift') ?>">
+    <?php endif; ?>
 
     <button class="btn sm" type="submit"><?= te('Save') ?></button>
     <a class="btn ghost sm" href="/organization#person-<?= (int) $member['id'] ?>"><?= te('Cancel') ?></a>
@@ -101,7 +107,7 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
         <span class="org-person">
           <strong><?= e($member['full_name']) ?></strong>
           <span class="muted small">
-            <?= te(ucfirst((string) ($member['discipline'] ?: 'other'))) ?>
+            <?= e(($member['trade'] ?? '') ?: (($member['line_role'] ?? '') ?: t(ucfirst((string) ($member['discipline'] ?: 'other'))))) ?>
             <?php if ($member['phone']): ?>
               &middot; <span class="mono"><?= e($member['phone']) ?></span>
             <?php endif; ?>

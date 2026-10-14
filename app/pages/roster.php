@@ -84,13 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'status') 
 }
 
 $crew = rows(
-    "SELECT p.*, c.full_name, c.discipline, c.phone, c.email, d.trade,
+    "SELECT p.*, c.full_name, c.discipline, c.phone, c.email, d.trade, ol.role_title AS line_role,
             h.name AS hotel, l.room_number, l.private_room, l.check_in, l.check_out,
             ti.arrive_time, ti.carrier AS in_carrier, ti.reference AS in_ref,
             to_.depart_time
      FROM placements p
      JOIN candidates c ON c.id = p.candidate_id
      LEFT JOIN assignment_details d ON d.placement_id = p.id
+     LEFT JOIN job_order_lines ol ON ol.id = p.order_line_id
      LEFT JOIN lodging l ON l.placement_id = p.id AND l.status <> 'cancelled'
      LEFT JOIN hotels  h ON h.id = l.hotel_id
      LEFT JOIN travel ti ON ti.placement_id = p.id AND ti.direction = 'inbound'  AND ti.status <> 'cancelled'

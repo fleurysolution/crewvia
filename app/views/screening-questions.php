@@ -188,7 +188,7 @@ $scope = $vacancyId
                   <button class="btn ghost sm" type="submit"
                           aria-label="<?= te('Move down') ?>">&darr;</button>
                 </form>
-                <form method="post">
+                <form method="post"<?= (int) $question['answered'] > 0 ? ' onsubmit="return confirm(' . e(json_encode(tn((int) $question['answered'], 'Removing it discards the :n answer already received. Remove it?', 'Removing it discards the :n answers already received. Remove it?'))) . ')"' : '' ?>>
                   <?= csrf_field() ?>
                   <input type="hidden" name="do" value="remove">
                   <input type="hidden" name="question_id" value="<?= (int) $question['id'] ?>">
@@ -196,6 +196,18 @@ $scope = $vacancyId
                   <button class="btn ghost sm" type="submit"><?= te('Remove') ?></button>
                 </form>
               </div>
+              <details class="mt-s" data-change="<?= (int) $question['id'] ?>"><summary class="small"><?= te('Change') ?></summary>
+                <form method="post" class="row mt-s">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="do" value="update">
+                  <input type="hidden" name="question_id" value="<?= (int) $question['id'] ?>">
+                  <input type="hidden" name="vacancy_id" value="<?= $vacancyId ?>">
+                  <input class="in-xs" name="weight" type="number" min="0" max="100" value="<?= (int) $question['weight'] ?>" aria-label="<?= te('Weight') ?>">
+                  <input class="in-s" name="knockout_answer" maxlength="190" value="<?= e((string) $question['knockout_answer']) ?>" aria-label="<?= te('Disqualifies on this answer') ?>" placeholder="<?= te('Disqualifies on') ?>">
+                  <label class="own-room small"><input type="checkbox" name="required" value="1"<?= $question['required'] ? ' checked' : '' ?>> <?= te('Required') ?></label>
+                  <button class="btn sm" type="submit"><?= te('Save') ?></button>
+                </form>
+              </details>
             </td>
           </tr>
         <?php endforeach; ?>
@@ -242,6 +254,7 @@ $scope = $vacancyId
       <label for="q-knock"><?= te('Disqualifies on this answer') ?></label>
       <input id="q-knock" name="knockout_answer" maxlength="190"
              placeholder="<?= te('e.g. No — leave blank if nothing disqualifies') ?>">
+      <span class="hint"><?= te('For a number, a minimum: <2 disqualifies anything under 2.') ?></span>
     </div>
     <label class="own-room">
       <input type="checkbox" name="required" value="1" checked>

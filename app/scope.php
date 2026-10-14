@@ -80,7 +80,24 @@ function scope_guarantee(array $line, bool $strikeLive): int
         return (int) $line['strike_guarantee_hours'];
     }
 
-    return (int) ($line['guarantee_hours'] ?? 0);
+    // A line with its own guarantee keeps it, strike or not, as before.
+    if ($line['guarantee_hours'] !== null) {
+        return (int) $line['guarantee_hours'];
+    }
+
+    // A line left blank keeps the agreement's guarantee, as the placement and
+    // the pay rules do (placement.php, pay_rules). Walkthrough finding: a blank
+    // line counted as 0 hours, so a full week showed only the per diem.
+    static $agreements = [];
+    $jobId = (int) ($line['job_id'] ?? 0);
+    $agreements[$jobId] ??= row('SELECT guarantee_hours, strike_hours FROM jobs WHERE id = ?', [$jobId]) ?: [];
+    $job = $agreements[$jobId];
+
+    if ($strikeLive) {
+        return (int) ($job['strike_hours'] ?? $job['guarantee_hours'] ?? 0);
+    }
+
+    return (int) ($job['guarantee_hours'] ?? 0);
 }
 
 /**

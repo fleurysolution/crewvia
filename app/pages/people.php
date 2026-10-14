@@ -39,7 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $uidT = (int) ($_POST['user_id'] ?? 0);
         $role = (string) ($_POST['role'] ?? '');
 
-        if ((! array_key_exists($role, roles()) || $role === 'worker')) {
+        if (! array_key_exists($role, roles())) {
+            redirect('/people');
+        }
+        // Walkthrough finding: choosing "Worker portal" here used to do nothing, silently.
+        if ($role === 'worker') {
+            flash(t('A worker signs in through the invitation sent from their candidate file, not by changing a desk.'), 'err');
             redirect('/people');
         }
         if ($role === 'client' && ! client_portal_enabled()) {

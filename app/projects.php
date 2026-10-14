@@ -81,11 +81,15 @@ function project_figures(array $job): array
     // trade's rate for all of them. A placement carries its own terms, so
     // they are what gets added up, and the count of placements that have no
     // agreed rate is reported alongside rather than silently treated as nil.
+    // A placement with no guarantee of its own is paid the agreement's, as the
+    // pay rules do (pay_rules: placement, else the strike or normal guarantee).
+    // Walkthrough finding: it was counted as 0 hours here.
+    $hours = "COALESCE(p.guarantee_hours, CASE WHEN j.strike_live = 1 THEN j.strike_hours ELSE j.guarantee_hours END, 0)";
     $priced = row("SELECT COUNT(*) n,
-                          COALESCE(SUM(p.pay_rate * COALESCE(p.guarantee_hours, 0)), 0) pay,
+                          COALESCE(SUM(p.pay_rate * $hours), 0) pay,
                           COALESCE(SUM(p.per_diem_rate * 7), 0) diem,
-                          COALESCE(SUM(p.bill_rate * COALESCE(p.guarantee_hours, 0)), 0) bill
-                   FROM placements p
+                          COALESCE(SUM(p.bill_rate * $hours), 0) bill
+                   FROM placements p JOIN jobs j ON j.id = p.job_id
                    WHERE p.job_id = ? AND p.status IN ('confirmed','travelling','on_site')
                      AND p.pay_rate IS NOT NULL", [$id]) ?: [];
 

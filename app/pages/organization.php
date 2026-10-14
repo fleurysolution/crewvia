@@ -24,7 +24,8 @@ $possibleSupervisors = rows("SELECT id, name, role FROM users
                              ORDER BY FIELD(role,'supervisor','admin','recruiter','hotels','payroll'), name");
 
 $crew = rows("SELECT p.id, p.status, c.full_name, c.discipline, c.phone,
-                     d.trade, d.shift_label, u.id AS supervisor_id, u.name AS supervisor
+                     d.trade, d.shift_label, d.shift_id, u.id AS supervisor_id, u.name AS supervisor,
+                     (SELECT ol.role_title FROM job_order_lines ol WHERE ol.id = p.order_line_id) AS line_role
               FROM placements p
               JOIN candidates c ON c.id = p.candidate_id
               LEFT JOIN assignment_details d ON d.placement_id = p.id
@@ -68,5 +69,7 @@ if (! in_array($assignId, array_map(static fn ($m) => (int) $m['id'], $crew), tr
 
 $pageTitle = t('Organization') . ' · ' . $config['app_name'];
 
-render('organization', compact('job', 'teams', 'unassigned', 'crew', 'office',
+require_once __DIR__ . '/../shifts.php';
+$shifts = $job ? shifts_for((int) $job['id']) : [];
+render('organization', compact('job', 'teams', 'unassigned', 'crew', 'office', 'shifts',
                                'onSite', 'possibleSupervisors', 'assignId'));

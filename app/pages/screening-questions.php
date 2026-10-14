@@ -80,6 +80,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
     }
 
+    // Walkthrough finding: changing a question's weight or minimum meant
+    // removing it, which threw away every answer already received. The
+    // wording and the answer type stay as they are (the answers were given
+    // to them); what counts, and what disqualifies, can change.
+    if ($do === 'update') {
+        $question = row('SELECT * FROM screening_questions WHERE id = ? AND job_id = ?',
+                        [(int) ($_POST['question_id'] ?? 0), $jobId]);
+
+        if (! $question) {
+            refuse(404, t('That question is not on this project.'));
+        }
+
+        $weight   = max(0, min(100, (int) ($_POST['weight'] ?? $question['weight'])));
+        $knockout = trim((string) ($_POST['knockout_answer'] ?? ''));
+
+        if ($question['answer_type'] === 'yes_no' && $knockout !== ''
+            && ! in_array(mb_strtolower($knockout), ['yes', 'no'], true)) {
+            flash(t('On a Yes / No question the disqualifying answer is Yes or No.'), 'err');
+            redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
+        }
+
+        q('UPDATE screening_questions SET weight = ?, knockout_answer = ?, required = ? WHERE id = ?',
+          [$weight, $knockout !== '' ? mb_substr($knockout, 0, 190) : null, isset($_POST['required']) ? 1 : 0, $question['id']]);
+        log_activity('changed a screening question', 'job', $jobId, (string) $question['question']);
+        screening_rescore_job($jobId);
+        flash(t('Question changed, and every application re-ranked with the answers it already has.'));
+        redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
+    }
+
     if ($do === 'remove') {
         $question = row('SELECT * FROM screening_questions WHERE id = ? AND job_id = ?',
                         [(int) ($_POST['question_id'] ?? 0), $jobId]);

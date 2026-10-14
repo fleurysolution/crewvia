@@ -13,12 +13,14 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     }
     if($do==='answers'&&$application) {
         db()->beginTransaction();
-        foreach(rows('SELECT id,required FROM screening_questions WHERE job_id=?',[$jobId]) as $q) {
+        foreach(rows('SELECT id,required FROM screening_questions WHERE job_id=? AND (vacancy_id IS NULL OR vacancy_id=?)',[$jobId,(int)($application['vacancy_id']??0)]) as $q) {
             $answer=trim((string)($_POST['answer'][$q['id']]??''));
             if(mb_strlen($answer)>4000){db()->rollBack();refuse(422, t('Screening answer is too long.'));}
             q('INSERT INTO screening_answers(application_id,question_id,answer,recorded_by) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE answer=VALUES(answer),recorded_by=VALUES(recorded_by)',[$applicationId,$q['id'],$answer,uid()]);
         }
-        q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$applicationId,uid(),$application['stage'],'Screening questionnaire updated']);db()->commit();
+        q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$applicationId,uid(),$application['stage'],'Screening questionnaire updated']);
+        // Walkthrough finding 33: answers taken on the phone were saved but never scored, so "Yes, I have a full-time job" flagged nobody.
+        require_once __DIR__.'/../screening.php';screening_score_application($applicationId);db()->commit();
     }
     if($do==='contact') {
         require_role('recruiter');$kind=(string)($_POST['kind']??'');$outcome=trim((string)($_POST['outcome']??''));$note=trim((string)($_POST['note']??''));$follow=(string)($_POST['follow_up_at']??'');
@@ -27,7 +29,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     }
     log_activity('screening workflow update','application',$applicationId,$do);redirect('/screening-workflow'.($applicationId?'?application_id='.$applicationId:''));
 }
-$questions=rows('SELECT * FROM screening_questions WHERE job_id=? ORDER BY id',[$jobId]);
+$questions=$application?rows('SELECT * FROM screening_questions WHERE job_id=? AND (vacancy_id IS NULL OR vacancy_id=?) ORDER BY sort_order,id',[$jobId,(int)$application['vacancy_id']]):rows('SELECT * FROM screening_questions WHERE job_id=? ORDER BY sort_order,id',[$jobId]);
 $answers=$application?array_column(rows('SELECT question_id,answer FROM screening_answers WHERE application_id=?',[$applicationId]),'answer','question_id'):[];
 $contacts=$application&&!$own?rows('SELECT c.*,u.name FROM recruiting_contacts c JOIN users u ON u.id=c.user_id WHERE c.application_id=? ORDER BY c.id DESC LIMIT 100',[$applicationId]):[];
 $applications=$own?rows('SELECT a.id,v.title FROM applications a JOIN vacancies v ON v.id=a.vacancy_id JOIN worker_accounts w ON w.candidate_id=a.candidate_id WHERE w.user_id=?',[uid()]):rows('SELECT a.id,CONCAT(c.full_name,\' · \',v.title) title FROM applications a JOIN vacancies v ON v.id=a.vacancy_id JOIN candidates c ON c.id=a.candidate_id WHERE v.job_id=? ORDER BY a.id DESC LIMIT 300',[$jobId]);

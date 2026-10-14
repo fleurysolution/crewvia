@@ -62,8 +62,8 @@
 
             <div class="in-xs">
               <label for="h-room-<?= (int) $n['id'] ?>"><?= te('Room') ?></label>
-              <input id="h-room-<?= (int) $n['id'] ?>" name="room_number" required
-                     maxlength="20" placeholder="412">
+              <input id="h-room-<?= (int) $n['id'] ?>" name="room_number"
+                     maxlength="12" placeholder="<?= te('At check-in') ?>">
             </div>
 
             <div>

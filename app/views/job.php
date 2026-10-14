@@ -124,8 +124,8 @@ $strike   = (bool) $job['strike_live'];
         <div class="n"><?= e(money($totals['weekly_pay'])) ?></div>
         <div class="l"><?= te('Committed to the crew') ?></div>
         <div class="h">
-          <?= te(':people people across :lines lines', [
-              'people' => (int) $totals['people'], 'lines' => (int) $totals['lines']]) ?>
+          <?= te(':people across :lines', [
+              'people' => tn((int) $totals['people'], ':n person', ':n people'), 'lines' => tn((int) $totals['lines'], ':n line', ':n lines')]) ?>
         </div>
       </div>
       <div class="stat">
@@ -290,7 +290,7 @@ $strike   = (bool) $job['strike_live'];
             </span>
           </td>
           <td class="right mono"><?= $line['pay_rate'] !== null ? e(money((float) $line['pay_rate'])) : '<span class="tag amber">' . te('Not priced') . '</span>' ?></td>
-          <td class="right mono"><?= $line['bill_rate'] !== null ? e(money((float) $line['bill_rate'])) : '&mdash;' ?></td>
+          <td class="right mono"><?= $line['bill_rate'] !== null ? e(money((float) $line['bill_rate'])) : '&mdash;' ?><?php if ($line['bill_rate'] !== null && $line['pay_rate'] !== null && (float) $line['bill_rate'] > 0): ?><div class="small muted" data-margin="<?= (int) $line['id'] ?>"><?= te(':pct% margin', ['pct' => number_format(((float) $line['bill_rate'] - (float) $line['pay_rate']) / (float) $line['bill_rate'] * 100, 1)]) ?></div><?php endif; ?></td>
           <td class="right mono"><?= $line['per_diem_rate'] !== null ? e(money((float) $line['per_diem_rate'])) : '&mdash;' ?></td>
           <td class="right mono">
             <?= $guarantee > 0 ? e($guarantee . ' h') : '&mdash;' ?>
@@ -386,6 +386,11 @@ $strike   = (bool) $job['strike_live'];
           <span class="hint"><?= te($meta['hint']) ?></span>
         </div>
       <?php endforeach; ?>
+      <div>
+        <label for="l-markup"><?= te('Markup on pay (%)') ?></label>
+        <input id="l-markup" type="number" name="markup" min="0" max="1000" step="0.1" placeholder="35">
+        <span class="hint"><?= te('Leave the bill rate blank and the markup sets it: pay x (1 + markup).') ?></span>
+      </div>
     </div>
 
     <div class="field mt">
@@ -401,6 +406,40 @@ $strike   = (bool) $job['strike_live'];
     <?php if ($editLine): ?>
       <a class="btn ghost ml-s" href="/job#scope"><?= te('Cancel') ?></a>
     <?php endif; ?>
+  </form>
+</section>
+
+<!-- ── P5-M27: the plant's shifts ── -->
+<section class="card" id="shifts">
+  <span class="eyebrow"><?= te('THE PLANT') ?></span>
+  <h2 class="m0 mt-xs mb-s"><?= te('Shifts and buses') ?></h2>
+  <p class="small muted m0 mb"><?= te('When each shift starts and ends, and when the bus leaves the hotels. A worker given a shift is late, marked and clocked against its start.') ?></p>
+  <?php if (! $shifts): ?>
+    <form method="post" action="/job" class="mb"><?= csrf_field() ?><input type="hidden" name="do" value="shift_defaults"><button class="btn ghost sm"><?= te('Add the usual day and night shifts') ?></button></form>
+  <?php else: ?>
+  <div class="scroll"><table>
+    <tr><th><?= te('Shift') ?></th><th><?= te('Starts') ?></th><th><?= te('Ends') ?></th><th><?= te('Bus leaves') ?></th><th></th></tr>
+    <?php foreach ($shifts as $sh): ?>
+    <tr data-shift="<?= (int) $sh['id'] ?>"><td colspan="5">
+      <form method="post" action="/job" class="row items-end m0"><?= csrf_field() ?><input type="hidden" name="do" value="shift_save"><input type="hidden" name="shift_id" value="<?= (int) $sh['id'] ?>">
+        <input class="in-s" name="name" maxlength="60" value="<?= e($sh['name']) ?>" aria-label="<?= te('Shift') ?>">
+        <input class="in-xs" name="starts_at" type="time" value="<?= e(substr((string) $sh['starts_at'], 0, 5)) ?>" aria-label="<?= te('Starts') ?>">
+        <input class="in-xs" name="ends_at" type="time" value="<?= e(substr((string) $sh['ends_at'], 0, 5)) ?>" aria-label="<?= te('Ends') ?>">
+        <input class="in-xs" name="bus_departs" type="time" value="<?= e(substr((string) ($sh['bus_departs'] ?? ''), 0, 5)) ?>" aria-label="<?= te('Bus leaves') ?>">
+        <span class="small muted"><?= e(shift_hours($sh)) ?></span>
+        <button class="btn sm"><?= te('Save') ?></button>
+      </form>
+      <form method="post" action="/job" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="shift_remove"><input type="hidden" name="shift_id" value="<?= (int) $sh['id'] ?>"><button class="btn ghost sm"><?= te('Remove') ?></button></form>
+    </td></tr>
+    <?php endforeach; ?>
+  </table></div>
+  <?php endif; ?>
+  <form method="post" action="/job" class="row items-end mt"><?= csrf_field() ?><input type="hidden" name="do" value="shift_save">
+    <div><label for="ns-name"><?= te('New shift') ?></label><input id="ns-name" class="in-s" name="name" maxlength="60" placeholder="<?= te('e.g. Swing') ?>"></div>
+    <div><label for="ns-start"><?= te('Starts') ?></label><input id="ns-start" type="time" name="starts_at"></div>
+    <div><label for="ns-end"><?= te('Ends') ?></label><input id="ns-end" type="time" name="ends_at"></div>
+    <div><label for="ns-bus"><?= te('Bus leaves') ?></label><input id="ns-bus" type="time" name="bus_departs"></div>
+    <button class="btn ghost sm"><?= te('Add the shift') ?></button>
   </form>
 </section>
 
@@ -433,6 +472,14 @@ $strike   = (bool) $job['strike_live'];
         <input id="j-ref" name="order_reference" maxlength="120"
                value="<?= e($job['order_reference'] ?? '') ?>"
                placeholder="<?= te('Their PO or contract number') ?>">
+      </div>
+      <div>
+        <label for="j-pm"><?= te('Project manager') ?></label>
+        <select id="j-pm" name="project_manager_id">
+          <option value="0"><?= te('Nobody yet') ?></option>
+          <?php foreach ($staff as $s): ?><option value="<?= (int) $s['id'] ?>"<?= (int) ($job['project_manager_id'] ?? 0) === (int) $s['id'] ? ' selected' : '' ?>><?= e($s['name']) ?></option><?php endforeach; ?>
+        </select>
+        <span class="hint"><?= te('Told of each order and requisition on this plant.') ?></span>
       </div>
       <div>
         <label for="j-status"><?= te('Status') ?></label>

@@ -2302,4 +2302,152 @@ if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'terminati
        . ' account(s) of people already terminated switched off now (an administrator can switch one back on from People).' . PHP_EOL;
 }
 
+// ── P5-M26: candidates left at "new" while Hiring moved their application on ──
+// Hiring changed the application and not the person, so somebody interviewed
+// or hired still read "never contacted" and counted on Today. Moved forward
+// once, the old stage kept in candidate_stage_sweep.
+// Reversed by install/rollback/p5-m26.sql.
+$sweepSql = __DIR__ . '/candidate-stage-sweep.sql';
+if (! is_file($sweepSql)) {
+    fwrite(STDERR, "Missing install/candidate-stage-sweep.sql\n");
+    exit(1);
+}
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($sweepSql)) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'candidate_stage_swept'")) {
+    $rank = ['new' => 0, 'contacted' => 1, 'screening' => 2, 'offered' => 3, 'accepted' => 4, 'placed' => 5];
+    $map = ['screening' => 'screening', 'interview' => 'screening', 'offered' => 'offered', 'accepted' => 'accepted'];
+    $moved = 0;
+    foreach (rows("SELECT c.id, c.stage, GROUP_CONCAT(a.stage) stages FROM candidates c JOIN applications a ON a.candidate_id = c.id
+                   WHERE a.stage IN ('screening','interview','offered','accepted') GROUP BY c.id, c.stage") as $c) {
+        if (! isset($rank[$c['stage']])) {
+            continue;   // declined, rejected: a recruiter's decision, left alone
+        }
+        $to = $c['stage'];
+        foreach (explode(',', (string) $c['stages']) as $s) {
+            $want = $map[$s] ?? null;
+            if ($want !== null && $rank[$want] > $rank[$to]) {
+                $to = $want;
+            }
+        }
+        if ($to !== $c['stage']) {
+            q('INSERT IGNORE INTO candidate_stage_sweep (candidate_id, old_stage, new_stage) VALUES (?, ?, ?)', [(int) $c['id'], $c['stage'], $to]);
+            q('UPDATE candidates SET stage = ? WHERE id = ?', [$to, (int) $c['id']]);
+            $moved++;
+        }
+    }
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('candidate_stage_swept', ?)", [date('Y-m-d H:i:s')]);
+    echo 'Candidate stages: a person now moves forward with their application in Hiring; ' . $moved
+       . ' candidate(s) whose application had already moved on were brought forward (the old stage is kept for the rollback).' . PHP_EOL;
+}
+
+// ── P5-M27: a plant's shifts (start, end, the bus), and an assignment's link to one ──
+// Reversed by install/rollback/p5-m27.sql.
+$shiftSql = __DIR__ . '/project-shifts.sql';
+if (! is_file($shiftSql)) {
+    fwrite(STDERR, "Missing install/project-shifts.sql\n");
+    exit(1);
+}
+$hadShifts = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='project_shifts'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents($shiftSql)) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='assignment_details' AND column_name='shift_id'")) {
+    q('ALTER TABLE assignment_details ADD COLUMN shift_id INT UNSIGNED NULL AFTER shift_label');
+}
+if (! $hadShifts) {
+    echo 'Shifts: each plant lists its shifts (start, end, when the bus leaves) on its agreement; existing projects have none until an administrator adds them or presses "Add the usual day and night shifts".' . PHP_EOL;
+}
+
+// ── P5-M28: a plant's project manager, told of its orders and requisitions ──
+// Reversed by install/rollback/p5-m28.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name='project_manager_id'")) {
+    q('ALTER TABLE jobs ADD COLUMN project_manager_id INT UNSIGNED NULL AFTER client_id');
+    echo 'Project manager: each agreement may name the person who manages it; they are told of its orders and requisitions.' . PHP_EOL;
+}
+
+// ── P5-M29: a campaign by text message, as well as by email ──
+// Reversed by install/rollback/p5-m29.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='email_campaigns' AND column_name='channel'")) {
+    q("ALTER TABLE email_campaigns ADD COLUMN channel ENUM('email','text') NOT NULL DEFAULT 'email' AFTER vacancy_id");
+    q('ALTER TABLE email_campaign_recipients MODIFY email VARCHAR(190) NULL, ADD COLUMN phone VARCHAR(32) NULL AFTER email');
+    echo 'Campaign text: a campaign can go by text message through Twilio, with the same filters and approval; STOP replies are honoured. Twilio must be set up on Integrations.' . PHP_EOL;
+}
+
+// ── P5-M30: the worker's travel details, the itinerary, advice for travellers ──
+// Reversed by install/rollback/p5-m30.sql.
+$hadTravelDetails = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='travel_profiles'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents(__DIR__ . '/travel-details.sql')) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='travel' AND column_name='ticket_details'")) {
+    q('ALTER TABLE travel ADD COLUMN ticket_details TEXT NULL AFTER cost');
+}
+if (! $hadTravelDetails) {
+    echo 'Travel details: workers enter their name as on their ID, home address and airport; the itinerary reaches them in the portal and by email. '
+       . 'Add the cron line for install/deliver-mail.php (docs/OPERATIONS.md).' . PHP_EOL;
+}
+
+// ── P5-M31: the worker's registration with ADP ──
+// Reversed by install/rollback/p5-m31.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='employee_profiles' AND column_name='adp_registered_at'")) {
+    q('ALTER TABLE employee_profiles ADD COLUMN adp_registered_at DATETIME NULL AFTER adp_employee_id');
+    echo 'ADP registration: payroll enters the registration code ADP gave on Payroll export; each worker sees the steps in their portal and says when they are done. Crewvia never asks for an SSN or ITIN.' . PHP_EOL;
+}
+
+// ── P5-M32: the room number, the clock-in, the supervisor's validation ──
+// Reversed by install/rollback/p5-m32.sql.
+$hadClockIns = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='clock_ins'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents(__DIR__ . '/clock-ins.sql')) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='lodging' AND column_name='room_told_at'")) {
+    q('ALTER TABLE lodging ADD COLUMN room_told_at DATETIME NULL AFTER room_number');
+}
+if (! $hadClockIns) {
+    echo 'Clock-in: workers enter their room number within 4 hours of check-in, then clock in from their portal; their supervisor validates by 30 minutes after the shift starts.' . PHP_EOL;
+}
+
+// ── P5-M33: identity documents restricted once validated; the W-4 signed in person ──
+// Reversed by install/rollback/p5-m33.sql.
+$hadIdentity = (bool) val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='identity_readers'");
+foreach (preg_split('/;\s*\n/', (string) file_get_contents(__DIR__ . '/identity-docs.sql')) as $chunk) {
+    $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
+    if ($statement !== '') { db()->exec($statement); }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='worker_documents' AND column_name='restricted'")) {
+    q('ALTER TABLE worker_documents ADD COLUMN restricted TINYINT(1) NOT NULL DEFAULT 0 AFTER document_type');
+    require_once __DIR__ . '/../app/identity-docs.php';
+    $restricted = 0;
+    foreach (rows('SELECT id, document_type FROM worker_documents') as $d) {
+        if (doc_is_identity((string) $d['document_type'])) {
+            q('UPDATE worker_documents SET restricted = 1 WHERE id = ?', [(int) $d['id']]);
+            $restricted++;
+        }
+    }
+    echo 'Identity documents: ' . $restricted . ' existing identity ' . ($restricted === 1 ? 'document' : 'documents') . ' restricted; once validated, only the worker, administrators and the readers they authorize open them.' . PHP_EOL;
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='employment_clearance' AND column_name='w4_in_person_at'")) {
+    q('ALTER TABLE employment_clearance ADD COLUMN w4_in_person_at DATETIME NULL, ADD COLUMN w4_witness_id INT UNSIGNED NULL');
+}
+if (! $hadIdentity) {
+    echo 'W-4 in person: the coordinator shows a one-time code or QR code; the worker enters it with their W-4 from their own portal.' . PHP_EOL;
+}
+
+// ── P5-M34: absences and the guarantee, guaranteed overtime, taxable per diem ──
+// Reversed by install/rollback/p5-m34.sql. Every default keeps the pay as it was.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='project_pay_policies' AND column_name='guarantee_absence_rule'")) {
+    q("ALTER TABLE project_pay_policies ADD COLUMN guarantee_absence_rule ENUM('keep','reduce_day','forfeit') NOT NULL DEFAULT 'keep', ADD COLUMN guarantee_day_hours DECIMAL(5,2) NOT NULL DEFAULT 10.00, ADD COLUMN guarantee_overtime TINYINT(1) NOT NULL DEFAULT 0");
+    echo 'Guarantee policy: each project chooses what an unexcused absence does to the guarantee, and whether guaranteed hours above the overtime threshold are paid as overtime (Hours). Nothing changes until it is chosen.' . PHP_EOL;
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='placements' AND column_name='per_diem_taxable'")) {
+    q('ALTER TABLE placements ADD COLUMN per_diem_taxable TINYINT(1) NOT NULL DEFAULT 0');
+    echo 'Per diem: payroll marks a local worker\'s per diem taxable (Payroll export); ADP RUN takes it under its own earnings code (Settings).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

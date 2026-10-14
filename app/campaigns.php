@@ -22,6 +22,13 @@
  * Recipients are fixed when the campaign is created: the list a recruiter
  * reviewed is the list that is emailed. Anyone who unsubscribes meanwhile is
  * skipped.
+ *
+ * P5-M29: a campaign can go by text message instead, through Twilio
+ * (app/twilio.php): the same filters, the same approval above 50 people,
+ * the same delivery job. It goes to people with a mobile number who never
+ * replied STOP; every text ends with "Reply STOP to stop these texts.", and
+ * a STOP reply is honoured by Twilio's webhook before the next one goes.
+ * In Twilio's sandbox each text is recorded on the person and not sent.
  */
 
 declare(strict_types=1);
@@ -31,6 +38,14 @@ require_once __DIR__ . '/geo.php';
 const CAMPAIGN_DIRECT_LIMIT = 50;
 const CAMPAIGN_PER_RUN = 50;
 const CAMPAIGN_PER_DAY = 500;
+const CAMPAIGN_TEXTS_PER_DAY = 1000;
+const CAMPAIGN_TEXT_MAX = 480;
+
+/** email or text, read from a form. */
+function cm_channel(array $in): string
+{
+    return ($in['channel'] ?? '') === 'text' ? 'text' : 'email';
+}
 
 /** The open requisition a campaign is about, with what the email quotes. */
 function cm_vacancy(int $id): ?array
@@ -60,15 +75,16 @@ function cm_filters(array $in): array
     ];
 }
 
-/** Everyone a campaign about this requisition would go to, with these filters. */
-function cm_audience(array $vacancy, array $f): array
+/** Everyone a campaign about this requisition would go to, with these filters, by email or by text. */
+function cm_audience(array $vacancy, array $f, string $channel = 'email'): array
 {
     geo_refresh_candidates();
-    $where = ["c.email IS NOT NULL", "c.email LIKE '%_@_%._%'",
-              'NOT EXISTS (SELECT 1 FROM contact_preferences cp WHERE cp.candidate_id = c.id AND cp.no_email_since IS NOT NULL)',
-              "NOT EXISTS (SELECT 1 FROM employee_profiles ep WHERE ep.candidate_id = c.id AND ep.rehire_status IN ('ineligible','do_not_use'))",
+    $where = $channel === 'text'
+        ? ["c.phone IS NOT NULL", "c.phone <> ''", 'NOT EXISTS (SELECT 1 FROM contact_preferences cp WHERE cp.candidate_id = c.id AND cp.no_texts_since IS NOT NULL)']
+        : ["c.email IS NOT NULL", "c.email LIKE '%_@_%._%'", 'NOT EXISTS (SELECT 1 FROM contact_preferences cp WHERE cp.candidate_id = c.id AND cp.no_email_since IS NOT NULL)'];
+    array_push($where, "NOT EXISTS (SELECT 1 FROM employee_profiles ep WHERE ep.candidate_id = c.id AND ep.rehire_status IN ('ineligible','do_not_use'))",
               'NOT EXISTS (SELECT 1 FROM worker_accounts w2 JOIN users u2 ON u2.id = w2.user_id WHERE w2.candidate_id = c.id AND u2.is_active = 0)',
-              'NOT EXISTS (SELECT 1 FROM applications a WHERE a.candidate_id = c.id AND a.vacancy_id = ?)'];
+              'NOT EXISTS (SELECT 1 FROM applications a WHERE a.candidate_id = c.id AND a.vacancy_id = ?)');
     $args = [(int) $vacancy['id']];
     if ($f['discipline'] !== '') { $where[] = 'c.discipline = ?'; $args[] = $f['discipline']; }
     if ($f['state'] !== '') { $where[] = 'c.geo_state = ?'; $args[] = $f['state']; }
@@ -80,15 +96,30 @@ function cm_audience(array $vacancy, array $f): array
         $where[] = $within;
         array_push($args, ...$withinArgs);
     }
-    $people = rows('SELECT c.id, c.full_name, c.email, c.city, c.state, w.user_id FROM candidates c LEFT JOIN worker_accounts w ON w.candidate_id = c.id
+    $people = rows('SELECT c.id, c.full_name, c.email, c.phone, c.city, c.state, w.user_id FROM candidates c LEFT JOIN worker_accounts w ON w.candidate_id = c.id
                     WHERE ' . implode(' AND ', $where) . ' ORDER BY c.full_name LIMIT 5000', $args);
+    if ($channel === 'text') {
+        // A text needs a number with its country code: one Twilio can deliver.
+        require_once __DIR__ . '/messaging.php';
+        $people = array_map(static fn($p) => ['phone' => msg_phone($p['phone'])] + $p, $people);
+
+        return array_values(array_filter($people, static fn($p) => $p['phone'] !== null && str_starts_with($p['phone'], '+')));
+    }
 
     return array_values(array_filter($people, static fn($p) => filter_var(trim((string) $p['email']), FILTER_VALIDATE_EMAIL)));
 }
 
-/** The text an empty campaign starts from, in English or Spanish. */
-function cm_default(string $language): array
+/** The text an empty campaign starts from, in English or Spanish, by email or by text. */
+function cm_default(string $language, string $channel = 'email'): array
 {
+    if ($channel === 'text') {
+        return $language === 'es'
+            ? ['subject' => 'Texto: {job} en {place}',
+               'body' => 'Hola {first_name}, hay trabajo para usted: {job} en {place} desde el {starts}, {pay_rate}/h, viático {per_diem}. El primero que responde se queda con el puesto: {link}']
+            : ['subject' => 'Text: {job} in {place}',
+               'body' => 'Hi {first_name}, work for you: {job} in {place} from {starts}, {pay_rate}/h, per diem {per_diem}. First come, first served: {link}'];
+    }
+
     return $language === 'es'
         ? ['subject' => 'Trabajo disponible: {job} en {place}',
            'body' => "Hola {first_name}:\n\nTenemos trabajo para usted: {job} en {place}, a partir del {starts}.\nPago: {pay_rate} por hora. Viático: {per_diem}.\nTurno: {shift}\n\nEl primero que responde, primero se queda con el puesto. Si le interesa, dígalo aquí:\n{link}\n\nResponda a este correo si tiene alguna pregunta."]
@@ -124,10 +155,15 @@ function cm_capture(): ?string
     return $path !== '' && str_ends_with($path, '.jsonl') ? $path : null;
 }
 
-/** Why campaigns cannot go out yet, or null. */
-function cm_not_ready(): ?string
+/** Why campaigns cannot go out yet, by email or by text, or null. */
+function cm_not_ready(string $channel = 'email'): ?string
 {
     global $config;
+    if ($channel === 'text') {
+        require_once __DIR__ . '/twilio.php';
+
+        return tw_mode() === 'disabled' || ! tw_configured() ? t('Texting through Crewvia is not set up.') : null;
+    }
     if (! cm_capture() && (empty($config['email_delivery_enabled']) || ! filter_var((string) ($config['email_from'] ?? ''), FILTER_VALIDATE_EMAIL))) {
         return t('Email is not switched on for this installation (email_delivery_enabled and email_from).');
     }
@@ -167,6 +203,14 @@ function cm_render(array $campaign, array $vacancy, array $person, string $token
     ];
     $unsubscribe = $base . '/unsubscribe?t=' . $token;
     $body = strtr((string) $campaign['body'], $values);
+    if (($campaign['channel'] ?? 'email') === 'text') {
+        // A text has no unsubscribe link: STOP is the way out, and Twilio's webhook records it.
+        if (! str_contains((string) $campaign['body'], '{link}')) {
+            $body .= ' ' . $values['{link}'];
+        }
+
+        return ['subject' => strtr((string) $campaign['subject'], $values), 'body' => $body . "\n" . ($es ? 'Responda STOP para no recibir más textos.' : 'Reply STOP to stop these texts.'), 'unsubscribe' => ''];
+    }
     if (! str_contains((string) $campaign['body'], '{link}')) {
         $body .= "\n\n" . $values['{link}'];
     }
@@ -211,34 +255,42 @@ function cm_create(int $vacancyId, array $in, int $by): array
         return [t('Choose an open requisition.'), 0];
     }
     $language = ($in['language'] ?? 'en') === 'es' ? 'es' : 'en';
+    $channel = cm_channel($in);
     $subject = trim((string) ($in['subject'] ?? ''));
     $body = trim(str_replace("\r\n", "\n", (string) ($in['body'] ?? '')));
+    if ($channel === 'text' && $subject === '') {
+        $subject = cm_default($language, 'text')['subject'];
+    }
     if (mb_strlen($subject) < 3 || mb_strlen($subject) > 190) {
         return [t('Write a subject of 3 to 190 characters.'), 0];
+    }
+    if ($channel === 'text' && (mb_strlen($body) < 20 || mb_strlen($body) > CAMPAIGN_TEXT_MAX)) {
+        return [t('Write the text in 20 to :n characters: it goes as up to three text messages.', ['n' => CAMPAIGN_TEXT_MAX]), 0];
     }
     if (mb_strlen($body) < 20 || mb_strlen($body) > 8000) {
         return [t('Write the message in 20 to 8000 characters.'), 0];
     }
     $filters = cm_filters($in);
-    $people = cm_audience($vacancy, $filters);
+    $people = cm_audience($vacancy, $filters, $channel);
     if (! $people) {
         return [t('Nobody matches these filters.'), 0];
     }
     $me = row('SELECT email FROM users WHERE id = ?', [$by]);
     db()->beginTransaction();
     try {
-        q('INSERT INTO email_campaigns (vacancy_id, language, subject, body, filters_json, reply_to, recipients, created_by) VALUES (?,?,?,?,?,?,?,?)',
-          [$vacancyId, $language, $subject, $body, json_encode($filters), $me['email'] ?? null, count($people), $by]);
+        q('INSERT INTO email_campaigns (vacancy_id, channel, language, subject, body, filters_json, reply_to, recipients, created_by) VALUES (?,?,?,?,?,?,?,?,?)',
+          [$vacancyId, $channel, $language, $subject, $body, json_encode($filters), $me['email'] ?? null, count($people), $by]);
         $id = (int) db()->lastInsertId();
         foreach ($people as $p) {
-            q('INSERT INTO email_campaign_recipients (campaign_id, candidate_id, email, token) VALUES (?,?,?,?)', [$id, (int) $p['id'], trim((string) $p['email']), bin2hex(random_bytes(32))]);
+            q('INSERT INTO email_campaign_recipients (campaign_id, candidate_id, email, phone, token) VALUES (?,?,?,?,?)',
+              [$id, (int) $p['id'], $channel === 'text' ? null : trim((string) $p['email']), $channel === 'text' ? $p['phone'] : null, bin2hex(random_bytes(32))]);
         }
         db()->commit();
     } catch (Throwable $error) {
         if (db()->inTransaction()) { db()->rollBack(); }
         throw $error;
     }
-    log_activity('drafted a campaign email', 'campaign', $id, count($people) . ' recipients');
+    log_activity($channel === 'text' ? 'drafted a campaign text' : 'drafted a campaign email', 'campaign', $id, count($people) . ' recipients');
 
     return [null, $id];
 }
@@ -266,7 +318,7 @@ function cm_send(array $campaign, int $by): ?string
     if ($campaign['status'] !== 'draft') {
         return t('This campaign is already on its way, or cancelled.');
     }
-    if ($why = cm_not_ready()) {
+    if ($why = cm_not_ready((string) $campaign['channel'])) {
         return $why;
     }
     if (! cm_vacancy((int) $campaign['vacancy_id'])) {
@@ -275,7 +327,7 @@ function cm_send(array $campaign, int $by): ?string
     if ((int) $campaign['recipients'] > CAMPAIGN_DIRECT_LIMIT && ! can('admin')) {
         q("UPDATE email_campaigns SET status = 'awaiting_approval' WHERE id = ?", [(int) $campaign['id']]);
         foreach (rows("SELECT id FROM users WHERE role = 'admin' AND is_active = 1") as $a) {
-            q('INSERT INTO notifications (user_id, message, target) VALUES (?,?,?)', [(int) $a['id'], mb_substr(t('A campaign email to :n people waits for your approval.', ['n' => (int) $campaign['recipients']]), 0, 255), '/campaigns?c=' . (int) $campaign['id']]);
+            q('INSERT INTO notifications (user_id, message, target) VALUES (?,?,?)', [(int) $a['id'], mb_substr(t($campaign['channel'] === 'text' ? 'A campaign text to :n people waits for your approval.' : 'A campaign email to :n people waits for your approval.', ['n' => (int) $campaign['recipients']]), 0, 255), '/campaigns?c=' . (int) $campaign['id']]);
         }
         log_activity('asked approval for a campaign email', 'campaign', (int) $campaign['id']);
 
@@ -292,7 +344,7 @@ function cm_approve(array $campaign, int $by): ?string
     if ($campaign['status'] !== 'awaiting_approval') {
         return t('This campaign is not waiting for approval.');
     }
-    if ($why = cm_not_ready()) {
+    if ($why = cm_not_ready((string) $campaign['channel'])) {
         return $why;
     }
     q("UPDATE email_campaigns SET status = 'sending', queued_at = NOW(), approved_by = ?, approved_at = NOW() WHERE id = ?", [$by, (int) $campaign['id']]);
@@ -316,6 +368,9 @@ function cm_cancel(array $campaign): ?string
 /** Sends the staff member the email exactly as its first recipient would get it. Returns the refusal, or null. */
 function cm_test(array $campaign, int $by): ?string
 {
+    if ($campaign['channel'] === 'text') {
+        return t('A text campaign has no test send: the sample on this page is exactly what each person receives.');
+    }
     if ($why = cm_not_ready()) {
         return $why;
     }
@@ -343,14 +398,18 @@ function cm_test(array $campaign, int $by): ?string
 function cm_deliver(): array
 {
     $done = ['sent' => 0, 'failed' => 0, 'skipped' => 0, 'held' => null];
+    // P5-M29: texts have their own budget and their own readiness (Twilio).
+    cm_deliver_texts($done);
     if ($why = cm_not_ready()) {
-        $done['held'] = $why;
+        $done['held'] = $done['held'] === null ? $why : $why . ' ' . $done['held'];
+        cm_finish();
         return $done;
     }
-    $sentDay = (int) val("SELECT COUNT(*) FROM email_campaign_recipients WHERE status = 'sent' AND sent_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+    $sentDay = (int) val("SELECT COUNT(*) FROM email_campaign_recipients r JOIN email_campaigns m ON m.id = r.campaign_id WHERE m.channel = 'email' AND r.status = 'sent' AND r.sent_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)");
     $budget = min(CAMPAIGN_PER_RUN, CAMPAIGN_PER_DAY - $sentDay);
     if ($budget <= 0) {
         $done['held'] = 'daily limit of ' . CAMPAIGN_PER_DAY . ' reached';
+        cm_finish();
         return $done;
     }
     $vacancies = [];
@@ -358,7 +417,7 @@ function cm_deliver(): array
                           EXISTS (SELECT 1 FROM contact_preferences cp WHERE cp.candidate_id = r.candidate_id AND cp.no_email_since IS NOT NULL) AS opted_out
                    FROM email_campaign_recipients r JOIN email_campaigns m ON m.id = r.campaign_id JOIN candidates c ON c.id = r.candidate_id
                    LEFT JOIN worker_accounts w ON w.candidate_id = c.id
-                   WHERE r.status = 'queued' AND m.status = 'sending' ORDER BY r.campaign_id, r.id LIMIT " . (int) $budget) as $r) {
+                   WHERE r.status = 'queued' AND m.status = 'sending' AND m.channel = 'email' ORDER BY r.campaign_id, r.id LIMIT " . (int) $budget) as $r) {
         $campaign = cm_campaign((int) $r['campaign_id']);
         $vacancies[(int) $campaign['vacancy_id']] ??= cm_vacancy((int) $campaign['vacancy_id']);
         $vacancy = $vacancies[(int) $campaign['vacancy_id']];
@@ -375,11 +434,63 @@ function cm_deliver(): array
         }
         $done[$ok ? 'sent' : 'failed']++;
     }
+    cm_finish();
+
+    return $done;
+}
+
+/** Campaigns with nobody left to send to are sent. (P5-M29: also when email is held and only texts went.) */
+function cm_finish(): void
+{
     foreach (rows("SELECT id FROM email_campaigns m WHERE status = 'sending' AND NOT EXISTS (SELECT 1 FROM email_campaign_recipients r WHERE r.campaign_id = m.id AND r.status = 'queued')") as $finished) {
         q("UPDATE email_campaigns SET status = 'sent', finished_at = NOW() WHERE id = ?", [(int) $finished['id']]);
     }
+}
 
-    return $done;
+/**
+ * P5-M29: the texts of a run, through Twilio: up to CAMPAIGN_PER_RUN, never
+ * more than CAMPAIGN_TEXTS_PER_DAY in any 24 hours. Someone who replied STOP
+ * since the list was drawn is skipped. In Twilio's sandbox each text is
+ * recorded on the person and marked so, and nothing leaves Crewvia.
+ */
+function cm_deliver_texts(array &$done): void
+{
+    $queued = "FROM email_campaign_recipients r JOIN email_campaigns m ON m.id = r.campaign_id WHERE r.status = 'queued' AND m.status = 'sending' AND m.channel = 'text'";
+    if (! (int) val('SELECT COUNT(*) ' . $queued)) {
+        return;
+    }
+    if ($why = cm_not_ready('text')) {
+        $done['held'] = $why;
+        return;
+    }
+    $sentDay = (int) val("SELECT COUNT(*) FROM email_campaign_recipients r JOIN email_campaigns m ON m.id = r.campaign_id WHERE m.channel = 'text' AND r.status = 'sent' AND r.sent_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+    $budget = min(CAMPAIGN_PER_RUN, CAMPAIGN_TEXTS_PER_DAY - $sentDay);
+    if ($budget <= 0) {
+        $done['held'] = 'daily limit of ' . CAMPAIGN_TEXTS_PER_DAY . ' texts reached';
+        return;
+    }
+    $vacancies = [];
+    foreach (rows("SELECT r.id, r.campaign_id, r.candidate_id, r.token, c.full_name, w.user_id,
+                          EXISTS (SELECT 1 FROM contact_preferences cp WHERE cp.candidate_id = r.candidate_id AND cp.no_texts_since IS NOT NULL) AS opted_out
+                   " . str_replace('WHERE', 'JOIN candidates c ON c.id = r.candidate_id LEFT JOIN worker_accounts w ON w.candidate_id = c.id WHERE', $queued) . '
+                   ORDER BY r.campaign_id, r.id LIMIT ' . (int) $budget) as $r) {
+        $campaign = cm_campaign((int) $r['campaign_id']);
+        $vacancies[(int) $campaign['vacancy_id']] ??= cm_vacancy((int) $campaign['vacancy_id']);
+        $vacancy = $vacancies[(int) $campaign['vacancy_id']];
+        if ((int) $r['opted_out'] || ! $vacancy) {
+            q("UPDATE email_campaign_recipients SET status = 'skipped', error = ? WHERE id = ?", [(int) $r['opted_out'] ? 'asked not to be texted' : 'requisition closed', (int) $r['id']]);
+            $done['skipped']++;
+            continue;
+        }
+        $text = cm_render($campaign, $vacancy, $r, (string) $r['token'])['body'];
+        [$why, $how] = tw_send_text((int) $r['candidate_id'], 0, $text, (int) $campaign['created_by']);
+        q('UPDATE email_campaign_recipients SET status = ?, sent_at = ?, error = ? WHERE id = ?',
+          [$why === null ? 'sent' : 'failed', $why === null ? date('Y-m-d H:i:s') : null, $why === null ? ($how === 'sandbox' ? 'sandbox: recorded, not sent' : null) : mb_substr($why, 0, 255), (int) $r['id']]);
+        if ($why === null) {
+            q('INSERT INTO candidate_events (candidate_id, event_type, detail) VALUES (?,?,?)', [(int) $r['candidate_id'], 'campaign text', mb_substr((string) $campaign['vacancy_title'] . ': ' . $text, 0, 255)]);
+        }
+        $done[$why === null ? 'sent' : 'failed']++;
+    }
 }
 
 /** The recipient a link's token names, or null. */

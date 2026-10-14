@@ -218,6 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         q('UPDATE applications SET stage = ? WHERE id = ?', [$stage, $application['id']]);
+        candidate_follow_application((int) $application['id']);
         q('INSERT INTO application_events(application_id, user_id, stage, note) VALUES (?,?,?,?)',
           [$application['id'], uid(), $stage, trim((string) ($_POST['note'] ?? ''))]);
 
@@ -435,8 +436,8 @@ foreach ($applications as &$application) {
                                     FROM screening_questions q
                                     LEFT JOIN screening_answers s
                                          ON s.question_id = q.id AND s.application_id = ?
-                                    WHERE q.job_id = ? ORDER BY q.id',
-                                   [$application['id'], $application['job_id']]);
+                                    WHERE q.job_id = ? AND (q.vacancy_id IS NULL OR q.vacancy_id = (SELECT vacancy_id FROM applications WHERE id = ?)) ORDER BY q.sort_order, q.id',
+                                   [$application['id'], $application['job_id'], $application['id']]);
 }
 
 unset($application);

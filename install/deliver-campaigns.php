@@ -26,7 +26,11 @@ if ($done['held'] !== null) {
     if (! $quiet || ! str_starts_with($done['held'], 'daily limit')) {
         echo 'Campaign email held: ' . $done['held'] . PHP_EOL;
     }
-    exit(0);
+    // P5-M29: texts may have gone while email was held.
+    if ($done['sent'] || $done['failed']) {
+        echo sprintf('Campaign texts: %d sent, %d failed, %d skipped.', $done['sent'], $done['failed'], $done['skipped']) . PHP_EOL;
+    }
+    exit($done['failed'] ? 1 : 0);
 }
 if (! $quiet || $done['sent'] || $done['failed']) {
     echo sprintf('Campaign email: %d sent, %d failed, %d skipped.', $done['sent'], $done['failed'], $done['skipped']) . PHP_EOL;

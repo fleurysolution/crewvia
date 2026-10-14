@@ -94,7 +94,8 @@ check('Switched back on, the worker signs in again', active('w') and Client().lo
 
 # ── 2. supervisors grade their own crew ────────────────────────────────
 status, body = sup.get('/my-team')
-listed = {int(x) for x in re.findall(r'name="placement_id" value="(\d+)"', body)}
+# P5-M26: the roll call on the same page names the crew on site too; only the grading section counts here.
+listed = {int(x) for x in re.findall(r'name="placement_id" value="(\d+)"', body.split('id="grading"', 1)[-1] if 'id="grading"' in body else '')}
 check('My team asks the supervisor to grade their crew member who finished 10 days ago', 'id="grading"' in body and listed == {P['g1']}, listed)
 check('not one finished 90 days ago, one still on site, or another supervisor\'s', not listed & {P['g90'], P['gon'], P['gother']})
 check('Not having them back needs a reason', sup.post('/my-team', {'do': 'review', 'placement_id': P['g1'], 'grade': 'D', 'would_rehire': '0', 'note': ''})[0] == 422)

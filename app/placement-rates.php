@@ -104,3 +104,57 @@ function application_vacancy(int $applicationId): ?int
 
     return $id ? (int) $id : null;
 }
+
+/**
+ * What an offer for a requisition commits to, as the lines a worker reads
+ * before signing: pay, per diem, guaranteed hours, start and shift, place,
+ * and what is paid. The same lines are stored with the signature, so the
+ * record holds what was shown (walkthrough finding: only the recruiter's
+ * note was signed).
+ *
+ * @return list<string>
+ */
+function offer_terms(int $vacancyId): array
+{
+    $role = row('SELECT v.job_id, v.starts_on, v.shift, j.site_city, j.site_state, j.guarantee_hours,
+                        j.lodging_provided, j.travel_provided, j.transport_provided
+                 FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.id = ?', [$vacancyId]);
+    if (! $role) {
+        return [];
+    }
+    $rates = placement_rates((int) $role['job_id'], $vacancyId);
+    $terms = [];
+    if (($rates['pay_rate'] ?? null) !== null) {
+        $terms[] = t('Pay: :rate an hour', ['rate' => money((float) $rates['pay_rate'])]);
+    }
+    if (($rates['per_diem_rate'] ?? null) !== null && (float) $rates['per_diem_rate'] > 0) {
+        $terms[] = t('Per diem: :rate a day', ['rate' => money((float) $rates['per_diem_rate'])]);
+    }
+    $hours = $rates['guarantee_hours'] ?? $role['guarantee_hours'];
+    if ($hours) {
+        $terms[] = t('Guaranteed: :n hours a week', ['n' => (int) $hours]);
+    }
+    if (! empty($role['starts_on'])) {
+        $terms[] = t('Starts: :date', ['date' => d((string) $role['starts_on'])])
+                 . (! empty($role['shift']) ? ' · ' . t('Shift: :shift', ['shift' => $role['shift']]) : '');
+    }
+    if (! empty($role['site_city'])) {
+        $terms[] = t('Where: :place', ['place' => trim($role['site_city'] . ', ' . ($role['site_state'] ?? ''), ', ')]);
+    }
+    $paid = array_filter([! empty($role['lodging_provided']) ? t('Hotel paid') : null,
+                          ! empty($role['travel_provided']) ? t('Travel to and from site paid') : null,
+                          ! empty($role['transport_provided']) ? t('Transport on site provided') : null]);
+    if ($paid) {
+        $terms[] = implode(' · ', $paid);
+    }
+
+    return $terms;
+}
+
+/** The day a requisition starts, for the placement made from it (walkthrough finding: it was left empty). */
+function offer_start_date(int $vacancyId): ?string
+{
+    $start = val('SELECT starts_on FROM vacancies WHERE id = ?', [$vacancyId]);
+
+    return $start ? (string) $start : null;
+}

@@ -4,7 +4,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
 ?>
 
 <div class="page-head"><div><h1><?= te('Travel') ?></h1>
-<p class="sub"><?= count($booked) ?> legs booked &middot; <?= count($needTravel) ?> still to book</p></div></div>
+<p class="sub"><?= ten(count($booked), ':n leg booked', ':n legs booked') ?> &middot; <?= ten(count($needTravel), ':n still to book', ':n still to book') ?></p></div></div>
 
 <?php if ($needTravel): ?>
 <div class="card tight">
@@ -13,48 +13,44 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
   </div>
   <div class="scroll">
   <table>
-    <thead><tr><th><?= te('Engineer') ?></th><th><?= te('Coming from') ?></th><th><?= te('Starts') ?></th><th class="right w-half"><?= te('Book it') ?></th></tr></thead>
+    <thead><tr><th><?= te('Person') ?></th><th><?= te('Coming from') ?></th><th><?= te('Starts') ?></th><th class="right w-half"><?= te('Book it') ?></th></tr></thead>
     <tbody>
     <?php foreach ($needTravel as $n): ?>
       <tr>
         <td><strong><?= e($n['full_name']) ?></strong>
-          <div class="small muted"><?= e(ucfirst($n['discipline'])) ?></div></td>
+          <div class="small muted"><?= e(($n['trade'] ?? '') !== '' && ($n['trade'] ?? null) !== null ? $n['trade'] : (disciplines(true)[$n['discipline']] ?? ucfirst((string) $n['discipline']))) ?></div></td>
         <td class="small muted"><?= e(trim(($n['city'] ?? '') . ', ' . ($n['state'] ?? ''), ' ,')) ?: '—' ?></td>
         <td class="small muted"><?= $n['start_date'] ? e(date('j M', strtotime($n['start_date']))) : '—' ?></td>
         <td>
-          <form method="post" action="/travel" class="row tight justify-end gap-s">
+          <?php $tp = $n['profile']; ?>
+          <div class="small" data-travel-details="<?= $tp ? 'entered' : 'missing' ?>"><?php if ($tp): ?><strong><?= e($tp['legal_name']) ?></strong> · <?= te('flies from :airport', ['airport' => $tp['airport']]) ?><div class="muted pre-wrap"><?= e($tp['address']) ?></div><?php if ($tp['notes']): ?><div class="muted"><?= e($tp['notes']) ?></div><?php endif; ?><?php else: ?><span class="tag amber"><?= te('Travel details not entered yet') ?></span><?php endif; ?></div>
+          <details class="mt-xs"><summary class="btn sm ghost"><?= te('Book it') ?></summary>
+          <form method="post" action="/travel" class="mt-s" data-book="<?= (int) $n['id'] ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="book_travel">
             <input type="hidden" name="direction" value="inbound">
             <input type="hidden" name="placement_id" value="<?= (int) $n['id'] ?>">
-            <label class="sr-only" for="mode-<?= (int) $n['id'] ?>"><?= te('How they travel') ?></label>
-
-            <select id="mode-<?= (int) $n['id'] ?>" name="mode" class="w-auto pad-s t-13">
-
-              <?php foreach (['flight' => 'Flight', 'drive' => 'Drives themselves',
-
-                              'bus' => 'Bus', 'rail' => 'Rail',
-
-                              'agency_vehicle' => 'Agency vehicle'] as $key => $label): ?>
-
-                <option value="<?= e($key) ?>"><?= te($label) ?></option>
-
-              <?php endforeach; ?>
-
-            </select>
-
-            <input name="carrier" placeholder="<?= te('Airline') ?>" class="fw-s pad-s t-13">
-            <input name="reference" placeholder="<?= te('Conf.') ?>" class="fw-xs pad-s t-13">
-            <input name="depart_from" placeholder="<?= te('From') ?>" class="fw-xs pad-s t-13">
-
-            <input name="arrive_at" placeholder="<?= te('Airport') ?>" class="fw-xs pad-s t-13">
-            <input type="datetime-local" name="arrive_time" class="w-auto pad-s small">
-            <input name="cost" type="number" step="0.01" placeholder="$" class="fw-xs pad-s t-13">
-            <label class="inline-check">
-              <input class="w-auto" type="checkbox" name="pickup_needed" value="1" checked> <?= te('pickup') ?>
-            </label>
-            <button class="btn sm" type="submit"><?= te('Save') ?></button>
+            <div class="row">
+              <div><label for="mode-<?= (int) $n['id'] ?>"><?= te('How they travel') ?></label>
+                <select id="mode-<?= (int) $n['id'] ?>" name="mode"><?php foreach (TRAVEL_MODES as $key => $label): ?><option value="<?= e($key) ?>"><?= te($label) ?></option><?php endforeach; ?></select></div>
+              <div><label><?= te('Airline') ?></label><input name="carrier"></div>
+              <div><label><?= te('Confirmation') ?></label><input name="reference" maxlength="60"></div>
+              <div><label><?= te('Cost') ?></label><input name="cost" type="number" step="0.01" min="0" placeholder="$"></div>
+            </div>
+            <div class="row">
+              <div><label><?= te('From') ?></label><input name="depart_from" value="<?= e($tp['airport'] ?? '') ?>"></div>
+              <div><label><?= te('Leaves') ?></label><input type="datetime-local" name="depart_time"></div>
+              <div><label><?= te('To') ?></label><input name="arrive_at" placeholder="<?= te('Airport') ?>"></div>
+              <div><label><?= te('Arrives') ?></label><input type="datetime-local" name="arrive_time"></div>
+            </div>
+            <label><?= te('The ticket, pasted') ?></label><textarea name="ticket_details" rows="4" maxlength="5000" placeholder="<?= te('Paste the airline\'s confirmation: flights, times, seat, baggage.') ?>"></textarea>
+            <div class="row tight gap mt-s">
+              <label class="inline-check"><input class="w-auto" type="checkbox" name="pickup_needed" value="1" checked> <?= te('pickup') ?></label>
+              <label class="inline-check"><input class="w-auto" type="checkbox" name="send_itinerary" value="1" checked> <?= te('Email the itinerary to them') ?></label>
+              <button class="btn sm" type="submit"><?= te('Save') ?></button>
+            </div>
           </form>
+          </details>
         </td>
       </tr>
     <?php endforeach; ?>
@@ -71,7 +67,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
   <?php else: ?>
   <div class="scroll">
   <table>
-    <thead><tr><th><?= te('Engineer') ?></th><th><?= te('Leg') ?></th><th><?= te('Carrier') ?></th><th><?= te('Ref') ?></th>
+    <thead><tr><th><?= te('Person') ?></th><th><?= te('Leg') ?></th><th><?= te('Carrier') ?></th><th><?= te('Ref') ?></th>
       <th><?= te('From') ?></th><th>To</th><th><?= te('Arrives') ?></th><th><?= te('Pickup') ?></th><th class="num"><?= te('Cost') ?></th></tr></thead>
     <tbody>
     <?php foreach ($booked as $t): ?>
@@ -91,6 +87,16 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
   </table>
   </div>
   <?php endif; ?>
+</div>
+
+<div class="card" id="advice">
+  <h2><?= te('Advice for travellers') ?></h2>
+  <p class="small muted m0 pull-up mb"><?= $adviceIsOwn ? te('This project\'s advice. It goes with every itinerary, in the portal and by email.') : ($advice ? te('The agency\'s advice, until this project has its own. It goes with every itinerary.') : te('No advice yet. It goes with every itinerary, in the portal and by email.')) ?></p>
+  <?php if ($advice): ?><ul class="m0" data-advice="<?= count($advice) ?>"><?php foreach ($advice as $a): ?><li><?= e($a['body']) ?><?php if (can('admin') && $adviceIsOwn): ?> <form method="post" action="/travel" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="advice_remove"><input type="hidden" name="advice_id" value="<?= (int) $a['id'] ?>"><button class="link small"><?= te('Remove') ?></button></form><?php endif; ?></li><?php endforeach; ?></ul><?php endif; ?>
+  <?php if (can('admin')): ?>
+    <?php if (! $adviceIsOwn): ?><form method="post" action="/travel" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="advice_usual"><button class="btn ghost sm mt-s"><?= te('Start from the usual advice') ?></button></form><?php endif; ?>
+    <form method="post" action="/travel" class="row tight gap-s mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="advice_add"><input name="body" maxlength="300" required placeholder="<?= te('e.g. Keep your boarding pass: the agency reimburses checked bags.') ?>"><button class="btn sm"><?= te('Add') ?></button></form>
+  <?php else: ?><p class="small muted"><?= te('The operations VP writes it.') ?></p><?php endif; ?>
 </div>
 
 <div class="card">

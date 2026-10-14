@@ -35,7 +35,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  log_activity('manning update','project',$jobId,$do);redirect('/manning');
 }
 $include=isset($_GET['released']);
-$crew=rows("SELECT p.*,c.full_name,c.phone,j.title job_title,j.site_city,j.site_state,d.trade,d.shift_label,u.name supervisor,
+$crew=rows("SELECT p.*,c.full_name,c.phone,j.title job_title,j.site_city,j.site_state,COALESCE(NULLIF(d.trade,''),(SELECT ol.role_title FROM job_order_lines ol WHERE ol.id=p.order_line_id)) trade,d.shift_label,u.name supervisor,
  (SELECT h.name FROM lodging l JOIN hotels h ON h.id=l.hotel_id WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) hotel,
  (SELECT l.room_number FROM lodging l WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) room_number,
  (SELECT l.check_in FROM lodging l WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) hotel_in,

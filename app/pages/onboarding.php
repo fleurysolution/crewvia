@@ -24,8 +24,13 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  }
  if($do==='review') {
   $status=in_array($_POST['status'] ?? '',['approved','rejected'],true)?$_POST['status']:'rejected';
-  q('UPDATE onboarding_tasks t JOIN placements p ON p.id=t.placement_id SET t.status=?,t.reviewed_by=?,t.reviewed_at=NOW() WHERE t.id=? AND p.job_id=?',[$status,uid(),(int)($_POST['task_id'] ?? 0),$jobId]);
+  // Walkthrough finding 25: a task the worker had not done could be approved, which opened the deployment gate.
+  // Only what the worker submitted is reviewed.
+  $reviewed=db()->prepare("UPDATE onboarding_tasks t JOIN placements p ON p.id=t.placement_id SET t.status=?,t.reviewed_by=?,t.reviewed_at=NOW() WHERE t.id=? AND p.job_id=? AND t.status='submitted'");
+  $reviewed->execute([$status,uid(),(int)($_POST['task_id'] ?? 0),$jobId]);
+  if(!$reviewed->rowCount()){flash(t('Only a task the worker has submitted can be approved or sent back.'),'err');redirect('/onboarding');}
   log_activity('reviewed onboarding','task',(int)($_POST['task_id'] ?? 0),$status);
+  flash($status==='approved'?t('Task approved.'):t('Task sent back to the worker.'));
  }
  if(!$inviteUrl) redirect('/onboarding');
 }

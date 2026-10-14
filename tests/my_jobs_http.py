@@ -96,7 +96,7 @@ card = re.search(r'data-job="%d".*?</section>' % V['chem'], body, re.S)[0]
 check('A job shows its pay, per diem and lodging', '42.50' in card and '75.00' in card and 'Lodging provided' in card, card[:600])
 m = re.search(r'data-miles="%d">≈ (\d+) mi from you' % V['chem'], body)
 check('and how far it is from the worker', m is not None and 20 <= int(m[1]) <= 35, m and m[1])
-check('and its questions, the required one marked', 'name="screening[%d]"' % Q in card and 'for="sq-v%d-%d"' % (V['chem'], Q) in card and 'required' in card)
+check('and its questions, the required one marked', 'name="screening[%d]"' % Q in card and 'aria-labelledby="sq-v%d-%d-label"' % (V['chem'], Q) in card and 'required' in card)
 body = blank.get(M)[1]
 check('A file that says neither trade nor years is not held against the worker', offered(body) == {V['chem'], V['mech'], V['senior'], V['any']}, offered(body))
 check('and says what is missing', 'Your trade is not on your file yet.' in body and 'Your years of experience are not on your file yet.' in body)
@@ -139,7 +139,7 @@ status, body = loose.get(M)
 check('An account with no crew record is told so', status == 200 and 'Your crew file is not linked yet.' in body and 'id="jobs-for-me"' not in body)
 check('A recruiter does not get a worker\'s page', rec.get(M)[0] == 403)
 status, body = Client().get('/apply?id=%d' % V['chem'])
-check('The public application form still asks the job\'s questions', status == 200 and 'name="screening[%d]"' % Q in body and 'for="sq-%d"' % Q in body)
+check('The public application form still asks the job\'s questions', status == 200 and 'name="screening[%d]"' % Q in body and 'aria-labelledby="sq-%d-label"' % Q in body)
 
 # ── translations ───────────────────────────────────────────────────────
 w.post({'locale': 'es', 'back': M}, '/language')

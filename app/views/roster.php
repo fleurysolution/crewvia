@@ -104,7 +104,8 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
             // discipline: a mechanical engineer can be on the order as a
             // millwright, and the roster should say what the client asked
             // for rather than what the person is filed under.
-            $trade = trim((string) ($p['trade'] ?? ''));
+            // Walkthrough finding 23: before a supervisor names the trade, the line they were hired on says it.
+            $trade = trim((string) ($p['trade'] ?? '')) ?: trim((string) ($p['line_role'] ?? ''));
             ?>
             <?= e($trade !== '' ? $trade : (disciplines(true)[$p['discipline']] ?? ucfirst((string) $p['discipline']))) ?>
           </div>

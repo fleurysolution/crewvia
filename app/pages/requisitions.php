@@ -74,7 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/requisitions');
     }
 
-    require_role('admin');
+    // Walkthrough finding: the recruiter was shown this form but refused on
+    // saving it. Raising a requisition is the recruiter's work; it is still
+    // capped by the agreement's line, and the agreed rates stay the
+    // administrator's to override (below).
+    require_role('recruiter');
     $title       = trim((string) ($_POST['title'] ?? ''));
     $description = trim((string) ($_POST['description'] ?? ''));
 
@@ -150,6 +154,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               'per_diem_rate' => 1000.0, 'guarantee_hours' => 168.0] as $field => $ceiling) {
         $given = trim((string) ($_POST[$field] ?? ''));
 
+        // Only an administrator overrides what the client agreed.
+        if ($given !== '' && ! can('admin')) {
+            refuse(403, t('Only an administrator can override the rates agreed on the scope of work.'), '/requisitions');
+        }
+
         if ($given === '') {
             $money[$field] = null;
             continue;
@@ -193,6 +202,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        VALUES (?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))', [$vacancyId]);
 
     log_activity('created requisition', 'vacancy', $vacancyId, $title . ' x' . $openings);
+    // P5-M28: posted, it is every recruiter's to fill; the plant's project manager is told too.
+    require_once __DIR__ . '/../notices.php';
+    $notice = t('New requisition on :project: :n x :title:start. Find the candidates.', ['project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title,
+                'start' => $startsOn ? ' ' . t('starting :date', ['date' => d($startsOn)]) : '']);
+    notify_desks(['recruiter'], $notice, '/hiring?v=' . $vacancyId, uid());
+    if (! empty($job['project_manager_id']) && (int) $job['project_manager_id'] !== uid()) { notify_user((int) $job['project_manager_id'], $notice, '/my-team'); }
     flash(t('Requisition created. Share its QR code or public link to start receiving applications.'));
     redirect('/requisitions');
 }

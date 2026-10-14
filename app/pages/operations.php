@@ -47,7 +47,11 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  if($do==='assignment') {
   require_role('recruiter'); $trade=trim((string)($_POST['trade'] ?? '')); $sid=(int)($_POST['supervisor_id'] ?? 0);
   if($sid && !row("SELECT id FROM users WHERE id=? AND is_active=1 AND role<>'worker'",[$sid])) { refuse(422, t('Invalid supervisor.')); }
-  if($trade) q('INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE trade=VALUES(trade),supervisor_id=VALUES(supervisor_id),shift_label=VALUES(shift_label)',[$pid,$trade,$sid?:null,trim((string)($_POST['shift_label'] ?? ''))]);
+  // P5-M27: a shift chosen from the plant's list brings its name and start time with it.
+  require_once __DIR__.'/../shifts.php';$shift=(int)($_POST['shift_id'] ?? 0)?shift_of($jobId,(int)$_POST['shift_id']):null;
+  if((int)($_POST['shift_id'] ?? 0) && !$shift) { refuse(422, t('That shift is not on this project.')); }
+  if($trade && $shift) q('INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label,shift_id,shift_start) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE trade=VALUES(trade),supervisor_id=VALUES(supervisor_id),shift_label=VALUES(shift_label),shift_id=VALUES(shift_id),shift_start=VALUES(shift_start)',[$pid,$trade,$sid?:null,$shift['name'],(int)$shift['id'],$shift['starts_at']]);
+  elseif($trade) q('INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE trade=VALUES(trade),supervisor_id=VALUES(supervisor_id),shift_label=VALUES(shift_label)',[$pid,$trade,$sid?:null,trim((string)($_POST['shift_label'] ?? ''))]);
   // Saved from the organization chart: back to the chart, at that person.
   if(($_POST['back'] ?? '')==='/organization') { log_activity('operations update','project',$jobId,$do); redirect('/organization#person-'.$pid); }
  }
