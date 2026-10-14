@@ -24,7 +24,7 @@ $jmMine = array_filter($jmJobs, static fn($j) => $j['application'] && $j['applic
   <section class="card" data-job="<?= (int) $j['id'] ?>">
     <h2 class="mb-xs"><?= e($j['title']) ?></h2>
     <div class="small muted"><?= e(trim(($j['site_city'] ?? '') . ', ' . ($j['site_state'] ?? ''), ', ') ?: t('Location to be confirmed')) ?><?= $j['miles'] !== null ? ' · <span data-miles="' . (int) $j['id'] . '">' . te('≈ :n mi from you', ['n' => (int) $j['miles']]) . '</span>' : '' ?>
-      <?php $starts = $j['starts_on'] ?: $j['job_starts']; ?><?= $starts ? ' · ' . te('starts :date', ['date' => d((string) $starts)]) : '' ?><?= $j['shift'] ? ' · ' . e($j['shift']) : '' ?></div>
+      <?php $starts = $j['starts_on'] ?: $j['job_starts']; ?><?= $starts ? ' · ' . e(starts_words((string) $starts)) : '' ?><?= $j['shift'] ? ' · ' . e($j['shift']) : '' ?></div>
     <p class="m0 mt-s mb-s">
       <?php if ($j['pay_rate'] !== null): ?><span class="tag green"><?= te(':rate an hour', ['rate' => money((float) $j['pay_rate'])]) ?></span><?php endif; ?>
       <?php if ($j['per_diem_rate'] !== null && (float) $j['per_diem_rate'] > 0): ?><span class="tag"><?= te('per diem :rate', ['rate' => money((float) $j['per_diem_rate'])]) ?></span><?php endif; ?>

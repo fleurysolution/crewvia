@@ -197,7 +197,7 @@ function cm_render(array $campaign, array $vacancy, array $person, string $token
         '{place}' => trim(($vacancy['site_city'] ?? '') . ', ' . ($vacancy['site_state'] ?? ''), ', ') ?: ($es ? 'lugar por confirmar' : 'location to be confirmed'),
         '{pay_rate}' => $money($vacancy['pay_rate']),
         '{per_diem}' => $vacancy['per_diem_rate'] !== null && (float) $vacancy['per_diem_rate'] > 0 ? $money($vacancy['per_diem_rate']) . ($es ? ' por día' : ' a day') : ($es ? 'ninguno' : 'none'),
-        '{starts}' => $starts ? date('j M Y', strtotime((string) $starts)) : ($es ? 'fecha por confirmar' : 'date to be confirmed'),
+        '{starts}' => $starts ? ($starts <= date('Y-m-d') ? ($es ? 'ya' : 'now') : date('j M Y', strtotime((string) $starts))) : ($es ? 'fecha por confirmar' : 'date to be confirmed'),
         '{shift}' => (string) ($vacancy['shift'] ?: ($es ? 'por confirmar' : 'to be confirmed')),
         '{link}' => cm_link($vacancy, $person),
     ];

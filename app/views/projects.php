@@ -129,7 +129,7 @@
             <?php else: ?>
               <?= te(':placed of :asked placed', [
                   'placed' => (int) $p['placed'], 'asked' => (int) $p['asked_for']]) ?>
-              <div class="muted"><?= te(':n lines on the order', ['n' => (int) $p['scope_lines']]) ?></div>
+              <div class="muted"><?= ten((int) $p['scope_lines'], ':n line on the order', ':n lines on the order') ?></div>
             <?php endif; ?>
           </td>
           <td class="small" data-task-progress="<?= (int) $p['id'] ?>">

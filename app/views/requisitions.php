@@ -80,7 +80,7 @@
       <div>
         <label for="r-start"><?= te('Starts') ?></label>
         <input id="r-start" type="date" name="starts_on"
-               value="<?= e($job['starts_on'] ?? '') ?>">
+               value="<?= e(max((string) ($job['starts_on'] ?? ''), date('Y-m-d'))) ?>">
       </div>
       <div class="f2">
         <label for="r-shift"><?= te('Shift') ?></label>

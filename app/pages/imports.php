@@ -1,6 +1,13 @@
 <?php
 require_role('admin');require __DIR__.'/../gmail.php';require __DIR__.'/../import-reader.php';require_once __DIR__.'/../import-fields.php';require_once __DIR__.'/../classification.php';
-$error=null;$preview=$_SESSION['import_preview'] ?? null;$fields=['full_name','email','phone','city','state','trade','employee_number','start_date','end_date','shift','employment_type','payment_method','adp_employee_id','pay_rate','bill_rate','per_diem_rate','salary_per_period'];
+$error=null;$preview=$_SESSION['import_preview'] ?? null;$fields=['full_name','email','phone','city','state','trade','employee_number','start_date','end_date','shift','employment_type','payment_method','adp_employee_id','pay_rate','bill_rate','per_diem_rate','salary_per_period','location','experience','education','source'];
+// P5-M36: a job board's applicant export (Indeed's "Export candidates") maps itself: its column names are known.
+$guess=static function(string $field,array $headers):string{
+ $names=['full_name'=>['name','full name','candidate name'],'email'=>['email','email address'],'phone'=>['phone','phone number'],'location'=>['candidate location','location'],
+         'experience'=>['relevant experience','experience'],'education'=>['education'],'source'=>['source'],'city'=>['city'],'state'=>['state']];
+ foreach($headers as $i=>$h){if(in_array(strtolower(trim((string)$h)),$names[$field]??[$field],true))return (string)$i;}
+ return '';
+};
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  try {
@@ -28,6 +35,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
    foreach($input['data'] as $i=>$source) {
     $item=[];foreach($fields as $field) { $column=$mapping[$field] ?? ''; $item[$field]=$column!==''?trim((string)($source[(int)$column] ?? '')):''; }
     $name=$item['full_name'];$cid=null;$status='invalid';$note='Missing name or invalid field length.';
+    // P5-M36: "Grand Forks, ND" in one column is a city and a state.
+    if($item['city']===''&&$item['location']!==''){$parts=array_map('trim',explode(',',$item['location']));if(count($parts)>=2){$item['state']=array_pop($parts);$item['city']=implode(', ',$parts);}else{$item['city']=$item['location'];}}
     try {
      $start=import_date_value($item['start_date']);$end=import_date_value($item['end_date']);
      if($start&&$end&&$end<$start)throw new InvalidArgumentException('Invalid assignment date interval.');
@@ -42,13 +51,30 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
      if($match) { $status='duplicate_review';$note='Existing employee number or email. Identity must be reviewed; existing records were not changed.';$cid=(int)$match['candidate_id']; }
      else if($item['email'] && !filter_var($item['email'],FILTER_VALIDATE_EMAIL)) { $note='Invalid email.'; }
      else {
-      q("INSERT INTO candidates(full_name,email,phone,city,state,source) VALUES (?,?,?,?,?,'Spreadsheet import')",[$name,$item['email']?:null,$item['phone']?:null,$item['city']?:null,$item['state']?:null]);$cid=(int)db()->lastInsertId();
+      // P5-M36: what the board knew about them comes with them: experience and education on the file, the board as the source.
+      $board=$item['source']!==''?mb_substr('Indeed ('.$item['source'].')',0,60):'Spreadsheet import';
+      $summary=trim(($item['experience']!==''?"Relevant experience: ".$item['experience']."\n":'').($item['education']!==''?"Education: ".$item['education']:''));
+      q("INSERT INTO candidates(full_name,email,phone,city,state,source,resume_text,discipline) VALUES (?,?,?,?,?,?,?,?)",[$name,$item['email']?:null,$item['phone']?:null,$item['city']?:null,$item['state']?:null,$board,$summary!==''?$summary:null,$target==='applicants'?(string)val('SELECT discipline FROM vacancies WHERE id=?',[(int)$vacancy['id']]):null]);$cid=(int)db()->lastInsertId();
       q('INSERT INTO employee_profiles(candidate_id,employee_number,employment_type,payment_method,adp_employee_id,salary_per_period) VALUES (?,?,?,?,?,?)',[$cid,$item['employee_number']?:null,$employment,$payment,$item['adp_employee_id']?:null,$salary]);
       // The spreadsheet says what they are, not since when, so no date is invented.
       classification_record_initial($cid,$employment,mb_substr('Imported from '.$input['filename'].' row '.($i+2),0,500),uid());
-      if($target==='applicants') { q("INSERT INTO applications(candidate_id,vacancy_id,source) VALUES (?,?,'Spreadsheet import')",[$cid,(int)$vacancy['id']]); }
+      if($target==='applicants') {
+       q("INSERT INTO applications(candidate_id,vacancy_id,source) VALUES (?,?,?)",[$cid,(int)$vacancy['id'],$item['source']!==''?'Indeed':'Spreadsheet import']);$appId=(int)db()->lastInsertId();
+       // P5-M36: the board's screening questions and answers, and whether the board judged them a match.
+       $answers=[];$misses=[];
+       foreach($input['headers'] as $hi=>$h){if(preg_match('/^Qualification (\d+)$/',(string)$h,$qm)&&trim((string)($source[$hi]??''))!==''){
+        $ai=array_search('Qualification '.$qm[1].' Answer',$input['headers'],true);$mi=array_search('Qualification '.$qm[1].' Match',$input['headers'],true);
+        $match=$mi!==false?trim((string)($source[$mi]??'')):'';
+        $answers[]='- '.trim((string)$source[$hi]).' '.($ai!==false?trim((string)($source[$ai]??'')):'').($match==='No'?' (does not meet)':'');
+        if($match==='No'){$misses[]=trim((string)$source[$hi]);}
+       }}
+       $statusCol=array_search('status',$input['headers'],true);
+       $boardNote=($statusCol!==false&&trim((string)($source[$statusCol]??''))!==''?'Status on the board: '.trim((string)$source[$statusCol])."\n":'').($answers?"Screening answers on the board:\n".implode("\n",$answers):'');
+       if($boardNote!==''){q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$appId,uid(),'new',mb_substr($boardNote,0,4000)]);}
+       if($misses){$note='Imported. Does not meet on the board: '.mb_substr(implode('; ',$misses),0,200);}
+      }
       elseif($target==='roster' && $jobId) { q("INSERT INTO placements(candidate_id,job_id,status,created_by,start_date,end_date,pay_rate,bill_rate,per_diem_rate) VALUES (?,?,'offered',?,?,?,?,?,?)",[$cid,$jobId,uid(),$start,$end,$pay,$bill,$diem]);$pid=(int)db()->lastInsertId();if($item['trade']||$item['shift']) q('INSERT INTO assignment_details(placement_id,trade,shift_label) VALUES (?,?,?)',[$pid,mb_substr($item['trade']?:'Unassigned',0,190),$item['shift']]); }
-      $status='imported';$note='Identity imported; screening/onboarding remains required.';
+      $status='imported';$note=str_starts_with($note,'Imported. Does not meet')?$note:'Identity imported; screening/onboarding remains required.';
       q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$cid,uid(),'spreadsheet import',$input['filename'].' row '.($i+2)]);
      }
     }
@@ -62,4 +88,4 @@ $preview=$preview?token_decrypt($preview):null;
 $batches=rows('SELECT b.*,SUM(r.status="imported") imported,SUM(r.status="duplicate_review") duplicates,SUM(r.status="invalid") invalid FROM import_batches b LEFT JOIN import_records r ON r.batch_id=b.id GROUP BY b.id ORDER BY b.id DESC');
 $reviews=rows("SELECT r.id,r.batch_id,r.row_number,r.candidate_id,r.status,r.note,c.full_name FROM import_records r LEFT JOIN candidates c ON c.id=r.candidate_id WHERE r.status<>'imported' ORDER BY r.id DESC LIMIT 100");
 $openVacancies=rows("SELECT v.id,v.title,j.title project FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.is_open=1 AND j.status<>'closed' ORDER BY j.title,v.title");
-render('imports',compact('preview','fields','batches','reviews','error','openVacancies'));
+render('imports',compact('preview','fields','batches','reviews','error','openVacancies','guess'));

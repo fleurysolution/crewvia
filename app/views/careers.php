@@ -59,7 +59,7 @@
       <?= te(ucfirst((string) ($o['discipline'] ?: 'other'))) ?>
       <?php if ($where !== ''): ?>&middot; <?= e($where) ?><?php endif; ?>
       <?php if ($o['shift']): ?>&middot; <?= e($o['shift']) ?><?php endif; ?>
-      <?php if ($start): ?>&middot; <?= te('starts :date', ['date' => d($start)]) ?><?php endif; ?>
+      <?php if ($start): ?>&middot; <?= e(starts_words((string) $start)) ?><?php endif; ?>
     </p>
 
     <div class="opening-terms">

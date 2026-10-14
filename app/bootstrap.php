@@ -470,6 +470,16 @@ function week_money(array $t, array $p, array $job): array
     ];
 }
 
+/** When work starts, in words: a date already passed means it starts now. */
+function starts_words(?string $date): string
+{
+    if (! $date) {
+        return '';
+    }
+
+    return $date <= date('Y-m-d') ? t('starts immediately') : t('starts :date', ['date' => d($date)]);
+}
+
 function money($v): string { return '$' . number_format((float) $v, 2); }
 
 /** Saturday of the week a date falls in - the week always ends Saturday. */
