@@ -2450,4 +2450,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Per diem: payroll marks a local worker\'s per diem taxable (Payroll export); ADP RUN takes it under its own earnings code (Settings).' . PHP_EOL;
 }
 
+// ── P5-M37: the office attaches a candidate's CV, cover letter or other document ──
+// Reversed by install/rollback/p5-m37.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='candidate_resumes' AND column_name='kind'")) {
+    q("ALTER TABLE candidate_resumes ADD COLUMN kind ENUM('cv','cover_letter','other') NOT NULL DEFAULT 'cv' AFTER candidate_id, ADD COLUMN attached_by INT UNSIGNED NULL AFTER original_name");
+    echo 'Attachments: the recruiting desk attaches a candidate\'s CV, cover letter or other document in Hiring; stored encrypted, like the CVs sent with an application.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -130,8 +130,13 @@ $hwScore = static function (?string $s): string {
         <div class="card" id="background"><h3><?= te('Background') ?></h3>
           <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
           <?php if ($a['skills']): ?><p class="small"><?php foreach ($a['skills'] as $sk): ?><span class="tag <?= (int) $sk['confirmed'] ? 'green' : 'grey' ?>"><?= e((string) $sk['skill_slug']) ?><?= $sk['years'] ? ' · ' . (int) $sk['years'] . 'y' : '' ?></span> <?php endforeach; ?></p><?php endif; ?>
-          <?php foreach ($a['resumes'] as $r): ?><p class="small"><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
+          <?php foreach ($a['resumes'] as $r): ?><p class="small"><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a> <span class="tag grey"><?= te(['cv' => 'CV', 'cover_letter' => 'Cover letter', 'other' => 'Other document'][$r['kind'] ?? 'cv'] ?? 'CV') ?></span> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
           <?php if (! $a['resumes']): ?><p class="small muted"><?= te('No résumé on file.') ?></p><?php endif; ?>
+          <form method="post" action="/resumes" enctype="multipart/form-data" class="row tight gap-s mt-s" id="attach-document"><?= csrf_field() ?><input type="hidden" name="do" value="attach"><input type="hidden" name="candidate_id" value="<?= (int) $a['candidate_id'] ?>"><input type="hidden" name="back" value="/hiring?v=<?= (int) $a['vacancy_id'] ?>&app=<?= (int) $a['id'] ?>">
+            <select name="kind" aria-label="<?= te('What it is') ?>" class="w-auto"><option value="cv"><?= te('CV') ?></option><option value="cover_letter"><?= te('Cover letter') ?></option><option value="other"><?= te('Other document') ?></option></select>
+            <input type="file" name="resume" accept=".pdf,.docx" required aria-label="<?= te('File') ?>">
+            <button class="btn sm ghost"><?= te('Attach') ?></button>
+          </form>
         </div>
       </div>
     </div>

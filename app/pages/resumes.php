@@ -1,6 +1,19 @@
 <?php
 require_login();$own=is_worker_account();if(!$own)require_role('recruiter');
 $cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['candidate_id']??0);
+// P5-M37: the office attaches what the candidate sent elsewhere (a job board, an email): a CV, a cover letter, another document.
+if(!$own && $_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='attach') {
+    require_once __DIR__.'/../intake.php';
+    $target=(int)($_POST['candidate_id']??0);$kind=in_array($_POST['kind']??'',['cv','cover_letter','other'],true)?$_POST['kind']:'cv';
+    $back=(string)($_POST['back']??'');$back=preg_match('#^/hiring\?v=\d+&app=\d+$#',$back)?$back:'/candidates/'.$target;
+    if(!val('SELECT id FROM candidates WHERE id=?',[$target])){refuse(404,t('That person does not exist.'),'/candidates');}
+    try{$file=intake_resume_prepare();}catch(RuntimeException $e){refuse(422,$e->getMessage(),$back);}
+    if(!$file){refuse(422,t('Choose a PDF or DOCX file up to 5 MB.'),$back);}
+    q('INSERT INTO candidate_resumes(candidate_id,kind,storage_name,file_hash,extension,original_name,attached_by) VALUES (?,?,?,?,?,?,?)',[$target,$kind,$file['storage_name'],$file['file_hash'],$file['extension'],$file['original_name'],uid()]);
+    q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$target,uid(),'document attached',['cv'=>'CV','cover_letter'=>'Cover letter','other'=>'Document'][$kind].': '.$file['original_name']]);
+    log_activity('attached a candidate document','candidate',$target,$kind);
+    flash(t('Attached. It is on their file, encrypted.'));redirect($back);
+}
 if(isset($_GET['download'])) {
     $doc=row('SELECT * FROM candidate_resumes WHERE id=?',[(int)$_GET['download']]);
     if(!$doc||($own&&(int)$doc['candidate_id']!==$cid)){refuse(404, t('Document unavailable.'));}

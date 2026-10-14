@@ -99,4 +99,30 @@ batch = probe('batch')
 check('and in the import\'s review list', any(r['note'].startswith('Imported. Does not meet on the board: What percentage') for r in batch), batch)
 check('Someone already on file is held for review, their record unchanged', any(r['status'] == 'duplicate_review' for r in batch) and probe('person', 'wk-import-1@test.invalid')['source'] == 'Spreadsheet import', batch)
 
+# ── P5-M37: the office attaches the CV and cover letter the board holds ──
+def attach(client, cid, back, kind, name, content, mime):
+    client.get(back)
+    b = '----attach'
+    crlf = chr(13) + chr(10)
+    head = ''.join('--' + b + crlf + 'Content-Disposition: form-data; name="%s"' % k + crlf + crlf + str(v) + crlf
+                   for k, v in (('_csrf', client.token), ('do', 'attach'), ('candidate_id', cid), ('kind', kind), ('back', back)))
+    body = (head + '--' + b + crlf + 'Content-Disposition: form-data; name="resume"; filename="%s"' % name + crlf + 'Content-Type: ' + mime + crlf + crlf).encode() + content + (crlf + '--' + b + '--' + crlf).encode()
+    return client.open(urllib.request.Request(base + '/resumes', body, {'Content-Type': 'multipart/form-data; boundary=' + b}))
+
+
+PDF = ('%PDF-1.4' + chr(10) + 'Synthetic CV for the Indeed test' + chr(10) + '%%EOF').encode()
+back = '/hiring?v=%d&app=%d' % (wk['vA'], one['application']['id'])
+body = admin.get(back)[1]
+check('Hiring offers to attach a CV, a cover letter or another document to the applicant', 'id="attach-document"' in body and 'value="cover_letter"' in body)
+attach(admin, one['id'], back, 'cv', 'Indeed Test One CV.pdf', PDF, 'application/pdf')
+attach(admin, one['id'], back, 'cover_letter', 'Cover letter.pdf', PDF, 'application/pdf')
+docs = probe('docs', 'in-one@test.invalid')
+check('Both are on their file, marked CV and cover letter, with who attached them', [d['kind'] for d in docs] == ['cv', 'cover_letter'] and all(d['attached_by'] for d in docs), docs)
+st = probe('stored', docs[0]['storage_name'])
+check('Stored encrypted, not as the PDF', st['size'] > 0 and not st['plain_pdf'], st)
+body = admin.get(back)[1]
+check('Hiring lists them with what they are', 'Indeed Test One CV.pdf' in body and 'Cover letter</span>' in body)
+status, body = attach(admin, one['id'], back, 'other', 'notes.txt', b'plain text', 'text/plain')
+check('A file that is not a PDF or a Word document is refused', len(probe('docs', 'in-one@test.invalid')) == 2, status)
+
 json.dump(results, open('work/ii-http-results.json', 'w'), indent=1)
