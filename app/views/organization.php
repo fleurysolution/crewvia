@@ -65,7 +65,7 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
 <section class="card">
   <span class="eyebrow"><?= te('THE OFFICE') ?></span>
   <h2><?= te('Who to call') ?></h2>
-  <p class="hint" style="margin:-4px 0 14px">
+  <p class="hint m0 pull-up mb">
     <?= te('A crew with nobody at a desk has nobody to call when a room falls through at nine at night.') ?>
   </p>
 
@@ -86,12 +86,12 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
 
 <!-- ── nobody's responsibility ─────────────────────────────────────── -->
 <?php if ($unassigned): ?>
-<section class="card" style="border-color:#F0C4C1;background:#FDEEED">
+<section class="card tone-alert">
   <span class="eyebrow t-red"><?= te('NOBODY IS CARRYING THESE') ?></span>
   <h2 class="t-red">
     <?= te(':n with no supervisor', ['n' => count($unassigned)]) ?>
   </h2>
-  <p class="small" style="margin:-4px 0 14px">
+  <p class="small m0 pull-up mb">
     <?= te('If something happens to one of them on site, there is no name against them. Give each one a supervisor and a trade.') ?>
   </p>
 
@@ -143,7 +143,7 @@ $assignForm = static function (array $member, array $supervisors) use ($assignId
     </div>
 
     <?php if ($size > COMFORTABLE_CREW): ?>
-      <p class="hint" style="margin:-6px 0 12px;color:var(--amber)">
+      <p class="hint m0 pull-up mb t-amber">
         <?= te('More than :n people under one supervisor. Consider a second crew before the next wave arrives.',
                ['n' => COMFORTABLE_CREW]) ?>
       </p>

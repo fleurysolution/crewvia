@@ -90,7 +90,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <p class="m0">
       <?= e($standing['exclusion_reason'] ?? '') ?>
     </p>
-    <p class="small" style="margin:8px 0 0;opacity:.85">
+    <p class="small m0 mt-s t-muted">
       <?= te('Decided by :who on :when', [
           'who'  => $standing['decided_by'] ?? t('somebody'),
           'when' => $standing['excluded_at'] ? d($standing['excluded_at']) : t('an unrecorded date')]) ?>
@@ -216,7 +216,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <button class="btn" type="submit"><?= te('Record the contact') ?></button>
   </form>
 
-  <p class="hint" style="margin:10px 0 0">
+  <p class="hint m0 mt">
     <?= $c['stage'] === 'new'
         ? te('Recording a contact moves them from Never contacted to Contacted.')
         : te('Recording a contact keeps the history below in order.') ?>
@@ -588,7 +588,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </h2>
 
     <?php if ($workHistory['assignments'] > 0): ?>
-      <p class="small muted" style="margin:-6px 0 12px">
+      <p class="small muted m0 pull-up mb">
         <?php if ($workHistory['grade']): ?>
           <span class="tag <?= review_grade_tone((string) $workHistory['grade']) ?>">
             <?= te('Average :grade', ['grade' => $workHistory['grade']]) ?>
@@ -661,7 +661,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <?php endif; ?>
 
     <?php if ($owedToUs > 0): ?>
-      <p class="small" style="color:var(--amber);margin:14px 0 0">
+      <p class="small t-amber m0 mt">
         <?= te('Owes :amount on an advance against wages.', ['amount' => money($owedToUs)]) ?>
         <a href="/advances"><?= te('See the advance') ?></a>
       </p>
@@ -672,7 +672,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <section class="card" id="skills">
     <span class="eyebrow"><?= te('SKILLS') ?></span>
     <h2><?= te('What they can actually do') ?></h2>
-    <p class="small muted" style="margin:-6px 0 12px">
+    <p class="small muted m0 pull-up mb">
       <?= te('Their discipline says which department they belong to. This says whether they can weld. A recruiter searching for a trade searches these.') ?>
     </p>
 
@@ -714,7 +714,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
           <?php endforeach; ?>
         </select>
       </div>
-      <div style="max-width:130px">
+      <div class="in-m">
         <label for="sky"><?= te('Years') ?></label>
         <input id="sky" name="years" type="number" min="0" max="60">
       </div>
@@ -726,7 +726,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <section class="card" id="rehire">
     <span class="eyebrow"><?= te('THE REGISTER') ?></span>
     <h2><?= te('Can we call this person again?') ?></h2>
-    <p class="small muted" style="margin:-6px 0 12px">
+    <p class="small muted m0 pull-up mb">
       <?= te('Kept on the person, not on the project they were fired from, so it travels with them to every job. Every recruiter sees it beside their name.') ?>
     </p>
 
@@ -758,7 +758,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <section class="card" id="calls">
     <span class="eyebrow"><?= te('HISTORY') ?></span>
     <h2><?= te('Every contact') ?></h2>
-    <p class="small muted" style="margin:-6px 0 12px">
+    <p class="small muted m0 pull-up mb">
       <?= te('Recorded at the top of this page. Newest first.') ?>
     </p>
 
@@ -803,11 +803,11 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
       <label for="d-city"><?= te('City') ?></label>
       <input id="d-city" name="city" value="<?= e((string) $c['city']) ?>" maxlength="120">
     </div>
-    <div style="max-width:100px">
+    <div class="in-s">
       <label for="d-state"><?= te('State') ?></label>
       <input id="d-state" name="state" value="<?= e((string) $c['state']) ?>" maxlength="2">
     </div>
-    <div style="max-width:120px">
+    <div class="in-s">
       <label for="d-zip"><?= te('ZIP code') ?></label>
       <input id="d-zip" name="zip" value="<?= e((string) ($c['zip'] ?? '')) ?>" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
     </div>

@@ -96,7 +96,7 @@ $subjectWord = [
           <td class="small muted"><?= te($subjectWord[$f['subject_type']] ?? $f['subject_type']) ?></td>
           <td class="small">
             <?= te(':done of :steps approved', ['done' => $done, 'steps' => $steps]) ?>
-            <div class="headcount-bar" style="margin-top:5px;max-width:160px">
+            <div class="headcount-bar mt-xs in-l">
               <span style="width:<?= (int) round($done / $steps * 100) ?>%"></span>
             </div>
           </td>

@@ -77,7 +77,7 @@ $hwScore = static function (?string $s): string {
   <nav class="split-list" aria-label="<?= te('Applicants') ?>">
     <?php foreach ($hwList as $r): ?><a href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>" class="<?= (int) $r['id'] === (int) $a['id'] ? 'on' : '' ?>" data-list-app="<?= (int) $r['id'] ?>">
       <div class="who"><?= $hwScore($r['screening_score']) ?><div><strong><?= e($r['full_name']) ?></strong><div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ')) ?><?= $r['miles_away'] !== null ? ' · <span data-miles="' . (int) $r['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $r['miles_away'])]) . '</span>' : '' ?></div><div class="sm"><?= e(hw_stages()[$r['stage']]) ?> · <?= e(hw_ago((string) $r['created_at'])) ?></div></div></div></a><?php endforeach; ?>
-    <?php if (! $hwList): ?><p class="muted small" style="padding:12px"><?= te('Nobody in this tab.') ?></p><?php endif; ?>
+    <?php if (! $hwList): ?><p class="muted small pad"><?= te('Nobody in this tab.') ?></p><?php endif; ?>
   </nav>
   <section>
     <div class="card" id="applicant" data-application="<?= (int) $a['id'] ?>" data-stage="<?= e($a['stage']) ?>">
@@ -96,11 +96,11 @@ $hwScore = static function (?string $s): string {
       <?php if (! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
       <form method="post" action="/hiring" class="detail-actions" id="move-form"><?= csrf_field() ?><input type="hidden" name="do" value="move"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
         <select name="stage" aria-label="<?= te('Move to') ?>"><?php foreach (['screening', 'interview', 'offered', 'new', 'withdrawn'] as $s): if ($s === $a['stage']) { continue; } ?><option value="<?= $s ?>"><?= te('Move to :stage', ['stage' => hw_stages()[$s]]) ?></option><?php endforeach; ?></select>
-        <input name="note" maxlength="2000" placeholder="<?= te('Note (required for an offer: its terms)') ?>" aria-label="<?= te('Note') ?>" style="flex:1;min-width:200px">
+        <input name="note" maxlength="2000" placeholder="<?= te('Note (required for an offer: its terms)') ?>" aria-label="<?= te('Note') ?>" class="f1 min-w-s">
         <button class="btn"><?= te('Move') ?></button>
       </form>
       <form method="post" action="/hiring" class="detail-actions" id="reject-form"><?= csrf_field() ?><input type="hidden" name="do" value="reject"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
-        <input name="note" maxlength="2000" placeholder="<?= te('Why (kept on the application)') ?>" aria-label="<?= te('Why') ?>" style="flex:1;min-width:200px"><button class="btn ghost"><?= te('Reject') ?></button>
+        <input name="note" maxlength="2000" placeholder="<?= te('Why (kept on the application)') ?>" aria-label="<?= te('Why') ?>" class="f1 min-w-s"><button class="btn ghost"><?= te('Reject') ?></button>
         <a class="btn ghost" href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= te('Full profile') ?></a>
       </form>
       <?php else: ?><p class="small muted"><?= te('That application is settled. Raise a new one for the same person if they come back.') ?> <a href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= te('Full profile') ?></a></p><?php endif; ?>
@@ -115,7 +115,7 @@ $hwScore = static function (?string $s): string {
         <?php if (! $a['questions']): ?><p class="muted small"><?= te('This project asks no screening question.') ?></p><?php endif; ?>
         <?php foreach ($a['questions'] as $qq): $ok = trim((string) $qq['answer']) !== ''; ?><div class="qa" data-question="<?= (int) $qq['id'] ?>"><div class="q"><?= e($qq['question']) ?><?= (int) $qq['required'] ? ' <span class="small muted">' . te('required') . '</span>' : '' ?></div>
           <div class="a"><?= $ok ? '<span class="checks"><span class="ok">✓</span></span> ' . e((string) $qq['answer']) : '<span class="checks"><span class="' . ((int) $qq['required'] ? 'ko' : 'wait') . '">' . ((int) $qq['required'] ? '✗' : '–') . '</span></span> <span class="muted">' . te('Not answered') . '</span>' ?></div></div><?php endforeach; ?>
-        <?php if ((int) $a['screened_out']): ?><p class="small" style="color:#9b1c1c"><?= te('Screened out automatically: :why', ['why' => (string) $a['screened_out_why']]) ?></p><?php endif; ?>
+        <?php if ((int) $a['screened_out']): ?><p class="small t-red"><?= te('Screened out automatically: :why', ['why' => (string) $a['screened_out_why']]) ?></p><?php endif; ?>
       </div>
       <div>
         <div class="card" id="checks"><h3><?= te('Screening checks') ?></h3>
@@ -135,7 +135,7 @@ $hwScore = static function (?string $s): string {
     <?php else: ?>
     <div class="card" id="activity">
       <form method="post" action="/hiring" class="filterbar"><?= csrf_field() ?><input type="hidden" name="do" value="note"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id'] . '&detail=activity') ?>">
-        <input name="note" required maxlength="2000" placeholder="<?= te('Add a note to this application') ?>" aria-label="<?= te('Note') ?>" style="flex:1"><button class="btn"><?= te('Add note') ?></button></form>
+        <input name="note" required maxlength="2000" placeholder="<?= te('Add a note to this application') ?>" aria-label="<?= te('Note') ?>" class="f1"><button class="btn"><?= te('Add note') ?></button></form>
       <?php if (! $a['timeline']): ?><p class="muted small"><?= te('Nothing yet.') ?></p><?php else: ?>
       <ul class="timeline"><?php foreach ($a['timeline'] as $ev): ?><li data-kind="<?= e($ev['kind']) ?>"><strong><?= e((string) $ev['what']) ?></strong><?= $ev['note'] ? ' — ' . e((string) $ev['note']) : '' ?><div class="when"><?= e(hw_ago((string) $ev['when'])) ?><?= $ev['who'] ? ' · ' . e((string) $ev['who']) : '' ?></div></li><?php endforeach; ?></ul><?php endif; ?>
     </div>
@@ -150,10 +150,10 @@ $hwScore = static function (?string $s): string {
 <div class="rows" id="applicants">
   <div class="rows-head"><span><?= te('Applicant and score') ?></span><span><?= te('Background and screening') ?></span><span><?= te('Activity') ?></span><span><?= te('Interest') ?></span></div>
   <?php foreach ($hwList as $r): $chk = $r['checks']; ?><div class="row-item" data-app="<?= (int) $r['id'] ?>" data-interest="<?= e((string) $r['interest']) ?>">
-    <div class="who"><?= $hwScore($r['screening_score']) ?><div style="min-width:0"><a class="name" href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>"><?= e($r['full_name']) ?></a>
+    <div class="who"><?= $hwScore($r['screening_score']) ?><div class="min-w-0"><a class="name" href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>"><?= e($r['full_name']) ?></a>
       <div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ') ?: t('Location not given')) ?><?= $r['miles_away'] !== null ? ' · <span data-miles="' . (int) $r['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $r['miles_away'])]) . '</span>' : '' ?></div>
       <div class="sm"><span class="tag <?= $hwStageTone[$r['stage']] ?? 'grey' ?>"><?= e(hw_stages()[$r['stage']]) ?></span></div></div></div>
-    <div class="sm"><div style="color:var(--ui-ink)"><?= $r['degree'] ? e($r['degree']) : te('No degree on file') ?><?= $r['years_exp'] !== null ? ' · ' . te(':n yr', ['n' => (int) $r['years_exp']]) : '' ?></div>
+    <div class="sm"><div class="t-ink"><?= $r['degree'] ? e($r['degree']) : te('No degree on file') ?><?= $r['years_exp'] !== null ? ' · ' . te(':n yr', ['n' => (int) $r['years_exp']]) : '' ?></div>
       <?php if ($r['skills']): ?><div><?= e(implode(' · ', $r['skills'])) ?></div><?php endif; ?>
       <div class="checks"><?php if ($r['required']): ?><span class="<?= $r['answered'] >= $r['required'] ? 'ok' : 'wait' ?>"><?= te(':a/:n answers', ['a' => (int) $r['answered'], 'n' => (int) $r['required']]) ?></span><?php endif; ?>
         <?php if (! empty($chk['passed'])): ?><span class="ok">✓ <?= (int) $chk['passed'] ?></span><?php endif; ?><?php if (! empty($chk['failed'])): ?><span class="ko">✗ <?= (int) $chk['failed'] ?></span><?php endif; ?><?php if (! empty($chk['pending'])): ?><span class="wait">… <?= (int) $chk['pending'] ?></span><?php endif; ?>

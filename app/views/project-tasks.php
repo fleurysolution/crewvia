@@ -14,8 +14,8 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
 <div class="card" id="task-progress" data-percent="<?= $progress['percent'] ?? '' ?>" data-live="<?= (int) $progress['live'] ?>" data-done="<?= (int) $progress['done'] ?>" data-overdue="<?= (int) $progress['overdue'] ?>">
   <h2><?= te('Progress') ?></h2>
   <?php if (! $progress['live']): ?><p class="muted"><?= te('No task on this project yet.') ?></p><?php else: ?>
-  <div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) $progress['percent'] ?>" aria-label="<?= te('Tasks done') ?>" style="background:#e3e8ee;border-radius:6px;height:12px;overflow:hidden;max-width:520px">
-    <div style="background:#2e7d4f;height:12px;width:<?= (int) $progress['percent'] ?>%"></div></div>
+  <div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) $progress['percent'] ?>" aria-label="<?= te('Tasks done') ?>" class="progress-track">
+    <div class="progress-fill" style="width:<?= (int) $progress['percent'] ?>%"></div></div>
   <p><?= te(':done of :live tasks done (:percent%)', ['done' => $progress['done'], 'live' => $progress['live'], 'percent' => $progress['percent']]) ?>
      · <?= te(':n open', ['n' => $progress['open']]) ?> · <?= te(':n blocked', ['n' => $progress['counts']['blocked']]) ?>
      · <span class="<?= $progress['overdue'] ? 'tag red' : '' ?>"><?= te(':n overdue', ['n' => $progress['overdue']]) ?></span>

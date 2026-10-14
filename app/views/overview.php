@@ -55,7 +55,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
       <div><div class="n" data-figure="placed"><?= $totals['placed'] ?></div><div class="l"><?= te('Confirmed, travelling or on site') ?></div></div>
       <div><div class="n <?= $unplaced ? 't-amber' : 't-green' ?>" data-figure="unplaced"><?= $unplaced ?></div><div class="l"><?= te('Still to place, of :n asked for', ['n' => $totals['target']]) ?></div></div>
     </div>
-    <?php if ($fillRate !== null): ?><div class="headcount-bar" style="margin:10px 0 4px"><span style="width:<?= min(100, $fillRate) ?>%"></span></div><div class="small muted" data-figure="fill"><?= te(':n% of the headcount filled', ['n' => $fillRate]) ?></div><?php endif; ?>
+    <?php if ($fillRate !== null): ?><div class="headcount-bar m0 mt mb-xs"><span style="width:<?= min(100, $fillRate) ?>%"></span></div><div class="small muted" data-figure="fill"><?= te(':n% of the headcount filled', ['n' => $fillRate]) ?></div><?php endif; ?>
     <div class="overview-sub">
       <span class="small muted"><?= te('Hiring') ?>:</span>
       <a href="/hiring" data-figure="new_week"><?= ten((int) $hiring['new_week'], ':n new applicant this week', ':n new applicants this week') ?></a>
@@ -78,7 +78,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
   <section class="card overview-group" id="group-attention">
     <h2><?= te('Needs somebody today') ?> <span class="tag <?= $attention ? 'red' : 'green' ?>" data-figure="attention"><?= array_sum(array_column($attention, 'count')) ?></span></h2>
     <?php if (! $attention): ?>
-      <p class="small" style="color:var(--green)"><?= te('Nothing waiting. Every project is clear.') ?></p>
+      <p class="small t-green"><?= te('Nothing waiting. Every project is clear.') ?></p>
     <?php else: ?>
       <ul class="attention-list">
         <?php foreach ($attention as $x): ?><li data-attention="<?= e($x['where']) ?>"><span class="dot <?= e($x['tone']) ?>"></span><a href="<?= e($x['where']) ?>"><strong><?= (int) $x['count'] ?></strong> <?= te($x['label']) ?></a><?php if ($x['projects']): ?> <span class="small muted"><?= ten($x['projects'], 'on :n project', 'on :n projects') ?></span><?php endif; ?></li><?php endforeach; ?>
@@ -87,7 +87,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
   </section>
 </div>
 
-<div class="chips" id="stage-chips" style="margin:4px 0 10px">
+<div class="chips m0 mt-xs mb" id="stage-chips">
   <a href="/overview" class="<?= $stageFilter === '' ? 'on' : '' ?>" data-stage-chip=""><?= te('All') ?><b><?= count($projects) ?></b></a>
   <?php foreach ($stages as $key => $s): if (empty($stageCounts[$key])) { continue; } ?><a href="/overview?stage=<?= e($key) ?>" class="<?= $stageFilter === $key ? 'on' : '' ?>" data-stage-chip="<?= e($key) ?>"><?= te($s['label']) ?><b><?= (int) $stageCounts[$key] ?></b></a><?php endforeach; ?>
 </div>
@@ -139,7 +139,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
 
           <td>
             <strong><?= $f['placed'] ?></strong><span class="muted"> / <?= $f['target'] ?></span>
-            <div class="headcount-bar" style="margin-top:5px;max-width:120px">
+            <div class="headcount-bar mt-xs in-s">
               <span style="width:<?= min(100, $filled) ?>%"></span>
             </div>
             <div class="muted small"><?= te(':n on site', ['n' => $f['onsite']]) ?></div>
@@ -157,7 +157,7 @@ $margin = $totals['weekly_bill'] - $totals['weekly_pay'];
                 <?php endforeach; ?>
               </ul>
             <?php else: ?>
-              <div class="small" style="color:var(--amber);margin-top:6px">
+              <div class="small t-amber mt-s">
                 <?= te('No scope written') ?>
               </div>
             <?php endif; ?>

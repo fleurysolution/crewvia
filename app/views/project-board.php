@@ -21,13 +21,13 @@ $pbSprintStatus = pp_sprint_statuses();
   <button class="btn ghost"><?= te('Show') ?></button>
 </form>
 
-<div id="board" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;align-items:start">
+<div id="board" class="board-cols">
 <?php foreach ($columns as $status => $cards): ?>
   <section class="card" data-column="<?= e($status) ?>" data-count="<?= count($cards) ?>" aria-label="<?= e($pbStatus[$status]) ?>">
-    <h2 style="font-size:16px"><?= e($pbStatus[$status]) ?> <span class="small muted">(<?= count($cards) ?>)</span></h2>
+    <h2 class="t-lg"><?= e($pbStatus[$status]) ?> <span class="small muted">(<?= count($cards) ?>)</span></h2>
     <?php if (! $cards): ?><p class="small muted"><?= te('Nothing here.') ?></p><?php endif; ?>
     <?php foreach ($cards as $c): $late = $c['due_on'] && $c['due_on'] < $today && $status !== 'done'; $mayMove = $manage || (int) $c['assignee_id'] === uid(); ?>
-    <article class="card" data-card="<?= (int) $c['id'] ?>" data-waiting="<?= (int) $c['waiting'] ?>" style="margin:8px 0;padding:10px">
+    <article class="card m0 mt-s mb-s pad" data-card="<?= (int) $c['id'] ?>" data-waiting="<?= (int) $c['waiting'] ?>">
       <a href="/project-tasks?task=<?= (int) $c['id'] ?>"><strong><?= e($c['title']) ?></strong></a>
       <?php if ($c['parent_title']): ?><div class="small muted"><?= te('Subtask of :title', ['title' => $c['parent_title']]) ?></div><?php endif; ?>
       <div class="small"><span class="tag <?= $pbPriorityTone[$c['priority']] ?>"><?= e($pbPriority[$c['priority']]) ?></span>
@@ -37,7 +37,7 @@ $pbSprintStatus = pp_sprint_statuses();
       <?php if ($c['waiting']): ?><div class="small"><span class="tag amber"><?= ten((int) $c['waiting'], 'Waits for :n task', 'Waits for :n tasks') ?></span></div><?php endif; ?>
       <?php if ($status === 'blocked' && $c['blocked_reason']): ?><div class="small"><?= te('Waiting for') ?>: <?= e($c['blocked_reason']) ?></div><?php endif; ?>
       <?php if ($mayMove): ?>
-      <div class="row" style="gap:4px;margin-top:6px">
+      <div class="row gap-xs mt-s">
         <?php foreach (pp_moves($status) as $to => $label): if ($to === 'blocked') continue; ?>
           <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="move"><input type="hidden" name="task_id" value="<?= (int) $c['id'] ?>"><input type="hidden" name="status" value="<?= e($to) ?>">
             <?php foreach ($filter as $k => $v): ?><input type="hidden" name="<?= e($k) ?>" value="<?= (int) $v ?>"><?php endforeach; ?>

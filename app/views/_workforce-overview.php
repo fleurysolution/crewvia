@@ -97,7 +97,7 @@ $icons = [
         </ul>
       <?php endif; ?>
       <?php if ($wf['today']['unmarked'] > 0): ?>
-        <p class="small" style="margin:10px 0 0;color:var(--amber,#B4740B)"><?= te(':n on assignment not yet marked at roll call today.', ['n' => $wf['today']['unmarked']]) ?></p>
+        <p class="small m0 mt t-amber"><?= te(':n on assignment not yet marked at roll call today.', ['n' => $wf['today']['unmarked']]) ?></p>
       <?php endif; ?>
     </div>
   </div>

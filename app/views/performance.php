@@ -6,7 +6,7 @@ $actionRow = static function (array $a, bool $closable): void { ?>
     <td<?= $a['overdue'] ? ' class="err"' : '' ?>><?= e(d((string) $a['due_on'])) ?><?= $a['overdue'] ? ' · ' . te('overdue') : '' ?></td>
     <td><?php if ($a['status'] !== 'open'): ?><span class="tag grey"><?= $a['status'] === 'done' ? te('Done') : te('Cancelled') ?></span> <span class="small"><?= e((string) $a['outcome']) ?></span>
       <?php elseif ($closable): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="action_close"><input type="hidden" name="action_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="candidate_id" value="<?= (int) $a['candidate_id'] ?>">
-        <input name="outcome" required minlength="3" maxlength="1000" placeholder="<?= te('What came of it') ?>" style="max-width:12em"><button class="btn sm" name="as" value="done"><?= te('Done') ?></button><button class="btn ghost sm" name="as" value="cancelled"><?= te('Cancel') ?></button></form><?php endif; ?></td></tr>
+        <input name="outcome" required minlength="3" maxlength="1000" placeholder="<?= te('What came of it') ?>" class="in-l"><button class="btn sm" name="as" value="done"><?= te('Done') ?></button><button class="btn ghost sm" name="as" value="cancelled"><?= te('Cancel') ?></button></form><?php endif; ?></td></tr>
 <?php };
 ?>
 <div class="page-head"><div><h1><?= te('Performance') ?></h1>
@@ -20,15 +20,15 @@ $actionRow = static function (array $a, bool $closable): void { ?>
 <div class="card scroll" id="goals"><h2><?= te('Goals') ?></h2>
   <?php if (! $person['goals']): ?><p class="muted"><?= te('No goal yet.') ?></p><?php endif; ?>
   <?php foreach ($person['goals'] as $g): ?>
-  <div style="border-bottom:1px solid var(--line);padding:8px 0" data-goal="<?= (int) $g['id'] ?>" data-goal-status="<?= e($g['status']) ?>" data-progress="<?= (int) $g['progress'] ?>">
+  <div class="list-row" data-goal="<?= (int) $g['id'] ?>" data-goal-status="<?= e($g['status']) ?>" data-progress="<?= (int) $g['progress'] ?>">
     <strong><?= e($g['title']) ?></strong> <span class="tag <?= $gtone[$g['status']] ?>"><?= e(goal_statuses()[$g['status']]) ?></span> <span class="mono"><?= (int) $g['progress'] ?>%</span>
     <div class="small muted"><?= te('Measured by: :m', ['m' => $g['measure']]) ?> · <span<?= $g['overdue'] ? ' class="err"' : '' ?>><?= te('by :date', ['date' => d((string) $g['target_on'])]) ?><?= $g['overdue'] ? ' · ' . te('overdue') : '' ?></span><?= $g['close_note'] ? ' · ' . e($g['close_note']) : '' ?></div>
     <?php foreach ($g['updates'] as $x): ?><div class="small"><?= e(d(substr((string) $x['created_at'], 0, 10))) ?> · <?= (int) $x['progress'] ?>% · <?= e($x['note']) ?> · <?= e($x['by_name'] ?? '') ?><?= $x['by_self'] ? ' <span class="tag grey">' . te('own account') . '</span>' : '' ?></div><?php endforeach; ?>
     <?php if ($g['status'] === 'open'): ?>
     <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="goal_update"><input type="hidden" name="goal_id" value="<?= (int) $g['id'] ?>"><input type="hidden" name="candidate_id" value="<?= (int) $person['id'] ?>">
-      <input name="progress" type="number" min="0" max="100" step="1" required value="<?= (int) $g['progress'] ?>" aria-label="<?= te('Progress (%)') ?>" style="max-width:6em"><input name="note" required minlength="3" maxlength="1000" placeholder="<?= te('What was done') ?>" style="max-width:16em"><button class="btn sm"><?= te('Record progress') ?></button></form>
+      <input name="progress" type="number" min="0" max="100" step="1" required value="<?= (int) $g['progress'] ?>" aria-label="<?= te('Progress (%)') ?>" class="in-xs"><input name="note" required minlength="3" maxlength="1000" placeholder="<?= te('What was done') ?>" class="in-l"><button class="btn sm"><?= te('Record progress') ?></button></form>
     <?php if ($person['manage']): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="goal_close"><input type="hidden" name="goal_id" value="<?= (int) $g['id'] ?>"><input type="hidden" name="candidate_id" value="<?= (int) $person['id'] ?>">
-      <select name="status"><option value="achieved"><?= te('Achieved') ?></option><option value="missed"><?= te('Missed') ?></option><option value="dropped"><?= te('Dropped') ?></option></select><input name="note" required minlength="3" maxlength="500" placeholder="<?= te('How it ended') ?>" style="max-width:14em"><button class="btn ghost sm"><?= te('Close the goal') ?></button></form><?php endif; ?>
+      <select name="status"><option value="achieved"><?= te('Achieved') ?></option><option value="missed"><?= te('Missed') ?></option><option value="dropped"><?= te('Dropped') ?></option></select><input name="note" required minlength="3" maxlength="500" placeholder="<?= te('How it ended') ?>" class="in-l"><button class="btn ghost sm"><?= te('Close the goal') ?></button></form><?php endif; ?>
     <?php endif; ?>
   </div>
   <?php endforeach; ?>
@@ -91,7 +91,7 @@ $actionRow = static function (array $a, bool $closable): void { ?>
       <td><?= e(d((string) $c['due_on'])) ?></td><td class="num mono"><?= (int) $c['approved'] ?> / <?= (int) $c['reviews'] ?></td>
       <td><?= e(['planned' => t('Planned'), 'open' => t('Open'), 'closed' => t('Closed')][$c['status']]) ?></td>
       <td><?php if ($c['status'] !== 'closed'): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="cycle_id" value="<?= (int) $c['id'] ?>"><button class="btn sm" name="do" value="cycle_open"><?= $c['status'] === 'planned' ? te('Open the cycle') : te('Open for new assignments') ?></button>
-        <?php if ($c['status'] === 'open'): ?><input name="note" maxlength="500" placeholder="<?= te('Why, if reviews are unfinished') ?>" style="max-width:11em"><button class="btn ghost sm" name="do" value="cycle_close"><?= te('Close') ?></button><?php endif; ?></form><?php endif; ?></td></tr>
+        <?php if ($c['status'] === 'open'): ?><input name="note" maxlength="500" placeholder="<?= te('Why, if reviews are unfinished') ?>" class="in-m"><button class="btn ghost sm" name="do" value="cycle_close"><?= te('Close') ?></button><?php endif; ?></form><?php endif; ?></td></tr>
   <?php endforeach; ?></table><?php else: ?><p class="muted"><?= te('No cycle yet.') ?></p><?php endif; ?>
   <form method="post" id="cycle-form"><?= csrf_field() ?><input type="hidden" name="do" value="cycle_create">
     <h3><?= te('New cycle') ?></h3>

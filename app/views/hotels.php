@@ -3,12 +3,12 @@
   <?= te(':count rooms booked',['count'=>count($booked)]) ?>
   &middot; <?= te(':count without a bed',['count'=>count($needBed)]) ?>
   <?php if ($sharing): ?>
-    &middot; <span style="color:var(--red);font-weight:600"><?= te(':count sharing a room',['count'=>count($sharing)]) ?></span>
+    &middot; <span class="t-red semibold"><?= te(':count sharing a room',['count'=>count($sharing)]) ?></span>
   <?php endif; ?>
 </p></div></div>
 
 <?php if ($sharing): ?>
-<div class="card" style="border-color:#F0C4C1;background:#FDEEED">
+<div class="card tone-alert">
   <h2 class="t-red"><?= te('Sharing a room') ?></h2>
   <p class="small m0 mb"><?= te('Every engineer was told in writing they would not have a roommate. These are the ones who do.') ?></p>
   <?php foreach ($sharing as $s): ?>
@@ -60,7 +60,7 @@
               </select>
             </div>
 
-            <div style="max-width:92px">
+            <div class="in-xs">
               <label for="h-room-<?= (int) $n['id'] ?>"><?= te('Room') ?></label>
               <input id="h-room-<?= (int) $n['id'] ?>" name="room_number" required
                      maxlength="20" placeholder="412">
@@ -78,7 +78,7 @@
                      value="<?= e((string) ($n['end_date'] ?? $job['ends_on'] ?? '')) ?>">
             </div>
 
-            <div style="max-width:140px">
+            <div class="in-m">
               <label for="h-conf-<?= (int) $n['id'] ?>"><?= te('Confirmation') ?></label>
               <input id="h-conf-<?= (int) $n['id'] ?>" name="confirmation" maxlength="60"
                      placeholder="<?= te('From the hotel') ?>">
@@ -145,7 +145,7 @@
       <div class="f2"><label><?= te('Name') ?></label><input name="name" required placeholder="<?= te('Hampton Inn') ?>"></div>
       <div class="f2"><label><?= te('Address') ?></label><input name="address"></div>
       <div><label><?= te('City') ?></label><input name="city"></div>
-      <div style="max-width:90px"><label><?= te('State') ?></label><input name="state" maxlength="2"></div>
+      <div class="in-xs"><label><?= te('State') ?></label><input name="state" maxlength="2"></div>
     </div>
     <div class="row mt">
       <div><label><?= te('Phone') ?></label><input name="phone"></div>

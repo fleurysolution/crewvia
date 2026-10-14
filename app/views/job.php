@@ -23,7 +23,7 @@ require_once __DIR__ . '/../scope.php';
     </p>
   </div>
   <?php if ($job): ?>
-    <div style="display:flex;gap:8px">
+    <div class="flex gap-s">
       <a class="btn ghost" href="#scope"><?= te('Scope of work') ?></a>
       <a class="btn ghost" href="/roster"><?= te('Open the roster') ?></a>
     </div>
@@ -64,7 +64,7 @@ $strike   = (bool) $job['strike_live'];
   <div class="headcount-bar mt-xs">
     <span style="width:<?= lifecycle_progress($stage) ?>%"></span>
   </div>
-  <p class="small muted" style="margin:8px 0 0">
+  <p class="small muted m0 mt-s">
     <?= te(':n% through the job', ['n' => lifecycle_progress($stage)]) ?>
   </p>
 </section>
@@ -114,7 +114,7 @@ $strike   = (bool) $job['strike_live'];
   <section class="card">
     <span class="eyebrow"><?= te('THE AGREEMENT') ?></span>
     <h2><?= te('A full week of the scope') ?></h2>
-    <p class="small muted" style="margin:-6px 0 14px">
+    <p class="small muted m0 pull-up mb">
       <?= te('Every line of the order at the quantity agreed, on the guarantee in force :now.', [
           'now' => $strike ? t('while the strike is live') : t('outside a strike')]) ?>
     </p>
@@ -140,7 +140,7 @@ $strike   = (bool) $job['strike_live'];
     </div>
 
     <?php if ($unpriced > 0): ?>
-      <p class="small" style="color:var(--amber);margin:0 0 14px">
+      <p class="small t-amber m0 mb">
         <?= te(':n of :total lines have no pay rate yet, so they count as nothing in the figures above.', [
             'n' => $unpriced, 'total' => (int) $totals['lines']]) ?>
         <a href="#scope"><?= te('Price them') ?></a>
@@ -181,7 +181,7 @@ $strike   = (bool) $job['strike_live'];
     <div class="headcount-bar">
       <span style="width:<?= (int) $totals['people'] > 0 ? (int) round($totals['placed'] / $totals['people'] * 100) : 0 ?>%"></span>
     </div>
-    <p class="small muted" style="margin:8px 0 16px">
+    <p class="small muted m0 mt-s mb-l">
       <?= te(':n still to place', ['n' => $left]) ?>
       &middot; <?= te(':n on site', ['n' => (int) $figures['onsite']]) ?>
       &middot; <?= te(':n offered', ['n' => (int) $figures['offered']]) ?>
@@ -237,9 +237,9 @@ $strike   = (bool) $job['strike_live'];
 
 <!-- ── the scope of work ────────────────────────────────────────────── -->
 <section class="card tight" id="scope">
-  <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+  <div class="card-bar">
     <span class="eyebrow"><?= te('THE SCOPE OF WORK') ?></span>
-    <h2 style="margin:4px 0 6px"><?= te('What the client ordered, and what each trade is paid') ?></h2>
+    <h2 class="m0 mt-xs mb-s"><?= te('What the client ordered, and what each trade is paid') ?></h2>
     <p class="small muted m0">
       <?= te('One line per trade. Each line carries its own rates, because an engineer and a labourer on the same site are neither paid nor billed the same. Requisitions are raised against a line and inherit its terms.') ?>
     </p>
@@ -272,7 +272,7 @@ $strike   = (bool) $job['strike_live'];
               + (int) $line['quantity'] * 7 * (float) ($line['per_diem_rate'] ?? 0)
             : null;
         ?>
-        <tr<?= $editLine && (int) $editLine['id'] === (int) $line['id'] ? ' style="background:var(--blue-soft)"' : '' ?>>
+        <tr<?= $editLine && (int) $editLine['id'] === (int) $line['id'] ? ' class="bg-blue-soft"' : '' ?>>
           <td>
             <strong><?= e($line['role_title']) ?></strong>
             <div class="muted small">
@@ -329,14 +329,14 @@ $strike   = (bool) $job['strike_live'];
   <?php endif; ?>
 
   <!-- writing or correcting a line -->
-  <form method="post" action="/job" style="padding:18px;border-top:1px solid var(--line)">
+  <form method="post" action="/job" class="card-foot">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="<?= $editLine ? 'save_line' : 'add_line' ?>">
     <?php if ($editLine): ?>
       <input type="hidden" name="line_id" value="<?= (int) $editLine['id'] ?>">
     <?php endif; ?>
 
-    <h3 style="margin:0 0 4px">
+    <h3 class="m0 mb-xs">
       <?= $editLine
           ? te('Change :role', ['role' => e($editLine['role_title'])])
           : te('Add a trade to the order') ?>
@@ -361,7 +361,7 @@ $strike   = (bool) $job['strike_live'];
           <?php endforeach; ?>
         </select>
       </div>
-      <div style="max-width:120px">
+      <div class="in-s">
         <label for="l-qty"><?= te('How many') ?></label>
         <input id="l-qty" type="number" name="quantity" min="1" max="65535" required
                value="<?= (int) ($editLine['quantity'] ?? 1) ?>">
@@ -399,7 +399,7 @@ $strike   = (bool) $job['strike_live'];
       <?= $editLine ? te('Save the line') : te('Add to the order') ?>
     </button>
     <?php if ($editLine): ?>
-      <a class="btn ghost" href="/job#scope" style="margin-left:8px"><?= te('Cancel') ?></a>
+      <a class="btn ghost ml-s" href="/job#scope"><?= te('Cancel') ?></a>
     <?php endif; ?>
   </form>
 </section>
@@ -408,13 +408,13 @@ $strike   = (bool) $job['strike_live'];
 <form method="post" action="/job">
   <?= csrf_field() ?>
 
-  <div class="card" style="<?= $strike ? 'border-color:#F0C4C1;background:#FDEEED' : '' ?>">
+  <div class="card <?= $strike ? 'tone-alert' : '' ?>">
     <h2><?= te('The strike switch') ?></h2>
-    <p class="small muted" style="margin:-6px 0 12px">
+    <p class="small muted m0 pull-up mb">
       <?= te('While the strike is live, every line of the scope guarantees its strike hours instead of its normal week. Review the contractual terms before changing this.') ?>
     </p>
-    <label style="display:flex;align-items:center;gap:9px;font-weight:600;color:var(--ink);font-size:15px">
-      <input type="checkbox" name="strike_live" value="1" style="width:auto;transform:scale(1.3)"
+    <label class="check-label">
+      <input type="checkbox" name="strike_live" value="1" class="big-check"
              <?= $strike ? 'checked' : '' ?>>
       <?= te('The strike is live') ?>
     </label>
@@ -460,11 +460,11 @@ $strike   = (bool) $job['strike_live'];
         <label for="j-city"><?= te('City') ?></label>
         <input id="j-city" name="site_city" maxlength="120" value="<?= e($job['site_city'] ?? '') ?>">
       </div>
-      <div style="max-width:90px">
+      <div class="in-xs">
         <label for="j-state"><?= te('State') ?></label>
         <input id="j-state" name="site_state" maxlength="2" value="<?= e($job['site_state'] ?? '') ?>">
       </div>
-      <div style="max-width:120px">
+      <div class="in-s">
         <label for="j-zip"><?= te('ZIP code') ?></label>
         <input id="j-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?" value="<?= e($job['site_zip'] ?? '') ?>">
       </div>
@@ -479,7 +479,7 @@ $strike   = (bool) $job['strike_live'];
     </div>
 
     <h3 class="mt-l"><?= te('What the agreement covers') ?></h3>
-    <p class="hint" style="margin:-4px 0 12px">
+    <p class="hint m0 pull-up mb">
       <?= te('Beyond the rates on the lines. These are what the crew is told and what the client is invoiced for, so they are recorded here rather than remembered.') ?>
     </p>
 
@@ -501,7 +501,7 @@ $strike   = (bool) $job['strike_live'];
       </label>
     </div>
 
-    <p class="small muted" style="margin:16px 0 0">
+    <p class="small muted m0 mt-l">
       <?= te('How many people the agreement asks for is the total of the scope of work above: :n.', [
           'n' => (int) $totals['people']]) ?>
     </p>
@@ -510,7 +510,7 @@ $strike   = (bool) $job['strike_live'];
   <div class="card">
     <h2><?= te('Internal notes') ?></h2>
     <textarea name="notes" rows="5"><?= e($job['notes'] ?? '') ?></textarea>
-    <p class="small muted" style="margin:8px 0 0">
+    <p class="small muted m0 mt-s">
       <?= te('For the team only - never shown to applicants or on a contract. Kept here so the terms live in the system rather than in somebody\'s inbox.') ?>
     </p>
   </div>

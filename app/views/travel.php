@@ -13,7 +13,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
   </div>
   <div class="scroll">
   <table>
-    <thead><tr><th><?= te('Engineer') ?></th><th><?= te('Coming from') ?></th><th><?= te('Starts') ?></th><th class="right" style="width:52%"><?= te('Book it') ?></th></tr></thead>
+    <thead><tr><th><?= te('Engineer') ?></th><th><?= te('Coming from') ?></th><th><?= te('Starts') ?></th><th class="right w-half"><?= te('Book it') ?></th></tr></thead>
     <tbody>
     <?php foreach ($needTravel as $n): ?>
       <tr>
@@ -22,14 +22,14 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
         <td class="small muted"><?= e(trim(($n['city'] ?? '') . ', ' . ($n['state'] ?? ''), ' ,')) ?: '—' ?></td>
         <td class="small muted"><?= $n['start_date'] ? e(date('j M', strtotime($n['start_date']))) : '—' ?></td>
         <td>
-          <form method="post" action="/travel" class="row tight" style="justify-content:flex-end;gap:6px">
+          <form method="post" action="/travel" class="row tight justify-end gap-s">
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="book_travel">
             <input type="hidden" name="direction" value="inbound">
             <input type="hidden" name="placement_id" value="<?= (int) $n['id'] ?>">
             <label class="sr-only" for="mode-<?= (int) $n['id'] ?>"><?= te('How they travel') ?></label>
 
-            <select id="mode-<?= (int) $n['id'] ?>" name="mode" style="width:auto;padding:4px 8px;font-size:13px">
+            <select id="mode-<?= (int) $n['id'] ?>" name="mode" class="w-auto pad-s t-13">
 
               <?php foreach (['flight' => 'Flight', 'drive' => 'Drives themselves',
 
@@ -43,14 +43,14 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
 
             </select>
 
-            <input name="carrier" placeholder="<?= te('Airline') ?>" style="width:95px;padding:4px 8px;font-size:13px">
-            <input name="reference" placeholder="<?= te('Conf.') ?>" style="width:85px;padding:4px 8px;font-size:13px">
-            <input name="depart_from" placeholder="<?= te('From') ?>" style="width:85px;padding:4px 8px;font-size:13px">
+            <input name="carrier" placeholder="<?= te('Airline') ?>" class="fw-s pad-s t-13">
+            <input name="reference" placeholder="<?= te('Conf.') ?>" class="fw-xs pad-s t-13">
+            <input name="depart_from" placeholder="<?= te('From') ?>" class="fw-xs pad-s t-13">
 
-            <input name="arrive_at" placeholder="<?= te('Airport') ?>" style="width:90px;padding:4px 8px;font-size:13px">
-            <input type="datetime-local" name="arrive_time" style="width:auto;padding:4px 6px;font-size:12.5px">
-            <input name="cost" type="number" step="0.01" placeholder="$" style="width:75px;padding:4px 8px;font-size:13px">
-            <label style="display:flex;align-items:center;gap:4px;margin:0;font-weight:400;color:var(--ink);font-size:12px">
+            <input name="arrive_at" placeholder="<?= te('Airport') ?>" class="fw-xs pad-s t-13">
+            <input type="datetime-local" name="arrive_time" class="w-auto pad-s small">
+            <input name="cost" type="number" step="0.01" placeholder="$" class="fw-xs pad-s t-13">
+            <label class="inline-check">
               <input class="w-auto" type="checkbox" name="pickup_needed" value="1" checked> <?= te('pickup') ?>
             </label>
             <button class="btn sm" type="submit"><?= te('Save') ?></button>
@@ -95,7 +95,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
 
 <div class="card">
   <h2><?= te('Scheduled runs') ?></h2>
-  <p class="small muted" style="margin:-6px 0 12px">
+  <p class="small muted m0 pull-up mb">
     <?= te('Site transport and the runs for food, Walmart, laundry and haircuts.') ?>
   </p>
   <form method="post" action="/travel">
@@ -111,7 +111,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
       <div><label><?= te('Returns') ?></label><input type="time" name="return_time"></div>
       <div class="f2"><label><?= te('Pick-up point') ?></label><input name="pickup_point" placeholder="<?= te('Hotel lobby') ?>"></div>
       <div><label><?= te('Driver') ?></label><input name="driver"></div>
-      <div style="max-width:90px"><label><?= te('Seats') ?></label><input name="seats" type="number" min="1"></div>
+      <div class="in-xs"><label><?= te('Seats') ?></label><input name="seats" type="number" min="1"></div>
       <div class="f2"><label><?= te('Note for the crew') ?></label><input name="notes" maxlength="500" placeholder="<?= te('e.g. back by 20:00, ask for Marco') ?>"></div>
       <div class="row tight"><button class="btn" type="submit"><?= te('Add run') ?></button></div>
     </div>

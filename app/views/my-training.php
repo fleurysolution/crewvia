@@ -15,8 +15,8 @@ $mtStatus = tr_statuses();
   <h2><?= te('Assessment') ?></h2>
   <p class="small muted"><?= te('Pass mark: :n%.', ['n' => (int) $take['pass_mark']]) ?></p>
   <?php foreach ($questions as $i => $qq): ?>
-  <fieldset data-question="<?= (int) $qq['id'] ?>" style="margin:10px 0"><legend><strong><?= $i + 1 ?>. <?= e($qq['question']) ?></strong></legend>
-    <?php foreach ($qq['options'] as $oi => $op): ?><label style="display:block"><input type="radio" name="answer[<?= (int) $qq['id'] ?>]" value="<?= (int) $oi ?>" required> <?= e($op) ?></label><?php endforeach; ?></fieldset>
+  <fieldset data-question="<?= (int) $qq['id'] ?>" class="m0 mt mb"><legend><strong><?= $i + 1 ?>. <?= e($qq['question']) ?></strong></legend>
+    <?php foreach ($qq['options'] as $oi => $op): ?><label class="d-block"><input type="radio" name="answer[<?= (int) $qq['id'] ?>]" value="<?= (int) $oi ?>" required> <?= e($op) ?></label><?php endforeach; ?></fieldset>
   <?php endforeach; ?>
   <button class="btn"><?= te('Hand it in') ?></button>
   <?php else: ?>

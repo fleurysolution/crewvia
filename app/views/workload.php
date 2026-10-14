@@ -12,7 +12,7 @@
     <tr data-person="<?= (int) $p['user_id'] ?>" data-over="<?= in_array(true, $p['over'], true) ? '1' : '0' ?>">
       <td><?= e($p['name']) ?></td>
       <?php foreach ($workload['weeks'] as $w): ?>
-        <td data-week="<?= e($w) ?>" data-planned="<?= e($wlHours($p['planned'][$w])) ?>" data-capacity="<?= e($wlHours($p['capacity'][$w])) ?>"<?= $p['over'][$w] ? ' style="background:#fde8e6"' : '' ?>>
+        <td data-week="<?= e($w) ?>" data-planned="<?= e($wlHours($p['planned'][$w])) ?>" data-capacity="<?= e($wlHours($p['capacity'][$w])) ?>"<?= $p['over'][$w] ? ' class="bg-alert"' : '' ?>>
           <?= e($wlHours($p['planned'][$w])) ?> / <?= e($wlHours($p['capacity'][$w])) ?> h
           <?php if ($p['over'][$w]): ?><span class="tag red"><?= te('Over') ?></span><?php endif; ?>
           <?php if ($p['leave_days'][$w]): ?><div class="small muted"><?= ten($p['leave_days'][$w], ':n day off', ':n days off') ?></div><?php endif; ?></td>
@@ -21,8 +21,8 @@
       <td class="small"><?= (int) $p['open'] ?><?php if ($p['unestimated']): ?> <span class="muted">(<?= te(':n without an estimate', ['n' => $p['unestimated']]) ?>)</span><?php endif; ?>
         <?php if ($p['overdue']): ?> <span class="tag red"><?= te(':n overdue', ['n' => $p['overdue']]) ?></span><?php endif; ?></td>
       <?php if ($canSetCapacity): ?><td>
-        <form method="post" class="row" style="gap:4px"><?= csrf_field() ?><input type="hidden" name="do" value="capacity"><input type="hidden" name="user_id" value="<?= (int) $p['user_id'] ?>">
-          <input name="hours_per_week" type="number" min="0" max="80" step="0.5" value="<?= e($wlHours($p['hours_per_week'])) ?>" style="width:70px" aria-label="<?= te('Hours a week for :name', ['name' => $p['name']]) ?>">
+        <form method="post" class="row gap-xs"><?= csrf_field() ?><input type="hidden" name="do" value="capacity"><input type="hidden" name="user_id" value="<?= (int) $p['user_id'] ?>">
+          <input name="hours_per_week" type="number" min="0" max="80" step="0.5" value="<?= e($wlHours($p['hours_per_week'])) ?>" class="fw-xs" aria-label="<?= te('Hours a week for :name', ['name' => $p['name']]) ?>">
           <button class="btn sm ghost"><?= te('Save') ?></button></form></td><?php endif; ?>
     </tr>
     <?php endforeach; ?>

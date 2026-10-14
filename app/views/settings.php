@@ -25,7 +25,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
 <section class="card" id="permissions">
   <span class="eyebrow"><?= te('ACCESS CONTROL') ?></span>
   <h2><?= te('Roles and permissions') ?></h2>
-  <p class="hint" style="margin:-4px 0 18px">
+  <p class="hint m0 pull-up mb-l">
     <?= te('Everybody works their own desk. A tick here lends one desk to another — a recruiter who also books hotels, a payroll clerk who also reads screening. Administrators reach everything; workers, supervisors and clients are not desks and never appear here.') ?>
   </p>
 
@@ -81,7 +81,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
     <button class="btn" type="submit"><?= te('Save permissions') ?></button>
   </form>
 
-  <h3 style="margin-top:26px"><?= te('What each desk opens') ?></h3>
+  <h3 class="mt-xl"><?= te('What each desk opens') ?></h3>
   <div class="grid g3">
     <?php foreach ($desks as $desk => $meta): ?>
       <div class="desk-card">
@@ -119,8 +119,8 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
       <span class="hint"><?= te('Who to reach about contracts and candidate records.') ?></span>
     </div>
 
-    <h3 id="payroll" style="margin-top:22px"><?= te('Payroll export') ?></h3>
-    <p class="hint" style="margin:-6px 0 14px">
+    <h3 id="payroll" class="mt-xl"><?= te('Payroll export') ?></h3>
+    <p class="hint m0 pull-up mb">
       <?= te('ADP RUN takes these codes on every export. A wrong code is paid under the wrong earning.') ?>
     </p>
 
@@ -150,7 +150,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
       </div>
     </div>
 
-    <h3 id="subscription" style="margin-top:22px"><?= te('Subscription') ?></h3>
+    <h3 id="subscription" class="mt-xl"><?= te('Subscription') ?></h3>
 
     <div class="row">
       <div>
@@ -219,7 +219,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
 <section class="card" id="skills">
   <span class="eyebrow"><?= te('SKILLS') ?></span>
   <h2><?= te('What people can do') ?></h2>
-  <p class="small muted" style="margin:-6px 0 14px">
+  <p class="small muted m0 pull-up mb">
     <?= te('A trade is what an order asks for. A skill is what a person can do, and somebody can have several. Recruiters search the pool by these: this is how "find me the welders" is answered.') ?>
   </p>
 
@@ -273,7 +273,7 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
 <section class="card" id="trades">
   <span class="eyebrow"><?= te('TRADES') ?></span>
   <h2><?= te('What this agency staffs') ?></h2>
-  <p class="small muted" style="margin:-6px 0 14px">
+  <p class="small muted m0 pull-up mb">
     <?= te('These are the trades a scope of work can ask for and a candidate can be filed under. A trade in use is retired rather than deleted, so past orders keep their meaning.') ?>
   </p>
 

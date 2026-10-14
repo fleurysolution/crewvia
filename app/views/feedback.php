@@ -7,7 +7,7 @@ $fbList = static function (array $list, string $id, bool $showAbout) use ($fbKin
         echo '<p class="muted">' . te('None yet.') . '</p>';
     }
     foreach ($list as $f) {
-        echo '<div class="small" data-feedback="' . (int) $f['id'] . '" data-shared="' . (int) $f['is_shared'] . '" style="margin:8px 0"><span class="tag ' . $fbTone[$f['kind']] . '">' . e($fbKinds[$f['kind']]) . '</span> ';
+        echo '<div class="small m0 mt-s mb-s" data-feedback="' . (int) $f['id'] . '" data-shared="' . (int) $f['is_shared'] . '"><span class="tag ' . $fbTone[$f['kind']] . '">' . e($fbKinds[$f['kind']]) . '</span> ';
         echo '<strong>' . e($f['from_name']) . '</strong>' . ($showAbout ? ' → <strong>' . e($f['about_name']) . '</strong>' : '');
         echo (int) $f['is_shared'] ? '' : ' <span class="tag grey">' . te('Not shared with the person') . '</span>';
         echo ' <span class="muted">' . e(d(substr((string) $f['created_at'], 0, 10))) . '</span><div class="pre-wrap wrap-any">' . e($f['body']) . '</div></div>';

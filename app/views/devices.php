@@ -45,7 +45,7 @@ $here = $current && (int) $current['user_id'] === uid();
           data-denied="<?= te('Notifications are blocked for Crewvia in the settings of this browser.') ?>">
       <?= csrf_field() ?><input type="hidden" name="do" value="push_subscribe"><input type="hidden" name="endpoint" value="">
       <p><?= te('Send to this phone when there is something new about:') ?></p>
-      <?php foreach (push_kinds() as $k => $l): ?><label style="display:block"><input type="checkbox" name="kinds[]" value="<?= e($k) ?>" checked> <?= e($l) ?></label><?php endforeach; ?>
+      <?php foreach (push_kinds() as $k => $l): ?><label class="d-block"><input type="checkbox" name="kinds[]" value="<?= e($k) ?>" checked> <?= e($l) ?></label><?php endforeach; ?>
       <button type="button" class="btn" id="push-on"><?= te('Turn on for this phone') ?></button> <span class="small" id="push-status" role="status"></span>
     </form>
   <?php endif; ?>

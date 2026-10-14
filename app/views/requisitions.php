@@ -11,7 +11,7 @@
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="create">
     <h2><?= te('Create a requisition') ?></h2>
-    <p class="hint" style="margin:-2px 0 18px">
+    <p class="hint m0 pull-up mb-l">
       <?php if (! empty($job['title'])): ?>
         <?= te('For') ?> <strong><?= e($job['title']) ?></strong>
       <?php else: ?>
@@ -21,12 +21,12 @@
 
     <?php if (! empty($job['id'])): ?>
       <?php if (! $scope): ?>
-        <p class="small" style="color:var(--amber);margin:-6px 0 18px">
+        <p class="small t-amber m0 pull-up mb-l">
           <?= te('This project has no scope of work yet, so there is nothing to raise a requisition against and no agreed rate to inherit.') ?>
           <a href="/job#scope"><?= te('Write the scope of work') ?></a>
         </p>
       <?php elseif (! array_filter($scope, static fn ($l) => (int) $l['remaining'] > 0)): ?>
-        <p class="small" style="color:var(--amber);margin:-6px 0 18px">
+        <p class="small t-amber m0 pull-up mb-l">
           <?= te('Every trade on this agreement is already fully covered by requisitions, so there is nothing left to raise.') ?>
           <a href="/job#scope"><?= te('Raise a quantity on the scope') ?></a>
           <?= te('or close a requisition below that is no longer being recruited.') ?>
@@ -106,7 +106,7 @@
       <span class="hint"><?= te('What disqualifies somebody if it is missing. Screened before an offer.') ?></span>
     </div>
 
-    <h3 style="margin:22px 0 4px"><?= te('Override the agreed rates') ?></h3>
+    <h3 class="m0 mt-xl mb-xs"><?= te('Override the agreed rates') ?></h3>
     <p class="hint m0 mb">
       <?= te('Leave these blank — and almost always do. The rates were settled with the client on the line of the scope above, and the requisition inherits them; a number retyped here is how the order and the agreement start disagreeing. Fill one in only when this particular requisition really was agreed differently.') ?>
     </p>
@@ -146,7 +146,7 @@
     <?php if (! empty($job['id']) && $scope
               && ! array_filter($scope, static fn ($l) => (int) $l['remaining'] > 0)): ?>
       <button class="btn" type="submit" disabled><?= te('Create application QR') ?></button>
-      <span class="hint" style="display:inline-block;margin-left:10px">
+      <span class="hint inline-block ml">
         <?= te('Nothing left to order on this agreement.') ?>
       </span>
     <?php else: ?>
@@ -195,7 +195,7 @@
     $roleBill = $requisition['bill_rate'] ?? $requisition['line_bill'];
     $ownRate  = $requisition['pay_rate'] !== null;
     ?>
-    <p class="small" style="margin:0 0 4px">
+    <p class="small m0 mb-xs">
       <strong><?= $rolePay !== null ? e(money((float) $rolePay)) : '&mdash;' ?></strong>
       <?= te('an hour') ?>
       <?php if ($roleBill !== null): ?>
@@ -224,8 +224,8 @@
       <p class="small m0 mb"><strong><?= te('Degree required') ?>:</strong> <?= e($requisition['degree']) ?></p>
     <?php endif; ?>
 
-    <div class="application-qr" data-vacancy="<?= (int)$requisition['id'] ?>"
-         style="background:#fff;padding:12px;width:216px;max-width:100%"></div>
+    <div class="application-qr qr-box" data-vacancy="<?= (int)$requisition['id'] ?>"
+        ></div>
 
     <?php
     $asked  = max(1, (int) ($requisition['openings'] ?? 1));

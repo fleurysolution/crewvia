@@ -29,7 +29,7 @@ $tpSandbox = $tpTw['mode'] === 'sandbox';
       <?php foreach ($tp['messages'] as $i => $m): ?><option value="<?= (int) $m['id'] ?>" data-text="<?= e($m['text']) ?>" data-missing="<?= e(implode(', ', $m['missing'])) ?>"<?= $i === 0 ? ' selected' : '' ?>><?= e($m['name'] . ' · ' . strtoupper($m['language'])) ?></option><?php endforeach; ?>
     </select></label>
     <label><?= te('Text to send (you can change it)') ?><textarea name="text" rows="4" maxlength="1000"><?= e($tp['messages'][0]['text']) ?></textarea></label>
-    <p class="small muted"><span class="text-count"></span> <span class="text-missing" style="color:#8a5600"><?= $tp['messages'][0]['missing'] ? te('Not on file yet, shown in brackets:') . ' ' . e(implode(', ', $tp['messages'][0]['missing'])) : '' ?></span></p>
+    <p class="small muted"><span class="text-count"></span> <span class="text-missing t-amber-ink"><?= $tp['messages'][0]['missing'] ? te('Not on file yet, shown in brackets:') . ' ' . e(implode(', ', $tp['messages'][0]['missing'])) : '' ?></span></p>
     <div class="row">
       <a class="btn text-send" href="<?= e(msg_sms_link((string) $tp['phone'], $tp['messages'][0]['text'])) ?>"><?= te('Text :number', ['number' => e((string) $tp['candidate']['phone'])]) ?></a>
       <button type="button" class="btn ghost text-copy"><?= te('Copy for Google Voice') ?></button>

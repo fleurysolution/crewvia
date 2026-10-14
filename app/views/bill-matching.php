@@ -26,7 +26,7 @@ $figures = static function (array $m): string {
       <td><?= e((string) ($b['po_reference'] ?? '—')) ?><div class="small muted"><?= e($figures($b['match'])) ?></div></td>
       <td class="num mono"><?= e(money($b['amount'])) ?></td>
       <td class="small"><?php foreach ($b['match']['codes'] as $c): ?><div class="err"><?= e($labels[$c]) ?></div><?php endforeach; ?></td>
-      <td><?php if (can('admin')): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="clear"><input type="hidden" name="invoice_id" value="<?= (int) $b['id'] ?>"><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why it is paid anyway') ?>" style="max-width:12em"><button class="btn sm"><?= te('Clear') ?></button></form><?php endif; ?></td></tr>
+      <td><?php if (can('admin')): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="clear"><input type="hidden" name="invoice_id" value="<?= (int) $b['id'] ?>"><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why it is paid anyway') ?>" class="in-l"><button class="btn sm"><?= te('Clear') ?></button></form><?php endif; ?></td></tr>
   <?php endforeach; ?></table><?php endif; ?>
 </div>
 

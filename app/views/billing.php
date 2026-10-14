@@ -34,13 +34,13 @@
 </div>
 
 <?php if ($grand['bill'] > 0): ?>
-<div class="card" style="background:#FAFBFD">
+<div class="card bg-soft">
   <h2><?= te('Where the money lands') ?></h2>
-  <table style="max-width:460px">
+  <table class="in-xl">
     <tr><td><?= te('Billed to client') ?></td><td class="num mono"><?= money($grand['bill']) ?></td></tr>
     <tr><td><?= te('Wages and per diem') ?></td><td class="num mono">(<?= money($grand['pay']) ?>)</td></tr>
     <tr><td><?= te('Hotels and travel') ?></td><td class="num mono">(<?= money($bedNights + $travelCost) ?>)</td></tr>
-    <tr style="font-weight:700;border-top:2px solid var(--line)">
+    <tr class="bold total-row">
       <td><?= te('Left before overhead') ?></td>
       <td class="num mono <?= ($grand['margin'] - $bedNights - $travelCost) < 0 ? 't-red' : 't-green' ?>">
         <?= money($grand['margin'] - $bedNights - $travelCost) ?>
@@ -48,7 +48,7 @@
     </tr>
   </table>
   <?php if ($grand['short'] > 0): ?>
-    <p class="small muted" style="margin:12px 0 0">
+    <p class="small muted m0 mt">
       <?= rtrim(rtrim(number_format($grand['short'], 1), '0'), '.') ?> hours of that payroll were the
       guarantee &mdash; paid but not worked. At <?= money($job['pay_rate'] ?? 50) ?>/h that is
       <strong><?= money($grand['short'] * (float) ($job['pay_rate'] ?? 50)) ?></strong> <?= te('RSS carried.') ?>
@@ -63,7 +63,7 @@
 
 <?php foreach ($weeks as $wk => $w): ?>
 <div class="card tight">
-  <div style="padding:13px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+  <div class="card-bar row-between flex-wrap gap-s">
     <h2 class="m0">Week ending <?= e(date('j F Y', strtotime($wk))) ?></h2>
     <div class="small muted">
       <?= $w['count'] ?> engineer<?= $w['count'] === 1 ? '' : 's' ?>

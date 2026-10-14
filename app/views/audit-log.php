@@ -4,7 +4,7 @@
   <label for="audit-user" class="sr-only"><?= te('Person') ?></label><select id="audit-user" name="user"><option value="0"><?= te('Everybody') ?></option><?php foreach ($people as $p): ?><option value="<?= (int) $p['id'] ?>"<?= $filters['user'] === (int) $p['id'] ? ' selected' : '' ?>><?= e($p['name'] . ' · ' . $p['role']) ?></option><?php endforeach; ?></select>
   <label for="audit-action" class="sr-only"><?= te('Action contains') ?></label><input id="audit-action" name="action" value="<?= e($filters['action']) ?>" placeholder="<?= te('Action contains') ?>" maxlength="60">
   <label for="audit-entity" class="sr-only"><?= te('Record') ?></label><select id="audit-entity" name="entity"><option value=""><?= te('Any record') ?></option><?php foreach ($entities as $en): ?><option value="<?= e($en) ?>"<?= $filters['entity'] === $en ? ' selected' : '' ?>><?= e($en) ?></option><?php endforeach; ?></select>
-  <label for="audit-id" class="sr-only"><?= te('Number') ?></label><input id="audit-id" name="id" type="number" min="0" value="<?= $filters['id'] ?: '' ?>" placeholder="#" style="width:90px">
+  <label for="audit-id" class="sr-only"><?= te('Number') ?></label><input id="audit-id" name="id" type="number" min="0" value="<?= $filters['id'] ?: '' ?>" placeholder="#" class="fw-xs">
   <label for="audit-from"><?= te('From') ?></label><input id="audit-from" type="date" name="from" value="<?= e($filters['from']) ?>">
   <label for="audit-to"><?= te('To') ?></label><input id="audit-to" type="date" name="to" value="<?= e($filters['to']) ?>">
   <button class="btn ghost"><?= te('Show') ?></button>

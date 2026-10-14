@@ -10,9 +10,9 @@ $foKind = ['room' => t('Room'), 'tax' => t('Tax'), 'incidental' => t('Incidental
   <h2><?= te('Open a folio') ?></h2>
   <div class="row">
     <div class="f2"><label for="fo-hotel"><?= te('Hotel') ?></label><select id="fo-hotel" name="hotel_id" required><option value=""><?= te('Choose') ?></option><?php foreach ($foHotels as $h): ?><option value="<?= (int) $h['id'] ?>"><?= e($h['name']) ?></option><?php endforeach; ?></select></div>
-    <div style="max-width:180px"><label for="fo-week"><?= te('Any day of the week') ?></label><input id="fo-week" name="week" type="date" value="<?= e(date('Y-m-d', strtotime('-7 days'))) ?>" required></div>
-    <div style="max-width:200px"><label for="fo-ref"><?= te('Folio number') ?></label><input id="fo-ref" name="reference" maxlength="190" required></div>
-    <div style="max-width:170px"><label for="fo-due"><?= te('Payment due') ?></label><input id="fo-due" name="due_on" type="date"></div>
+    <div class="in-l"><label for="fo-week"><?= te('Any day of the week') ?></label><input id="fo-week" name="week" type="date" value="<?= e(date('Y-m-d', strtotime('-7 days'))) ?>" required></div>
+    <div class="in-l"><label for="fo-ref"><?= te('Folio number') ?></label><input id="fo-ref" name="reference" maxlength="190" required></div>
+    <div class="in-l"><label for="fo-due"><?= te('Payment due') ?></label><input id="fo-due" name="due_on" type="date"></div>
   </div>
   <button class="btn"><?= te('Open the folio') ?></button>
 </form>
@@ -45,9 +45,9 @@ $foKind = ['room' => t('Room'), 'tax' => t('Tax'), 'incidental' => t('Incidental
 </div>
 
 <div class="grid g3 mb" id="folio-totals">
-  <div class="card"><div class="small muted"><?= te('Billed by the hotel') ?></div><div style="font-size:22px;font-weight:700" data-total="billed"><?= e(money($foTotals['billed'])) ?></div><div class="small muted"><?= te('Rooms as booked: :amount', ['amount' => money($foTotals['booked'])]) ?></div></div>
+  <div class="card"><div class="small muted"><?= te('Billed by the hotel') ?></div><div class="big-figure" data-total="billed"><?= e(money($foTotals['billed'])) ?></div><div class="small muted"><?= te('Rooms as booked: :amount', ['amount' => money($foTotals['booked'])]) ?></div></div>
   <div class="card"><div class="small muted"><?= te('Who pays') ?></div><div class="small"><?= te('Agency :a · Client :c · Workers :w', ['a' => money($foTotals['agency']), 'c' => money($foTotals['client']), 'w' => money($foTotals['worker'])]) ?></div></div>
-  <div class="card"><div class="small muted"><?= te('Lines to check') ?></div><div style="font-size:22px;font-weight:700" data-open-lines><?= count(array_filter($foLines, static fn($l) => $l['needs_note'] || $l['needs_charge'])) ?></div></div>
+  <div class="card"><div class="small muted"><?= te('Lines to check') ?></div><div class="big-figure" data-open-lines><?= count(array_filter($foLines, static fn($l) => $l['needs_note'] || $l['needs_charge'])) ?></div></div>
 </div>
 
 <div class="card tight" id="folio-lines"><div class="scroll"><table>
@@ -55,13 +55,13 @@ $foKind = ['room' => t('Room'), 'tax' => t('Tax'), 'incidental' => t('Incidental
   <?php foreach ($foLines as $l): $lf = 'line-' . (int) $l['id']; ?><tr data-line="<?= (int) $l['id'] ?>" data-flags="<?= e(implode(' ', $l['flags'])) ?>">
     <td><span class="tag"><?= e($foKind[$l['kind']]) ?></span></td>
     <td><?php if ($l['kind'] === 'room'): ?><strong><?= e((string) $l['guest_name']) ?></strong><div class="small muted"><?= $l['room_number'] ? te('room :n', ['n' => $l['room_number']]) : '' ?></div><?php else: ?><input form="<?= $lf ?>" name="description" value="<?= e((string) $l['description']) ?>" maxlength="255"<?= $foOpen ? '' : ' disabled' ?>><?php endif; ?>
-      <?php foreach ($l['flags'] as $flag): ?><div class="small" style="color:<?= $flag === 'absent' ? 'var(--ui-muted,#667)' : '#b42318' ?>" data-flag="<?= e($flag) ?>">• <?= e($foFlags[$flag]) ?><?= $flag === 'absent' ? ' (' . (int) $l['absent_nights'] . ')' : '' ?></div><?php endforeach; ?></td>
-    <td class="nowrap"><?php if ($l['kind'] === 'room'): ?><input form="<?= $lf ?>" name="nights" type="number" min="0" max="7" value="<?= (int) $l['nights'] ?>" style="width:64px"<?= $foOpen ? '' : ' disabled' ?>> × <input form="<?= $lf ?>" name="rate" type="number" step="0.01" min="0" value="<?= e(number_format((float) $l['rate'], 2, '.', '')) ?>" style="width:96px"<?= $foOpen ? '' : ' disabled' ?>><div class="small"><?= e(money($l['amount'])) ?></div>
-      <?php else: ?><input form="<?= $lf ?>" name="amount" type="number" step="0.01" min="0.01" value="<?= e(number_format((float) $l['amount'], 2, '.', '')) ?>" style="width:110px"<?= $foOpen ? '' : ' disabled' ?>><?php endif; ?></td>
+      <?php foreach ($l['flags'] as $flag): ?><div class="small <?= $flag === 'absent' ? 't-muted' : 't-red' ?>" data-flag="<?= e($flag) ?>">• <?= e($foFlags[$flag]) ?><?= $flag === 'absent' ? ' (' . (int) $l['absent_nights'] . ')' : '' ?></div><?php endforeach; ?></td>
+    <td class="nowrap"><?php if ($l['kind'] === 'room'): ?><input form="<?= $lf ?>" name="nights" type="number" min="0" max="7" value="<?= (int) $l['nights'] ?>" class="fw-xs"<?= $foOpen ? '' : ' disabled' ?>> × <input form="<?= $lf ?>" name="rate" type="number" step="0.01" min="0" value="<?= e(number_format((float) $l['rate'], 2, '.', '')) ?>" class="fw-s"<?= $foOpen ? '' : ' disabled' ?>><div class="small"><?= e(money($l['amount'])) ?></div>
+      <?php else: ?><input form="<?= $lf ?>" name="amount" type="number" step="0.01" min="0.01" value="<?= e(number_format((float) $l['amount'], 2, '.', '')) ?>" class="fw-s"<?= $foOpen ? '' : ' disabled' ?>><?php endif; ?></td>
     <td class="small"><?php if ($l['kind'] === 'room' && $l['booked_nights'] !== null): ?><?= ten((int) $l['booked_nights'], ':n night at :rate', ':n nights at :rate', ['rate' => $l['booked_rate'] !== null ? money($l['booked_rate']) : '—']) ?><?php elseif ($l['kind'] === 'room'): ?><span class="muted"><?= te('Not booked') ?></span><?php else: ?>—<?php endif; ?></td>
     <td><?php if ($l['kind'] === 'incidental'): ?><select form="<?= $lf ?>" name="charge_to" aria-label="<?= te('Who pays') ?>"<?= $foOpen ? '' : ' disabled' ?>><option value=""><?= te('Who pays?') ?></option><?php foreach ($foPayer as $k => $label): ?><option value="<?= $k ?>"<?= $l['charge_to'] === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select>
         <select form="<?= $lf ?>" name="placement_id" aria-label="<?= te('Which guest') ?>"<?= $foOpen ? '' : ' disabled' ?>><option value=""><?= te('Which guest') ?></option><?php foreach ($foGuests as $pid => $guest): ?><option value="<?= $pid ?>"<?= (int) $l['placement_id'] === $pid ? ' selected' : '' ?>><?= e($guest) ?></option><?php endforeach; ?></select><?php endif; ?>
-      <input form="<?= $lf ?>" name="accepted_note" value="<?= e((string) $l['accepted_note']) ?>" maxlength="500" placeholder="<?= $l['needs_note'] ? te('Why the difference is right') : te('Note') ?>"<?= $l['needs_note'] ? ' style="border-color:#b42318"' : '' ?><?= $foOpen ? '' : ' disabled' ?>></td>
+      <input form="<?= $lf ?>" name="accepted_note" value="<?= e((string) $l['accepted_note']) ?>" maxlength="500" placeholder="<?= $l['needs_note'] ? te('Why the difference is right') : te('Note') ?>"<?= $l['needs_note'] ? ' class="tone-alert"' : '' ?><?= $foOpen ? '' : ' disabled' ?>></td>
     <td class="nowrap"><?php if ($foOpen): ?><form class="inline" method="post" action="/folios" id="<?= $lf ?>"><?= csrf_field() ?><input type="hidden" name="do" value="line_save"><input type="hidden" name="line_id" value="<?= (int) $l['id'] ?>"><button class="btn ghost sm"><?= te('Save') ?></button></form>
       <form class="inline" method="post" action="/folios"><?= csrf_field() ?><input type="hidden" name="do" value="line_delete"><input type="hidden" name="line_id" value="<?= (int) $l['id'] ?>"><button class="btn ghost sm" aria-label="<?= te('Remove the line') ?>">✕</button></form><?php endif; ?></td>
   </tr><?php endforeach; ?>

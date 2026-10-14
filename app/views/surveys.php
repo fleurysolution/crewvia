@@ -32,10 +32,10 @@ $svForm = static function (?array $s, array $jobs) use ($svAud, $svRoles): void 
 <?php else: ?>
 <form method="post" class="card" id="respond-form"><?= csrf_field() ?><input type="hidden" name="do" value="respond"><input type="hidden" name="survey_id" value="<?= (int) $take['id'] ?>">
   <?php foreach ($questions as $i => $qq): $nm = 'answer[' . (int) $qq['id'] . ']'; $req = (int) $qq['is_required'] ? ' required' : ''; ?>
-  <fieldset data-question="<?= (int) $qq['id'] ?>" data-kind="<?= e($qq['kind']) ?>" style="margin:12px 0"><legend><strong><?= $i + 1 ?>. <?= e($qq['prompt']) ?></strong><?= (int) $qq['is_required'] ? '' : ' <span class="small muted">' . te('optional') . '</span>' ?></legend>
+  <fieldset data-question="<?= (int) $qq['id'] ?>" data-kind="<?= e($qq['kind']) ?>" class="m0 mt mb"><legend><strong><?= $i + 1 ?>. <?= e($qq['prompt']) ?></strong><?= (int) $qq['is_required'] ? '' : ' <span class="small muted">' . te('optional') . '</span>' ?></legend>
     <?php if ($qq['kind'] === 'scale'): ?><div class="row"><span class="small muted"><?= te('Not at all') ?></span><?php for ($v = 1; $v <= 5; $v++): ?><label><input type="radio" name="<?= e($nm) ?>" value="<?= $v ?>"<?= $req ?>> <?= $v ?></label><?php endfor; ?><span class="small muted"><?= te('Completely') ?></span></div>
     <?php elseif ($qq['kind'] === 'enps'): ?><div class="row"><span class="small muted"><?= te('Not likely') ?></span><?php for ($v = 0; $v <= 10; $v++): ?><label><input type="radio" name="<?= e($nm) ?>" value="<?= $v ?>"<?= $req ?>> <?= $v ?></label><?php endfor; ?><span class="small muted"><?= te('Very likely') ?></span></div>
-    <?php elseif ($qq['kind'] === 'choice'): ?><?php foreach ($qq['options'] as $oi => $op): ?><label style="display:block"><input type="radio" name="<?= e($nm) ?>" value="<?= (int) $oi ?>"<?= $req ?>> <?= e($op) ?></label><?php endforeach; ?>
+    <?php elseif ($qq['kind'] === 'choice'): ?><?php foreach ($qq['options'] as $oi => $op): ?><label class="d-block"><input type="radio" name="<?= e($nm) ?>" value="<?= (int) $oi ?>"<?= $req ?>> <?= e($op) ?></label><?php endforeach; ?>
     <?php else: ?><textarea name="<?= e($nm) ?>" rows="3" maxlength="2000"<?= $req ?> aria-label="<?= e($qq['prompt']) ?>"></textarea><?php endif; ?>
   </fieldset><?php endforeach; ?>
   <button class="btn"><?= te('Hand in my answers') ?></button></form>
@@ -72,12 +72,12 @@ $svForm = static function (?array $s, array $jobs) use ($svAud, $svRoles): void 
   <?php else: ?>
   <?php if ($results['segments']): ?><p class="small" id="segments"><?php foreach ($results['segments'] as $sg => $n): ?><span class="tag grey" data-segment="<?= e($sg) ?>"><?= e($svSeg[$sg] ?? $sg) ?>: <?= (int) $n ?></span> <?php endforeach; ?></p><?php endif; ?>
   <?php foreach ($results['questions'] as $i => $r): $qq = $r['question']; ?>
-  <div data-result="<?= (int) $qq['id'] ?>" data-kind="<?= e($qq['kind']) ?>"<?= isset($r['average']) ? ' data-average="' . e((string) $r['average']) . '"' : '' ?><?= array_key_exists('enps', $r) ? ' data-enps="' . e((string) $r['enps']) . '"' : '' ?> style="margin:12px 0">
+  <div data-result="<?= (int) $qq['id'] ?>" data-kind="<?= e($qq['kind']) ?>"<?= isset($r['average']) ? ' data-average="' . e((string) $r['average']) . '"' : '' ?><?= array_key_exists('enps', $r) ? ' data-enps="' . e((string) $r['enps']) . '"' : '' ?> class="m0 mt mb">
     <strong><?= $i + 1 ?>. <?= e($qq['prompt']) ?></strong> <span class="small muted"><?= ten((int) $r['n'], ':n answer', ':n answers') ?></span>
     <?php if ($qq['kind'] === 'scale'): ?><div><?= te('Average: :v of 5', ['v' => $r['average'] ?? '—']) ?></div><div class="small"><?= e(implode(' · ', array_map(fn($v, $c) => $v . ': ' . $c, array_keys($r['counts']), $r['counts']))) ?></div>
     <?php elseif ($qq['kind'] === 'enps'): ?><div><?= te('Score: :v', ['v' => $r['enps'] ?? '—']) ?></div><div class="small"><?= te('Would recommend (9-10): :a · neutral (7-8): :b · would not (0-6): :c', ['a' => $r['promoters'], 'b' => $r['passives'], 'c' => $r['detractors']]) ?></div>
     <?php elseif ($qq['kind'] === 'choice'): ?><div class="small"><?php foreach ($qq['options'] as $oi => $op): ?><div data-choice="<?= (int) $oi ?>" data-n="<?= (int) $r['counts'][$oi] ?>"><?= e($op) ?>: <?= (int) $r['counts'][$oi] ?></div><?php endforeach; ?></div>
-    <?php else: ?><?php foreach ($r['texts'] as $tx): ?><div class="small" data-text style="white-space:pre-wrap;overflow-wrap:anywhere;margin:4px 0">“<?= e($tx['text']) ?>”<?= $tx['name'] ? ' — ' . e($tx['name']) : '' ?></div><?php endforeach; ?><?php endif; ?>
+    <?php else: ?><?php foreach ($r['texts'] as $tx): ?><div class="small pre-wrap wrap-any m0 mt-xs mb-xs" data-text>“<?= e($tx['text']) ?>”<?= $tx['name'] ? ' — ' . e($tx['name']) : '' ?></div><?php endforeach; ?><?php endif; ?>
     <?php if (! empty($r['by_segment'])): ?><div class="small muted"><?= implode(' · ', array_map(fn($sg, $v) => '<span data-by-segment="' . e((string) $sg) . '">' . e($svSeg[$sg] ?? (string) $sg) . ': ' . ($v === null ? '—' : e((string) $v)) . '</span>', array_keys($r['by_segment']), $r['by_segment'])) ?></div><?php endif; ?>
   </div><?php endforeach; ?>
   <?php endif; ?>

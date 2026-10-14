@@ -78,7 +78,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
     <table><?php foreach ($lifecycle as [$when, $what, $detail]): ?><tr data-stage="<?= e($what) ?>"><td class="small"><?= e(d((string) $when)) ?></td><td><?= e($what) ?></td><td class="small"><?= e($detail) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
     <?php if (can('hotels') && in_array($item['state'], ['retired', 'lost'], true)): ?>
     <form method="post" class="grid g2 mt" id="asset-dispose-form"><?= csrf_field() ?><input type="hidden" name="do" value="dispose"><input type="hidden" name="equipment_id" value="<?= (int) $item['id'] ?>">
-      <h3 style="grid-column:1/-1;margin:0"><?= te('Dispose of it') ?></h3>
+      <h3 class="span-all m0"><?= te('Dispose of it') ?></h3>
       <label><?= te('How') ?><select name="disposal_method"><?php foreach (al_disposal_methods() as $k => $label): if ($k === 'returned_to_client' && $item['owner_type'] !== 'client') continue; ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select></label>
       <label><?= te('When') ?><input type="date" name="disposed_on" value="<?= e(date('Y-m-d')) ?>" required></label>
       <label><?= te('Sold for (a sale only)') ?><input type="number" name="proceeds" min="0" step="0.01"></label>
@@ -136,7 +136,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
     <label><?= te('Cost') ?><input type="number" name="cost" min="0" step="0.01"></label>
     <label><?= te('Days out of use') ?><input type="number" name="downtime_days" min="0" max="365"></label>
     <label><?= te('Reference') ?><input name="reference" maxlength="120"></label>
-    <label style="grid-column:1/-1"><?= te('Notes') ?><input name="notes" maxlength="1000"></label>
+    <label class="span-all"><?= te('Notes') ?><input name="notes" maxlength="1000"></label>
     <div><button class="btn sm"><?= te('Record the service') ?></button></div></form>
   <?php endif; ?>
 </div>
@@ -191,20 +191,20 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
 <div class="card scroll" id="asset-categories"><h2><?= te('Categories') ?></h2>
   <table><tr><th><?= te('Code') ?></th><th><?= te('Name') ?></th><th><?= te('Class') ?></th><th><?= te('Inspection every (days)') ?></th><th><?= te('Useful life (months)') ?></th><th><?= te('Residual %') ?></th><th><?= te('In use') ?></th><th></th></tr>
   <?php foreach ($categories as $c): ?><tr data-category="<?= e($c['code']) ?>"><td colspan="8">
-    <form method="post" class="row" style="gap:6px"><?= csrf_field() ?><input type="hidden" name="do" value="category_save"><input type="hidden" name="category_id" value="<?= (int) $c['id'] ?>">
-      <input name="code" value="<?= e($c['code']) ?>" maxlength="40" style="width:120px" aria-label="<?= te('Code') ?>"><input name="label" value="<?= e($c['label']) ?>" maxlength="120" aria-label="<?= te('Name') ?>">
+    <form method="post" class="row gap-s"><?= csrf_field() ?><input type="hidden" name="do" value="category_save"><input type="hidden" name="category_id" value="<?= (int) $c['id'] ?>">
+      <input name="code" value="<?= e($c['code']) ?>" maxlength="40" class="fw-s" aria-label="<?= te('Code') ?>"><input name="label" value="<?= e($c['label']) ?>" maxlength="120" aria-label="<?= te('Name') ?>">
       <select name="asset_class" aria-label="<?= te('Class') ?>"><?php foreach (al_classes() as $k => $label): ?><option value="<?= e($k) ?>"<?= ($c['asset_class'] ?? 'other') === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select>
-      <input type="number" name="inspection_days" min="1" max="3650" value="<?= e((string) $c['inspection_days']) ?>" style="width:90px" aria-label="<?= te('Inspection every (days)') ?>">
-      <input type="number" name="useful_life_months" min="1" max="600" value="<?= e((string) ($c['useful_life_months'] ?? '')) ?>" style="width:90px" aria-label="<?= te('Useful life (months)') ?>">
-      <input type="number" name="residual_percent" min="0" max="90" step="0.5" value="<?= e((string) ($c['residual_percent'] ?? '')) ?>" style="width:80px" aria-label="<?= te('Residual %') ?>">
+      <input type="number" name="inspection_days" min="1" max="3650" value="<?= e((string) $c['inspection_days']) ?>" class="fw-xs" aria-label="<?= te('Inspection every (days)') ?>">
+      <input type="number" name="useful_life_months" min="1" max="600" value="<?= e((string) ($c['useful_life_months'] ?? '')) ?>" class="fw-xs" aria-label="<?= te('Useful life (months)') ?>">
+      <input type="number" name="residual_percent" min="0" max="90" step="0.5" value="<?= e((string) ($c['residual_percent'] ?? '')) ?>" class="fw-xs" aria-label="<?= te('Residual %') ?>">
       <label><input type="checkbox" name="is_active" value="1"<?= (int) $c['is_active'] ? ' checked' : '' ?>> <?= te('In use') ?></label>
       <button class="btn sm ghost"><?= te('Save') ?></button></form></td></tr><?php endforeach; ?></table>
-  <form method="post" class="row" id="category-form" style="gap:6px;margin-top:8px"><?= csrf_field() ?><input type="hidden" name="do" value="category_save">
-    <input name="code" placeholder="<?= te('Code') ?>" maxlength="40" required style="width:120px" aria-label="<?= te('Code') ?>"><input name="label" placeholder="<?= te('Name') ?>" maxlength="120" required aria-label="<?= te('Name') ?>">
+  <form method="post" class="row gap-s mt-s" id="category-form"><?= csrf_field() ?><input type="hidden" name="do" value="category_save">
+    <input name="code" placeholder="<?= te('Code') ?>" maxlength="40" required class="fw-s" aria-label="<?= te('Code') ?>"><input name="label" placeholder="<?= te('Name') ?>" maxlength="120" required aria-label="<?= te('Name') ?>">
     <select name="asset_class" aria-label="<?= te('Class') ?>"><?php foreach (al_classes() as $k => $label): ?><option value="<?= e($k) ?>"><?= e($label) ?></option><?php endforeach; ?></select>
-    <input type="number" name="inspection_days" min="1" max="3650" placeholder="<?= te('Inspection every (days)') ?>" style="width:90px" aria-label="<?= te('Inspection every (days)') ?>">
-    <input type="number" name="useful_life_months" min="1" max="600" placeholder="<?= te('Useful life (months)') ?>" style="width:90px" aria-label="<?= te('Useful life (months)') ?>">
-    <input type="number" name="residual_percent" min="0" max="90" step="0.5" placeholder="<?= te('Residual %') ?>" style="width:80px" aria-label="<?= te('Residual %') ?>">
+    <input type="number" name="inspection_days" min="1" max="3650" placeholder="<?= te('Inspection every (days)') ?>" class="fw-xs" aria-label="<?= te('Inspection every (days)') ?>">
+    <input type="number" name="useful_life_months" min="1" max="600" placeholder="<?= te('Useful life (months)') ?>" class="fw-xs" aria-label="<?= te('Useful life (months)') ?>">
+    <input type="number" name="residual_percent" min="0" max="90" step="0.5" placeholder="<?= te('Residual %') ?>" class="fw-xs" aria-label="<?= te('Residual %') ?>">
     <input type="hidden" name="is_active" value="1"><button class="btn sm"><?= te('Add the category') ?></button></form>
 </div>
 <div class="grid g2">

@@ -24,8 +24,8 @@ $form = static function (?array $t) use ($employment) { $chosen = $t && $t['elig
       <div><label><?= te('Order in the list') ?></label><input name="sort_order" type="number" min="0" max="999" value="<?= e((string) ($t['sort_order'] ?? 0)) ?>"></div>
       <div><label><input type="checkbox" name="is_paid" value="1" <?= ! $t || (int) $t['is_paid'] === 1 ? 'checked' : '' ?>> <?= te('Paid') ?></label></div>
     </div>
-    <fieldset style="border:0;padding:0;margin:8px 0"><legend class="small"><?= te('Who may take it (none ticked: everybody)') ?></legend>
-      <?php foreach ($employment as $k => $label): ?><label class="small" style="margin-right:12px"><input type="checkbox" name="eligible_employment_types[]" value="<?= e($k) ?>" <?= in_array($k, $chosen, true) ? 'checked' : '' ?>> <?= e($label) ?></label><?php endforeach; ?>
+    <fieldset class="plain-fieldset m0 mt-s mb-s"><legend class="small"><?= te('Who may take it (none ticked: everybody)') ?></legend>
+      <?php foreach ($employment as $k => $label): ?><label class="small mr"><input type="checkbox" name="eligible_employment_types[]" value="<?= e($k) ?>" <?= in_array($k, $chosen, true) ? 'checked' : '' ?>> <?= e($label) ?></label><?php endforeach; ?>
     </fieldset>
     <button class="btn"><?= te('Save') ?></button>
   </form>

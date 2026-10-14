@@ -601,14 +601,14 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=4">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=5">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 <a class="skip-link" href="#main"><?= te('Skip to the content') ?></a>
 
 <header class="top">
-  <div><a class="brand" href="<?= e($u ? home_for((string) $u['role']) : '/login') ?>" style="text-decoration:none;color:inherit"><?= e($appName) ?></a><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
+  <div><a class="brand" href="<?= e($u ? home_for((string) $u['role']) : '/login') ?>"><?= e($appName) ?></a><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
   <?php if ($u): ?><button type="button" class="btn ghost sm nav-toggle" aria-controls="workspace-nav" aria-expanded="false"><?= te('Menu') ?></button><?php endif; ?>
   <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div>
     <?php

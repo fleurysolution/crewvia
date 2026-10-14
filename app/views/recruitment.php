@@ -91,7 +91,7 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
     </div>
 
     <?php if (! empty($a['screened_out'])): ?>
-      <p class="small" style="color:var(--red);margin:0 0 12px"><?= e($a['screened_out_why']) ?></p>
+      <p class="small t-red m0 mb"><?= e($a['screened_out_why']) ?></p>
     <?php endif; ?>
 
     <?php foreach ($identityMatches as $match): ?>
@@ -150,7 +150,7 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
         static fn ($s) => (int) $s['application_id'] === (int) $a['id']));
     ?>
     <?php if ($mine): ?>
-      <h3 style="margin:18px 0 8px"><?= te('Screening requirements') ?></h3>
+      <h3 class="m0 mt-l mb-s"><?= te('Screening requirements') ?></h3>
       <?php foreach ($mine as $s): ?>
         <form class="row check-row" method="post">
           <?= csrf_field() ?>

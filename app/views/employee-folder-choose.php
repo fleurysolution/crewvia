@@ -22,7 +22,7 @@ $stages = candidate_stages();
 
 <form class="card" method="get">
   <div class="row">
-    <div style="flex:3">
+    <div class="f3">
       <label for="fq"><?= te('Find somebody') ?></label>
       <input id="fq" name="q" value="<?= e($search) ?>"
              placeholder="<?= te('Name, email or employee number') ?>">

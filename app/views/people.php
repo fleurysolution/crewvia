@@ -19,7 +19,7 @@
             <?= csrf_field() ?>
             <input type="hidden" name="do" value="role">
             <input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>">
-            <select name="role" style="width:auto;padding:4px 8px;font-size:13px" onchange="this.form.submit()">
+            <select name="role" class="w-auto pad-s t-13" onchange="this.form.submit()">
               <?php foreach (roles() as $k => $v): ?>
                 <option value="<?= e($k) ?>" <?= $t['role'] === $k ? 'selected' : '' ?>><?= e($v) ?></option>
               <?php endforeach; ?>
@@ -71,7 +71,7 @@
       <div><label><?= te('Title') ?></label><input name="job_title"></div>
       <div class="row tight"><button class="btn" type="submit"><?= te('Add') ?></button></div>
     </div>
-    <p class="small muted" style="margin:10px 0 0">
+    <p class="small muted m0 mt">
       <?= te('They get a temporary password, shown once on this screen. Pass it on yourself.') ?>
     </p>
   </form>
@@ -83,7 +83,7 @@
     <div class="empty"><?= te('Nothing yet.') ?></div>
   <?php else: ?>
     <?php foreach ($recent as $a): ?>
-      <div style="padding:9px 18px;border-bottom:1px solid var(--line)" class="small">
+      <div class="small card-row">
         <strong><?= e($a['who'] ?? 'someone') ?></strong> <?= e($a['action']) ?>
         <?php if ($a['detail']): ?><span class="muted">&mdash; <?= e($a['detail']) ?></span><?php endif; ?>
         <span class="muted">&middot; <?= e(date('j M, g:ia', strtotime($a['created_at']))) ?></span>

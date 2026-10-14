@@ -20,7 +20,7 @@ $pct = $target > 0 ? min(100, (int) round($placed / $target * 100)) : 0;
   <?php else: ?>
     <?= te('Set a job up to begin.') ?>
     <?php if (can('admin')): ?>
-      <a class="btn" href="/projects" style="margin-left:8px"><?= te('Create the first project') ?></a>
+      <a class="btn ml-s" href="/projects"><?= te('Create the first project') ?></a>
     <?php endif; ?>
   <?php endif; ?>
 </p></div></div>
@@ -38,16 +38,15 @@ $steps = [
   ['/hours',          'Paid',         $journey['paid'],    'this week approved'],
 ];
 ?>
-<div class="card" style="padding:0;overflow:hidden">
-  <div style="display:flex;flex-wrap:wrap">
+<div class="card p0 clip">
+  <div class="flex flex-wrap">
     <?php foreach ($steps as $i => [$href, $label, $count, $hint]): ?>
-      <a href="<?= e($href) ?>" style="flex:1;min-width:150px;padding:14px 16px;text-decoration:none;color:inherit;
-         border-right:1px solid var(--line);<?= $i === 0 ? '' : '' ?>">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)">
+      <a href="<?= e($href) ?>" class="stage-step">
+        <div class="stat-label">
           <?= $i + 1 ?>. <?= te($label) ?>
         </div>
-        <div style="font-size:24px;font-weight:700;line-height:1.2"><?= (int) $count ?></div>
-        <div style="font-size:11.5px;color:var(--muted)"><?= te($hint) ?></div>
+        <div class="big-figure"><?= (int) $count ?></div>
+        <div class="small t-muted"><?= te($hint) ?></div>
       </a>
     <?php endforeach; ?>
   </div>
@@ -55,7 +54,7 @@ $steps = [
 
 <div class="grid g4 mb-l">
   <div class="stat">
-    <div class="n"><?= $placed ?><span class="muted" style="font-size:17px">/<?= $target ?></span></div>
+    <div class="n"><?= $placed ?><span class="muted t-lg">/<?= $target ?></span></div>
     <div class="l"><?= te('Crew secured') ?></div>
     <div class="h"><?= $pct ?>% of target &middot; <?= $onSite ?> on site</div>
   </div>

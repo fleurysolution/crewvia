@@ -6,7 +6,7 @@
   <div class="flash err"><?= te('You are still on the temporary password you were given. Change it now.') ?></div>
 <?php endif; ?>
 
-<div class="card" style="max-width:420px">
+<div class="card in-xl">
   <h2><?= te('Change password') ?></h2>
   <form method="post" action="/account">
     <?= csrf_field() ?>
@@ -17,7 +17,7 @@
     <div class="field"><label><?= te('New password again') ?></label>
       <input type="password" name="repeat" required minlength="10" autocomplete="new-password"></div>
     <button class="btn" type="submit"><?= te('Change it') ?></button>
-    <p class="small muted" style="margin:10px 0 0"><?= te('At least 10 characters. A short phrase you will remember beats a short password you will not.') ?></p>
+    <p class="small muted m0 mt"><?= te('At least 10 characters. A short phrase you will remember beats a short password you will not.') ?></p>
   </form>
 </div>
 

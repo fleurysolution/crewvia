@@ -44,8 +44,8 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
   <div class="scroll">
   <table>
     <thead><tr>
-      <th><?= te('Engineer') ?></th><th style="width:110px"><?= te('Hours') ?></th><th style="width:100px"><?= te('Per-diem days') ?></th>
-      <th style="width:110px"><?= te('Expenses') ?></th><th class="num"><?= te('Paid hours') ?></th><th class="num"><?= te('Gap') ?></th>
+      <th><?= te('Engineer') ?></th><th class="fw-s"><?= te('Hours') ?></th><th class="fw-s"><?= te('Per-diem days') ?></th>
+      <th class="fw-s"><?= te('Expenses') ?></th><th class="num"><?= te('Paid hours') ?></th><th class="num"><?= te('Gap') ?></th>
       <th class="num"><?= te('Pay') ?></th><th class="num"><?= te('Bill') ?></th><th><?= te('State') ?></th>
     </tr></thead>
     <tbody>
@@ -57,15 +57,15 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
         </td>
         <td><input type="number" step="0.25" min="0" max="168" name="hours[<?= (int) $l['id'] ?>]" aria-label="<?= te('Hours worked by :name', ['name' => $l['full_name']]) ?>"
                    value="<?= $l['hours_worked'] !== null ? e((float) $l['hours_worked']) : '' ?>"
-                   placeholder="0" style="padding:5px 8px"></td>
+                   placeholder="0" class="pad-s"></td>
         <td><input type="number" step="1" min="0" max="7" name="per_diem[<?= (int) $l['id'] ?>]" aria-label="<?= te('Per diem days for :name', ['name' => $l['full_name']]) ?>"
                    value="<?= $l['per_diem_days'] !== null ? (int) $l['per_diem_days'] : '' ?>"
-                   placeholder="0" style="padding:5px 8px"></td>
+                   placeholder="0" class="pad-s"></td>
         <td><input type="number" step="0.01" min="0" name="expenses[<?= (int) $l['id'] ?>]" aria-label="<?= te('Expenses for :name', ['name' => $l['full_name']]) ?>"
                    value="<?= $l['expenses'] !== null && (float) $l['expenses'] > 0 ? e((float) $l['expenses']) : '' ?>"
-                   placeholder="0.00" style="padding:5px 8px"></td>
+                   placeholder="0.00" class="pad-s"></td>
         <td class="num mono"><?= rtrim(rtrim(number_format($m['paid_hours'], 1), '0'), '.') ?></td>
-        <td class="num mono" style="<?= $m['short_by'] > 0 ? 'color:var(--amber);font-weight:600' : 'color:var(--muted)' ?>">
+        <td class="num mono <?= $m['short_by'] > 0 ? 't-amber semibold' : 't-muted' ?>">
           <?= $m['short_by'] > 0 ? '+' . rtrim(rtrim(number_format($m['short_by'], 1), '0'), '.') : '—' ?>
         </td>
         <td class="num mono"><?= money($m['pay_total']) ?></td>
@@ -85,7 +85,7 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
     </tbody>
   </table>
   </div>
-  <div style="padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <div class="card-foot flex gap items-center flex-wrap">
     <button class="btn" type="submit"><?= te('Save hours') ?></button>
     <span class="small muted"><?= te('An empty row is left alone &mdash; it is not recorded as a zero week.') ?></span>
   </div>
@@ -94,7 +94,7 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
 </form>
 
 <?php if ($lines): ?>
-<form method="post" action="/hours" style="margin-bottom:30px">
+<form method="post" action="/hours" class="mb-xl">
   <?= csrf_field() ?>
   <input type="hidden" name="do" value="approve_week">
   <input type="hidden" name="week_ending" value="<?= e($week) ?>">

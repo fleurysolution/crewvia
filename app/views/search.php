@@ -25,7 +25,7 @@ $stages = ['new' => 'Never contacted', 'contacted' => 'Contacted', 'screening' =
 
 <form class="card" method="get" action="/search">
   <div class="row">
-    <div style="flex:3">
+    <div class="f3">
       <label for="search-q"><?= te('Search') ?></label>
       <input id="search-q" name="q" value="<?= e($q) ?>" autofocus
              placeholder="<?= te('A name, a phone number, a hotel, a project') ?>">
@@ -170,7 +170,7 @@ $stages = ['new' => 'Never contacted', 'contacted' => 'Contacted', 'screening' =
 <section class="card tight">
   <div class="card-bar">
     <span class="eyebrow"><?= te('WHO IS WHERE') ?></span>
-    <h2 style="margin:4px 0 2px"><?= te(':n out on a project', ['n' => count($directory)]) ?></h2>
+    <h2 class="m0 mt-xs mb-xs"><?= te(':n out on a project', ['n' => count($directory)]) ?></h2>
     <p class="small muted m0"><?= te($scope) ?></p>
   </div>
 

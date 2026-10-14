@@ -47,11 +47,11 @@
       <label for="p-city"><?= te('City') ?></label>
       <input id="p-city" name="site_city" maxlength="120">
     </div>
-    <div style="max-width:110px">
+    <div class="in-s">
       <label for="p-state"><?= te('State') ?></label>
       <input id="p-state" name="site_state" maxlength="2" placeholder="IN">
     </div>
-    <div style="max-width:120px">
+    <div class="in-s">
       <label for="p-zip"><?= te('ZIP code') ?></label>
       <input id="p-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
     </div>
@@ -65,8 +65,8 @@
     </div>
   </div>
 
-  <h3 style="margin-top:22px"><?= te('What the agreement covers') ?></h3>
-  <p class="hint" style="margin:-4px 0 12px">
+  <h3 class="mt-xl"><?= te('What the agreement covers') ?></h3>
+  <p class="hint m0 pull-up mb">
     <?= te('Beyond the hourly rate. These are what the crew is told and what the client is invoiced for, so they are recorded on the agreement rather than remembered.') ?>
   </p>
 
@@ -86,7 +86,7 @@
   </div>
 
   <button class="btn mt-l" type="submit"><?= te('Create the agreement') ?></button>
-  <span class="hint" style="display:inline-block;margin-left:12px">
+  <span class="hint inline-block ml">
     <?= te('You will land on its scope of work, where the trades and their rates are written.') ?>
   </span>
 </form>

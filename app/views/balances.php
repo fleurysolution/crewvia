@@ -33,7 +33,7 @@ foreach ($aging as $a) { foreach ($totals as $k => $_) { $totals[$k] += $a[$k]; 
 <h2 id="party-name"><?= e($detail['label']) ?></h2>
 <?php if ($side === 'ar'): ?>
 <div class="sub"><?= te('Pays within :n days', ['n' => (int) $detail['terms']]) ?><?php if (can('admin')): ?>
-  <form method="post" class="row" style="display:inline-flex"><?= csrf_field() ?><input type="hidden" name="do" value="terms"><input type="hidden" name="side" value="ar"><input type="hidden" name="party" value="<?= e((string) $party) ?>"><input name="payment_terms_days" type="number" min="0" max="365" value="<?= (int) $detail['terms'] ?>" style="width:90px"><button class="btn sm ghost"><?= te('Change terms') ?></button></form><?php endif; ?></div>
+  <form method="post" class="row inline-flex"><?= csrf_field() ?><input type="hidden" name="do" value="terms"><input type="hidden" name="side" value="ar"><input type="hidden" name="party" value="<?= e((string) $party) ?>"><input name="payment_terms_days" type="number" min="0" max="365" value="<?= (int) $detail['terms'] ?>" class="fw-xs"><button class="btn sm ghost"><?= te('Change terms') ?></button></form><?php endif; ?></div>
 <?php endif; ?>
 
 <div class="card scroll" id="statement"><h2><?= te('Statement') ?></h2>
@@ -66,7 +66,7 @@ foreach ($aging as $a) { foreach ($totals as $k => $_) { $totals[$k] += $a[$k]; 
       <td class="num mono"><?= e(money($p['amount'])) ?></td><td class="num mono"><?= $p['unapplied'] > 0 ? e(money($p['unapplied'])) : '' ?></td>
       <td><?php if (! $p['reversed_at']): ?>
         <?php if ($p['unapplied'] > 0 && $detail['open']): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="apply"><input type="hidden" name="side" value="<?= e($side) ?>"><input type="hidden" name="party" value="<?= e((string) $party) ?>"><input type="hidden" name="payment_id" value="<?= (int) $p['id'] ?>">
-          <select name="invoice_id"><?php foreach ($detail['open'] as $i): ?><option value="<?= (int) $i['id'] ?>"><?= e($i['reference'] . ' · ' . money($i['balance'])) ?></option><?php endforeach; ?></select><input name="amount" type="number" min="0.01" step="0.01" required style="width:110px"><button class="btn sm"><?= te('Apply') ?></button></form><?php endif; ?>
+          <select name="invoice_id"><?php foreach ($detail['open'] as $i): ?><option value="<?= (int) $i['id'] ?>"><?= e($i['reference'] . ' · ' . money($i['balance'])) ?></option><?php endforeach; ?></select><input name="amount" type="number" min="0.01" step="0.01" required class="fw-s"><button class="btn sm"><?= te('Apply') ?></button></form><?php endif; ?>
         <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="reverse_payment"><input type="hidden" name="side" value="<?= e($side) ?>"><input type="hidden" name="party" value="<?= e((string) $party) ?>"><input type="hidden" name="payment_id" value="<?= (int) $p['id'] ?>"><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why it is reversed') ?>"><button class="btn sm ghost"><?= te('Reverse') ?></button></form>
       <?php endif; ?></td></tr>
   <?php endforeach; ?></table><?php endif; ?>

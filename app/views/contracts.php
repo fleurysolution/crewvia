@@ -57,7 +57,7 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
     <div class="l"><?= te('With the worker') ?></div>
   </div>
   <div class="stat">
-    <div class="n" style="color:var(--green)"><?= count($done) ?></div>
+    <div class="n t-green"><?= count($done) ?></div>
     <div class="l"><?= te('Signed') ?></div>
   </div>
   <div class="stat">
@@ -259,7 +259,7 @@ $done        = array_filter($contracts, fn ($c) => $c['status'] === 'signed');
   <?php endif; ?>
 
   <?php if ($events): ?>
-  <h3 style="margin-top:24px"><?= te('History') ?></h3>
+  <h3 class="mt-xl"><?= te('History') ?></h3>
   <ul class="contract-history">
     <?php foreach ($events as $event): ?>
       <?php

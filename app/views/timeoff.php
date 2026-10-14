@@ -175,7 +175,7 @@ $days = static fn (array $r): int =>
             <?php if (! $isWorker): ?>
               <td class="right nowrap">
                 <?php if ($r['status'] === 'pending'): ?>
-                  <form class="row" method="post" style="gap:8px;align-items:flex-end;margin:0">
+                  <form class="row gap-s items-end m0" method="post">
                     <?= csrf_field() ?>
                     <input type="hidden" name="do" value="review">
                     <input type="hidden" name="request_id" value="<?= (int) $r['id'] ?>">

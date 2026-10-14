@@ -119,7 +119,7 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
           <span class="tag <?= $tagFor($p['status']) ?>"><?= te($statuses[$p['status']] ?? $p['status']) ?></span>
           <?php $review = $reviews[(int) $p['id']] ?? null; ?>
           <?php if ($review): ?>
-            <div style="margin-top:5px">
+            <div class="mt-xs">
               <span class="tag <?= review_grade_tone((string) $review['grade']) ?>">
                 <?= e($review['grade']) ?>
               </span>
@@ -134,7 +134,7 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
               <?= te('by :who', ['who' => $review['reviewer'] ?: t('somebody')]) ?>
             </div>
           <?php elseif ($p['status'] === 'completed'): ?>
-            <div style="margin-top:5px">
+            <div class="mt-xs">
               <span class="tag amber"><?= te('Not graded') ?></span>
             </div>
           <?php endif; ?>
@@ -225,9 +225,9 @@ $toGrade = array_filter($crew, fn ($p) => $p['status'] === 'completed'
 ?>
 <?php if ($toGrade && can('recruiter')): ?>
 <section class="card tight" id="grading">
-  <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+  <div class="card-bar">
     <span class="eyebrow"><?= te('HOW IT WENT') ?></span>
-    <h2 style="margin:4px 0 2px">
+    <h2 class="m0 mt-xs mb-xs">
       <?= te(':n finished assignments to grade', ['n' => count($toGrade)]) ?>
     </h2>
     <p class="small muted m0">

@@ -5,7 +5,7 @@ if ($home['self_review']) { $waiting[] = ['/appraisals', t('A review is waiting 
 if ($home['to_ack']) { $waiting[] = ['/hr-records', t('An HR decision is waiting for you to read it'), 'to_ack']; }
 if ($home['answered']) { $waiting[] = ['/hr-requests', t('HR answered :n of your requests', ['n' => $home['answered']]), 'answered']; }
 $card = static function (string $href, string $title, string $line, string $key): void { ?>
-  <a class="card" href="<?= e($href) ?>" data-card="<?= e($key) ?>" style="display:block;text-decoration:none;color:inherit"><h3 class="m0 mb-s"><?= e($title) ?></h3><div class="small muted"><?= e($line) ?></div></a>
+  <a class="card d-block no-underline t-inherit" href="<?= e($href) ?>" data-card="<?= e($key) ?>"><h3 class="m0 mb-s"><?= e($title) ?></h3><div class="small muted"><?= e($line) ?></div></a>
 <?php };
 ?>
 <div class="card" id="waiting"><h2><?= te('Waiting on you') ?></h2>

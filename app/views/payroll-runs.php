@@ -86,7 +86,7 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
         <input type="hidden" name="candidate_id" value="<?= (int) $x['candidate_id'] ?>"><input type="hidden" name="timesheet_id" value="<?= (int) $x['timesheet_id'] ?>">
         <input type="hidden" name="kind" value="<?= $diff > 0 ? 'correction' : 'recovery' ?>"><input type="hidden" name="hours" value="<?= e((string) $diff) ?>">
         <span class="small"><?= e($x['full_name'] . ' · ' . $x['project'] . ' · ' . d($x['week_ending'])) ?>: <?= te(':paid h paid, :days h approved', ['paid' => (string) (float) $x['hours_worked'], 'days' => (string) (float) $x['approved_hours']]) ?></span>
-        <input name="amount" type="number" min="0.01" step="0.01" required value="<?= e((string) $amt) ?>" style="max-width:8em" aria-label="<?= te('Amount') ?>">
+        <input name="amount" type="number" min="0.01" step="0.01" required value="<?= e((string) $amt) ?>" class="in-s" aria-label="<?= te('Amount') ?>">
         <input name="reason" required minlength="3" maxlength="500" value="<?= e(t('Attendance corrected after the week was paid')) ?>" aria-label="<?= te('Reason') ?>">
         <button class="btn sm"><?= $diff > 0 ? te('Pay the difference') : te('Recover the difference') ?></button></form>
     <?php endforeach; ?>

@@ -27,7 +27,7 @@ $who = (string) (user()['name'] ?? '');
 </div>
 <div class="grid g2">
   <section class="card" id="home-short"><h2><?= te('Requisitions still short of people') ?></h2>
-    <?php if (! $hd['short']): ?><p class="small" style="color:var(--green)"><?= te('Every open requisition has its people.') ?></p><?php else: ?>
+    <?php if (! $hd['short']): ?><p class="small t-green"><?= te('Every open requisition has its people.') ?></p><?php else: ?>
     <table><tr><th><?= te('Requisition') ?></th><th class="num"><?= te('Hired') ?></th><th class="num"><?= te('New') ?></th></tr>
       <?php foreach ($hd['short'] as $v): ?><tr data-short="<?= (int) $v['id'] ?>"><td><a href="/hiring?v=<?= (int) $v['id'] ?>"><?= e($v['title']) ?></a><div class="small muted"><?= e($v['project']) ?></div></td><td class="num"><?= (int) $v['hired'] ?> / <?= (int) $v['openings'] ?></td><td class="num"><?= (int) $v['new_count'] ?></td></tr><?php endforeach; ?>
     </table><?php endif; ?></section>
@@ -79,7 +79,7 @@ $who = (string) (user()['name'] ?? '');
       <li><a href="/accounts-payable"><strong data-figure="bills_week"><?= (int) $hd['bills_week'] ?></strong> <?= ten((int) $hd['bills_week'], 'bill due in the next 7 days', 'bills due in the next 7 days') ?></a></li>
     </ul></section>
   <section class="card" id="home-run"><h2><?= te('Run the week') ?></h2>
-    <ol class="small" style="margin:0;padding-left:18px;line-height:1.9">
+    <ol class="small steps">
       <li><a href="/attendance"><?= te('Approve the days') ?></a> · <a href="/lateness"><?= te('settle lateness') ?></a></li>
       <li><a href="/hours?week=<?= e($hd['last_week']) ?>"><?= te('Import the approved hours and approve the week') ?></a></li>
       <li><a href="/payroll-runs"><?= te('Close the pay period') ?></a> · <a href="/payroll-export"><?= te('export to ADP') ?></a></li>

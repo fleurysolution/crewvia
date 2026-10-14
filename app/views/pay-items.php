@@ -9,7 +9,7 @@
       <td><?= e(t((string) $i['label'])) ?><?= (int) $i['pre_tax'] === 1 ? ' <span class="tag grey">' . te('pre-tax') . '</span>' : '' ?><?php if ((int) $i['is_active'] !== 1): ?> <span class="tag grey"><?= te('Retired') ?></span><?php endif; ?></td>
       <td><?= e($sides[$i['side']] ?? $i['side']) ?></td>
       <td class="small"><?= e($methods[$i['method']] ?? $i['method']) ?></td>
-      <td><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="code"><input type="hidden" name="pay_item_id" value="<?= (int) $i['id'] ?>"><input name="provider_code" maxlength="40" value="<?= e((string) $i['provider_code']) ?>" style="max-width:9em" aria-label="<?= te('Provider code') ?>"><button class="btn ghost sm"><?= te('Save') ?></button></form></td>
+      <td><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="code"><input type="hidden" name="pay_item_id" value="<?= (int) $i['id'] ?>"><input name="provider_code" maxlength="40" value="<?= e((string) $i['provider_code']) ?>" class="in-s" aria-label="<?= te('Provider code') ?>"><button class="btn ghost sm"><?= te('Save') ?></button></form></td>
       <td class="num mono"><?= $i['method'] === 'advance_repayment' ? '—' : (int) $i['people'] ?></td>
       <td><form method="post"><?= csrf_field() ?><input type="hidden" name="pay_item_id" value="<?= (int) $i['id'] ?>"><input type="hidden" name="do" value="<?= (int) $i['is_active'] === 1 ? 'retire' : 'restore' ?>"><button class="btn ghost sm"><?= (int) $i['is_active'] === 1 ? te('Retire') : te('Restore') ?></button></form></td>
     </tr>

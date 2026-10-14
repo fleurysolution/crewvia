@@ -55,7 +55,7 @@
   <article class="card opening">
     <h2><?= e($o['title']) ?></h2>
 
-    <p class="muted small" style="margin:-4px 0 14px">
+    <p class="muted small m0 pull-up mb">
       <?= te(ucfirst((string) ($o['discipline'] ?: 'other'))) ?>
       <?php if ($where !== ''): ?>&middot; <?= e($where) ?><?php endif; ?>
       <?php if ($o['shift']): ?>&middot; <?= e($o['shift']) ?><?php endif; ?>

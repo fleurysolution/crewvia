@@ -38,7 +38,7 @@ $scope = $vacancyId
     <div class="l"><?= te('Applications') ?></div>
   </div>
   <div class="stat">
-    <div class="n" style="color:<?= $stats['screened_out'] ? 'var(--red)' : 'var(--ink)' ?>">
+    <div class="n <?= $stats['screened_out'] ? 't-red' : '' ?>">
       <?= $stats['screened_out'] ?>
     </div>
     <div class="l"><?= te('Screened out') ?></div>
@@ -83,14 +83,14 @@ $scope = $vacancyId
       </tbody>
     </table>
   </div>
-  <p class="hint" style="padding:12px 18px;margin:0;border-top:1px solid var(--line)">
+  <p class="hint card-foot m0">
     <?= te('Counted from where each candidate came in, not from what they picked in a dropdown. A high count with a low score is a channel sending the wrong people.') ?>
   </p>
 </section>
 <?php endif; ?>
 
 <!-- ── how it works, said once ─────────────────────────────────────── -->
-<section class="card" style="background:#F6F9FF">
+<section class="card bg-soft">
   <h2><?= te('How this works') ?></h2>
   <p class="small m0">
     <?= te('A disqualifying answer flags the applicant and sorts them to the bottom with the reason shown. Nobody is rejected automatically — a person still presses the button. The weight decides how much a good answer is worth in the score, which is a percentage of what was available, so roles with different numbers of questions stay comparable. Changing the questions re-ranks the applications already received.') ?>

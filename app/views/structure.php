@@ -23,9 +23,9 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
       static fn ($r) => $r['present'] !== null && (int) $r['present'] === 0);
   ?>
   <section class="card tight" id="rollcall">
-    <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+    <div class="card-bar">
       <span class="eyebrow"><?= te('TODAY ON SITE') ?></span>
-      <h2 style="margin:4px 0 2px">
+      <h2 class="m0 mt-xs mb-xs">
         <?= te(':n of :total on site', ['n' => $onSiteToday, 'total' => count($rollCall)]) ?>
       </h2>
       <p class="small muted m0">
@@ -119,7 +119,7 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
           <tr>
             <td>
               <?= e($trade['trade']) ?>
-              <div class="headcount-bar" style="margin-top:5px;max-width:200px">
+              <div class="headcount-bar mt-xs in-l">
                 <span style="width:<?= (int) round($trade['crew'] / $crewTotal * 100) ?>%"></span>
               </div>
             </td>
@@ -149,7 +149,7 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
           <tr>
             <td>
               <?= e($shift['shift']) ?>
-              <div class="headcount-bar" style="margin-top:5px;max-width:200px">
+              <div class="headcount-bar mt-xs in-l">
                 <span style="width:<?= (int) round($shift['crew'] / $crewTotal * 100) ?>%"></span>
               </div>
             </td>
@@ -169,7 +169,7 @@ $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satu
 <section class="card">
   <span class="eyebrow"><?= te('DEPARTMENTS') ?></span>
   <h2><?= te('How the client divides the plant') ?></h2>
-  <p class="hint" style="margin:-4px 0 16px">
+  <p class="hint m0 pull-up mb-l">
     <?= te('The client\'s own names for the areas of the site, so a conversation about where somebody is working uses their words.') ?>
   </p>
 

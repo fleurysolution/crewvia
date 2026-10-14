@@ -20,7 +20,7 @@ $who = ['budget_owner' => t('The budget owner'), 'admin' => t('An administrator'
       <td><span class="tag <?= $tone[$v['status']] ?>"><?= e(vendor_statuses()[$v['status']]) ?></span><?= $v['decided_by_name'] ? '<div class="small muted">' . e($v['decided_by_name']) . '</div>' : '' ?></td>
       <td><?php if (can('admin')): ?>
         <?php if ($v['status'] === 'pending'): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="approve"><input type="hidden" name="vendor_id" value="<?= (int) $v['id'] ?>"><button class="btn sm"><?= te('Approve') ?></button></form>
-        <?php else: ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $v['status'] === 'approved' ? 'suspend' : 'reinstate' ?>"><input type="hidden" name="vendor_id" value="<?= (int) $v['id'] ?>"><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why') ?>" style="max-width:9em"><button class="btn ghost sm"><?= $v['status'] === 'approved' ? te('Suspend') : te('Reinstate') ?></button></form><?php endif; ?>
+        <?php else: ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $v['status'] === 'approved' ? 'suspend' : 'reinstate' ?>"><input type="hidden" name="vendor_id" value="<?= (int) $v['id'] ?>"><input name="reason" required minlength="3" maxlength="500" placeholder="<?= te('Why') ?>" class="in-s"><button class="btn ghost sm"><?= $v['status'] === 'approved' ? te('Suspend') : te('Reinstate') ?></button></form><?php endif; ?>
       <?php endif; ?></td></tr>
   <?php endforeach; ?></table><?php endif; ?>
 </div>
@@ -46,7 +46,7 @@ $who = ['budget_owner' => t('The budget owner'), 'admin' => t('An administrator'
     <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="thresholds">
       <table><tr><th><?= te('Up to') ?></th><th><?= te('Approved by') ?></th></tr>
       <?php foreach (array_merge($thresholds, [['up_to' => '', 'approvers' => '']]) as $th): ?>
-        <tr><td><input name="up_to[]" type="number" min="0.01" step="0.01" value="<?= e((string) ($th['up_to'] ?? '')) ?>" placeholder="<?= te('no limit') ?>" style="max-width:9em"></td>
+        <tr><td><input name="up_to[]" type="number" min="0.01" step="0.01" value="<?= e((string) ($th['up_to'] ?? '')) ?>" placeholder="<?= te('no limit') ?>" class="in-s"></td>
           <td><select name="approvers[]"><option value=""></option><?php foreach ($who as $k => $l): ?><option value="<?= e($k) ?>"<?= $th['approvers'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select></td></tr>
       <?php endforeach; ?></table>
       <p class="muted"><?= te('Leave the last tier\'s limit empty: it covers every larger order. Orders already raised keep the rule they were raised under.') ?></p>

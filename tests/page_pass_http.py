@@ -2,8 +2,8 @@
   - every page title in a view sits in the standard header, except the
     print documents and two public form cards, which are named;
   - every back link is the shared back-link, not a styled paragraph;
-  - the inline styles left in the views may only go down, and no count the
-    app shows says "(s)";
+  - the only inline style a view may carry is a width worked out from data
+    (a progress bar), and no count the app shows says "(s)";
   - a count reads as a person says it, by each language's rule (French says
     "0 demande"), on the probe and on the pages;
   - the section label above a title is the one in the reader's own menu,
@@ -21,7 +21,6 @@ results = []
 # The print documents are their own page, and two public pages hold their title in a form card.
 OWN_PAGE = {'procurement-print.php', 'reports-print.php', 'statements-print.php', 'activate.php', 'application_received.php'}
 # Ceilings measured when wave 4 ended; lower them when more go.
-STYLE_CEILING = 294
 
 
 class Client:
@@ -81,14 +80,24 @@ outside = {v: b for v, b in ((v, titles_outside(s)) for v, s in views.items()) i
 check('Every page title sits in the standard header', set(outside) == OWN_PAGE, sorted(set(outside) ^ OWN_PAGE))
 loose = [v for v, s in views.items() if re.search(r'<p(?! class="back-link")[^>]*>\s*<a (?![^>]*class="btn)[^>]*>\s*(?:←|<\?= te\(\'←)', s)]
 check('Every back link is the shared back-link', not loose, loose)
-styles = sum(s.count('style="') for s in views.values())
-check('Inline styles in the views: %d, at most %d' % (styles, STYLE_CEILING), styles <= STYLE_CEILING)
+# P5-M25: a style is either data (a width from PHP, as a percentage) or a class.
+styles = [(v, m) for v, s in views.items() for m in re.findall(r'style="([^"]*)"', s)]
+fixed = [(v, m) for v, m in styles if not re.fullmatch(r'width:<\?= [^"]*\?>%', m)]
+check('Every inline style in the views is a width worked out from data (%d of them)' % len(styles), styles and not fixed, fixed)
 # Every PHP file of the app the reader sees, not only the views; the catalogues are the translations of these.
 app_php = {f: open(f, encoding='utf-8').read() for f in glob.glob('work/test-app/app/**/*.php', recursive=True) if '/lang/' not in f.replace('\\', '/')}
 plurals = sorted({m for s in app_php.values() for m in re.findall(r"te?\('([^']*\((?:s|es)\)[^']*)'", s)})
 check('No count the app shows says "(s)" (%d files read)' % len(app_php), len(app_php) > 200 and not plurals, plurals)
 css = open('work/test-app/public/assets/crewvia-ui.css', encoding='utf-8').read()
-check('and every helper class the views now use is defined', all(re.search(r'\.%s \{' % c, css) for c in ('m0', 'mt-xs', 'mt-s', 'mt', 'mt-l', 'mb-s', 'mb', 'mb-l', 'f2', 'inline', 'w-auto', 'pre-wrap', 'wrap-any', 'nowrap', 't-amber', 't-red', 't-green', 'faded', 'card-bar', 'row-between', 'back-link')))
+# A rule starts a line or follows another on it ('.in-xs { ... } .in-s { ... }').
+HELPERS = set(re.findall(r'(?:^|\} )\.([a-z][a-z0-9-]*) \{', css, re.M))
+used = {w for s in views.values() for c in re.findall(r'class="([^"]*)"', s) for w in re.sub(r'<\?.*?\?>', ' ', c).split()}
+P23_P25 = {'m0', 'mt-xs', 'mt-s', 'mt', 'mt-l', 'mt-xl', 'mb-xs', 'mb-s', 'mb', 'mb-l', 'mb-xl', 'pull-up', 'ml-s', 'f1', 'f2', 'f3', 'inline', 'w-auto', 'pre-wrap',
+           'wrap-any', 'nowrap', 't-amber', 't-red', 't-green', 't-muted', 'faded', 'card-bar', 'card-row', 'card-foot', 'row-between', 'back-link', 'in-xs', 'in-s',
+           'in-m', 'in-l', 'in-xl', 'fw-xs', 'fw-s', 'flex', 'flex-wrap', 'gap-s', 'gap', 'gap-l', 'items-start', 'items-center', 'items-end', 'list-row', 'tone-warn',
+           'tone-alert', 'big-figure', 'stat-label', 'progress-track', 'progress-fill', 'board-cols', 'qr-box', 'steps', 'bg-soft', 'pad-s', 't-amber-ink'}
+missing = sorted(c for c in P23_P25 & used if c not in HELPERS)
+check('and every helper class the views use is defined (%d in use)' % len(P23_P25 & used), not missing and len(P23_P25 & used) > 40, missing)
 
 # ── counts, by each language's rule ────────────────────────────────────
 pr = {loc: json.loads(subprocess.run([php, 'work/page_pass_probe.php', loc], check=True, capture_output=True, encoding='utf-8').stdout) for loc in ('en', 'fr', 'es')}

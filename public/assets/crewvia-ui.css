@@ -248,6 +248,13 @@ main { min-width: 0; }
 .mb-s { margin-bottom: 8px !important; }
 .mb { margin-bottom: 12px !important; }
 .mb-l { margin-bottom: 16px !important; }
+.mt-xl { margin-top: 24px !important; }
+.mb-xs { margin-bottom: 4px !important; }
+.mb-xl { margin-bottom: 24px !important; }
+/* A paragraph tucked up under the heading it explains. */
+.pull-up { margin-top: -6px !important; }
+.ml-xs { margin-left: 4px !important; } .ml-s { margin-left: 8px !important; } .ml { margin-left: 12px !important; } .ml-l { margin-left: 16px !important; }
+.mr-xs { margin-right: 4px !important; } .mr-s { margin-right: 8px !important; } .mr { margin-right: 12px !important; } .mr-l { margin-right: 16px !important; }
 .f2 { flex: 2 !important; }
 .inline { display: inline !important; }
 .w-auto { width: auto !important; }
@@ -264,3 +271,62 @@ main { min-width: 0; }
 .row-between { display: flex; justify-content: space-between; align-items: center; }
 /* The way back from a detail page, above its header. */
 .back-link { font-size: 13px; margin: 0 0 6px; }
+
+/* P5-M25: the rest of what the pages wrote inline. */
+/* Field widths: in-* caps a field, fw-* sets it (xs 6em, s 8em, m 10em, l 12em). */
+.in-xs { max-width: 6em !important; } .in-s { max-width: 8em !important; } .in-m { max-width: 10em !important; } .in-l { max-width: 12em !important; }
+.fw-xs { width: 6em !important; } .fw-s { width: 8em !important; } .fw-m { width: 10em !important; } .fw-l { width: 12em !important; }
+.min-w-0 { min-width: 0 !important; } .min-w-s { min-width: 200px !important; } .min-w { min-width: 260px !important; }
+/* Flex and grid. */
+.f1 { flex: 1 !important; } .f3 { flex: 3 !important; }
+.flex { display: flex !important; } .inline-flex { display: inline-flex !important; } .inline-block { display: inline-block !important; } .d-block { display: block !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+.gap-xs { gap: 4px !important; } .gap-s { gap: 8px !important; } .gap { gap: 12px !important; } .gap-l { gap: 16px !important; }
+.items-start { align-items: flex-start !important; } .items-center { align-items: center !important; } .items-end { align-items: flex-end !important; }
+.justify-end { justify-content: flex-end !important; }
+.span-all { grid-column: 1 / -1 !important; }
+.row-end { gap: 10px; align-items: flex-end; }
+/* Text. */
+.t-13 { font-size: 13px !important; } .t-muted { color: var(--muted) !important; } .t-inherit { color: inherit !important; }
+.semibold { font-weight: 600 !important; } .bold { font-weight: 700 !important; } .no-underline { text-decoration: none !important; }
+.big-figure { font-size: 22px; font-weight: 700; }
+/* Small blocks. */
+.pad-s { padding: 4px 8px !important; }
+.rule-below { border-bottom: 1px solid var(--line) !important; }
+.list-row { border-bottom: 1px solid var(--line); padding: 8px 0; }
+/* A card that needs attention: tone-warn (amber), tone-alert (red). */
+.tone-warn { background: #FDF6E7 !important; border-color: #EEDCB0 !important; }
+.tone-alert { background: #FDEEED !important; border-color: #F0C4C1 !important; }
+
+/* P5-M25: the last one-off styles, each named for what it is. */
+.t-amber-ink { color: #8a5600 !important; } /* amber that reads at small sizes (4.5:1) */
+.t-ink { color: var(--ui-ink) !important; } .t-font { font: inherit !important; }
+.t-md { font-size: 15px !important; } .t-lg { font-size: 17px !important; }
+.in-xl { max-width: 30em !important; } .w-half { width: 52% !important; }
+.p0 { padding: 0 !important; } .pad { padding: 12px !important; } .pb-s { padding-bottom: 8px !important; } .py-s { padding-top: 6px !important; padding-bottom: 6px !important; }
+.clip { overflow: hidden !important; }
+.bg-soft { background: var(--ui-soft, #f3f6fb) !important; } .bg-blue-soft { background: var(--blue-soft) !important; } .bg-alert { background: #fde8e6 !important; }
+.rule-above { border-top: 1px solid var(--line) !important; }
+.total-row { border-top: 2px solid var(--line) !important; }
+/* The strip along the bottom of a card: its actions or its summary. */
+.card-foot { padding: 12px 18px; border-top: 1px solid var(--line); }
+/* One line of a list that runs edge to edge inside a card. */
+.card-row { padding: 9px 18px; border-bottom: 1px solid var(--line); }
+/* The small upper-case label over a figure. */
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+/* Numbered steps, airy. */
+.steps { margin: 0; padding-left: 18px; line-height: 1.9; }
+.check-label { display: flex; align-items: center; gap: 9px; font-weight: 600; color: var(--ink); font-size: 15px; }
+.big-check { width: auto; transform: scale(1.3); }
+.inline-check { display: flex; align-items: center; gap: 4px; margin: 0; font-weight: 400; color: var(--ink); font-size: 12px; }
+.plain-fieldset { border: 0; padding: 0; }
+.cols-fill-auto { grid-template-columns: 1fr auto !important; }
+.board-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; align-items: start; }
+.progress-track { background: #e3e8ee; border-radius: 6px; height: 12px; overflow: hidden; max-width: 520px; }
+.qr-box { background: #fff; padding: 12px; width: 216px; max-width: 100%; }
+/* The filled part of a progress track; its width is the data. */
+.progress-fill { background: #2e7d4f; height: 12px; }
+/* One step of the project dashboard's pipeline strip. */
+.stage-step { flex: 1; min-width: 150px; padding: 14px 16px; text-decoration: none; color: inherit; border-right: 1px solid var(--line); }
+/* The logo is a link home that looks like the logo. */
+a.brand { text-decoration: none !important; color: inherit !important; }

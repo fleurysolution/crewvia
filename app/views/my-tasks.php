@@ -9,7 +9,7 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
 <div class="card" id="my-task-list" data-count="<?= count($tasks) ?>">
   <?php if (! $tasks): ?><p class="muted"><?= te('Nothing is assigned to you.') ?></p><?php else: ?>
   <?php foreach ($tasks as $tk): $late = $tk['due_on'] && $tk['due_on'] < $today && in_array($tk['status'], PT_OPEN, true); $closed = $tk['status'] === 'cancelled'; ?>
-  <div class="card" data-task="<?= (int) $tk['id'] ?>" data-status="<?= e($tk['status']) ?>" id="task-<?= (int) $tk['id'] ?>" style="margin:8px 0">
+  <div class="card m0 mt-s mb-s" data-task="<?= (int) $tk['id'] ?>" data-status="<?= e($tk['status']) ?>" id="task-<?= (int) $tk['id'] ?>">
     <h3 class="m0"><?= e($tk['title']) ?> <span class="tag <?= $ptStatusTone[$tk['status']] ?>"><?= e($ptStatus[$tk['status']]) ?></span> <span class="tag <?= $ptPriorityTone[$tk['priority']] ?>"><?= e($ptPriority[$tk['priority']]) ?></span>
       <?php if ($late): ?><span class="tag red"><?= te('Overdue') ?></span><?php endif; ?></h3>
     <p class="small muted"><?= e($tk['job_title']) ?><?= $tk['milestone_title'] ? ' · ' . e($tk['milestone_title']) : '' ?> · <?= te('Due') ?>: <?= $tk['due_on'] ? e(d($tk['due_on'])) : '–' ?></p>

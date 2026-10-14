@@ -28,7 +28,7 @@ $stages = candidate_stages();
 
 <form class="card" method="get">
   <div class="row">
-    <div style="flex:3">
+    <div class="f3">
       <label for="tq"><?= te('Look for') ?></label>
       <input id="tq" name="q" value="<?= e($query) ?>"
              placeholder="<?= te('Trade, skill, certificate, degree or name') ?>">

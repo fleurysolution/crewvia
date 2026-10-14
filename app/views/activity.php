@@ -45,7 +45,7 @@ $progress  = $target > 0 ? min(100, (int) round($filled / $target * 100)) : 0;
     <span style="width:<?= $progress ?>%"></span>
   </div>
 
-  <p class="small muted" style="margin:8px 0 0">
+  <p class="small muted m0 mt-s">
     <?= te(':filled of :target on the job', ['filled' => $filled, 'target' => $target]) ?>
     &middot; <?= $progress ?>%
   </p>

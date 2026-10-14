@@ -55,7 +55,7 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
       </p>
       <p class="small muted m0 mb-s"><?= e($lodge['address'] ?? '') ?>
         <?php if ($lodge['hotel_phone']): ?>&middot; <?= e($lodge['hotel_phone']) ?><?php endif; ?></p>
-      <table style="max-width:340px">
+      <table class="in-xl">
         <tr><td class="small muted"><?= te('Room') ?></td><td class="mono"><?= e($lodge['room_number'] ?? '—') ?></td></tr>
         <tr><td class="small muted"><?= te('Confirmation') ?></td><td class="mono"><?= e($lodge['confirmation'] ?? '—') ?></td></tr>
         <tr><td class="small muted"><?= te('Check in') ?></td><td><?= $lodge['check_in'] ? e(date('j M Y', strtotime($lodge['check_in']))) : '—' ?></td></tr>
@@ -63,7 +63,7 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
         <tr><td class="small muted"><?= te('Nightly') ?></td><td class="mono"><?= $lodge['nightly_rate'] ? money($lodge['nightly_rate']) : '—' ?></td></tr>
       </table>
     <?php else: ?>
-      <p class="small" style="color:var(--red);margin:0">
+      <p class="small t-red m0">
         No room booked. <?= can('hotels') ? '<a href="/hotels">Book one</a>.' : 'Hotels can book one.' ?>
       </p>
     <?php endif; ?>
@@ -72,17 +72,17 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
   <div class="card">
     <h2><?= te('Travel') ?></h2>
     <?php if (! $legs): ?>
-      <p class="small" style="color:var(--amber);margin:0">
+      <p class="small t-amber m0">
         Nothing booked. <?= can('hotels') ? '<a href="/travel">Book a flight</a>.' : '' ?>
       </p>
     <?php else: ?>
       <?php foreach ($legs as $t): ?>
-        <div style="padding:8px 0;border-bottom:1px solid var(--line)">
+        <div class="list-row">
           <div><span class="tag <?= $t['direction'] === 'inbound' ? 'blue' : 'grey' ?>">
             <?= e(ucfirst($t['direction'])) ?></span>
             <strong><?= e(trim(($t['carrier'] ?? '') . ' ' . ($t['reference'] ?? ''))) ?: 'Booked' ?></strong>
           </div>
-          <div class="small muted" style="margin-top:3px">
+          <div class="small muted mt-xs">
             <?= e($t['depart_from'] ?? '?') ?> &rarr; <?= e($t['arrive_at'] ?? '?') ?>
             <?php if ($t['arrive_time']): ?>&middot; <?= e(date('D j M, g:ia', strtotime($t['arrive_time']))) ?><?php endif; ?>
             <?php if ($t['pickup_needed']): ?>&middot; <span class="tag amber"><?= te('pickup needed') ?></span><?php endif; ?>
@@ -126,7 +126,7 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
     <p class="small m0"><?= te('Recorded when the assignment was made: requisition :req, line :line of the scope of work.',
         ['req' => $origin['title'], 'line' => $line['role_title']]) ?></p>
   <?php elseif ($line): ?>
-    <p class="small" style="margin:0;color:var(--amber)"><?= te('Not recorded on the assignment. Inferred from the latest application on this project: line :line. Check it if the person applied for two trades.',
+    <p class="small m0 t-amber"><?= te('Not recorded on the assignment. Inferred from the latest application on this project: line :line. Check it if the person applied for two trades.',
         ['line' => $line['role_title']]) ?></p>
   <?php else: ?>
     <p class="small muted m0"><?= te('No requisition or line of the scope is linked to this assignment. Its rates were set on the assignment itself.') ?></p>
