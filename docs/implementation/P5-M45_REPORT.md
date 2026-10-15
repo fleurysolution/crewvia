@@ -62,4 +62,6 @@ somebody who leaves the portal for later still gets the email (the link on the p
 Measured: chain + Indeed import + add applicant 95, then board scores 8, own scoring 7 + 8,
 reviews 25 + 4, availability 14 + 5. Mutations: no portal offered (caught); the old invitation rule (caught:
 no activation email at Screening). Seen on a 375 px
-phone viewport: the page, no horizontal scroll. Full suite: see the commit message.
+phone viewport: the page, no horizontal scroll.
+
+Full suite on P5-M44, M45 and M46 together: 3670 PASS, 0 FAIL (3613 before, plus the 57 new checks).

@@ -42,5 +42,6 @@ No table changes, so no migration and no rollback.
   out.
 
 Measured on the harness: poster 9 PASS after the walkthrough chain and the P5-M42 to M45 tests.
-In the browser: the QR code is drawn (a canvas), and the save link carries the PNG image. Full
-suite: see the commit message.
+In the browser: the QR code is drawn (a canvas), and the save link carries the PNG image.
+
+Full suite on P5-M44, M45 and M46 together: 3670 PASS, 0 FAIL (3613 before, plus the 57 new checks).

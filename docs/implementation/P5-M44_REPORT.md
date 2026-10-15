@@ -65,4 +65,5 @@ dossier.
 Full suite: the first run stopped at `menus_http.py`, which pins each desk's daily screens in order;
 Candidate reviews is now one of them for the owner, the recruiters and the supervisors, so the
 test's expectation was updated (home + menus then 118 PASS). The whole suite was then run on
-P5-M44 and P5-M45 together: see the P5-M45 commit.
+P5-M44, M45 and M46 together (after one more expectation in `page_pass_http.py` for the
+poster, P5-M46): 3670 PASS, 0 FAIL.
