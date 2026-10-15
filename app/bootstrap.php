@@ -560,6 +560,20 @@ function disciplines(bool $includeRetired = false): array
     return $cache[$key] = $list;
 }
 
+/**
+ * P5-M49: what the account menu says a person is. A portal account that has
+ * never been placed is a candidate's, not yet a worker's.
+ */
+function account_role_label(array $u): string
+{
+    if (($u['role'] ?? '') === 'worker') {
+        $placed = (int) val("SELECT COUNT(*) FROM worker_accounts w JOIN placements p ON p.candidate_id = w.candidate_id WHERE w.user_id = ?", [(int) ($u['id'] ?? 0)]);
+        return $placed ? 'Worker portal' : 'Candidate portal';
+    }
+
+    return roles()[$u['role'] ?? ''] ?? '';
+}
+
 function roles(): array
 {
     return [

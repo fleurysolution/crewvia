@@ -8,6 +8,10 @@
 // P5-M48: a page meant for somebody else (a candidate's portal activation) shows no desk, even to a signed-in office user.
 $u = ! empty($publicPage) ? null : user();
 $f = flash();
+// P5-M49: candidates and workers see the agency they deal with, not the platform's name.
+if ($u && in_array($u['role'] ?? '', ['worker', 'client'], true)) {
+    $appName = agency_name();
+}
 
 require_once __DIR__ . '/../navigation.php';
 require_once __DIR__ . '/../home.php';
@@ -683,7 +687,7 @@ input,select,textarea{border-color:#8a96a6}
     <a class="top-icon" href="/notifications" id="bell" aria-label="<?= te('Notifications') ?>" title="<?= te('Notifications') ?>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><?php if ($hdrUnread): ?><span class="count"><?= $hdrUnread > 99 ? '99+' : $hdrUnread ?></span><?php endif; ?></a>
     <details class="acct" id="account-menu">
       <summary><span class="avatar" aria-hidden="true"><?= e($hdrInitials ?: '?') ?></span>
-        <span class="acct-who me-who"><b><?= e($u['name'] ?? '') ?></b><small><?= te(roles()[$u['role'] ?? ''] ?? '') ?></small></span></summary>
+        <span class="acct-who me-who"><b><?= e($u['name'] ?? '') ?></b><small><?= te(account_role_label($u)) ?></small></span></summary>
       <div class="acct-pop">
         <a href="/account"><?= te('Account') ?></a>
         <a href="/account-security"><?= te('Account security') ?></a>

@@ -84,6 +84,8 @@ check('Their portal is created, linked to their record', probe('account', 'av-qu
 
 quinnc = Client(); quinnc.login('av-quinn@test.invalid', PASSWORD)
 body = quinnc.get('/my-jobs')[1]
+check('Not placed yet, the portal calls itself theirs as a candidate, and saves availability as soon as it is chosen (P5-M49)',
+      'Candidate portal' in body and 'Worker portal</small>' not in body and 'data-autosave' in body, re.findall(r'<small>[^<]*</small>', body)[:2])
 check('Their portal shows what they said and lets them change it', 'id="availability"' in body and 'Available from' in body and ('value="%s"' % start) in body, body[:300])
 
 rec = Client(); rec.login('wk-rec@test.invalid')

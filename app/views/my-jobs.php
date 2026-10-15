@@ -7,7 +7,7 @@ $jmMine = array_filter($jmJobs, static fn($j) => $j['application'] && $j['applic
   <p class="sub"><?= te('Open jobs that fit your file: your trade and your years of experience. Say you are interested and a recruiter will contact you.') ?></p></div></div>
 
 <?php require_once __DIR__ . '/../availability.php'; $av = (string) ($jmWorker['availability'] ?? ''); ?>
-<form method="post" action="/my-jobs" class="card" id="availability"><?= csrf_field() ?><input type="hidden" name="do" value="availability">
+<form method="post" action="/my-jobs" class="card" id="availability" data-autosave><?= csrf_field() ?><input type="hidden" name="do" value="availability">
   <h2><?= te('My availability') ?></h2>
   <p class="small muted m0 mb-s"><?= $av !== '' ? te('Recruiting sees: :words (said on :date). Change it whenever it changes.', ['words' => availability_words($av, $jmWorker['available_from'] ?? null), 'date' => d(substr((string) $jmWorker['availability_at'], 0, 10))]) : te('Tell recruiting when you can work, so nobody needs to call you to ask.') ?></p>
   <div class="row">
@@ -16,6 +16,25 @@ $jmMine = array_filter($jmJobs, static fn($j) => $j['application'] && $j['applic
     <div><button class="btn sm"><?= te('Save') ?></button></div>
   </div>
 </form>
+<script>
+  // P5-M49: choosing is saving - the owner chose "Available now", then pressed another button, and nothing was kept.
+  (function () {
+    var form = document.getElementById('availability');
+    if (!form) { return; }
+    var date = form.querySelector('[name=available_from]');
+    form.querySelectorAll('[name=availability]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        if (radio.value === 'from') { date.focus(); if (date.value) { form.submit(); } } else { form.submit(); }
+      });
+    });
+    date.addEventListener('change', function () {
+      if (!date.value) { return; }
+      var from = form.querySelector('[name=availability][value=from]');
+      from.checked = true;
+      form.submit();
+    });
+  })();
+</script>
 
 <?php if (! empty($jmInterviews)): ?>
 <div class="card" id="my-interviews"><h2><?= te('Your interviews') ?></h2>
