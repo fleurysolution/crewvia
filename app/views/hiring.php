@@ -114,6 +114,15 @@ $hwScore = static function (?string $s): string {
       <a href="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>" class="<?= $hwDetail === 'application' ? 'on' : '' ?>"><?= te('Application') ?></a>
       <a href="<?= e($hwSelf . '&app=' . (int) $a['id'] . '&detail=activity') ?>" class="<?= $hwDetail === 'activity' ? 'on' : '' ?>" id="tab-activity"><?= te('Activity & notes') ?></a>
     </nav>
+    <?php if (! empty($a['block'])): $bk = $a['block']; ?>
+    <div class="card tone-alert" id="rehire-block" role="alert">
+      <h3 class="m0 t-red"><?= te(':label: do not move this applicant forward', ['label' => t($bk['label'])]) ?></h3>
+      <p class="small m0 mt-s"><?= $bk['how'] === 'record' ? te('This person is on the do-not-rehire register.') : ($bk['how'] === 'email' ? te('An earlier record with the same email is on the do-not-rehire register.') : te('An earlier record with the same phone is on the do-not-rehire register.')) ?>
+        <?= $bk['reason'] ? '<br><strong>' . te('Why:') . '</strong> ' . e((string) $bk['reason']) : '' ?>
+        <?= $bk['by'] || $bk['at'] ? '<br><span class="muted">' . e(trim((string) $bk['by'] . ' · ' . ($bk['at'] ? d(substr((string) $bk['at'], 0, 10)) : ''), ' ·')) . '</span>' : '' ?></p>
+      <p class="small m0 mt-s"><a href="/candidates/<?= (int) $bk['record'] ?>#rehire"><?= te('Open the record that carries it') ?></a> · <?= te('Screening, interviews, the manager\'s review, invitations and offers are refused; rejecting stays possible.') ?></p>
+    </div>
+    <?php endif; ?>
     <?php if ($hwDetail === 'application'): ?>
     <?php $rvStat = review_statuses(); $rvPending = null; foreach ($a['reviews'] as $rr) { if ($rr['status'] === 'pending') { $rvPending = $rr; } } ?>
     <div class="grid g2">
@@ -122,7 +131,7 @@ $hwScore = static function (?string $s): string {
           <?php if ($rr['decision_note']): ?><div class="a small"><?= nl2br(e($rr['decision_note'])) ?></div><?php endif; ?></div><?php endforeach; ?>
         <?php if ($rvPending): ?>
           <form method="post" action="/hiring" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="review_withdraw"><input type="hidden" name="review_id" value="<?= (int) $rvPending['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>"><button class="btn sm ghost"><?= te('Take it back') ?></button></form>
-        <?php elseif (in_array($a['stage'], ['new', 'screening', 'interview'], true)): ?>
+        <?php elseif (empty($a['block']) && in_array($a['stage'], ['new', 'screening', 'interview'], true)): ?>
           <form method="post" action="/hiring" id="pass-to-manager" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="review_request"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
             <p class="small muted m0"><?= te('Screened and meets the requirements? Pass them to a manager to validate, or to ask for another interview.') ?></p>
             <div class="row mt-s">
@@ -137,7 +146,7 @@ $hwScore = static function (?string $s): string {
       <div class="card" id="interviews"><h3><?= te('Interviews') ?></h3>
         <?php foreach ($a['interviews'] as $iv): ?><div class="qa"><div class="q"><?= e(d(substr((string) $iv['scheduled_at'], 0, 10)) . ' · ' . date('g:i a', strtotime((string) $iv['scheduled_at']))) ?> · <?= e(interview_modes()[$iv['mode']]) ?> · <?= e($iv['interviewer']) ?></div>
           <div class="a small"><?php if ($iv['status'] === 'done'): ?><strong><?= (int) $iv['rating'] ?>/5 · <?= e(interview_verdicts()[$iv['verdict']] ?? '') ?></strong> — <?= nl2br(e((string) $iv['feedback'])) ?><?php elseif ($iv['status'] === 'scheduled'): ?><a href="/reviews?interview=<?= (int) $iv['id'] ?>"><?= te('Open the scorecard') ?></a><?php else: ?><span class="muted"><?= e(str_replace('_', ' ', (string) $iv['status'])) ?></span><?php endif; ?></div></div><?php endforeach; ?>
-        <?php if (! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
+        <?php if (empty($a['block']) && ! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
         <details class="mt-s" id="schedule-interview"><summary class="small"><?= te('Schedule an interview') ?></summary>
           <form method="post" action="/hiring" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="interview_schedule"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
             <div class="row">
@@ -174,7 +183,7 @@ $hwScore = static function (?string $s): string {
         </div>
         <?php endif; ?>
         <div class="card" id="background"><h3><?= te('Background') ?></h3>
-          <p class="small" id="candidate-availability"><?php if (($avw = availability_words($a['availability'] ?? null, $a['available_from'] ?? null)) !== ''): ?><span class="tag <?= availability_tone($a['availability'], $a['available_from']) ?>"><?= e($avw) ?></span> <span class="muted"><?= te('said on :date', ['date' => d(substr((string) $a['availability_at'], 0, 10))]) ?></span><?php else: ?><span class="muted"><?= te('Availability not said yet') ?></span><?php endif; ?></p>
+          <p class="small m0" data-rehire-link><a href="/candidates/<?= (int) $a['candidate_id'] ?>#rehire"><?= te('Do-not-rehire register') ?></a></p><p class="small" id="candidate-availability"><?php if (($avw = availability_words($a['availability'] ?? null, $a['available_from'] ?? null)) !== ''): ?><span class="tag <?= availability_tone($a['availability'], $a['available_from']) ?>"><?= e($avw) ?></span> <span class="muted"><?= te('said on :date', ['date' => d(substr((string) $a['availability_at'], 0, 10))]) ?></span><?php else: ?><span class="muted"><?= te('Availability not said yet') ?></span><?php endif; ?></p>
           <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
           <?php if ($a['skills']): ?><p class="small"><?php foreach ($a['skills'] as $sk): ?><span class="tag <?= (int) $sk['confirmed'] ? 'green' : 'grey' ?>"><?= e((string) $sk['skill_slug']) ?><?= $sk['years'] ? ' · ' . (int) $sk['years'] . 'y' : '' ?></span> <?php endforeach; ?></p><?php endif; ?>
           <?php foreach ($a['resumes'] as $r): ?><p class="small" data-document="<?= (int) $r['id'] ?>"><?php if (strtolower(pathinfo((string) $r['original_name'], PATHINFO_EXTENSION)) === 'pdf'): ?><a href="/resumes?download=<?= (int) $r['id'] ?>&amp;view=1" target="_blank" rel="noopener"><?= e($r['original_name']) ?></a> · <a href="/resumes?download=<?= (int) $r['id'] ?>" title="<?= te('Download') ?>">⤓</a><?php else: ?><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a><?php endif; ?> <span class="tag grey"><?= e(candidate_document_kinds()[$r['kind'] ?? 'cv'] ?? t('CV')) ?></span> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
@@ -223,7 +232,7 @@ $hwScore = static function (?string $s): string {
       <?php if ($r['skills']): ?><div><?= e(implode(' · ', $r['skills'])) ?></div><?php endif; ?>
       <div class="checks"><?php if ($r['required']): ?><span class="<?= $r['answered'] >= $r['required'] ? 'ok' : 'wait' ?>"><?= te(':a/:n answers', ['a' => (int) $r['answered'], 'n' => (int) $r['required']]) ?></span><?php endif; ?>
         <?php if (! empty($chk['passed'])): ?><span class="ok">✓ <?= (int) $chk['passed'] ?></span><?php endif; ?><?php if (! empty($chk['failed'])): ?><span class="ko">✗ <?= (int) $chk['failed'] ?></span><?php endif; ?><?php if (! empty($chk['pending'])): ?><span class="wait">… <?= (int) $chk['pending'] ?></span><?php endif; ?>
-        <?php if ((int) $r['screened_out']): ?><span class="ko"><?= te('screened out') ?></span><?php endif; ?><?php if (($avw = availability_words($r['availability'] ?? null, $r['available_from'] ?? null)) !== ''): ?> <span class="tag <?= availability_tone($r['availability'], $r['available_from']) ?>" data-row-availability="<?= (int) $r['id'] ?>"><?= e($avw) ?></span><?php endif; ?><?php if (! empty($r['review_status'])): ?> <span class="tag <?= $r['review_status'] === 'validated' ? 'green' : ($r['review_status'] === 'declined' ? 'red' : 'amber') ?>" data-row-review="<?= e($r['review_status']) ?>"><?= e(review_statuses()[$r['review_status']]) ?></span><?php endif; ?></div></div>
+        <?php if ((int) $r['screened_out']): ?><span class="ko"><?= te('screened out') ?></span><?php endif; ?><?php if (($avw = availability_words($r['availability'] ?? null, $r['available_from'] ?? null)) !== ''): ?> <span class="tag <?= availability_tone($r['availability'], $r['available_from']) ?>" data-row-availability="<?= (int) $r['id'] ?>"><?= e($avw) ?></span><?php endif; ?><?php if (! empty($r['blocked_status'])): ?> <span class="tag red" data-row-blocked="<?= (int) $r['id'] ?>"><?= te(rehire_states()[$r['blocked_status']] ?? 'DO NOT USE') ?></span><?php endif; ?><?php if (! empty($r['review_status'])): ?> <span class="tag <?= $r['review_status'] === 'validated' ? 'green' : ($r['review_status'] === 'declined' ? 'red' : 'amber') ?>" data-row-review="<?= e($r['review_status']) ?>"><?= e(review_statuses()[$r['review_status']]) ?></span><?php endif; ?></div></div>
     <div class="sm"><?= te('Applied :when', ['when' => hw_ago((string) $r['created_at'])]) ?><div><?= $r['last_contact_at'] ? te('Last contact :when', ['when' => hw_ago((string) $r['last_contact_at'])]) : te('Not contacted yet') ?></div><div><?= e((string) $r['source']) ?></div></div>
     <div><?php $hwInterestButtons($r, $hwSelf); ?></div>
   </div><?php endforeach; ?>

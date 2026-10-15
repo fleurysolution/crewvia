@@ -8,6 +8,8 @@ function workforce_invite_candidate(int $candidateId, bool $replace = false): ?s
     try {
     $candidate=row('SELECT * FROM candidates WHERE id=? FOR UPDATE',[$candidateId]);
     if(!$candidate || !filter_var($candidate['email'],FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Candidate needs a valid email.');
+    // P5-M51: nobody on the do-not-rehire register (under any record) is invited to a portal.
+    require_once __DIR__.'/rehire.php';if(rehire_block_for($candidateId)) throw new RuntimeException('On the do-not-rehire register.');
     if(row('SELECT user_id FROM worker_accounts WHERE candidate_id=?',[$candidateId])) {if($transaction) db()->commit();return null;}
     if(row('SELECT id FROM users WHERE email=?',[$candidate['email']])) throw new RuntimeException('An account already uses this email. Review candidate identity before activation.');
     // P5-M45: only an invitation that was emailed counts; the link offered on the page right after applying does not stop the email.

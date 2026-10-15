@@ -72,6 +72,8 @@ function review_request(int $applicationId, int $reviewerId, int $rating, string
     if ($rating < 1 || $rating > 5) { return t('Rate the fit from 1 to 5.'); }
     if ($recommendation === '') { return t('Write your recommendation: why this applicant, and anything to watch.'); }
     if (val("SELECT id FROM application_reviews WHERE application_id = ? AND status = 'pending'", [$applicationId])) { return t('This applicant is already with a manager.'); }
+    require_once __DIR__ . '/rehire.php';
+    if (($held = rehire_refusal((int) $a['candidate_id'])) !== null) { return $held; }
     q('INSERT INTO application_reviews (application_id, requested_by, reviewer_id, rating, recommendation) VALUES (?,?,?,?,?)',
       [$applicationId, $by, $reviewerId, $rating, mb_substr($recommendation, 0, 4000)]);
     $id = (int) db()->lastInsertId();
@@ -137,6 +139,8 @@ function interview_schedule(int $applicationId, int $interviewerId, string $when
     if (! $a) { return t('Application unavailable in this project.'); }
     if (in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)) { return t('That application is settled.'); }
     if (! review_person_ok($interviewerId)) { return t('Choose who interviews.'); }
+    require_once __DIR__ . '/rehire.php';
+    if (($held = rehire_refusal((int) $a['candidate_id'])) !== null) { return $held; }
     $at = strtotime(str_replace('T', ' ', $when));
     if (! $at || $at < time() - 3600) { return t('Choose a date and time for the interview, not in the past.'); }
     $mode = isset(interview_modes()[$mode]) ? $mode : 'video';

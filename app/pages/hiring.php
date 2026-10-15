@@ -159,6 +159,9 @@ if (isset($_GET['app'])) {
     $hwApp['notes'] = rows("SELECT e.stage, e.note, e.created_at, u.name FROM application_events e LEFT JOIN users u ON u.id = e.user_id
                             WHERE e.application_id = ? AND e.note IS NOT NULL AND e.note <> '' ORDER BY e.id DESC LIMIT 30", [(int) $hwApp['id']]);
     $hwApp['timeline'] = hw_timeline($hwApp);
+    // P5-M51: held by the do-not-rehire register, under this record or an earlier one with the same email or phone.
+    require_once __DIR__ . '/../rehire.php';
+    $hwApp['block'] = rehire_block_for((int) $hwApp['candidate_id']);
     // P5-M44: the manager's review and the interviews.
     $hwApp['reviews'] = rows('SELECT r.*, m.name AS reviewer FROM application_reviews r JOIN users m ON m.id = r.reviewer_id WHERE r.application_id = ? ORDER BY r.id DESC', [(int) $hwApp['id']]);
     $hwApp['interviews'] = rows('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.application_id = ? ORDER BY i.scheduled_at DESC', [(int) $hwApp['id']]);

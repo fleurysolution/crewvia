@@ -101,6 +101,7 @@ function hw_counts(int $vacancyId): array
  */
 function hw_applicants(array $v, string $tab, array $f, ?array $site = null): array
 {
+    require_once __DIR__ . '/rehire.php';
     $where = ['a.vacancy_id = ?', hw_tab_where($tab)];
     $args = [(int) $v['id']];
     if ($site && ($miles = (int) ($f['miles'] ?? 0))) {
@@ -124,6 +125,7 @@ function hw_applicants(array $v, string $tab, array $f, ?array $site = null): ar
     };
     $list = rows('SELECT a.id, a.stage, a.source, a.created_at, a.screening_score, a.screened_out, a.screened_out_why, a.interest,
                          (SELECT r.status FROM application_reviews r WHERE r.application_id = a.id AND r.status <> \'withdrawn\' ORDER BY r.id DESC LIMIT 1) AS review_status,
+                         ' . rehire_block_sql('c') . ' AS blocked_status,
                          c.id AS candidate_id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone, c.email, c.availability, c.available_from,
                          ' . $distanceSql . ' AS miles_away
                   FROM applications a JOIN candidates c ON c.id = a.candidate_id
@@ -226,6 +228,11 @@ function hw_move(int $id, string $stage, string $note, int $by, bool $validated 
     if (in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)) { return t('That application is settled. Raise a new one for the same person if they come back.'); }
     if (! in_array($stage, ['new', 'screening', 'interview', 'offered', 'rejected', 'withdrawn', 'accepted'], true) || $stage === $a['stage']) { return t('Choose another stage.'); }
     if ($stage === 'accepted') { return t('The candidate must accept their offer in their private portal.'); }
+    // P5-M51: the do-not-rehire register holds the person, under any record, by email or phone.
+    if (in_array($stage, ['screening', 'interview', 'offered'], true)) {
+        require_once __DIR__ . '/rehire.php';
+        if (($held = rehire_refusal((int) $a['candidate_id'])) !== null) { return $held; }
+    }
     $jobId = (int) $a['job_id'];
     if ($stage === 'offered') {
         if ((int) val("SELECT COUNT(*) FROM screening_checks WHERE application_id = ? AND status <> 'passed'", [$id])) { return t('Complete screening checks before offering this job.'); }
@@ -284,7 +291,7 @@ function hw_matches(array $v, string $q = '', ?array $site = null, int $miles = 
 {
     $args = [(int) $v['id']];
     $where = ["NOT EXISTS (SELECT 1 FROM applications x WHERE x.candidate_id = c.id AND x.vacancy_id = ?)",
-              "NOT EXISTS (SELECT 1 FROM employee_profiles p WHERE p.candidate_id = c.id AND p.rehire_status = 'ineligible')",
+              "NOT EXISTS (SELECT 1 FROM employee_profiles p WHERE p.candidate_id = c.id AND p.rehire_status IN ('ineligible','do_not_use'))",
               "NOT EXISTS (SELECT 1 FROM worker_accounts w JOIN users u ON u.id = w.user_id WHERE w.candidate_id = c.id AND u.is_active = 0)"];
     if (in_array((string) ($v['discipline'] ?? ''), ['mechanical', 'chemical'], true)) {
         $where[] = 'c.discipline = ?';
@@ -314,7 +321,8 @@ function hw_add(int $vacancyId, int $candidateId, int $by): array
     $v = hw_vacancy($vacancyId);
     if (! $v || ! (int) $v['is_open']) { return [t('That requisition is closed.'), 0]; }
     if (! row('SELECT id FROM candidates WHERE id = ?', [$candidateId])) { return [t('That person does not exist.'), 0]; }
-    if (val("SELECT COUNT(*) FROM employee_profiles WHERE candidate_id = ? AND rehire_status = 'ineligible'", [$candidateId])) { return [t('This person is on the do-not-rehire register.'), 0]; }
+    require_once __DIR__ . '/rehire.php';
+    if (($held = rehire_refusal($candidateId)) !== null) { return [$held, 0]; }
     if (val('SELECT COUNT(*) FROM applications WHERE candidate_id = ? AND vacancy_id = ?', [$candidateId, $vacancyId])) { return [t('This person is already on this requisition.'), 0]; }
     q("INSERT INTO applications (candidate_id, vacancy_id, source) VALUES (?,?,'Talent pool')", [$candidateId, $vacancyId]);
     $id = (int) db()->lastInsertId();

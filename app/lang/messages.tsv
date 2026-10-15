@@ -4549,3 +4549,14 @@ selected	sélectionné(s)	seleccionado(s)
 :n applicant moved to Screening and invited.	:n candidat passé en Screening et invité.	:n candidato pasado a Screening e invitado.
 :n applicants moved to Screening and invited.	:n candidats passés en Screening et invités.	:n candidatos pasados a Screening e invitados.
 :n already had it.	:n l’avait déjà.	:n ya lo tenía.
+, same email as an earlier record	, même courriel qu’un dossier antérieur	, mismo correo que un expediente anterior
+, same phone as an earlier record	, même téléphone qu’un dossier antérieur	, mismo teléfono que un expediente anterior
+:label: do not move this applicant forward	:label : ne pas faire avancer ce candidat	:label: no avanzar a este candidato
+An earlier record with the same email is on the do-not-rehire register.	Un dossier antérieur avec le même courriel est sur le registre de non-réembauche.	Un expediente anterior con el mismo correo está en el registro de no recontratación.
+An earlier record with the same phone is on the do-not-rehire register.	Un dossier antérieur avec le même téléphone est sur le registre de non-réembauche.	Un expediente anterior con el mismo teléfono está en el registro de no recontratación.
+Do-not-rehire register	Registre de non-réembauche	Registro de no recontratación
+On the do-not-rehire register (:label:how). Lift it on the record that carries it, with its reason, before going further.	Sur le registre de non-réembauche (:label:how). Levez-le sur le dossier qui le porte, avec sa raison, avant d’aller plus loin.	En el registro de no recontratación (:label:how). Levántelo en el expediente que lo lleva, con su motivo, antes de continuar.
+Open the record that carries it	Ouvrir le dossier qui le porte	Abrir el expediente que lo lleva
+Screening, interviews, the manager's review, invitations and offers are refused; rejecting stays possible.	Présélection, entretiens, revue du manager, invitations et offres sont refusés ; le refus reste possible.	Preselección, entrevistas, revisión del gerente, invitaciones y ofertas se rechazan; rechazar sigue siendo posible.
+Why:	Pourquoi :	Por qué:
+On the do-not-rehire register.	Sur le registre de non-réembauche.	En el registro de no recontratación.
