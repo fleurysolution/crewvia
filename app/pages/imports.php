@@ -68,10 +68,16 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
         $answers[]='- '.trim((string)$source[$hi]).' '.($ai!==false?trim((string)($source[$ai]??'')):'').($match==='No'?' (does not meet)':'');
         if($match==='No'){$misses[]=trim((string)$source[$hi]);}
         if($match==='Yes'||$match==='No'){$judged++;}
+        // P5-M43: the answer recorded against the requisition's own question, for Crewvia's rules to score.
+        require_once __DIR__.'/../screening.php';
+        screening_record_board_answer($appId,(int)$vacancy['job_id'],(int)$vacancy['id'],trim((string)$source[$hi]),$ai!==false?trim((string)($source[$ai]??'')):'',uid());
        }}
+       require_once __DIR__.'/../screening.php';
+       $own=screening_score_application($appId);
        // P5-M42: the board's verdict becomes the application's screening score (share of its requirements met),
        // so Hiring sorts the applicants by it. Nobody is screened out for it: the office decides.
-       if($judged){q('UPDATE applications SET screening_score=? WHERE id=?',[round(($judged-count($misses))/$judged*100,2),$appId]);}
+       // Until the office has set the rules (no question carries weight yet), the board's verdict stands in.
+       if($judged&&$own['score']===null){q('UPDATE applications SET screening_score=? WHERE id=?',[round(($judged-count($misses))/$judged*100,2),$appId]);}
        $statusCol=array_search('status',$input['headers'],true);
        $boardNote=($statusCol!==false&&trim((string)($source[$statusCol]??''))!==''?'Status on the board: '.trim((string)$source[$statusCol])."\n":'').($answers?"Screening answers on the board:\n".implode("\n",$answers):'');
        if($boardNote!==''){q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$appId,uid(),'new',mb_substr($boardNote,0,4000)]);}

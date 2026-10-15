@@ -102,7 +102,8 @@ if (isset($_GET['app'])) {
                               WHERE nc.id = ? ORDER BY old.id LIMIT 5", [(int) $hwApp['candidate_id']]);
     require_once __DIR__ . '/../approvals.php';
     $hwApp['validation'] = approvals_available() ? approval_state('offer', (int) $hwApp['id']) : 'none';
-    $hwApp['questions'] = rows('SELECT q.id, q.question, q.required, s.answer FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id = q.id AND s.application_id = ?
+    require_once __DIR__ . '/../screening.php';
+    $hwApp['questions'] = rows('SELECT q.*, s.answer FROM screening_questions q LEFT JOIN screening_answers s ON s.question_id = q.id AND s.application_id = ?
                                 WHERE q.job_id = ? AND (q.vacancy_id IS NULL OR q.vacancy_id = (SELECT vacancy_id FROM applications WHERE id = ?)) ORDER BY q.sort_order, q.id', [(int) $hwApp['id'], (int) $hwVacancy['job_id'], (int) $hwApp['id']]);
     $hwApp['checks'] = rows('SELECT * FROM screening_checks WHERE application_id = ? ORDER BY id', [(int) $hwApp['id']]);
     $hwApp['resumes'] = rows('SELECT id, kind, original_name, created_at FROM candidate_resumes WHERE candidate_id = ? ORDER BY id DESC', [(int) $hwApp['candidate_id']]);

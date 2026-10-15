@@ -83,11 +83,114 @@ function screening_is_knockout(array $question, string $answer): bool
  */
 function screening_answer_scores(array $question, string $answer): bool
 {
-    if (trim($answer) === '') {
-        return false;
+    return screening_answer_share($question, $answer) > 0;
+}
+
+/**
+ * P5-M43: how much of its weight an answer earns, from 0 to 1 - Crewvia's
+ * own scoring, set per question by the office:
+ *   - a number question with "full marks at" earns in proportion up to it:
+ *     full marks at 5 years, 2 years earn 40%; under the minimum, nothing;
+ *   - a choice question with points per answer earns that share: 100% travel
+ *     earns 100, 50% earns 40, 25% earns 0; an answer it does not list, 0;
+ *   - otherwise, as before, any answer that is not the knockout earns it all.
+ */
+function screening_answer_share(array $question, string $answer): float
+{
+    $answer = trim($answer);
+    if ($answer === '' || screening_is_knockout($question, $answer)) {
+        return 0.0;
+    }
+    $full = $question['full_marks_at'] ?? null;
+    if (($question['answer_type'] ?? '') === 'number' && $full !== null && (float) $full > 0) {
+        return is_numeric($answer) ? max(0.0, min(1.0, (float) $answer / (float) $full)) : 0.0;
+    }
+    $points = screening_choice_points($question);
+    if ($points) {
+        return ($points[mb_strtolower($answer)] ?? 0) / 100;
     }
 
-    return ! screening_is_knockout($question, $answer);
+    return 1.0;
+}
+
+/**
+ * P5-M43: the points each answer of a choice question earns, as written on the
+ * question ("100% = 100", one per line), keyed by the answer in lower case.
+ *
+ * @return array<string,int>
+ */
+function screening_choice_points(array $question): array
+{
+    $out = [];
+    foreach (explode("\n", (string) ($question['choice_points'] ?? '')) as $line) {
+        if (preg_match('/^(.+?)\s*=\s*(\d{1,3})\s*$/', trim($line), $m)) {
+            $out[mb_strtolower(trim($m[1]))] = min(100, (int) $m[2]);
+        }
+    }
+
+    return $out;
+}
+
+/**
+ * P5-M43: the graded rules a question form sends, checked: "full marks at"
+ * for a number question, points per answer for a choice question.
+ *
+ * @return array{0:?float,1:?string,2:?string} full marks at, points, an error
+ */
+function screening_rules_from_post(string $type, array $post): array
+{
+    $full = trim((string) ($post['full_marks_at'] ?? ''));
+    $points = trim(str_replace("\r", '', (string) ($post['choice_points'] ?? '')));
+    if ($type !== 'number') { $full = ''; }
+    if ($type !== 'choice') { $points = ''; }
+    if ($full !== '' && (! is_numeric($full) || (float) $full <= 0 || (float) $full > 999999)) {
+        return [null, null, t('Full marks at is a number above 0, such as 5 for five years.')];
+    }
+    foreach (array_filter(array_map('trim', explode("\n", $points))) as $line) {
+        if (! preg_match('/^.+=\s*\d{1,3}$/', $line) || (int) substr($line, (int) strrpos($line, '=') + 1) > 100) {
+            return [null, null, t('Write the points one answer per line, from 0 to 100: 100% = 100')];
+        }
+    }
+
+    return [$full !== '' ? (float) $full : null, $points !== '' ? mb_substr($points, 0, 500) : null, null];
+}
+
+/**
+ * P5-M43: a job board's screening question and answer, recorded against the
+ * requisition's own question so Crewvia's rules score it. The question is
+ * found by the board's wording; the first time a wording is seen, a question
+ * is created for the requisition with no weight, for the office to set its
+ * rules (Screening questions). Returns the question id.
+ */
+function screening_record_board_answer(int $applicationId, int $jobId, int $vacancyId, string $wording, string $answer, ?int $by): int
+{
+    $wording = mb_substr(trim($wording), 0, 500);
+    $answer = mb_substr(trim($answer), 0, 4000);
+    $question = row('SELECT * FROM screening_questions WHERE job_id = ? AND (vacancy_id IS NULL OR vacancy_id = ?) AND (board_question = ? OR question = ?) ORDER BY vacancy_id IS NULL, id LIMIT 1',
+                    [$jobId, $vacancyId, $wording, $wording]);
+    if (! $question) {
+        $type = match (true) {
+            is_numeric($answer) => 'number',
+            in_array(mb_strtolower($answer), ['yes', 'no'], true) => 'yes_no',
+            (bool) preg_match('/^\d{1,3}\s*%$/', $answer) => 'choice',
+            default => 'text',
+        };
+        $next = (int) val('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM screening_questions WHERE job_id = ?', [$jobId]);
+        q("INSERT INTO screening_questions (job_id, vacancy_id, question, required, answer_type, choices, weight, knockout_answer, sort_order, board_question, origin)
+           VALUES (?,?,?,0,?,?,0,NULL,?,?,'board')", [$jobId, $vacancyId, $wording, $type, $type === 'choice' ? $answer : null, $next, $wording]);
+        $question = row('SELECT * FROM screening_questions WHERE id = ?', [(int) db()->lastInsertId()]);
+    } elseif ($question['answer_type'] === 'choice' && $answer !== ''
+              && ! in_array(mb_strtolower($answer), array_map('mb_strtolower', screening_choices($question)), true)) {
+        // A choice the board offered that the question did not list yet.
+        $choices = trim((string) $question['choices'] . "\n" . $answer);
+        if (mb_strlen($choices) <= 500) {
+            q('UPDATE screening_questions SET choices = ? WHERE id = ?', [$choices, (int) $question['id']]);
+        }
+    }
+    q('INSERT INTO screening_answers (application_id, question_id, answer, recorded_by, from_board) VALUES (?,?,?,?,1)
+       ON DUPLICATE KEY UPDATE answer = VALUES(answer)', [$applicationId, (int) $question['id'], $answer, $by]);
+
+    return (int) $question['id'];
 }
 
 /**
@@ -112,10 +215,18 @@ function screening_score_application(int $applicationId): array
     }
 
     $answers = [];
+    $fromBoard = [];
 
-    foreach (rows('SELECT question_id, answer FROM screening_answers WHERE application_id = ?',
+    foreach (rows('SELECT question_id, answer, from_board FROM screening_answers WHERE application_id = ?',
                   [$applicationId]) as $given) {
         $answers[(int) $given['question_id']] = (string) $given['answer'];
+        if ((int) $given['from_board']) { $fromBoard[(int) $given['question_id']] = true; }
+    }
+
+    // P5-M43: somebody who applied on a job board was asked the board's questions, not
+    // Crewvia's; scoring them against questions nobody put to them would invent a number.
+    if ($fromBoard) {
+        $questions = array_values(array_filter($questions, static fn($q) => isset($fromBoard[(int) $q['id']])));
     }
 
     $available = 0;
@@ -137,12 +248,15 @@ function screening_score_application(int $applicationId): array
             $why = mb_substr($question['question'] . ' — ' . trim($answer), 0, 255);
         }
 
-        if (screening_answer_scores($question, $answer)) {
-            $earned += $weight;
-        }
+        $earned += $weight * screening_answer_share($question, $answer);
     }
 
     $score = $available > 0 ? round($earned / $available * 100, 2) : null;
+
+    // Until the office gives the board's questions a weight, the board's own verdict (P5-M42) stands.
+    if ($fromBoard && $score === null && $why === null) {
+        return ['score' => null, 'out' => false, 'why' => null, 'asked' => count($questions), 'answered' => $answered];
+    }
 
     q('UPDATE applications SET screening_score = ?, screened_out = ?, screened_out_why = ?
        WHERE id = ?',

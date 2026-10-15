@@ -62,16 +62,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
         }
 
+        [$full, $points, $ruleError] = screening_rules_from_post($type, $_POST);
+        if ($ruleError !== null) {
+            flash($ruleError, 'err');
+            redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
+        }
+
         $next = (int) val('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM screening_questions
                            WHERE job_id = ?', [$jobId]);
 
         q('INSERT INTO screening_questions
              (job_id, vacancy_id, question, required, answer_type, choices,
-              weight, knockout_answer, sort_order)
-           VALUES (?,?,?,?,?,?,?,?,?)',
+              weight, knockout_answer, sort_order, full_marks_at, choice_points)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)',
           [$jobId, $vacancyId ?: null, $question, isset($_POST['required']) ? 1 : 0,
            $type, $choices !== '' ? mb_substr($choices, 0, 500) : null,
-           $weight, $knockout !== '' ? mb_substr($knockout, 0, 190) : null, $next]);
+           $weight, $knockout !== '' ? mb_substr($knockout, 0, 190) : null, $next, $full, $points]);
 
         log_activity('added a screening question', 'job', $jobId, $question);
         flash(t('Question added. Saving re-ranks the applications already on the board.'));
@@ -101,8 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
         }
 
-        q('UPDATE screening_questions SET weight = ?, knockout_answer = ?, required = ? WHERE id = ?',
-          [$weight, $knockout !== '' ? mb_substr($knockout, 0, 190) : null, isset($_POST['required']) ? 1 : 0, $question['id']]);
+        [$full, $points, $ruleError] = screening_rules_from_post((string) $question['answer_type'], $_POST);
+        if ($ruleError !== null) {
+            flash($ruleError, 'err');
+            redirect('/screening-questions' . ($vacancyId ? '?vacancy=' . $vacancyId : ''));
+        }
+
+        q('UPDATE screening_questions SET weight = ?, knockout_answer = ?, required = ?, full_marks_at = ?, choice_points = ? WHERE id = ?',
+          [$weight, $knockout !== '' ? mb_substr($knockout, 0, 190) : null, isset($_POST['required']) ? 1 : 0, $full, $points, $question['id']]);
         log_activity('changed a screening question', 'job', $jobId, (string) $question['question']);
         screening_rescore_job($jobId);
         flash(t('Question changed, and every application re-ranked with the answers it already has.'));

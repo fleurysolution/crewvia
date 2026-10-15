@@ -2486,4 +2486,46 @@ if (! val("SELECT setting_value FROM platform_settings WHERE setting_key = 'boar
     echo 'Job board applicants: ' . ($scored === 0 ? 'none to score' : $scored . ' scored') . ' from the board\'s screening answers (the share of its requirements met); Hiring sorts by it.' . PHP_EOL;
 }
 
+// ── P5-M43: Crewvia's own scoring - graded answers, and a job board's answers scored by our rules ──
+// Reversed by install/rollback/p5-m43.sql.
+foreach (['full_marks_at' => 'DECIMAL(8,2) NULL', 'choice_points' => 'VARCHAR(500) NULL', 'board_question' => 'VARCHAR(500) NULL',
+          'origin' => "ENUM('office','board') NOT NULL DEFAULT 'office'"] as $column => $definition) {
+    if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='screening_questions' AND column_name=?", [$column])) {
+        q('ALTER TABLE screening_questions ADD COLUMN `' . $column . '` ' . $definition);
+    }
+}
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='screening_answers' AND column_name='from_board'")) {
+    q('ALTER TABLE screening_answers ADD COLUMN from_board TINYINT(1) NOT NULL DEFAULT 0');
+    echo 'Screening: a number question can give full marks from a level (5 years) and part marks below it; a choice question can give points per answer (100% travel = 100, 50% = 40). Screening questions.' . PHP_EOL;
+}
+// Applicants imported from a board before P5-M43 carry the board's answers only as a note: they are
+// recorded against the requisition's questions (created, without weight, the first time a wording is
+// seen), so the office's rules score them like everybody else's.
+if (! val("SELECT setting_value FROM platform_settings WHERE setting_key = 'board_answers_recorded'")) {
+    require_once __DIR__ . '/../app/screening.php';
+    $recorded = 0;
+    $questionsBefore = (int) val("SELECT COUNT(*) FROM screening_questions WHERE origin = 'board'");
+    foreach (rows("SELECT a.id, a.vacancy_id, v.job_id,
+                          (SELECT e.note FROM application_events e WHERE e.application_id = a.id AND e.note LIKE '%Screening answers on the board:%' ORDER BY e.id LIMIT 1) AS note
+                   FROM applications a JOIN vacancies v ON v.id = a.vacancy_id
+                   WHERE a.source = 'Indeed' AND NOT EXISTS (SELECT 1 FROM screening_answers s WHERE s.application_id = a.id)") as $a) {
+        $note = (string) $a['note'];
+        $any = false;
+        foreach (explode("\n", substr($note, (int) strpos($note, 'Screening answers on the board:'))) as $line) {
+            if (preg_match('/^- (.+\?)\s*(.*?)(?:\s*\(does not meet\))?\s*$/u', trim($line), $m)) {
+                screening_record_board_answer((int) $a['id'], (int) $a['job_id'], (int) $a['vacancy_id'], $m[1], $m[2], null);
+                $any = true;
+            }
+        }
+        if ($any) {
+            $recorded++;
+        }
+    }
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('board_answers_recorded', ?)", [date('Y-m-d H:i:s')]);
+    if ($recorded) {
+        echo 'Job board answers: ' . $recorded . ' ' . ($recorded === 1 ? 'application' : 'applications') . ' now answer the requisition\'s own questions ('
+           . ((int) val("SELECT COUNT(*) FROM screening_questions WHERE origin = 'board'") - $questionsBefore) . ' questions added without weight). Set how each one scores in Screening questions; until then the board\'s verdict stands in.' . PHP_EOL;
+    }
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

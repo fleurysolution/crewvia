@@ -95,6 +95,9 @@ $scope = $vacancyId
   <p class="small m0">
     <?= te('A disqualifying answer flags the applicant and sorts them to the bottom with the reason shown. Nobody is rejected automatically — a person still presses the button. The weight decides how much a good answer is worth in the score, which is a percentage of what was available, so roles with different numbers of questions stay comparable. Changing the questions re-ranks the applications already received.') ?>
   </p>
+  <p class="small m0 mt-s">
+    <?= te('Crewvia\'s own score, not the job board\'s: a number question can give full marks from a level and part marks below it (full marks at 10 years: four years earn 40%), and a choice question can give points per answer (100% travel = 100, 50% = 30). Applicants from a job board are scored on the board\'s questions, recorded here as questions of the requisition: give them a weight and a rule, and they are re-ranked.') ?>
+  </p>
 </section>
 
 <!-- ── which role ──────────────────────────────────────────────────── -->
@@ -144,6 +147,7 @@ $scope = $vacancyId
           <tr>
             <td>
               <strong><?= e($question['question']) ?></strong>
+              <?php if (($question['origin'] ?? '') === 'board'): ?><span class="tag grey" title="<?= te('Asked on the job board; the answers came with the applicants it sent.') ?>"><?= te('From the job board') ?></span><?php endif; ?>
               <div class="muted small">
                 <?= te(':n answered', ['n' => (int) $question['answered']]) ?>
                 <?php if ($question['required']): ?>
@@ -156,6 +160,12 @@ $scope = $vacancyId
               <?php if ($question['answer_type'] === 'choice'): ?>
                 <div class="muted small"><?= e(str_replace("\n", ' / ', (string) $question['choices'])) ?></div>
               <?php endif; ?>
+              <div class="small" data-rule="<?= (int) $question['id'] ?>"><?php
+                $pts = screening_choice_points($question);
+                if ((int) $question['weight'] === 0): ?><span class="t-amber"><?= te('Not scored yet: set its weight') ?></span><?php
+                elseif ($question['answer_type'] === 'number' && $question['full_marks_at'] !== null): ?><?= te('Full marks from :n; part marks below', ['n' => rtrim(rtrim((string) $question['full_marks_at'], '0'), '.')]) ?><?php
+                elseif ($pts): ?><?= e(implode(' · ', array_map(static fn($k, $v) => $k . ' ' . $v, array_keys($pts), $pts))) ?><?php
+                else: ?><span class="muted"><?= te('Any answer earns its weight') ?></span><?php endif; ?></div>
             </td>
             <td class="right mono"><?= (int) $question['weight'] ?></td>
             <td class="small">
@@ -205,6 +215,11 @@ $scope = $vacancyId
                   <input class="in-xs" name="weight" type="number" min="0" max="100" value="<?= (int) $question['weight'] ?>" aria-label="<?= te('Weight') ?>">
                   <input class="in-s" name="knockout_answer" maxlength="190" value="<?= e((string) $question['knockout_answer']) ?>" aria-label="<?= te('Disqualifies on this answer') ?>" placeholder="<?= te('Disqualifies on') ?>">
                   <label class="own-room small"><input type="checkbox" name="required" value="1"<?= $question['required'] ? ' checked' : '' ?>> <?= te('Required') ?></label>
+                  <?php if ($question['answer_type'] === 'number'): ?>
+                  <input class="in-xs" name="full_marks_at" type="number" min="0" step="any" value="<?= e(rtrim(rtrim((string) $question['full_marks_at'], '0'), '.')) ?>" aria-label="<?= te('Full marks at') ?>" placeholder="<?= te('Full marks at') ?>">
+                  <?php elseif ($question['answer_type'] === 'choice'): ?>
+                  <textarea name="choice_points" rows="4" maxlength="500" aria-label="<?= te('Points per answer') ?>" placeholder="<?= e(implode("\n", array_map(static fn($c) => $c . ' = 100', array_slice(screening_choices($question), 0, 4)))) ?>"><?= e((string) $question['choice_points']) ?></textarea>
+                  <?php endif; ?>
                   <button class="btn sm" type="submit"><?= te('Save') ?></button>
                 </form>
               </details>
@@ -260,6 +275,19 @@ $scope = $vacancyId
       <input type="checkbox" name="required" value="1" checked>
       <?= te('Required') ?>
     </label>
+  </div>
+
+  <div class="row mt-l">
+    <div>
+      <label for="q-full"><?= te('Full marks at') ?></label>
+      <input id="q-full" name="full_marks_at" type="number" min="0" step="any" placeholder="<?= te('e.g. 5') ?>">
+      <span class="hint"><?= te('For a number: the answer that earns the whole weight. 5 for five years: two years earn 40%.') ?></span>
+    </div>
+    <div class="f2">
+      <label for="q-points"><?= te('Points per answer') ?></label>
+      <textarea id="q-points" name="choice_points" rows="3" maxlength="500" placeholder="<?= te('100% = 100') ?>&#10;50% = 40&#10;25% = 0"></textarea>
+      <span class="hint"><?= te('For a choice: what each answer earns, out of 100, one per line. An answer not listed earns nothing.') ?></span>
+    </div>
   </div>
 
   <div class="field mt-l">

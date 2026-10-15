@@ -40,7 +40,9 @@ $kindColumn = static fn(): string => (string) val("SELECT column_type FROM infor
 $diplomas = (int) val("SELECT COUNT(*) FROM candidate_resumes WHERE kind = 'certificate'");
 check('Before the rollback a diploma is its own kind of document', str_contains($kindColumn(), "'certificate'") && $diplomas >= 1, (string) $diplomas);
 
-foreach (preg_split('/;\s*\n/', (string) file_get_contents($app . '/install/rollback/p5-m42.sql')) as $chunk) {
+// Newest first, as a rollback is run: P5-M43 (built on these scores) before P5-M42.
+foreach (array_merge(preg_split('/;\s*\n/', (string) file_get_contents($app . '/install/rollback/p5-m43.sql')),
+                     preg_split('/;\s*\n/', (string) file_get_contents($app . '/install/rollback/p5-m42.sql'))) as $chunk) {
     $statement = trim(implode("\n", array_filter(explode("\n", $chunk), fn($l) => ! str_starts_with(ltrim($l), '--'))));
     if ($statement !== '') { db()->exec($statement); }
 }
