@@ -2339,8 +2339,9 @@ if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'candidate
         }
     }
     q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('candidate_stage_swept', ?)", [date('Y-m-d H:i:s')]);
-    echo 'Candidate stages: a person now moves forward with their application in Hiring; ' . $moved
-       . ' candidate(s) whose application had already moved on were brought forward (the old stage is kept for the rollback).' . PHP_EOL;
+    echo 'Candidate stages: a person now moves forward with their application in Hiring; '
+       . ($moved === 0 ? 'no candidate was behind their application.' : $moved . ($moved === 1 ? ' candidate whose application had' : ' candidates whose applications had')
+       . ' already moved on ' . ($moved === 1 ? 'was' : 'were') . ' brought forward (the old stage is kept for the rollback).') . PHP_EOL;
 }
 
 // ── P5-M27: a plant's shifts (start, end, the bus), and an assignment's link to one ──

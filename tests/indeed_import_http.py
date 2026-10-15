@@ -164,4 +164,10 @@ body = admin.get('/hiring?v=%d&app=%d' % (wk['vA'], two['application']['id']))[1
 check('Hiring shows what came with the application: the board status, the answers and the cover letter',
       'id="application-notes"' in body and 'Status on the board: Awaiting Review' in body and 'I would love to travel for this work.' in body, body[:300])
 
+# A requisition whose start has passed reads "starts immediately" in Hiring, not a date gone by.
+probe('past-start', str(wk['vA']))
+body = admin.get('/hiring?v=%d' % wk['vA'])[1]
+check('Hiring says a requisition whose start has passed starts immediately',
+      'starts immediately' in (re.findall(r'<div class="meta">(.*?)</div>', body, re.S) or [''])[0], re.findall(r'starts [^<]{0,20}', body)[:3])
+
 json.dump(results, open('work/ii-http-results.json', 'w'), indent=1)

@@ -33,7 +33,7 @@ $hwScore = static function (?string $s): string {
 <div class="card tight" id="jobs"><table>
   <tr><th><?= te('Requisition') ?></th><th><?= te('Applicants') ?></th><th><?= te('Openings') ?></th><th><?= te('Last application') ?></th><th><?= te('Status') ?></th></tr>
   <?php foreach ($hwJobs as $j): ?><tr data-vacancy="<?= (int) $j['id'] ?>">
-    <td><a href="/hiring?v=<?= (int) $j['id'] ?>"><strong><?= e($j['title']) ?></strong></a><div class="small muted"><?= e($j['project']) ?><?= isset($hwDisc[$j['discipline'] ?? '']) ? ' · ' . e($hwDisc[$j['discipline']]) : '' ?><?= $j['starts_on'] ? ' · ' . te('starts :date', ['date' => d((string) $j['starts_on'])]) : '' ?></div></td>
+    <td><a href="/hiring?v=<?= (int) $j['id'] ?>"><strong><?= e($j['title']) ?></strong></a><div class="small muted"><?= e($j['project']) ?><?= isset($hwDisc[$j['discipline'] ?? '']) ? ' · ' . e($hwDisc[$j['discipline']]) : '' ?><?= $j['starts_on'] ? ' · ' . e(starts_words((string) $j['starts_on'])) : '' ?></div></td>
     <td><div class="counts">
       <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=all"><b><?= (int) $j['total'] ?></b><?= te('All') ?></a>
       <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=new" data-new="<?= (int) $j['new_count'] ?>"><b><?= (int) $j['new_count'] ?></b><?= te('New') ?></a>
@@ -50,7 +50,7 @@ $hwScore = static function (?string $s): string {
 <p class="back-link"><a href="/hiring">← <?= te('All requisitions') ?></a></p>
 <div class="page-head">
   <div><h1 id="vacancy-title"><?= e($v['title']) ?></h1>
-    <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= ten((int) $v['openings'], ':n opening', ':n openings') ?><?= $v['starts_on'] ? ' · ' . te('starts :date', ['date' => d((string) $v['starts_on'])]) : '' ?>
+    <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= ten((int) $v['openings'], ':n opening', ':n openings') ?><?= $v['starts_on'] ? ' · ' . e(starts_words((string) $v['starts_on'])) : '' ?>
       · <span class="tag <?= (int) $v['is_open'] ? 'green' : 'grey' ?>"><?= (int) $v['is_open'] ? te('Open') : te('Closed') ?></span></div></div>
   <div class="actions"><a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
 </div>

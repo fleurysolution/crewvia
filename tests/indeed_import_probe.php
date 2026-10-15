@@ -3,6 +3,7 @@
  * The P5-M36 test's eyes, on the test database only.
  *   person <email>   the candidate, their application and its first note
  *   batch            the last import's rows: status and note
+ *   past-start <id>  moves a requisition's start a month back (the one write)
  */
 
 declare(strict_types=1);
@@ -26,6 +27,9 @@ if ($cmd === 'person') {
     global $config;
     $raw = (string) @file_get_contents(workforce_storage_path($config) . '/resumes/' . basename($arg));
     echo json_encode(['size' => strlen($raw), 'plain_pdf' => str_starts_with($raw, '%PDF')]);
+} elseif ($cmd === 'past-start') {
+    q('UPDATE vacancies SET starts_on = DATE_SUB(CURDATE(), INTERVAL 30 DAY) WHERE id = ?', [(int) $arg]);
+    echo json_encode(val('SELECT starts_on FROM vacancies WHERE id = ?', [(int) $arg]));
 } elseif ($cmd === 'batch') {
     echo json_encode(rows('SELECT r.row_number, r.status, r.note FROM import_records r WHERE r.batch_id = (SELECT MAX(id) FROM import_batches) ORDER BY r.row_number'));
 }

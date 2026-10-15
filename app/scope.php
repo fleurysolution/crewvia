@@ -101,16 +101,21 @@ function scope_guarantee(array $line, bool $strikeLive): int
 }
 
 /**
- * How many of a line have actually been placed, through the requisitions
- * raised against it.
+ * How many of a line have actually been placed: a placement that names the
+ * line, or, for an older one that does not, through the requisitions raised
+ * against it. A crew placed straight onto the line (a roster load) has no
+ * application, and used to count as nobody.
  */
 function scope_line_filled(int $lineId): int
 {
     return (int) val("SELECT COUNT(*) FROM placements p
-                      JOIN applications a ON a.candidate_id = p.candidate_id
-                      JOIN vacancies v ON v.id = a.vacancy_id AND v.job_id = p.job_id
-                      WHERE v.order_line_id = ?
-                        AND p.status IN ('confirmed','travelling','on_site')", [$lineId]);
+                      WHERE p.status IN ('confirmed','travelling','on_site')
+                        AND (p.order_line_id = ?
+                             OR (p.order_line_id IS NULL AND EXISTS (
+                                 SELECT 1 FROM applications a
+                                 JOIN vacancies v ON v.id = a.vacancy_id AND v.job_id = p.job_id
+                                 WHERE a.candidate_id = p.candidate_id AND v.order_line_id = ?)))",
+                     [$lineId, $lineId]);
 }
 
 /**
