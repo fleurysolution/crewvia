@@ -6,6 +6,23 @@ $jmMine = array_filter($jmJobs, static fn($j) => $j['application'] && $j['applic
 <div class="page-head"><div><h1><?= te('Jobs for you') ?></h1>
   <p class="sub"><?= te('Open jobs that fit your file: your trade and your years of experience. Say you are interested and a recruiter will contact you.') ?></p></div></div>
 
+<?php require_once __DIR__ . '/../availability.php'; $av = (string) ($jmWorker['availability'] ?? ''); ?>
+<form method="post" action="/my-jobs" class="card" id="availability"><?= csrf_field() ?><input type="hidden" name="do" value="availability">
+  <h2><?= te('My availability') ?></h2>
+  <p class="small muted m0 mb-s"><?= $av !== '' ? te('Recruiting sees: :words (said on :date). Change it whenever it changes.', ['words' => availability_words($av, $jmWorker['available_from'] ?? null), 'date' => d(substr((string) $jmWorker['availability_at'], 0, 10))]) : te('Tell recruiting when you can work, so nobody needs to call you to ask.') ?></p>
+  <div class="row">
+    <?php foreach (availability_choices() as $k => $l): ?><label class="own-room"><input class="w-auto" type="radio" name="availability" value="<?= e($k) ?>"<?= $av === $k ? ' checked' : '' ?> required> <?= e($l) ?></label><?php endforeach; ?>
+    <div><label for="av-from"><?= te('From') ?></label><input id="av-from" type="date" name="available_from" min="<?= e(date('Y-m-d')) ?>" value="<?= e((string) ($jmWorker['available_from'] ?? '')) ?>"></div>
+    <div><button class="btn sm"><?= te('Save') ?></button></div>
+  </div>
+</form>
+
+<?php if (! empty($jmInterviews)): ?>
+<div class="card" id="my-interviews"><h2><?= te('Your interviews') ?></h2>
+  <?php foreach ($jmInterviews as $iv): ?><p class="m0 mb-s"><strong><?= e(d(substr((string) $iv['scheduled_at'], 0, 10)) . ' · ' . date('g:i a', strtotime((string) $iv['scheduled_at']))) ?></strong> · <?= e($iv['title']) ?> · <?= te(':n minutes', ['n' => (int) $iv['duration_min']]) ?> · <?= e(['video' => t('Video call'), 'phone' => t('Phone'), 'in_person' => t('In person')][$iv['mode']] ?? '') ?><?= $iv['place'] ? ' · ' . e($iv['place']) : '' ?></p><?php endforeach; ?>
+</div>
+<?php endif; ?>
+
 <?php if ($jmMine): ?>
 <div class="card" id="my-interests"><h2><?= te('Jobs you are interested in') ?></h2>
   <?php foreach ($jmMine as $j): $a = $j['application']; ?><div class="row-item cols-fill-auto" data-interested="<?= (int) $j['id'] ?>">

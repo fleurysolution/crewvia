@@ -17,6 +17,14 @@ if (! $worker) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = (string) ($_POST['do'] ?? '');
+    // P5-M45: when they can work, said by them.
+    if ($do === 'availability') {
+        require_once __DIR__ . '/../availability.php';
+        $why = availability_set((int) $worker['id'], (string) ($_POST['availability'] ?? ''), (string) ($_POST['available_from'] ?? ''));
+        if ($why !== null) { refuse(422, $why, '/my-jobs'); }
+        flash(t('Thank you. Recruiting sees it right away.'));
+        redirect('/my-jobs');
+    }
     $why = match ($do) {
         'interest' => jm_interest($worker, (int) ($_POST['vacancy_id'] ?? 0), is_array($_POST['screening'] ?? null) ? $_POST['screening'] : []),
         'withdraw' => jm_withdraw($worker, (int) ($_POST['application_id'] ?? 0)),
@@ -31,5 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $jmJobs = jm_jobs_for($worker);
 $jmWorker = $worker;
+// P5-M44/M45: the interviews they are invited to, so the date reaches them in their portal.
+$jmInterviews = val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'interviews'")
+    ? rows("SELECT i.scheduled_at, i.duration_min, i.mode, i.place, v.title FROM interviews i JOIN applications a ON a.id = i.application_id JOIN vacancies v ON v.id = a.vacancy_id
+            WHERE a.candidate_id = ? AND i.status = 'scheduled' AND i.scheduled_at >= NOW() - INTERVAL 2 HOUR ORDER BY i.scheduled_at", [(int) $worker['id']]) : [];
 $pageTitle = t('Jobs for you') . ' · ' . $config['app_name'];
-render('my-jobs', compact('jmJobs', 'jmWorker'));
+render('my-jobs', compact('jmJobs', 'jmWorker', 'jmInterviews'));

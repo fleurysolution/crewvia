@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../hiring.php';
 require_once __DIR__ . '/../geo.php';
 require_once __DIR__ . '/../reviews.php';
+require_once __DIR__ . '/../availability.php';
 
 require_role('recruiter');
 
@@ -93,7 +94,7 @@ $hwSelf = '/hiring?' . http_build_query(array_filter(['v' => (int) $hwVacancy['i
 $hwApp = null;
 $textPanel = null;
 if (isset($_GET['app'])) {
-    $hwApp = row('SELECT a.*, c.full_name, c.city, c.state, c.phone, c.email, c.degree, c.years_exp, c.discipline, c.last_contact_at
+    $hwApp = row('SELECT a.*, c.full_name, c.city, c.state, c.phone, c.email, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.availability, c.available_from, c.availability_at
                   FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE a.id = ? AND a.vacancy_id = ?', [(int) $_GET['app'], (int) $hwVacancy['id']]);
     if (! $hwApp) {
         refuse(404, t('Application unavailable in this project.'));

@@ -2570,4 +2570,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Candidate reviews: the recruiter passes a screened applicant to a manager (Hiring), who validates, asks for another interview or declines on Candidate reviews; interviews are scheduled with an interviewer, who records a scorecard.' . PHP_EOL;
 }
 
+// ── P5-M45: a candidate says when they can work; a portal from the moment they apply ──
+// Reversed by install/rollback/p5-m45.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='candidates' AND column_name='availability'")) {
+    q("ALTER TABLE candidates ADD COLUMN availability ENUM('available','from','unavailable') NULL, ADD COLUMN available_from DATE NULL, ADD COLUMN availability_at DATETIME NULL");
+    echo 'Availability: an applicant says when they can start when they apply, and changes it in their portal; Hiring shows it. Right after applying, they can create their portal on the spot.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

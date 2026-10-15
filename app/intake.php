@@ -62,9 +62,15 @@ function intake_receive(?int $vacancyId=null): void
             screening_record_answers($applicationId, $given);
         }
 
+        // P5-M45: when they can start, in their own words.
+        require_once __DIR__.'/availability.php';
+        if(isset(availability_choices()[$_POST['availability']??''])){availability_set($cid,(string)$_POST['availability'],(string)($_POST['available_from']??''));}
         db()->commit();$_SESSION['last_application']=time();
     }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();if($resume&&is_file($resume['path']))unlink($resume['path']);throw $e;}
-    render('application_received');
+    // P5-M45: their portal, created now, from this page.
+    require_once __DIR__.'/availability.php';
+    $portal=availability_portal_offer($cid);
+    render('application_received',compact('portal'));
 }
 
 /** P5-M42: what a document on a candidate's file is. */
