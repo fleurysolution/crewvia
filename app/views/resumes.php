@@ -79,7 +79,7 @@ $kinds = candidate_document_kinds();
             <td class="small muted"><?= e($resume['original_name']) ?></td>
             <td class="small nowrap"><?= e(d($resume['created_at'])) ?></td>
             <td class="right">
-              <a class="btn ghost sm" href="/resumes?download=<?= (int) $resume['id'] ?>"><?= te('Download') ?></a>
+              <?php if (($resume['extension'] ?? '') === 'pdf'): ?><a class="btn sm" href="/resumes?download=<?= (int) $resume['id'] ?>&amp;view=1" target="_blank" rel="noopener"><?= te('View') ?></a> <?php endif; ?><a class="btn ghost sm" href="/resumes?download=<?= (int) $resume['id'] ?>"><?= te('Download') ?></a>
             </td>
           </tr>
         <?php endforeach; ?>

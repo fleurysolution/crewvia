@@ -32,6 +32,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'add_appli
     redirect('/hiring?v=' . $vacancyId . '&app=' . $appId);
 }
 
+// P5-M50: several applicants at once - invited to their portal, or moved to Screening (which invites them).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'bulk') {
+    $vacancyId = (int) ($_POST['vacancy_id'] ?? 0);
+    $ids = array_values(array_unique(array_map('intval', is_array($_POST['apps'] ?? null) ? $_POST['apps'] : [])));
+    $action = (string) ($_POST['bulk_action'] ?? '');
+    if (! $ids || ! in_array($action, ['invite', 'screening'], true)) {
+        refuse(422, t('Select at least one applicant and what to do.'), hw_back());
+    }
+    if (count($ids) > 300) {
+        refuse(422, t('Up to 300 applicants at a time.'), hw_back());
+    }
+    require_once __DIR__ . '/../invitations.php';
+    $done = 0; $already = 0; $skipped = [];
+    foreach ($ids as $id) {
+        $a = row('SELECT a.id, a.stage, a.candidate_id, c.full_name FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE a.id = ? AND a.vacancy_id = ?', [$id, $vacancyId]);
+        if (! $a) { continue; }
+        if ($action === 'screening') {
+            if ($a['stage'] === 'screening') { $already++; continue; }
+            $why = hw_move($id, 'screening', t('Moved to Screening with others from Hiring.'), uid());
+            if ($why !== null) { $skipped[] = $a['full_name'] . ' (' . $why . ')'; continue; }
+            unset($_SESSION['flash']);
+            $done++;
+            continue;
+        }
+        if (val('SELECT user_id FROM worker_accounts WHERE candidate_id = ?', [(int) $a['candidate_id']])) { $already++; continue; }
+        try {
+            workforce_invite_candidate((int) $a['candidate_id']) !== null ? $done++ : $already++;
+        } catch (Throwable $e) {
+            $skipped[] = $a['full_name'] . ' (' . t($e->getMessage()) . ')';
+        }
+    }
+    log_activity($action === 'invite' ? 'invited applicants to their portal' : 'moved applicants to Screening', 'vacancy', $vacancyId, $done . ' done, ' . $already . ' already, ' . count($skipped) . ' not');
+    flash(($action === 'invite' ? tn($done, ':n applicant invited to their portal.', ':n applicants invited to their portal.') : tn($done, ':n applicant moved to Screening and invited.', ':n applicants moved to Screening and invited.'))
+          . ($already ? ' ' . tn($already, ':n already had it.', ':n already had it.') : '')
+          . ($skipped ? ' ' . t('Not done:') . ' ' . implode('; ', array_slice($skipped, 0, 20)) : ''), $skipped ? 'err' : 'ok');
+    redirect(hw_back());
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = (string) ($_POST['do'] ?? '');
     $id = (int) ($_POST['application_id'] ?? 0);

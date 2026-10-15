@@ -177,7 +177,7 @@ $hwScore = static function (?string $s): string {
           <p class="small" id="candidate-availability"><?php if (($avw = availability_words($a['availability'] ?? null, $a['available_from'] ?? null)) !== ''): ?><span class="tag <?= availability_tone($a['availability'], $a['available_from']) ?>"><?= e($avw) ?></span> <span class="muted"><?= te('said on :date', ['date' => d(substr((string) $a['availability_at'], 0, 10))]) ?></span><?php else: ?><span class="muted"><?= te('Availability not said yet') ?></span><?php endif; ?></p>
           <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
           <?php if ($a['skills']): ?><p class="small"><?php foreach ($a['skills'] as $sk): ?><span class="tag <?= (int) $sk['confirmed'] ? 'green' : 'grey' ?>"><?= e((string) $sk['skill_slug']) ?><?= $sk['years'] ? ' · ' . (int) $sk['years'] . 'y' : '' ?></span> <?php endforeach; ?></p><?php endif; ?>
-          <?php foreach ($a['resumes'] as $r): ?><p class="small"><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a> <span class="tag grey"><?= e(candidate_document_kinds()[$r['kind'] ?? 'cv'] ?? t('CV')) ?></span> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
+          <?php foreach ($a['resumes'] as $r): ?><p class="small" data-document="<?= (int) $r['id'] ?>"><?php if (strtolower(pathinfo((string) $r['original_name'], PATHINFO_EXTENSION)) === 'pdf'): ?><a href="/resumes?download=<?= (int) $r['id'] ?>&amp;view=1" target="_blank" rel="noopener"><?= e($r['original_name']) ?></a> · <a href="/resumes?download=<?= (int) $r['id'] ?>" title="<?= te('Download') ?>">⤓</a><?php else: ?><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a><?php endif; ?> <span class="tag grey"><?= e(candidate_document_kinds()[$r['kind'] ?? 'cv'] ?? t('CV')) ?></span> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
           <?php if (! $a['resumes']): ?><p class="small muted"><?= te('No résumé on file.') ?></p><?php endif; ?>
           <form method="post" action="/resumes" enctype="multipart/form-data" class="row tight gap-s mt-s" id="attach-document"><?= csrf_field() ?><input type="hidden" name="do" value="attach"><input type="hidden" name="candidate_id" value="<?= (int) $a['candidate_id'] ?>"><input type="hidden" name="back" value="/hiring?v=<?= (int) $a['vacancy_id'] ?>&app=<?= (int) $a['id'] ?>">
             <select name="kind" aria-label="<?= te('What it is') ?>" class="w-auto"><?php foreach (candidate_document_kinds() as $k => $l): ?><option value="<?= e($k) ?>"><?= e($l) ?></option><?php endforeach; ?></select>
@@ -203,10 +203,20 @@ $hwScore = static function (?string $s): string {
 <?php if (! $hwList): ?>
 <div class="card empty-state" id="no-applicants"><h3><?= te('Nobody here yet') ?></h3><p><?= te('Applicants arrive by the requisition\'s public link and QR code. You can also add people from the talent pool.') ?></p><a class="btn ghost" href="<?= e($hwUrl(['tab' => 'matches'])) ?>"><?= te('See talent pool matches') ?></a></div>
 <?php else: ?>
+<form method="post" action="/hiring" id="bulk-form" class="card flex flex-wrap items-center gap"><?= csrf_field() ?><input type="hidden" name="do" value="bulk"><input type="hidden" name="back" value="<?= e($hwSelf) ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $v['id'] ?>">
+  <label class="own-room"><input type="checkbox" id="bulk-all" class="w-auto"> <?= te('Select all shown') ?></label>
+  <span class="small muted" id="bulk-count"><?= te('None selected') ?></span>
+  <select name="bulk_action" aria-label="<?= te('What to do with them') ?>" class="w-auto">
+    <option value="invite"><?= te('Invite them to their portal') ?></option>
+    <option value="screening"><?= te('Move them to Screening (invites them too)') ?></option>
+  </select>
+  <button class="btn sm" id="bulk-go" disabled><?= te('Apply to the selected') ?></button>
+  <span class="small muted"><?= te('Invitations go out through Email delivery (in test mode, to the test inbox). For a message of your own, use Campaign email.') ?></span>
+</form>
 <div class="rows" id="applicants">
   <div class="rows-head"><span><?= te('Applicant and score') ?></span><span><?= te('Background and screening') ?></span><span><?= te('Activity') ?></span><span><?= te('Interest') ?></span></div>
   <?php foreach ($hwList as $r): $chk = $r['checks']; ?><div class="row-item" data-app="<?= (int) $r['id'] ?>" data-interest="<?= e((string) $r['interest']) ?>">
-    <div class="who"><?= $hwScore($r['screening_score']) ?><div class="min-w-0"><a class="name" href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>"><?= e($r['full_name']) ?></a>
+    <div class="who"><input type="checkbox" name="apps[]" value="<?= (int) $r['id'] ?>" form="bulk-form" class="w-auto bulk-pick" aria-label="<?= te('Select :name', ['name' => $r['full_name']]) ?>"><?= $hwScore($r['screening_score']) ?><div class="min-w-0"><a class="name" href="<?= e($hwSelf . '&app=' . (int) $r['id']) ?>"><?= e($r['full_name']) ?></a>
       <div class="sm"><?= e(trim(($r['city'] ?? '') . ', ' . ($r['state'] ?? ''), ', ') ?: t('Location not given')) ?><?= $r['miles_away'] !== null ? ' · <span data-miles="' . (int) $r['id'] . '">' . te('≈ :n mi', ['n' => (int) round((float) $r['miles_away'])]) . '</span>' : '' ?></div>
       <div class="sm"><span class="tag <?= $hwStageTone[$r['stage']] ?? 'grey' ?>"><?= e(hw_stages()[$r['stage']]) ?></span></div></div></div>
     <div class="sm"><div class="t-ink"><?= $r['degree'] ? e($r['degree']) : te('No degree on file') ?><?= $r['years_exp'] !== null ? ' · ' . te(':n yr', ['n' => (int) $r['years_exp']]) : '' ?></div>
@@ -218,6 +228,18 @@ $hwScore = static function (?string $s): string {
     <div><?php $hwInterestButtons($r, $hwSelf); ?></div>
   </div><?php endforeach; ?>
 </div>
+<script>
+  // P5-M50: pick applicants, then act on all of them at once.
+  (function () {
+    var picks = document.querySelectorAll('.bulk-pick'), all = document.getElementById('bulk-all'), go = document.getElementById('bulk-go'), count = document.getElementById('bulk-count');
+    var update = function () {
+      var n = Array.prototype.filter.call(picks, function (p) { return p.checked; }).length;
+      go.disabled = n === 0; count.textContent = n ? n + ' ' + <?= json_encode(t('selected')) ?> : <?= json_encode(t('None selected')) ?>;
+    };
+    picks.forEach(function (p) { p.addEventListener('change', update); });
+    all.addEventListener('change', function () { picks.forEach(function (p) { p.checked = all.checked; }); update(); });
+  })();
+</script>
 <?php endif; ?>
 <?php endif; ?>
 

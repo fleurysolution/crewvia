@@ -74,7 +74,14 @@ if(isset($_GET['download'])) {
     if(!is_file($path)){refuse(404, t('Document unavailable.'));}
     $raw=file_get_contents($path);require_once __DIR__.'/../crypto.php';$plain=$raw===false?null:crypto_open($raw);
     if($plain===null||!hash_equals($doc['file_hash'],hash('sha256',$plain))){refuse(500, t('Document integrity check failed.'));}
-    log_activity('downloaded a CV','resume',(int)$doc['id']);header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="resume-'.(int)$doc['id'].'.'.$doc['extension'].'"');echo $plain;exit;
+    // P5-M50: a PDF is read in the browser (View); a Word file, or Download, saves it. The name the office sees is the file's own.
+    $inline=isset($_GET['view'])&&$doc['extension']==='pdf';
+    $fname=preg_replace('/[^A-Za-z0-9._ -]/','_',(string)$doc['original_name'])?:('document-'.(int)$doc['id'].'.'.$doc['extension']);
+    log_activity($inline?'viewed a candidate document':'downloaded a CV','resume',(int)$doc['id']);
+    header('X-Content-Type-Options: nosniff');header('Cache-Control: private, no-store');
+    if($inline){header('Content-Type: application/pdf');header('Content-Disposition: inline; filename="'.$fname.'"');}
+    else{header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="'.$fname.'"');}
+    echo $plain;exit;
 }
 // P5-M42: the office's list finds a person's documents by name, kind or requisition, newest first.
 $docQ=trim((string)($_GET['q']??''));$docKind=(string)($_GET['kind']??'');$docVacancy=(int)($_GET['v']??0);

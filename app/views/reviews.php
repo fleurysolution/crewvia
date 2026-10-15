@@ -53,7 +53,7 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
 
 <div class="grid g2">
   <div class="card" id="dossier-documents"><h3><?= te('Documents') ?></h3>
-    <?php foreach ($a['documents'] as $doc): ?><p class="small"><a href="/resumes?download=<?= (int) $doc['id'] ?>">⤓ <?= e($doc['original_name']) ?></a> <span class="tag grey"><?= e($kinds[$doc['kind'] ?? 'cv'] ?? t('CV')) ?></span></p><?php endforeach; ?>
+    <?php foreach ($a['documents'] as $doc): ?><p class="small"><?php if (strtolower(pathinfo((string) $doc['original_name'], PATHINFO_EXTENSION)) === 'pdf'): ?><a href="/resumes?download=<?= (int) $doc['id'] ?>&amp;view=1" target="_blank" rel="noopener"><?= e($doc['original_name']) ?></a> · <a href="/resumes?download=<?= (int) $doc['id'] ?>" title="<?= te('Download') ?>">⤓</a><?php else: ?><a href="/resumes?download=<?= (int) $doc['id'] ?>">⤓ <?= e($doc['original_name']) ?></a><?php endif; ?> <span class="tag grey"><?= e($kinds[$doc['kind'] ?? 'cv'] ?? t('CV')) ?></span></p><?php endforeach; ?>
     <?php if (! $a['documents']): ?><p class="small muted"><?= te('No document on file.') ?></p><?php endif; ?>
     <h3 class="mt-l"><?= te('Interviews') ?></h3>
     <?php foreach ($a['interviews'] as $iv): ?>
