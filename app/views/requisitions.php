@@ -252,6 +252,7 @@
       <a href="/apply?id=<?= (int)$requisition['id'] ?>" target="_blank" rel="noopener">
         <?= te('Open the public application page') ?>
       </a>
+      &middot; <a href="/poster?id=<?= (int) $requisition['id'] ?>" target="_blank" rel="noopener" data-poster="<?= (int) $requisition['id'] ?>"><?= te('Print the job poster with its QR code') ?></a>
     </p>
 
     <?php if (can('admin')): ?>
@@ -287,4 +288,5 @@
 </div>
 
 <script src="/assets/qrcode.min.js"></script>
-<script>document.querySelectorAll('.application-qr').forEach(el=>new QRCode(el,{text:location.origin+'/apply?id='+el.dataset.vacancy,width:192,height:192,correctLevel:QRCode.CorrectLevel.M}));</script>
+<?php // P5-M46: the site's configured address, not the one the office browses from, so a QR code always opens the real page. ?>
+<script>document.querySelectorAll('.application-qr').forEach(el=>new QRCode(el,{text:<?= json_encode(rtrim((string) ($config['app_url'] ?? ''), '/'), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) ?>+'/apply?id='+el.dataset.vacancy,width:192,height:192,correctLevel:QRCode.CorrectLevel.M}));</script>

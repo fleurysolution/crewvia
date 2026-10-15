@@ -202,6 +202,7 @@ $routes = [
     '/driver-checks' => 'driver-checks',
     '/hiring' => 'hiring',
     '/reviews' => 'reviews',
+    '/poster' => 'poster',
     '/my-jobs' => 'my-jobs',
     '/lateness' => 'lateness',
     '/folios' => 'folios',

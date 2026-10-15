@@ -53,7 +53,7 @@ $hwScore = static function (?string $s): string {
   <div><h1 id="vacancy-title"><?= e($v['title']) ?></h1>
     <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= ten((int) $v['openings'], ':n opening', ':n openings') ?><?= $v['starts_on'] ? ' · ' . e(starts_words((string) $v['starts_on'])) : '' ?>
       · <span class="tag <?= (int) $v['is_open'] ? 'green' : 'grey' ?>"><?= (int) $v['is_open'] ? te('Open') : te('Closed') ?></span></div></div>
-  <div class="actions"><?php if ((int) $v['is_open']): ?><a class="btn" href="<?= e($hwUrl(['tab' => 'add'])) ?>" id="add-applicant-link"><?= te('Add an applicant') ?></a> <?php endif; ?><a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
+  <div class="actions"><?php if ((int) $v['is_open']): ?><a class="btn" href="<?= e($hwUrl(['tab' => 'add'])) ?>" id="add-applicant-link"><?= te('Add an applicant') ?></a> <?php endif; ?><a class="btn ghost" href="/poster?id=<?= (int) $v['id'] ?>" target="_blank" rel="noopener" id="poster-link"><?= te('Job poster') ?></a> <a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
 </div>
 <nav class="tabs" aria-label="<?= te('Requisition') ?>">
   <a href="<?= e($hwUrl([])) ?>" class="<?= $hwView === 'candidates' ? 'on' : '' ?>"><?= te('Applicants') ?></a>

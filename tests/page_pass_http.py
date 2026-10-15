@@ -19,7 +19,7 @@ VIEWS = 'work/test-app/app/views/'
 results = []
 
 # The print documents are their own page, and two public pages hold their title in a form card.
-OWN_PAGE = {'procurement-print.php', 'reports-print.php', 'statements-print.php', 'activate.php', 'application_received.php'}
+OWN_PAGE = {'procurement-print.php', 'reports-print.php', 'statements-print.php', 'activate.php', 'application_received.php', 'poster.php'}
 # Ceilings measured when wave 4 ended; lower them when more go.
 
 
