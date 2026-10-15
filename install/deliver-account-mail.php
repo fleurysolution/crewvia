@@ -11,7 +11,9 @@ for($i=0;$i<50;$i++) {
     try {
         $content=token_decrypt($m['encrypted_message']);
         if(!filter_var($m['recipient'],FILTER_VALIDATE_EMAIL)||preg_match('/[\r\n]/',$m['recipient']))throw new RuntimeException('Invalid address');
-        if(!mail($m['recipient'],'=?UTF-8?B?'.base64_encode($content['subject']).'?=',$content['body'],['From'=>$config['email_from'],'Content-Type'=>'text/plain; charset=UTF-8']))throw new RuntimeException('Relay rejected message');
+        // P5-M47: a candidate's or worker's account email follows test mode too; office staff are never redirected.
+        require_once __DIR__.'/../app/mail-routing.php';$route=mail_route((string)$m['recipient']);
+        if(!mail($route['to'],'=?UTF-8?B?'.base64_encode($route['prefix'].$content['subject']).'?=',$content['body'],mail_candidate_headers(['From'=>$config['email_from'],'Content-Type'=>'text/plain; charset=UTF-8'],(string)$m['recipient'])))throw new RuntimeException('Relay rejected message');
         q("UPDATE account_mail_outbox SET status='sent',sent_at=NOW(),lease_until=NULL WHERE id=?",[$m['id']]);echo 'Relay accepted account message '.$m['id'].PHP_EOL;
     }catch(Throwable $e){q("UPDATE account_mail_outbox SET status='failed',lease_until=NULL WHERE id=?",[$m['id']]);error_log('[account-mail] Queue item '.$m['id'].' failed');}
 }

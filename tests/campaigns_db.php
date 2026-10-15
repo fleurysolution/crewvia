@@ -96,6 +96,8 @@ for ($i = 1; $i <= 55; $i++) {
 $capture = __DIR__ . '/campaign-mail.jsonl';
 @unlink($capture);
 q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('mail_capture_path',?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)", [$capture]);
+// P5-M47: this test checks delivery to the real recipient, so candidates' emails are live here (test mode is mail_routing_db.php's).
+q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('candidate_mail_test','0') ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)");
 q("DELETE FROM platform_settings WHERE setting_key = 'campaign_postal_address'");
 
 file_put_contents(__DIR__ . '/campaigns.json', json_encode(['ids' => $ids, 'cands' => $cands, 'bulk' => $bulk, 'vacancy' => $vacancy, 'electric' => $electric, 'gone' => $gone, 'capture' => $capture]));

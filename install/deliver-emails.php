@@ -9,8 +9,11 @@ for($i=0;$i<50;$i++) {
     q("UPDATE email_outbox SET status='sending',lease_until=DATE_ADD(NOW(),INTERVAL 5 MINUTE),attempts=attempts+1 WHERE id=?",[$message['id']]);db()->commit();
     try {
         $content=token_decrypt($message['encrypted_message']);
-        $headers=['From'=>$config['email_from'],'Content-Type'=>'text/plain; charset=UTF-8'];
-        $sent=mail($message['recipient'],'=?UTF-8?B?'.base64_encode($content['subject']).'?=',$content['body'],$headers);
+        // P5-M47: in test mode the invitation goes to the test inbox, not to the candidate; it answers to the recruiting lead.
+        require_once __DIR__.'/../app/mail-routing.php';
+        $route=mail_route((string)$message['recipient']);
+        $headers=mail_candidate_headers(['From'=>$config['email_from'],'Content-Type'=>'text/plain; charset=UTF-8'],(string)$message['recipient']);
+        $sent=mail($route['to'],'=?UTF-8?B?'.base64_encode($route['prefix'].$content['subject']).'?=',$content['body'],$headers);
         if(!$sent) throw new RuntimeException('Mail relay rejected message.');
         q("UPDATE email_outbox SET status='sent',sent_at=NOW(),lease_until=NULL WHERE id=?",[$message['id']]);
         echo 'Relay accepted queued message '.$message['id']."\n";

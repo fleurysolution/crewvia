@@ -228,6 +228,12 @@ function cm_render(array $campaign, array $vacancy, array $person, string $token
  */
 function cm_mail(string $to, string $subject, string $body, array $headers): bool
 {
+    // P5-M47: in test mode a candidate's email goes to the test inbox; candidates' emails answer to the recruiting lead.
+    require_once __DIR__ . '/mail-routing.php';
+    $headers = mail_candidate_headers($headers, $to);
+    $route = mail_route($to);
+    $to = $route['to'];
+    $subject = $route['prefix'] . $subject;
     if ($capture = cm_capture()) {
         return file_put_contents($capture, json_encode(['to' => $to, 'subject' => $subject, 'body' => $body, 'headers' => $headers]) . "\n", FILE_APPEND | LOCK_EX) !== false;
     }

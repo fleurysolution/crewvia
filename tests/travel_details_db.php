@@ -60,6 +60,8 @@ $placement = (int) db()->lastInsertId();
 $capture = __DIR__ . '/travel-mail.jsonl';
 @unlink($capture);
 q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('mail_capture_path',?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)", [$capture]);
+// P5-M47: this test checks delivery to the real recipient, so candidates' emails are live here (test mode is mail_routing_db.php's).
+q("INSERT INTO platform_settings(setting_key,setting_value) VALUES ('candidate_mail_test','0') ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)");
 q('DELETE FROM travel_advisories');
 file_put_contents(__DIR__ . '/travel_details.json', json_encode(compact('hotels', 'workerUser', 'worker', 'placement', 'capture')));
 file_put_contents(__DIR__ . '/trip-db-results.json', json_encode($results, JSON_PRETTY_PRINT));

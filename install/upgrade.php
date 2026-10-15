@@ -2577,4 +2577,13 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Availability: an applicant says when they can start when they apply, and changes it in their portal; Hiring shows it. Right after applying, they can create their portal on the spot.' . PHP_EOL;
 }
 
+// ── P5-M47: candidates' emails in test mode until the agency says otherwise ──
+// Switched on once, on the first upgrade that knows it; an administrator turns it off on Email delivery.
+// Reversed by install/rollback/p5-m47.sql.
+if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'candidate_mail_test'")) {
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('candidate_mail_test', '1'), ('candidate_mail_test_to', 'solutionsfleury+{first}@gmail.com'), ('candidate_mail_reply_to', 'pa@rsinc.com')
+       ON DUPLICATE KEY UPDATE setting_value = setting_value");
+    echo 'Candidate emails: test mode is on. Every email to a candidate or worker goes to solutionsfleury+<first name>@gmail.com, marked with who it was for; replies go to pa@rsinc.com. Turn it off on Email delivery when the flows are validated.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

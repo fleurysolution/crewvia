@@ -1,8 +1,35 @@
 <?php
+/**
+ * Email delivery: the invitation queue, and (P5-M47) where candidates'
+ * emails go while the agency tests its flows. See app/mail-routing.php.
+ */
 require_role('admin');
-if($_SERVER['REQUEST_METHOD']==='POST') {
-    q("UPDATE email_outbox o JOIN invitations i ON i.id=o.invitation_id SET o.status='pending' WHERE o.id=? AND o.status='failed' AND o.attempts<5 AND i.expires_at>NOW() AND i.used_at IS NULL",[(int)($_POST['id'] ?? 0)]);
+require_once __DIR__ . '/../mail-routing.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (($_POST['do'] ?? '') === 'routing') {
+        $pattern = trim((string) ($_POST['test_to'] ?? ''));
+        $reply = trim((string) ($_POST['reply_to'] ?? ''));
+        if (! str_contains($pattern, '{first}') || ! filter_var(str_replace('{first}', 'name', $pattern), FILTER_VALIDATE_EMAIL)) {
+            refuse(422, t('The test inbox is an email address with {first} where the first name goes, such as solutionsfleury+{first}@gmail.com.'), '/email-delivery');
+        }
+        if ($reply !== '' && ! filter_var($reply, FILTER_VALIDATE_EMAIL)) {
+            refuse(422, t('The reply address is not a valid email address.'), '/email-delivery');
+        }
+        $test = isset($_POST['test_mode']) ? '1' : '0';
+        foreach (['candidate_mail_test' => $test, 'candidate_mail_test_to' => $pattern, 'candidate_mail_reply_to' => $reply] as $k => $v) {
+            q('INSERT INTO platform_settings (setting_key, setting_value) VALUES (?,?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [$k, $v]);
+        }
+        log_activity($test === '1' ? 'kept candidate emails in test mode' : 'sent candidate emails to the candidates themselves', 'settings', 0, $pattern . ' · reply to ' . ($reply ?: 'nobody'));
+        flash($test === '1' ? t('Test mode on: candidates\' emails go to the test inbox.') : t('Test mode off: candidates now receive their emails.'));
+        redirect('/email-delivery');
+    }
+    q("UPDATE email_outbox o JOIN invitations i ON i.id=o.invitation_id SET o.status='pending' WHERE o.id=? AND o.status='failed' AND o.attempts<5 AND i.expires_at>NOW() AND i.used_at IS NULL", [(int) ($_POST['id'] ?? 0)]);
     redirect('/email-delivery');
 }
-$messages=rows('SELECT id,recipient,status,attempts,created_at,sent_at FROM email_outbox ORDER BY id DESC LIMIT 100');
-render('email-delivery',compact('messages'));
+$messages = rows('SELECT id,recipient,status,attempts,created_at,sent_at FROM email_outbox ORDER BY id DESC LIMIT 100');
+foreach ($messages as &$message) {
+    $message['route'] = mail_route((string) $message['recipient']);
+}
+unset($message);
+$routing = ['test' => mail_test_mode(), 'test_to' => mail_test_pattern(), 'reply_to' => mail_setting('candidate_mail_reply_to', '')];
+render('email-delivery', compact('messages', 'routing'));

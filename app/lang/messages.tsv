@@ -4508,3 +4508,19 @@ You get your own portal to follow your application. No phone call needed.	Vous o
 hours a week guaranteed	heures garanties par semaine	horas garantizadas por semana
 openings	postes	vacantes
 per diem, a day	indemnité journalière	viático diario
+Candidates and workers receive their emails at their own address.	Les candidats et les travailleurs reçoivent leurs courriels à leur propre adresse.	Los candidatos y trabajadores reciben sus correos en su propia dirección.
+Delivered to	Livré à	Entregado a
+Emails to candidates	Courriels aux candidats	Correos a los candidatos
+Every email to a candidate or a worker goes to the test inbox, marked with who it was for. Their real address stays on their record. Office staff always get their own emails.	Chaque courriel à un candidat ou à un travailleur va dans la boîte de test, avec le nom de son destinataire. Sa vraie adresse reste à son dossier. Le personnel du bureau reçoit toujours ses propres courriels.	Cada correo a un candidato o trabajador va a la bandeja de prueba, con el nombre de su destinatario. Su dirección real queda en su expediente. El personal de oficina siempre recibe sus propios correos.
+Replies go to	Les réponses vont à	Las respuestas van a
+Test inbox	Boîte de test	Bandeja de prueba
+Test mode	Mode test	Modo de prueba
+Test mode off: candidates now receive their emails.	Mode test désactivé : les candidats reçoivent maintenant leurs courriels.	Modo de prueba desactivado: los candidatos ya reciben sus correos.
+Test mode on: candidates' emails go to the test inbox.	Mode test activé : les courriels des candidats vont dans la boîte de test.	Modo de prueba activado: los correos de los candidatos van a la bandeja de prueba.
+Test mode: send candidates' emails to the test inbox	Mode test : envoyer les courriels des candidats dans la boîte de test	Modo de prueba: enviar los correos de los candidatos a la bandeja de prueba
+The recruiting lead who answers candidates. A campaign answers to the recruiter who sent it.	Le responsable du recrutement qui répond aux candidats. Une campagne répond au recruteur qui l’a envoyée.	El responsable de reclutamiento que responde a los candidatos. Una campaña responde al reclutador que la envió.
+The reply address is not a valid email address.	L’adresse de réponse n’est pas une adresse courriel valide.	La dirección de respuesta no es un correo válido.
+The test inbox is an email address with {first} where the first name goes, such as solutionsfleury+{first}@gmail.com.	La boîte de test est une adresse courriel avec {first} à la place du prénom, par exemple solutionsfleury+{first}@gmail.com.	La bandeja de prueba es una dirección de correo con {first} donde va el nombre, como solutionsfleury+{first}@gmail.com.
+test	test	prueba
+the recipient	le destinataire	el destinatario
+{first} becomes the candidate's first name (with the last name's initial when two share it): solutionsfleury+otis@gmail.com.	{first} devient le prénom du candidat (avec l’initiale du nom quand deux le partagent) : solutionsfleury+otis@gmail.com.	{first} se convierte en el nombre del candidato (con la inicial del apellido cuando dos lo comparten): solutionsfleury+otis@gmail.com.
