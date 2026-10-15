@@ -149,4 +149,13 @@ check('and the person who already had files gets the new CV beside them', len(pr
 status, body = bulk(admin, wk['vA'], [('ResumeIndeedTestTwo.pdf', PDF)])
 check('The same file sent again is not attached twice', len(probe('docs', 'in-two@test.invalid')) == 2 and 'already on file' in body)
 
+# ── P5-M39: the cover letter typed on the board, and the other files the applicant sent ──
+LETTER = 'I would love to travel for this work. Five years on Haas lathes.'.encode()
+status, body = bulk(admin, wk['vA'], [('CoverLetterIndeedTestTwo.txt', LETTER), ('Attachment__IndeedTestTwo__Forklift certificate.pdf', PDF)])
+check('A cover letter typed on the board goes on the application, word for word', probe('notes', 'in-two@test.invalid') == ['Cover letter (from the job board):' + chr(10) + LETTER.decode()], probe('notes', 'in-two@test.invalid'))
+docs = probe('docs', 'in-two@test.invalid')
+check('Another file the applicant sent is kept under its own name, as another document', any(d['kind'] == 'other' and d['original_name'] == 'Forklift certificate.pdf' for d in docs), docs)
+status, body = bulk(admin, wk['vA'], [('CoverLetterIndeedTestTwo.txt', LETTER), ('Attachment__IndeedTestTwo__Forklift certificate.pdf', PDF)])
+check('Sent again, neither is added twice', len(probe('notes', 'in-two@test.invalid')) == 1 and len(probe('docs', 'in-two@test.invalid')) == len(docs), body[:200])
+
 json.dump(results, open('work/ii-http-results.json', 'w'), indent=1)

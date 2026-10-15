@@ -20,6 +20,8 @@ if ($cmd === 'person') {
     echo json_encode($c ?: null);
 } elseif ($cmd === 'docs') {
     echo json_encode(rows('SELECT r.kind, r.original_name, r.attached_by, r.storage_name FROM candidate_resumes r JOIN candidates c ON c.id = r.candidate_id WHERE c.email = ? ORDER BY r.id', [$arg]));
+} elseif ($cmd === 'notes') {
+    echo json_encode(array_column(rows("SELECT e.note FROM application_events e JOIN applications a ON a.id = e.application_id JOIN candidates c ON c.id = a.candidate_id WHERE c.email = ? AND e.note LIKE 'Cover letter%' ORDER BY e.id", [$arg]), 'note'));
 } elseif ($cmd === 'stored') {
     global $config;
     $raw = (string) @file_get_contents(workforce_storage_path($config) . '/resumes/' . basename($arg));

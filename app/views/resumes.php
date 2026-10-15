@@ -25,7 +25,7 @@
   <p class="small muted"><?= te('Up to 15 files at a time, PDF or Word. Each one goes to the applicant whose name is in the file name, as Indeed names them (ResumeFirstLast.pdf); a file named CoverLetter… is filed as a cover letter. A file that matches nobody, or two people, is attached to nobody and listed.') ?></p>
   <div class="row">
     <div class="f2"><label for="bulk-v"><?= te('Requisition') ?></label><select id="bulk-v" name="vacancy_id" required><?php foreach ($bulkVacancies as $v): ?><option value="<?= (int) $v['id'] ?>"<?= $bulkVacancy === (int) $v['id'] ? ' selected' : '' ?>><?= e($v['project'] . ' · ' . $v['title']) ?> (<?= ten((int) $v['applicants'], ':n applicant', ':n applicants') ?>)</option><?php endforeach; ?></select></div>
-    <div class="f2"><label for="bulk-files"><?= te('Files') ?></label><input id="bulk-files" type="file" name="resumes[]" accept=".pdf,.docx" multiple required></div>
+    <div class="f2"><label for="bulk-files"><?= te('Files') ?></label><input id="bulk-files" type="file" name="resumes[]" accept=".pdf,.docx,.txt" multiple required></div>
   </div>
   <button class="btn"><?= te('Attach') ?></button>
 </form>

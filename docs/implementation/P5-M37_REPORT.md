@@ -54,3 +54,14 @@ Tested in `tests/indeed_import_http.py`:
 - a repeat refused.
 
 The walkthrough chain passes 76 checks. The full suite passed on M37 (3,563).
+
+## P5-M39 — cover letters and other attachments
+
+The bulk attach also takes:
+- **A cover letter typed on the job board**, sent as CoverLetterFirstLast.txt.
+  It goes word for word on the application in Hiring, where the recruiter
+  reads it.
+- **Another file the applicant sent**, as Attachment__FirstLast__original.pdf.
+  It is filed as "Other document" under its original name.
+
+Neither is added twice. Tested in indeed_import_http.py (79 checks).

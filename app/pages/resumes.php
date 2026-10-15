@@ -28,18 +28,36 @@ if(!$own && $_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='attach_
     $count=is_array($files['name']??null)?count($files['name']):0;
     for($i=0;$i<$count;$i++){
         $name=(string)$files['name'][$i];
-        $stem=preg_replace('/\.(pdf|docx)$/i','',$name);
-        $kind=preg_match('/^cover\s*letter/i',$stem)?'cover_letter':'cv';
-        $who=$key(preg_replace('/^(resume|cv|cover\s*letter)[\s_-]*/i','',$stem));
+        $original=$name;
+        // P5-M39: "Attachment__FirstLast__original.pdf" is another document the applicant sent, kept under its own name.
+        if(preg_match('/^Attachment__(.+?)__(.+)$/',$name,$am)){$kind='other';$who=$key($am[1]);$original=$am[2];}
+        else{
+            $stem=preg_replace('/\.(pdf|docx|txt)$/i','',$name);
+            $kind=preg_match('/^cover\s*letter/i',$stem)?'cover_letter':'cv';
+            $who=$key(preg_replace('/^(resume|cv|cover\s*letter)[\s_-]*/i','',$stem));
+        }
         $match=$people[$who]??[];
         if(count($match)!==1){$skipped[]=$name.' ('.(count($match)?t('more than one applicant has this name'):t('no applicant with this name')).')';continue;}
-        $existing=(int)val('SELECT COUNT(*) FROM candidate_resumes WHERE candidate_id=? AND kind=? AND original_name=?',[$match[0],$kind,mb_substr(basename($name),0,190)]);
+        // P5-M39: a cover letter typed on the job board arrives as text; it goes on the application, where the recruiter reads it.
+        if($kind==='cover_letter'&&preg_match('/\.txt$/i',$name)){
+            $text=trim((string)@file_get_contents($files['tmp_name'][$i],false,null,0,20000));
+            if($text===''||!mb_check_encoding($text,'UTF-8')){$skipped[]=$name.' ('.t('the text could not be read').')';continue;}
+            $appId=(int)val('SELECT id FROM applications WHERE candidate_id=? AND vacancy_id=? ORDER BY id DESC LIMIT 1',[$match[0],$vacancyId]);
+            $note='Cover letter (from the job board):'."
+".$text;
+            if(val('SELECT id FROM application_events WHERE application_id=? AND note=?',[$appId,$note])){$skipped[]=$name.' ('.t('already on file').')';continue;}
+            q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,(SELECT stage FROM applications WHERE id=?),?)',[$appId,uid(),$appId,$note]);
+            q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$match[0],uid(),'cover letter',mb_substr($text,0,250)]);
+            $done++;continue;
+        }
+        $existing=(int)val('SELECT COUNT(*) FROM candidate_resumes WHERE candidate_id=? AND kind=? AND original_name=?',[$match[0],$kind,mb_substr(basename($original),0,190)]);
         if($existing){$skipped[]=$name.' ('.t('already on file').')';continue;}
         $_FILES['resume']=['name'=>$name,'type'=>$files['type'][$i],'tmp_name'=>$files['tmp_name'][$i],'error'=>$files['error'][$i],'size'=>$files['size'][$i]];
         try{$file=intake_resume_prepare();}catch(RuntimeException $e){$skipped[]=$name.' ('.$e->getMessage().')';continue;}
         if(!$file){$skipped[]=$name;continue;}
+        $file['original_name']=mb_substr(basename($original),0,190);
         q('INSERT INTO candidate_resumes(candidate_id,kind,storage_name,file_hash,extension,original_name,attached_by) VALUES (?,?,?,?,?,?,?)',[$match[0],$kind,$file['storage_name'],$file['file_hash'],$file['extension'],$file['original_name'],uid()]);
-        q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$match[0],uid(),'document attached',($kind==='cv'?'CV':'Cover letter').': '.$file['original_name']]);
+        q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$match[0],uid(),'document attached',['cv'=>'CV','cover_letter'=>'Cover letter','other'=>'Document'][$kind].': '.$file['original_name']]);
         $done++;
     }
     log_activity('attached candidate documents in bulk','vacancy',$vacancyId,$done.' attached, '.count($skipped).' not');
