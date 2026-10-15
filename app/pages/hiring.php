@@ -18,6 +18,18 @@ function hw_back(): string
     return str_starts_with($back, '/hiring') && ! preg_match('/[\r\n]/', $back) ? $back : '/hiring';
 }
 
+// P5-M42: somebody who applied by email, phone or in person, added with what they sent.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'add_applicant') {
+    $vacancyId = (int) ($_POST['vacancy_id'] ?? 0);
+    [$why, $appId] = hw_add_applicant($vacancyId, $_POST, $_FILES['documents'] ?? [], uid());
+    if ($why !== null) {
+        $_SESSION['hw_add_form'] = array_intersect_key($_POST, array_flip(['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'zip', 'channel', 'received_on', 'degree', 'years_exp', 'message']));
+        refuse(422, $why, '/hiring?v=' . $vacancyId . '&tab=add');
+    }
+    flash(t('Applicant added, with what they sent. Review them here.'));
+    redirect('/hiring?v=' . $vacancyId . '&app=' . $appId);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = (string) ($_POST['do'] ?? '');
     $id = (int) ($_POST['application_id'] ?? 0);
@@ -57,7 +69,7 @@ if (! $hwVacancy) {
     refuse(404, t('That requisition does not exist.'));
 }
 $hwTab = isset(hw_tabs()[$_GET['stage'] ?? '']) ? (string) $_GET['stage'] : 'active';
-$hwView = in_array($_GET['tab'] ?? '', ['candidates', 'matches', 'job'], true) ? (string) $_GET['tab'] : 'candidates';
+$hwView = in_array($_GET['tab'] ?? '', ['candidates', 'matches', 'job', 'add'], true) ? (string) $_GET['tab'] : 'candidates';
 $hwFilter = ['q' => trim((string) ($_GET['q'] ?? '')), 'interest' => (string) ($_GET['interest'] ?? ''), 'sort' => (string) ($_GET['sort'] ?? ''),
              'miles' => in_array((int) ($_GET['miles'] ?? 0), geo_radii(), true) ? (int) $_GET['miles'] : 0];
 geo_refresh_candidates();
@@ -102,6 +114,8 @@ if (isset($_GET['app'])) {
     require_once __DIR__ . '/../messaging.php';
     $textPanel = msg_panel((int) $hwApp['candidate_id']);
 }
+$hwAddForm = $hwView === 'add' ? (array) ($_SESSION['hw_add_form'] ?? []) : [];
+unset($_SESSION['hw_add_form']);
 $hwDetail = in_array($_GET['detail'] ?? '', ['application', 'activity'], true) ? (string) $_GET['detail'] : 'application';
 
-render('hiring', compact('hwVacancy', 'hwTab', 'hwView', 'hwFilter', 'hwCounts', 'hwList', 'hwMatches', 'hwSelf', 'hwApp', 'hwDetail', 'textPanel', 'hwSite'));
+render('hiring', compact('hwVacancy', 'hwTab', 'hwView', 'hwFilter', 'hwCounts', 'hwList', 'hwMatches', 'hwSelf', 'hwApp', 'hwDetail', 'textPanel', 'hwSite', 'hwAddForm'));

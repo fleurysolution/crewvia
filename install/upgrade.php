@@ -2458,4 +2458,32 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Attachments: the recruiting desk attaches a candidate\'s CV, cover letter or other document in Hiring; stored encrypted, like the CVs sent with an application.' . PHP_EOL;
 }
 
+// ── P5-M42: a diploma or certificate is its own kind of candidate document ──
+// Reversed by install/rollback/p5-m42.sql (a diploma is filed as another document again).
+if (! str_contains((string) val("SELECT column_type FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='candidate_resumes' AND column_name='kind'"), "'certificate'")) {
+    q("ALTER TABLE candidate_resumes MODIFY kind ENUM('cv','cover_letter','certificate','other') NOT NULL DEFAULT 'cv'");
+    echo 'Applicants: the office adds somebody who applied by email, phone or in person from Hiring (Add an applicant), with their CV, cover letter, diplomas and other documents.' . PHP_EOL;
+}
+
+// ── P5-M42: a job board's screening verdict as the application's screening score ──
+// Applicants imported from a board before P5-M42 carry the board's answers only as a note.
+// Their score is the share of the board's requirements met, read from that note, so Hiring
+// sorts them. Reversed by install/rollback/p5-m42.sql.
+if (! val("SELECT setting_value FROM platform_settings WHERE setting_key = 'board_scores_filled'")) {
+    $scored = 0;
+    foreach (rows("SELECT a.id, (SELECT e.note FROM application_events e WHERE e.application_id = a.id AND e.note LIKE '%Screening answers on the board:%' ORDER BY e.id LIMIT 1) AS note
+                   FROM applications a WHERE a.source = 'Indeed' AND a.screening_score IS NULL") as $a) {
+        $note = (string) $a['note'];
+        $lines = array_filter(explode("\n", substr($note, (int) strpos($note, 'Screening answers on the board:'))), static fn($l) => str_starts_with($l, '- '));
+        if (! $lines) {
+            continue;
+        }
+        $missed = count(array_filter($lines, static fn($l) => str_ends_with(rtrim($l), '(does not meet)')));
+        q('UPDATE applications SET screening_score = ? WHERE id = ?', [round((count($lines) - $missed) / count($lines) * 100, 2), (int) $a['id']]);
+        $scored++;
+    }
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('board_scores_filled', ?)", [date('Y-m-d H:i:s')]);
+    echo 'Job board applicants: ' . ($scored === 0 ? 'none to score' : $scored . ' scored') . ' from the board\'s screening answers (the share of its requirements met); Hiring sorts by it.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

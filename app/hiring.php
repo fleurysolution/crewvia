@@ -323,6 +323,84 @@ function hw_add(int $vacancyId, int $candidateId, int $by): array
     return [null, $id];
 }
 
+/** P5-M42: how somebody the office adds by hand applied. */
+function hw_channels(): array
+{
+    return ['email' => t('By email'), 'phone' => t('By phone'), 'walk_in' => t('In person'), 'referral' => t('Referred by someone'), 'job_board' => t('On a job board'), 'other' => t('Another way')];
+}
+
+/**
+ * P5-M42: somebody who applied outside Crewvia (an email, a call, a referral)
+ * added by the office as an applicant to a requisition, with what they sent.
+ * Every document is checked and encrypted before anything is written, so a
+ * bad file leaves nothing half done. A new record every time, as for a public
+ * application: Hiring shows when the email or phone is already on file.
+ *
+ * @return array{0:?string,1:int} an error, or null and the application id
+ */
+function hw_add_applicant(int $vacancyId, array $in, array $files, int $by): array
+{
+    $v = hw_vacancy($vacancyId);
+    if (! $v || ! (int) $v['is_open']) { return [t('That requisition is closed.'), 0]; }
+    $first = trim((string) ($in['first_name'] ?? ''));
+    $last = trim((string) ($in['last_name'] ?? ''));
+    $email = trim((string) ($in['email'] ?? ''));
+    $phone = trim((string) ($in['phone'] ?? ''));
+    if ($first === '' || $last === '' || mb_strlen($first . ' ' . $last) > 190) { return [t('Enter their first and last name.'), 0]; }
+    if ($email === '' && $phone === '') { return [t('Enter an email or a phone number, so they can be reached.'), 0]; }
+    if ($email !== '' && (! filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190)) { return [t('That email address is not valid.'), 0]; }
+    if (strlen($phone) > 40) { return [t('That phone number is too long.'), 0]; }
+    $channel = isset(hw_channels()[$in['channel'] ?? '']) ? (string) $in['channel'] : 'other';
+    $received = (string) ($in['received_on'] ?? '');
+    $received = preg_match('/^\d{4}-\d{2}-\d{2}$/', $received) && strtotime($received) && $received <= date('Y-m-d') ? $received : date('Y-m-d');
+    $years = trim((string) ($in['years_exp'] ?? ''));
+    $years = $years === '' ? null : max(0, min(60, (int) $years));
+    $message = mb_substr(trim((string) ($in['message'] ?? '')), 0, 8000);
+    $how = ['email' => 'by email', 'phone' => 'by phone', 'walk_in' => 'in person', 'referral' => 'by referral', 'job_board' => 'on a job board', 'other' => 'another way'][$channel];
+
+    require_once __DIR__ . '/intake.php';
+    require_once __DIR__ . '/geo.php';
+    $prepared = [];
+    $names = is_array($files['name'] ?? null) ? $files['name'] : [];
+    $kinds = is_array($in['document_kind'] ?? null) ? $in['document_kind'] : [];
+    try {
+        foreach ($names as $i => $name) {
+            if (($files['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) { continue; }
+            if (count($prepared) === 6) { throw new RuntimeException(t('Up to 6 documents at a time.')); }
+            $_FILES['resume'] = ['name' => (string) $name, 'type' => $files['type'][$i] ?? '', 'tmp_name' => $files['tmp_name'][$i] ?? '', 'error' => $files['error'][$i], 'size' => $files['size'][$i] ?? 0];
+            try { $file = intake_resume_prepare(); } catch (RuntimeException $e) { throw new RuntimeException((string) $name . ': ' . $e->getMessage()); }
+            if ($file) { $prepared[] = [(string) ($kinds[$i] ?? 'other'), $file]; }
+        }
+    } catch (RuntimeException $e) {
+        foreach ($prepared as [, $file]) { if (is_file($file['path'])) { unlink($file['path']); } }
+        return [$e->getMessage(), 0];
+    }
+
+    db()->beginTransaction();
+    try {
+        q('INSERT INTO candidates(full_name,email,phone,city,state,zip,source,discipline,degree,years_exp) VALUES (?,?,?,?,?,?,?,?,?,?)', [
+            $first . ' ' . $last, $email ?: null, $phone ?: null,
+            mb_substr(trim((string) ($in['city'] ?? '')), 0, 120) ?: null, mb_substr(trim((string) ($in['state'] ?? '')), 0, 40) ?: null, geo_zip((string) ($in['zip'] ?? '')),
+            'Applied ' . $how, (string) ($v['discipline'] ?? '') ?: 'other', mb_substr(trim((string) ($in['degree'] ?? '')), 0, 190) ?: null, $years]);
+        $cid = (int) db()->lastInsertId();
+        geo_refresh_candidate($cid);
+        q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)', [$cid, $by, 'application received', 'Added by the office: applied ' . $how . ' on ' . $received . ', requisition ' . $vacancyId]);
+        q('INSERT INTO applications (candidate_id, vacancy_id, source, created_at) VALUES (?,?,?,?)', [$cid, $vacancyId, 'Applied ' . $how, $received . ' ' . date('H:i:s')]);
+        $id = (int) db()->lastInsertId();
+        q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, 'new',
+            'Added by the office. Applied ' . $how . ', ' . $received . '.' . ($message !== '' ? "\n\nTheir message:\n" . $message : '')]);
+        foreach ($prepared as [$kind, $file]) { candidate_document_file($cid, $kind, $file, $by); }
+        db()->commit();
+    } catch (Throwable $e) {
+        if (db()->inTransaction()) { db()->rollBack(); }
+        foreach ($prepared as [, $file]) { if (is_file($file['path'])) { unlink($file['path']); } }
+        throw $e;
+    }
+    log_activity('added an applicant by hand', 'application', $id, (string) $v['title'] . ' · ' . count($prepared) . ' document(s)');
+
+    return [null, $id];
+}
+
 /** What happened on an application, and every contact with the person, newest first. */
 function hw_timeline(array $a): array
 {

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../intake.php'; // P5-M42: the kinds of document on a candidate's file
 $hwStageTone = ['new' => 'blue', 'screening' => 'amber', 'interview' => 'amber', 'offered' => 'green', 'accepted' => 'green', 'rejected' => 'red', 'withdrawn' => 'grey'];
 $hwDisc = ['mechanical' => t('Mechanical'), 'chemical' => t('Chemical'), 'electrical' => t('Electrical'), 'instrumentation' => t('Instrumentation'), 'operator' => t('Operator'), 'other' => t('Other')];
 $hwUrl = static fn(array $over) => '/hiring?' . http_build_query(array_filter($over + ['v' => (int) ($hwVacancy['id'] ?? 0)], static fn($x) => $x !== null && $x !== ''));
@@ -52,7 +53,7 @@ $hwScore = static function (?string $s): string {
   <div><h1 id="vacancy-title"><?= e($v['title']) ?></h1>
     <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= ten((int) $v['openings'], ':n opening', ':n openings') ?><?= $v['starts_on'] ? ' · ' . e(starts_words((string) $v['starts_on'])) : '' ?>
       · <span class="tag <?= (int) $v['is_open'] ? 'green' : 'grey' ?>"><?= (int) $v['is_open'] ? te('Open') : te('Closed') ?></span></div></div>
-  <div class="actions"><a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
+  <div class="actions"><?php if ((int) $v['is_open']): ?><a class="btn" href="<?= e($hwUrl(['tab' => 'add'])) ?>" id="add-applicant-link"><?= te('Add an applicant') ?></a> <?php endif; ?><a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
 </div>
 <nav class="tabs" aria-label="<?= te('Requisition') ?>">
   <a href="<?= e($hwUrl([])) ?>" class="<?= $hwView === 'candidates' ? 'on' : '' ?>"><?= te('Applicants') ?></a>
@@ -135,10 +136,10 @@ $hwScore = static function (?string $s): string {
         <div class="card" id="background"><h3><?= te('Background') ?></h3>
           <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
           <?php if ($a['skills']): ?><p class="small"><?php foreach ($a['skills'] as $sk): ?><span class="tag <?= (int) $sk['confirmed'] ? 'green' : 'grey' ?>"><?= e((string) $sk['skill_slug']) ?><?= $sk['years'] ? ' · ' . (int) $sk['years'] . 'y' : '' ?></span> <?php endforeach; ?></p><?php endif; ?>
-          <?php foreach ($a['resumes'] as $r): ?><p class="small"><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a> <span class="tag grey"><?= te(['cv' => 'CV', 'cover_letter' => 'Cover letter', 'other' => 'Other document'][$r['kind'] ?? 'cv'] ?? 'CV') ?></span> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
+          <?php foreach ($a['resumes'] as $r): ?><p class="small"><a href="/resumes?download=<?= (int) $r['id'] ?>">⤓ <?= e($r['original_name']) ?></a> <span class="tag grey"><?= e(candidate_document_kinds()[$r['kind'] ?? 'cv'] ?? t('CV')) ?></span> <span class="muted"><?= e(d(substr((string) $r['created_at'], 0, 10))) ?></span></p><?php endforeach; ?>
           <?php if (! $a['resumes']): ?><p class="small muted"><?= te('No résumé on file.') ?></p><?php endif; ?>
           <form method="post" action="/resumes" enctype="multipart/form-data" class="row tight gap-s mt-s" id="attach-document"><?= csrf_field() ?><input type="hidden" name="do" value="attach"><input type="hidden" name="candidate_id" value="<?= (int) $a['candidate_id'] ?>"><input type="hidden" name="back" value="/hiring?v=<?= (int) $a['vacancy_id'] ?>&app=<?= (int) $a['id'] ?>">
-            <select name="kind" aria-label="<?= te('What it is') ?>" class="w-auto"><option value="cv"><?= te('CV') ?></option><option value="cover_letter"><?= te('Cover letter') ?></option><option value="other"><?= te('Other document') ?></option></select>
+            <select name="kind" aria-label="<?= te('What it is') ?>" class="w-auto"><?php foreach (candidate_document_kinds() as $k => $l): ?><option value="<?= e($k) ?>"><?= e($l) ?></option><?php endforeach; ?></select>
             <input type="file" name="resume" accept=".pdf,.docx" required aria-label="<?= te('File') ?>">
             <button class="btn sm ghost"><?= te('Attach') ?></button>
           </form>
@@ -179,6 +180,59 @@ $hwScore = static function (?string $s): string {
 <?php endif; ?>
 <?php endif; ?>
 
+<?php elseif ($hwView === 'add'): ?>
+<?php $af = $hwAddForm; $afv = static fn(string $k, string $d = ''): string => e((string) ($af[$k] ?? $d)); ?>
+<form method="post" action="/hiring" enctype="multipart/form-data" class="card" id="add-applicant"><?= csrf_field() ?>
+  <input type="hidden" name="do" value="add_applicant"><input type="hidden" name="vacancy_id" value="<?= (int) $v['id'] ?>">
+  <h2><?= te('Add an applicant') ?></h2>
+  <p class="hint m0 pull-up mb-l"><?= te('For somebody who applied outside Crewvia: by email, by phone, in person or through a referral. They join this requisition as a new applicant, with what they sent, and are reviewed like everybody else.') ?></p>
+
+  <h3><?= te('Who they are') ?></h3>
+  <div class="row">
+    <div><label for="ap-first"><?= te('First name') ?></label><input id="ap-first" name="first_name" required maxlength="90" autocomplete="off" value="<?= $afv('first_name') ?>"></div>
+    <div><label for="ap-last"><?= te('Last name') ?></label><input id="ap-last" name="last_name" required maxlength="90" autocomplete="off" value="<?= $afv('last_name') ?>"></div>
+  </div>
+  <div class="row mt-l">
+    <div class="f2"><label for="ap-email"><?= te('Email') ?></label><input id="ap-email" name="email" type="email" maxlength="190" autocomplete="off" value="<?= $afv('email') ?>"></div>
+    <div><label for="ap-phone"><?= te('Phone') ?></label><input id="ap-phone" name="phone" type="tel" maxlength="40" autocomplete="off" value="<?= $afv('phone') ?>"></div>
+  </div>
+  <p class="hint"><?= te('An email or a phone number is needed to reach them. Their portal invitation goes to the email.') ?></p>
+  <div class="row mt-l">
+    <div class="f2"><label for="ap-city"><?= te('City') ?></label><input id="ap-city" name="city" maxlength="120" value="<?= $afv('city') ?>"></div>
+    <div><label for="ap-state"><?= te('State') ?></label><input id="ap-state" name="state" maxlength="40" value="<?= $afv('state') ?>"></div>
+    <div><label for="ap-zip"><?= te('ZIP code') ?></label><input id="ap-zip" name="zip" maxlength="10" inputmode="numeric" value="<?= $afv('zip') ?>"></div>
+  </div>
+
+  <h3 class="mt-l"><?= te('Their application') ?></h3>
+  <div class="row">
+    <div><label for="ap-channel"><?= te('How they applied') ?></label><select id="ap-channel" name="channel"><?php foreach (hw_channels() as $k => $l): ?><option value="<?= e($k) ?>"<?= ($af['channel'] ?? 'email') === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select></div>
+    <div><label for="ap-received"><?= te('Received on') ?></label><input id="ap-received" name="received_on" type="date" max="<?= e(date('Y-m-d')) ?>" value="<?= $afv('received_on', date('Y-m-d')) ?>"></div>
+  </div>
+  <div class="row mt-l">
+    <div class="f2"><label for="ap-degree"><?= te('Degree or trade qualification') ?></label><input id="ap-degree" name="degree" maxlength="190" placeholder="<?= te('e.g. B.S. Chemical Engineering') ?>" value="<?= $afv('degree') ?>"></div>
+    <div><label for="ap-years"><?= te('Years of experience') ?></label><input id="ap-years" name="years_exp" type="number" min="0" max="60" value="<?= $afv('years_exp') ?>"></div>
+  </div>
+  <div class="field mt-l"><label for="ap-message"><?= te('Their message or cover letter') ?></label><textarea id="ap-message" name="message" rows="5" maxlength="8000" placeholder="<?= te('Paste the email they wrote, if any.') ?>"><?= $afv('message') ?></textarea></div>
+
+  <h3 class="mt-l"><?= te('What they sent') ?></h3>
+  <p class="hint m0 mb-l"><?= te('Up to 6 documents, PDF or Word, 5 MB each. Stored encrypted on their file; they find them in their portal.') ?></p>
+  <?php foreach (['cv', 'cover_letter', 'certificate'] as $i => $default): ?>
+  <div class="row<?= $i ? ' mt-s' : '' ?>" data-document-row>
+    <div><label for="ap-kind-<?= $i ?>"><?= te('Document') ?> <?= $i + 1 ?></label><select id="ap-kind-<?= $i ?>" name="document_kind[<?= $i ?>]"><?php foreach (candidate_document_kinds() as $k => $l): ?><option value="<?= e($k) ?>"<?= $k === $default ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select></div>
+    <div class="f2"><label for="ap-file-<?= $i ?>"><?= te('File') ?></label><input id="ap-file-<?= $i ?>" type="file" name="documents[<?= $i ?>]" accept=".pdf,.docx"></div>
+  </div>
+  <?php endforeach; ?>
+  <details class="mt-s"><summary class="small"><?= te('More documents') ?></summary>
+  <?php foreach ([3, 4, 5] as $i): ?>
+  <div class="row mt-s" data-document-row>
+    <div><label for="ap-kind-<?= $i ?>"><?= te('Document') ?> <?= $i + 1 ?></label><select id="ap-kind-<?= $i ?>" name="document_kind[<?= $i ?>]"><?php foreach (candidate_document_kinds() as $k => $l): ?><option value="<?= e($k) ?>"<?= $k === 'other' ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select></div>
+    <div class="f2"><label for="ap-file-<?= $i ?>"><?= te('File') ?></label><input id="ap-file-<?= $i ?>" type="file" name="documents[<?= $i ?>]" accept=".pdf,.docx"></div>
+  </div>
+  <?php endforeach; ?>
+  </details>
+
+  <div class="actions mt-l"><button class="btn"><?= te('Add the applicant') ?></button> <a class="btn ghost" href="<?= e($hwUrl([])) ?>"><?= te('Cancel') ?></a></div>
+</form>
 <?php elseif ($hwView === 'matches'): ?>
 <p class="sub"><?= te('People in the talent pool who fit this requisition\'s discipline, not yet on it and not on the do-not-rehire register; those who have worked for the agency before come first.') ?></p>
 <form method="get" class="filterbar"><input type="hidden" name="v" value="<?= (int) $v['id'] ?>"><input type="hidden" name="tab" value="matches"><?php if ($hwSite): ?><select name="miles" aria-label="<?= te('Distance from the site') ?>" id="miles-filter"><option value=""><?= te('Any distance') ?></option><?php foreach (geo_radii() as $r): ?><option value="<?= $r ?>"<?= $hwFilter['miles'] === $r ? ' selected' : '' ?>><?= te('Within :n miles of the site', ['n' => $r]) ?></option><?php endforeach; ?></select><?php else: ?><span class="small muted" id="no-site-location"><?= te('No distance: the project\'s site has no city and state or ZIP code.') ?></span><?php endif; ?><input type="search" name="q" value="<?= e($hwFilter['q']) ?>" placeholder="<?= te('Search by name, place or degree') ?>" aria-label="<?= te('Search') ?>"><button class="btn ghost"><?= te('Search') ?></button></form>

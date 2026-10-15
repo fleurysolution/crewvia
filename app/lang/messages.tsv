@@ -4316,3 +4316,54 @@ Files	Fichiers	Archivos
 :n applicants	:n candidats	:n candidatos
 the text could not be read	le texte n’a pas pu être lu	el texto no se pudo leer
 From the application	Ce qui accompagne la candidature	Lo que acompaña la solicitud
+Add an applicant	Ajouter un candidat	Añadir un candidato
+Add the applicant	Ajouter le candidat	Añadir el candidato
+An email or a phone number is needed to reach them. Their portal invitation goes to the email.	Un courriel ou un numéro de téléphone est nécessaire pour les joindre. L’invitation au portail part vers le courriel.	Se necesita un correo o un teléfono para contactarlos. La invitación al portal va al correo.
+Another way	Autrement	De otra forma
+Applicant added, with what they sent. Review them here.	Candidat ajouté, avec ce qu’il a envoyé. Examinez-le ici.	Candidato añadido, con lo que envió. Revíselo aquí.
+By email	Par courriel	Por correo
+By phone	Par téléphone	Por teléfono
+Candidate documents	Documents des candidats	Documentos de los candidatos
+Choose the requisition and up to 15 files. Each file goes to the applicant whose name it carries; one that matches nobody, or two people, is listed and attached to nobody.	Choisissez la demande et jusqu’à 15 fichiers. Chaque fichier va au candidat dont il porte le nom ; un fichier qui ne correspond à personne, ou à deux personnes, est listé et n’est joint à personne.	Elija la requisición y hasta 15 archivos. Cada archivo va al candidato cuyo nombre lleva; uno que no coincide con nadie, o con dos personas, se lista y no se adjunta a nadie.
+Degree or trade qualification	Diplôme ou qualification de métier	Título o calificación de oficio
+Diploma or certificate	Diplôme ou certificat	Diploma o certificado
+Document	Document	Documento
+Download their files from the job board, keeping its file names: ResumeFirstLast.pdf for a CV, CoverLetterFirstLast.txt for a typed cover letter.	Téléchargez leurs fichiers depuis le site d’emploi en gardant ses noms de fichier : ResumePrenomNom.pdf pour un CV, CoverLetterPrenomNom.txt pour une lettre tapée.	Descargue sus archivos del portal de empleo conservando sus nombres: ResumeNombreApellido.pdf para un CV, CoverLetterNombreApellido.txt para una carta escrita.
+Enter an email or a phone number, so they can be reached.	Saisissez un courriel ou un numéro de téléphone, pour pouvoir les joindre.	Introduzca un correo o un teléfono, para poder contactarlos.
+Enter their first and last name.	Saisissez son prénom et son nom.	Introduzca su nombre y apellido.
+Every CV, cover letter, diploma and other document on a candidate's file. Stored encrypted: only the recruiting desk and the person themselves can open one.	Chaque CV, lettre de motivation, diplôme et autre document au dossier d’un candidat. Stockés chiffrés : seuls le service de recrutement et la personne elle-même peuvent les ouvrir.	Cada CV, carta de presentación, diploma y otro documento del expediente de un candidato. Guardados cifrados: solo el equipo de reclutamiento y la propia persona pueden abrirlos.
+Every kind	Tous les types	Todos los tipos
+Every requisition	Toutes les demandes	Todas las requisiciones
+Files from the job board	Fichiers du site d’emploi	Archivos del portal de empleo
+First name	Prénom	Nombre
+For applicants already imported from a job board export	Pour les candidats déjà importés depuis un export de site d’emploi	Para candidatos ya importados de una exportación del portal de empleo
+For somebody who applied outside Crewvia: by email, by phone, in person or through a referral. They join this requisition as a new applicant, with what they sent, and are reviewed like everybody else.	Pour quelqu’un qui a postulé hors de Crewvia : par courriel, par téléphone, en personne ou par recommandation. Il rejoint cette demande comme nouveau candidat, avec ce qu’il a envoyé, et il est examiné comme tout le monde.	Para alguien que se postuló fuera de Crewvia: por correo, por teléfono, en persona o por recomendación. Se une a esta requisición como nuevo candidato, con lo que envió, y se revisa como a todos.
+How they applied	Comment il a postulé	Cómo se postuló
+Import documents from a job board	Importer les documents d’un site d’emploi	Importar documentos de un portal de empleo
+Import the files	Importer les fichiers	Importar los archivos
+Import the job board's applicant export first (Administration, Import employee spreadsheets, as applicants to the requisition).	Importez d’abord l’export des candidats du site d’emploi (Administration, Importer des feuilles d’employés, comme candidats de la demande).	Importe primero la exportación de candidatos del portal de empleo (Administración, Importar hojas de empleados, como candidatos de la requisición).
+In person	En personne	En persona
+Kind of document	Type de document	Tipo de documento
+Last name	Nom	Apellido
+More documents	Plus de documents	Más documentos
+My documents	Mes documents	Mis documentos
+Name or file name	Nom ou nom de fichier	Nombre o nombre de archivo
+No document matches. Clear the filters to see them all.	Aucun document ne correspond. Effacez les filtres pour tout voir.	Ningún documento coincide. Borre los filtros para verlos todos.
+No document on file yet. One arrives with an application, or when the office adds an applicant with what they sent.	Aucun document au dossier pour l’instant. Il en arrive un avec une candidature, ou quand le bureau ajoute un candidat avec ce qu’il a envoyé.	Aún no hay documentos. Llega uno con una solicitud, o cuando la oficina añade un candidato con lo que envió.
+No document on your file yet.	Aucun document dans votre dossier pour l’instant.	Aún no hay documentos en su expediente.
+On a job board	Sur un site d’emploi	En un portal de empleo
+Open the requisition, then Add an applicant	Ouvrez la demande, puis Ajouter un candidat	Abra la requisición y luego Añadir un candidato
+Paste the email they wrote, if any.	Collez le courriel qu’il a écrit, s’il y en a un.	Pegue el correo que escribió, si lo hay.
+Received on	Reçu le	Recibido el
+Referred by someone	Recommandé par quelqu’un	Recomendado por alguien
+Search documents	Chercher des documents	Buscar documentos
+That email address is not valid.	Cette adresse courriel n’est pas valide.	Esa dirección de correo no es válida.
+That phone number is too long.	Ce numéro de téléphone est trop long.	Ese número de teléfono es demasiado largo.
+The CV and other documents on your file. Only you and the recruiting desk can open them.	Le CV et les autres documents de votre dossier. Seuls vous et le service de recrutement pouvez les ouvrir.	El CV y los demás documentos de su expediente. Solo usted y el equipo de reclutamiento pueden abrirlos.
+The latest :n shown; search to find the others.	Les :n plus récents sont affichés ; cherchez pour trouver les autres.	Se muestran los :n más recientes; busque para encontrar los demás.
+Their application	Sa candidature	Su solicitud
+Their message or cover letter	Son message ou sa lettre de motivation	Su mensaje o carta de presentación
+Up to 6 documents at a time.	Jusqu’à 6 documents à la fois.	Hasta 6 documentos a la vez.
+Up to 6 documents, PDF or Word, 5 MB each. Stored encrypted on their file; they find them in their portal.	Jusqu’à 6 documents, PDF ou Word, 5 Mo chacun. Stockés chiffrés dans son dossier ; il les retrouve dans son portail.	Hasta 6 documentos, PDF o Word, 5 MB cada uno. Guardados cifrados en su expediente; los encuentra en su portal.
+Who they are	Qui il est	Quién es
+e.g. B.S. Chemical Engineering	ex. B.S. génie chimique	p. ej. B.S. Ingeniería Química

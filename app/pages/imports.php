@@ -61,13 +61,17 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
       if($target==='applicants') {
        q("INSERT INTO applications(candidate_id,vacancy_id,source) VALUES (?,?,?)",[$cid,(int)$vacancy['id'],$item['source']!==''?'Indeed':'Spreadsheet import']);$appId=(int)db()->lastInsertId();
        // P5-M36: the board's screening questions and answers, and whether the board judged them a match.
-       $answers=[];$misses=[];
+       $answers=[];$misses=[];$judged=0;
        foreach($input['headers'] as $hi=>$h){if(preg_match('/^Qualification (\d+)$/',(string)$h,$qm)&&trim((string)($source[$hi]??''))!==''){
         $ai=array_search('Qualification '.$qm[1].' Answer',$input['headers'],true);$mi=array_search('Qualification '.$qm[1].' Match',$input['headers'],true);
         $match=$mi!==false?trim((string)($source[$mi]??'')):'';
         $answers[]='- '.trim((string)$source[$hi]).' '.($ai!==false?trim((string)($source[$ai]??'')):'').($match==='No'?' (does not meet)':'');
         if($match==='No'){$misses[]=trim((string)$source[$hi]);}
+        if($match==='Yes'||$match==='No'){$judged++;}
        }}
+       // P5-M42: the board's verdict becomes the application's screening score (share of its requirements met),
+       // so Hiring sorts the applicants by it. Nobody is screened out for it: the office decides.
+       if($judged){q('UPDATE applications SET screening_score=? WHERE id=?',[round(($judged-count($misses))/$judged*100,2),$appId]);}
        $statusCol=array_search('status',$input['headers'],true);
        $boardNote=($statusCol!==false&&trim((string)($source[$statusCol]??''))!==''?'Status on the board: '.trim((string)$source[$statusCol])."\n":'').($answers?"Screening answers on the board:\n".implode("\n",$answers):'');
        if($boardNote!==''){q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$appId,uid(),'new',mb_substr($boardNote,0,4000)]);}

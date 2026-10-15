@@ -66,3 +66,16 @@ function intake_receive(?int $vacancyId=null): void
     }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();if($resume&&is_file($resume['path']))unlink($resume['path']);throw $e;}
     render('application_received');
 }
+
+/** P5-M42: what a document on a candidate's file is. */
+function candidate_document_kinds(): array
+{
+    return ['cv' => t('CV'), 'cover_letter' => t('Cover letter'), 'certificate' => t('Diploma or certificate'), 'other' => t('Other document')];
+}
+/** P5-M42: a document the office received, filed on the person's record (already encrypted by intake_resume_prepare). */
+function candidate_document_file(int $candidateId, string $kind, array $file, ?int $by): void
+{
+    $kind = isset(candidate_document_kinds()[$kind]) ? $kind : 'other';
+    q('INSERT INTO candidate_resumes(candidate_id,kind,storage_name,file_hash,extension,original_name,attached_by) VALUES (?,?,?,?,?,?,?)', [$candidateId, $kind, $file['storage_name'], $file['file_hash'], $file['extension'], $file['original_name'], $by]);
+    q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)', [$candidateId, $by, 'document attached', ['cv' => 'CV', 'cover_letter' => 'Cover letter', 'certificate' => 'Diploma or certificate', 'other' => 'Document'][$kind] . ': ' . $file['original_name']]);
+}

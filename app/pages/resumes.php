@@ -4,13 +4,12 @@ $cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[u
 // P5-M37: the office attaches what the candidate sent elsewhere (a job board, an email): a CV, a cover letter, another document.
 if(!$own && $_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='attach') {
     require_once __DIR__.'/../intake.php';
-    $target=(int)($_POST['candidate_id']??0);$kind=in_array($_POST['kind']??'',['cv','cover_letter','other'],true)?$_POST['kind']:'cv';
+    $target=(int)($_POST['candidate_id']??0);$kind=isset(candidate_document_kinds()[$_POST['kind']??''])?$_POST['kind']:'cv';
     $back=(string)($_POST['back']??'');$back=preg_match('#^/hiring\?v=\d+&app=\d+$#',$back)?$back:'/candidates/'.$target;
     if(!val('SELECT id FROM candidates WHERE id=?',[$target])){refuse(404,t('That person does not exist.'),'/candidates');}
     try{$file=intake_resume_prepare();}catch(RuntimeException $e){refuse(422,$e->getMessage(),$back);}
     if(!$file){refuse(422,t('Choose a PDF or DOCX file up to 5 MB.'),$back);}
-    q('INSERT INTO candidate_resumes(candidate_id,kind,storage_name,file_hash,extension,original_name,attached_by) VALUES (?,?,?,?,?,?,?)',[$target,$kind,$file['storage_name'],$file['file_hash'],$file['extension'],$file['original_name'],uid()]);
-    q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$target,uid(),'document attached',['cv'=>'CV','cover_letter'=>'Cover letter','other'=>'Document'][$kind].': '.$file['original_name']]);
+    candidate_document_file($target,$kind,$file,uid());
     log_activity('attached a candidate document','candidate',$target,$kind);
     flash(t('Attached. It is on their file, encrypted.'));redirect($back);
 }
@@ -74,7 +73,18 @@ if(isset($_GET['download'])) {
     if($plain===null||!hash_equals($doc['file_hash'],hash('sha256',$plain))){refuse(500, t('Document integrity check failed.'));}
     log_activity('downloaded a CV','resume',(int)$doc['id']);header('Content-Type: application/octet-stream');header('Content-Disposition: attachment; filename="resume-'.(int)$doc['id'].'.'.$doc['extension'].'"');echo $plain;exit;
 }
-$resumes=$cid?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE r.candidate_id=? ORDER BY r.id DESC',[$cid]):(!$own?rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id ORDER BY r.id DESC LIMIT 100'):[]);
+// P5-M42: the office's list finds a person's documents by name, kind or requisition, newest first.
+$docQ=trim((string)($_GET['q']??''));$docKind=(string)($_GET['kind']??'');$docVacancy=(int)($_GET['v']??0);
+if($cid){$resumes=rows('SELECT r.*,c.full_name FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE r.candidate_id=? ORDER BY r.id DESC',[$cid]);$docTotal=count($resumes);}
+elseif(!$own){
+    require_once __DIR__.'/../intake.php';
+    $w=['1'];$a=[];
+    if($docQ!==''){$w[]='(c.full_name LIKE ? OR r.original_name LIKE ?)';$a[]='%'.$docQ.'%';$a[]='%'.$docQ.'%';}
+    if(isset(candidate_document_kinds()[$docKind])){$w[]='r.kind=?';$a[]=$docKind;}
+    if($docVacancy){$w[]='EXISTS (SELECT 1 FROM applications x WHERE x.candidate_id=r.candidate_id AND x.vacancy_id=?)';$a[]=$docVacancy;}
+    $docTotal=(int)val('SELECT COUNT(*) FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE '.implode(' AND ',$w),$a);
+    $resumes=rows('SELECT r.*,c.full_name,(SELECT a.id FROM applications a WHERE a.candidate_id=r.candidate_id ORDER BY a.id DESC LIMIT 1) app_id,(SELECT a.vacancy_id FROM applications a WHERE a.candidate_id=r.candidate_id ORDER BY a.id DESC LIMIT 1) app_vacancy FROM candidate_resumes r JOIN candidates c ON c.id=r.candidate_id WHERE '.implode(' AND ',$w).' ORDER BY r.id DESC LIMIT 200',$a);
+}else{$resumes=[];$docTotal=0;}
 $bulkVacancies=$own?[]:rows("SELECT v.id,v.title,j.title project,(SELECT COUNT(*) FROM applications a WHERE a.vacancy_id=v.id) applicants FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.is_open=1 ORDER BY j.title,v.title");
 $bulkVacancy=(int)($_GET['v']??0);
-render('resumes',compact('resumes','bulkVacancies','bulkVacancy'));
+render('resumes',compact('resumes','bulkVacancies','bulkVacancy','docQ','docKind','docVacancy','docTotal','own'));
