@@ -123,6 +123,7 @@ function hw_applicants(array $v, string $tab, array $f, ?array $site = null): ar
         default  => 'a.created_at DESC, a.id DESC',
     };
     $list = rows('SELECT a.id, a.stage, a.source, a.created_at, a.screening_score, a.screened_out, a.screened_out_why, a.interest,
+                         (SELECT r.status FROM application_reviews r WHERE r.application_id = a.id AND r.status <> \'withdrawn\' ORDER BY r.id DESC LIMIT 1) AS review_status,
                          c.id AS candidate_id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone, c.email,
                          ' . $distanceSql . ' AS miles_away
                   FROM applications a JOIN candidates c ON c.id = a.candidate_id

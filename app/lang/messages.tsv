@@ -4382,3 +4382,92 @@ Points per answer	Points par réponse	Puntos por respuesta
 Write the points one answer per line, from 0 to 100: 100% = 100	Écrivez les points une réponse par ligne, de 0 à 100 : 100% = 100	Escriba los puntos una respuesta por línea, de 0 a 100: 100% = 100
 e.g. 5	ex. 5	p. ej. 5
 Crewvia's own score, not the job board's: a number question can give full marks from a level and part marks below it (full marks at 10 years: four years earn 40%), and a choice question can give points per answer (100% travel = 100, 50% = 30). Applicants from a job board are scored on the board's questions, recorded here as questions of the requisition: give them a weight and a rule, and they are re-ranked.	Le score de Crewvia, pas celui du site d’emploi : une question à nombre peut donner la note maximale à partir d’un niveau et une note partielle en dessous (note maximale à 10 ans : quatre ans rapportent 40 %), et une question à choix peut donner des points par réponse (100 % de déplacement = 100, 50 % = 30). Les candidats d’un site d’emploi sont notés sur les questions du site, enregistrées ici comme questions de la demande : donnez-leur un poids et une règle, et ils sont reclassés.	La puntuación de Crewvia, no la del portal de empleo: una pregunta numérica puede dar la puntuación máxima desde un nivel y parcial por debajo (máxima a 10 años: cuatro años ganan 40 %), y una pregunta de opciones puede dar puntos por respuesta (100 % de viaje = 100, 50 % = 30). Los candidatos de un portal de empleo se puntúan con las preguntas del portal, registradas aquí como preguntas de la requisición: deles un peso y una regla, y se reordenan.
+:name to review for :role	:name à examiner pour :role	:name para revisar para :role
+:name: :decision	:name : :decision	:name: :decision
+A review was taken back: nothing to decide	Une revue a été reprise : rien à décider	Se retiró una revisión: nada que decidir
+All reviews	Toutes les revues	Todas las revisiones
+Another interview	Un autre entretien	Otra entrevista
+Another interview asked	Autre entretien demandé	Otra entrevista solicitada
+Applicants the recruiting desk has screened and passed to you, and the interviews you hold. Decide here; the recruiter is told and takes it from there with the candidate.	Les candidats que le recrutement a présélectionnés et vous a passés, et les entretiens que vous menez. Décidez ici ; le recruteur est prévenu et poursuit avec le candidat.	Los candidatos que reclutamiento preseleccionó y le pasó, y las entrevistas que usted realiza. Decida aquí; el reclutador recibe aviso y continúa con el candidato.
+Candidate reviews	Revues des candidats	Revisiones de candidatos
+Choose a date and time for the interview, not in the past.	Choisissez une date et une heure pour l’entretien, pas dans le passé.	Elija una fecha y hora para la entrevista, no en el pasado.
+Choose a decision.	Choisissez une décision.	Elija una decisión.
+Choose who interviews.	Choisissez qui mène l’entretien.	Elija quién entrevista.
+Choose who reviews this applicant.	Choisissez qui examine ce candidat.	Elija quién revisa a este candidato.
+Date and time	Date et heure	Fecha y hora
+Decided lately	Décidés récemment	Decididos recientemente
+Decided: :status	Décidé : :status	Decidido: :status
+Decision recorded. The recruiter is told.	Décision enregistrée. Le recruteur est prévenu.	Decisión registrada. El reclutador recibe aviso.
+Decision:	Décision :	Decisión:
+Declined by the manager	Refusé par le manager	Rechazado por el gerente
+Disqualifying answer	Réponse éliminatoire	Respuesta descalificante
+Do not hire	Ne pas embaucher	No contratar
+Fit :n/5	Adéquation :n/5	Adecuación :n/5
+Fit, 1 to 5	Adéquation, de 1 à 5	Adecuación, de 1 a 5
+Hire	Embaucher	Contratar
+Interview recorded for :name	Entretien enregistré pour :name	Entrevista registrada para :name
+Interview recorded. The recruiter is told.	Entretien enregistré. Le recruteur est prévenu.	Entrevista registrada. El reclutador recibe aviso.
+Interview scheduled. The interviewer is told.	Entretien planifié. L’interviewer est prévenu.	Entrevista programada. El entrevistador recibe aviso.
+Interview scorecard	Fiche d’entretien	Ficha de entrevista
+Interview with :name on :date	Entretien avec :name le :date	Entrevista con :name el :date
+Interviewer	Interviewer	Entrevistador
+Interviews	Entretiens	Entrevistas
+Interviews to hold	Entretiens à mener	Entrevistas por realizar
+Manager review	Revue du manager	Revisión del gerente
+Minutes	Minutes	Minutos
+Needed for another interview or a decline: what to ask, or why not.	Nécessaire pour un autre entretien ou un refus : quoi demander, ou pourquoi pas.	Necesaria para otra entrevista o un rechazo: qué preguntar, o por qué no.
+No document on file.	Aucun document au dossier.	Ningún documento en el expediente.
+No interview scheduled with you.	Aucun entretien planifié avec vous.	Ninguna entrevista programada con usted.
+No interview yet.	Pas encore d’entretien.	Aún no hay entrevista.
+No screening answer on file.	Aucune réponse de présélection au dossier.	Ninguna respuesta de preselección en el expediente.
+Not passed to a manager.	Pas passé à un manager.	No pasado a un gerente.
+Nothing waiting. The recruiting desk passes applicants here once they are screened.	Rien en attente. Le recrutement passe les candidats ici une fois présélectionnés.	Nada pendiente. Reclutamiento pasa los candidatos aquí una vez preseleccionados.
+Only an application still being screened can be passed to a manager.	Seule une candidature encore en présélection peut être passée à un manager.	Solo una solicitud aún en preselección puede pasarse a un gerente.
+Only the interviewer or the recruiting desk records it.	Seul l’interviewer ou le recrutement l’enregistre.	Solo el entrevistador o reclutamiento la registra.
+Only the person it was passed to decides.	Seule la personne à qui il a été passé décide.	Solo la persona a quien se pasó decide.
+Open the scorecard	Ouvrir la fiche	Abrir la ficha
+Pass the applicant to somebody else: the manager reviews what the recruiter screened.	Passez le candidat à quelqu’un d’autre : le manager examine ce que le recruteur a présélectionné.	Pase el candidato a otra persona: el gerente revisa lo que el reclutador preseleccionó.
+Pass to	Passer à	Pasar a
+Pass to the manager	Passer au manager	Pasar al gerente
+Passed to the manager. You will be told when they decide.	Passé au manager. Vous serez prévenu de sa décision.	Pasado al gerente. Recibirá aviso cuando decida.
+Rate the fit from 1 to 5.	Notez l’adéquation de 1 à 5.	Califique la adecuación de 1 a 5.
+Rate the interview from 1 to 5 and give your verdict.	Notez l’entretien de 1 à 5 et donnez votre verdict.	Califique la entrevista de 1 a 5 y dé su veredicto.
+Rating, 1 to 5	Note, de 1 à 5	Calificación, de 1 a 5
+Record the interview	Enregistrer l’entretien	Registrar la entrevista
+Say how it went.	Dites comment cela s’est passé.	Diga cómo fue.
+Say why, so the recruiter knows what to do next.	Dites pourquoi, pour que le recruteur sache quoi faire ensuite.	Diga por qué, para que el reclutador sepa qué hacer.
+Schedule an interview	Planifier un entretien	Programar una entrevista
+Schedule the interview now	Planifier l’entretien maintenant	Programar la entrevista ahora
+Screened and meets the requirements? Pass them to a manager to validate, or to ask for another interview.	Présélectionné et conforme aux exigences ? Passez-le à un manager pour validation, ou pour un autre entretien.	¿Preseleccionado y cumple los requisitos? Páselo a un gerente para validar, o para otra entrevista.
+Screening answers	Réponses de présélection	Respuestas de preselección
+Skills, attitude, availability, anything the next person should know.	Compétences, attitude, disponibilité, tout ce que la personne suivante doit savoir.	Habilidades, actitud, disponibilidad, todo lo que la siguiente persona debe saber.
+Take it back	Le reprendre	Retirarlo
+Taken back from the manager.	Repris au manager.	Retirado del gerente.
+That application is settled.	Cette candidature est close.	Esa solicitud está cerrada.
+That interview is already recorded.	Cet entretien est déjà enregistré.	Esa entrevista ya está registrada.
+That interview is not yours to see.	Cet entretien ne vous est pas destiné.	Esa entrevista no es suya.
+That review is no longer waiting.	Cette revue n’est plus en attente.	Esa revisión ya no está pendiente.
+That review is not yours to see.	Cette revue ne vous est pas destinée.	Esa revisión no es suya.
+They did not come	Il n’est pas venu	No se presentó
+This applicant is already with a manager.	Ce candidat est déjà chez un manager.	Este candidato ya está con un gerente.
+Validated by the manager	Validé par le manager	Validado por el gerente
+Verdict	Verdict	Veredicto
+Video call	Appel vidéo	Videollamada
+Waiting for your decision	En attente de votre décision	Esperando su decisión
+What the recruiter says	Ce que dit le recruteur	Lo que dice el reclutador
+What you saw	Ce que vous avez vu	Lo que vio
+Where, or the call link	Où, ou le lien de l’appel	Dónde, o el enlace de la llamada
+Why this applicant, and anything to watch.	Pourquoi ce candidat, et ce qu’il faut surveiller.	Por qué este candidato, y qué vigilar.
+With the manager	Chez le manager	Con el gerente
+Write a few words on the interview for the next person.	Écrivez quelques mots sur l’entretien pour la personne suivante.	Escriba unas palabras sobre la entrevista para la siguiente persona.
+Write your recommendation: why this applicant, and anything to watch.	Écrivez votre recommandation : pourquoi ce candidat, et ce qu’il faut surveiller.	Escriba su recomendación: por qué este candidato, y qué vigilar.
+Your decision	Votre décision	Su decisión
+Your note	Votre note	Su nota
+Your recommendation	Votre recommandation	Su recomendación
+schedule it below, or leave it to the recruiter	planifiez-le ci-dessous, ou laissez-le au recruteur	prográmela abajo, o déjela al reclutador
+the recruiter closes it with the candidate	le recruteur clôt avec le candidat	el reclutador lo cierra con el candidato
+the recruiter goes on toward an offer	le recruteur avance vers une offre	el reclutador avanza hacia una oferta
+Applicant waiting for your review	Candidat en attente de votre revue	Candidato esperando su revisión
+Screened by the recruiting desk and passed to you to decide	Présélectionné par le recrutement et passé à vous pour décision	Preseleccionado por reclutamiento y pasado a usted para decidir
+Interview to hold	Entretien à mener	Entrevista por realizar
+Interviews scheduled with you; record the scorecard after	Entretiens planifiés avec vous ; remplissez la fiche après	Entrevistas programadas con usted; registre la ficha después

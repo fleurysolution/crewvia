@@ -208,6 +208,14 @@ function activity_items(): array
              'Approval steps your desk can decide right now');
     }
 
+    // P5-M44: applicants passed to this person for a decision, and the interviews they hold.
+    if (val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'application_reviews'")) {
+        $add($count("SELECT COUNT(*) FROM application_reviews WHERE reviewer_id = ? AND status = 'pending'", [uid()]),
+             'Applicant waiting for your review', '/reviews', 'red', 'Screened by the recruiting desk and passed to you to decide');
+        $add($count("SELECT COUNT(*) FROM interviews WHERE interviewer_id = ? AND status = 'scheduled'", [uid()]),
+             'Interview to hold', '/reviews', 'amber', 'Interviews scheduled with you; record the scorecard after');
+    }
+
     // Notifications are messages, not work, so they come last.
     $add($count('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL', [uid()]),
          'Unread notification', '/notifications', 'grey',

@@ -1,5 +1,8 @@
 <?php
-require_login();$own=is_worker_account();if(!$own)require_role('recruiter');
+require_login();$own=is_worker_account();
+// P5-M44: a supervisor reviewing or interviewing an applicant opens that applicant's documents, and only those.
+if(!$own&&!can('recruiter')&&isset($_GET['download'])&&can('supervisor')){require_once __DIR__.'/../reviews.php';$rvDoc=row('SELECT candidate_id FROM candidate_resumes WHERE id=?',[(int)$_GET['download']]);if(!$rvDoc||!review_can_see_candidate(uid(),(int)$rvDoc['candidate_id'])){refuse(404,t('Document unavailable.'));}}
+elseif(!$own)require_role('recruiter');
 $cid=$own?(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]):(int)($_GET['candidate_id']??0);
 // P5-M37: the office attaches what the candidate sent elsewhere (a job board, an email): a CV, a cover letter, another document.
 if(!$own && $_SERVER['REQUEST_METHOD']==='POST' && ($_POST['do']??'')==='attach') {

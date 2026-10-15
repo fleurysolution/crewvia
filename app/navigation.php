@@ -56,7 +56,8 @@ function workspace_nav(?array $u): array
         ['/employment',         'I-9 & W-4',                          'recruiter'],
         ['/proofs',             'Document proofs',                    'recruiter'],
         ['/mining',             'Talent search',                      'recruiter'],
-        ['/resumes',            'Candidate resumes',                  'recruiter'],
+        ['/resumes',            'Candidate documents',                'recruiter'],
+        ['/reviews',            'Candidate reviews',                  ['recruiter','supervisor']],
         ['/message-templates',  'Text messages',                      'recruiter'],
         ['/learning',           'Safety & learning',                  null],
         ['/training',           'Training',                           'recruiter'],
@@ -183,6 +184,8 @@ function workspace_nav(?array $u): array
 
     if (($u['role'] ?? '') === 'supervisor') {
         array_unshift($nav, ['/my-team', 'My team', null]);
+        // P5-M44: the applicants passed to them for a decision, and the interviews they hold.
+        $nav[] = ['/reviews', 'Candidate reviews', null];
         // P5-M01: the tasks of the projects they supervise a crew on.
         $nav[] = ['/project-tasks', 'Project tasks', null];
         $nav[] = ['/project-board', 'Project board', null];
@@ -209,11 +212,11 @@ function workspace_nav(?array $u): array
 function workspace_daily(?array $u): array
 {
     return match ($u['role'] ?? '') {
-        'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/hours', '/billing', '/people', '/settings'],
-        'recruiter'  => ['/home', '/activity', '/hiring', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/contracts', '/client-orders', '/approvals'],
+        'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings'],
+        'recruiter'  => ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/contracts', '/client-orders', '/approvals'],
         'hotels'     => ['/home', '/activity', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
         'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
-        'supervisor' => ['/my-team', '/activity', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
+        'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
         'worker'     => ['/portal', '/my-jobs', '/attendance', '/timeoff', '/my-payslips', '/notifications', '/activity'],
         default      => [],
     };
@@ -258,7 +261,7 @@ function workspace_sections(?array $u = null): array
     // record under "Administration".
     if (in_array($u['role'] ?? '', ['worker', 'supervisor'], true)) {
         return [
-            'My work' => ['/portal', '/my-jobs', '/my-team', '/my-tasks', '/project-tasks', '/project-board', '/workload', '/attendance', '/lateness', '/timeoff', '/procurement'],
+            'My work' => ['/portal', '/my-jobs', '/my-team', '/reviews', '/my-tasks', '/project-tasks', '/project-board', '/workload', '/attendance', '/lateness', '/timeoff', '/procurement'],
             'Safety and training' => ['/safety-plan', '/learning', '/my-training'],
             'My papers' => ['/contracts', '/agreements', '/proofs', '/employment', '/employee-folder', '/checks', '/qualifications', '/screening-workflow'],
             'My pay' => ['/self-service', '/my-payslips', '/expenses', '/benefits'],
@@ -270,7 +273,7 @@ function workspace_sections(?array $u = null): array
     return [
         'Overview' => ['/home', '/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
-        'Recruiting' => ['/hiring', '/campaigns', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
+        'Recruiting' => ['/hiring', '/reviews', '/campaigns', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',

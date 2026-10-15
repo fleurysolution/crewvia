@@ -2528,4 +2528,46 @@ if (! val("SELECT setting_value FROM platform_settings WHERE setting_key = 'boar
     }
 }
 
+// ── P5-M44: from the recruiter to the manager; interviews with a scorecard ──
+// Reversed by install/rollback/p5-m44.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='application_reviews'")) {
+    q("CREATE TABLE application_reviews (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        application_id INT UNSIGNED NOT NULL,
+        requested_by INT UNSIGNED NOT NULL,
+        reviewer_id INT UNSIGNED NOT NULL,
+        rating TINYINT UNSIGNED NOT NULL,
+        recommendation TEXT NOT NULL,
+        status ENUM('pending','validated','interview','declined','withdrawn') NOT NULL DEFAULT 'pending',
+        decision_note TEXT NULL,
+        decided_at DATETIME NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX (reviewer_id, status), INDEX (application_id),
+        FOREIGN KEY (application_id) REFERENCES applications(id),
+        FOREIGN KEY (requested_by) REFERENCES users(id),
+        FOREIGN KEY (reviewer_id) REFERENCES users(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    q("CREATE TABLE IF NOT EXISTS interviews (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        application_id INT UNSIGNED NOT NULL,
+        interviewer_id INT UNSIGNED NOT NULL,
+        scheduled_at DATETIME NOT NULL,
+        duration_min SMALLINT UNSIGNED NOT NULL DEFAULT 30,
+        mode ENUM('video','phone','in_person') NOT NULL DEFAULT 'video',
+        place VARCHAR(255) NULL,
+        status ENUM('scheduled','done','no_show','cancelled') NOT NULL DEFAULT 'scheduled',
+        rating TINYINT UNSIGNED NULL,
+        verdict ENUM('hire','maybe','no') NULL,
+        feedback TEXT NULL,
+        created_by INT UNSIGNED NOT NULL,
+        completed_at DATETIME NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX (interviewer_id, status), INDEX (application_id),
+        FOREIGN KEY (application_id) REFERENCES applications(id),
+        FOREIGN KEY (interviewer_id) REFERENCES users(id),
+        FOREIGN KEY (created_by) REFERENCES users(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo 'Candidate reviews: the recruiter passes a screened applicant to a manager (Hiring), who validates, asks for another interview or declines on Candidate reviews; interviews are scheduled with an interviewer, who records a scorecard.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

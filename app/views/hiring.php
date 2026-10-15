@@ -115,6 +115,46 @@ $hwScore = static function (?string $s): string {
       <a href="<?= e($hwSelf . '&app=' . (int) $a['id'] . '&detail=activity') ?>" class="<?= $hwDetail === 'activity' ? 'on' : '' ?>" id="tab-activity"><?= te('Activity & notes') ?></a>
     </nav>
     <?php if ($hwDetail === 'application'): ?>
+    <?php $rvStat = review_statuses(); $rvPending = null; foreach ($a['reviews'] as $rr) { if ($rr['status'] === 'pending') { $rvPending = $rr; } } ?>
+    <div class="grid g2">
+      <div class="card" id="manager-review"><h3><?= te('Manager review') ?></h3>
+        <?php foreach ($a['reviews'] as $rr): ?><div class="qa"><div class="q"><span class="tag <?= $rr['status'] === 'validated' ? 'green' : ($rr['status'] === 'declined' ? 'red' : ($rr['status'] === 'withdrawn' ? 'grey' : 'amber')) ?>" data-review-status="<?= e($rr['status']) ?>"><?= e($rvStat[$rr['status']]) ?></span> <?= e($rr['reviewer']) ?> · <?= te('Fit :n/5', ['n' => (int) $rr['rating']]) ?> · <span class="small muted"><?= e(d(substr((string) $rr['created_at'], 0, 10))) ?></span></div>
+          <?php if ($rr['decision_note']): ?><div class="a small"><?= nl2br(e($rr['decision_note'])) ?></div><?php endif; ?></div><?php endforeach; ?>
+        <?php if ($rvPending): ?>
+          <form method="post" action="/hiring" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="review_withdraw"><input type="hidden" name="review_id" value="<?= (int) $rvPending['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>"><button class="btn sm ghost"><?= te('Take it back') ?></button></form>
+        <?php elseif (in_array($a['stage'], ['new', 'screening', 'interview'], true)): ?>
+          <form method="post" action="/hiring" id="pass-to-manager" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="review_request"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
+            <p class="small muted m0"><?= te('Screened and meets the requirements? Pass them to a manager to validate, or to ask for another interview.') ?></p>
+            <div class="row mt-s">
+              <div class="f2"><label for="rv-to"><?= te('Pass to') ?></label><select id="rv-to" name="reviewer_id" required><option value=""><?= te('Choose…') ?></option><?php foreach ($hwPeople as $p): if ((int) $p['id'] === uid()) { continue; } ?><option value="<?= (int) $p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach; ?></select></div>
+              <div><label for="rv-fit"><?= te('Fit, 1 to 5') ?></label><select id="rv-fit" name="rating" required><option value=""></option><?php for ($n = 5; $n >= 1; $n--): ?><option value="<?= $n ?>"><?= $n ?></option><?php endfor; ?></select></div>
+            </div>
+            <div class="field mt-s"><label for="rv-rec"><?= te('Your recommendation') ?></label><textarea id="rv-rec" name="recommendation" rows="3" maxlength="4000" required placeholder="<?= te('Why this applicant, and anything to watch.') ?>"></textarea></div>
+            <button class="btn sm"><?= te('Pass to the manager') ?></button>
+          </form>
+        <?php endif; ?>
+      </div>
+      <div class="card" id="interviews"><h3><?= te('Interviews') ?></h3>
+        <?php foreach ($a['interviews'] as $iv): ?><div class="qa"><div class="q"><?= e(d(substr((string) $iv['scheduled_at'], 0, 10)) . ' · ' . date('g:i a', strtotime((string) $iv['scheduled_at']))) ?> · <?= e(interview_modes()[$iv['mode']]) ?> · <?= e($iv['interviewer']) ?></div>
+          <div class="a small"><?php if ($iv['status'] === 'done'): ?><strong><?= (int) $iv['rating'] ?>/5 · <?= e(interview_verdicts()[$iv['verdict']] ?? '') ?></strong> — <?= nl2br(e((string) $iv['feedback'])) ?><?php elseif ($iv['status'] === 'scheduled'): ?><a href="/reviews?interview=<?= (int) $iv['id'] ?>"><?= te('Open the scorecard') ?></a><?php else: ?><span class="muted"><?= e(str_replace('_', ' ', (string) $iv['status'])) ?></span><?php endif; ?></div></div><?php endforeach; ?>
+        <?php if (! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
+        <details class="mt-s" id="schedule-interview"><summary class="small"><?= te('Schedule an interview') ?></summary>
+          <form method="post" action="/hiring" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="interview_schedule"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
+            <div class="row">
+              <div><label for="iv-at"><?= te('Date and time') ?></label><input id="iv-at" type="datetime-local" name="interview_at" required></div>
+              <div><label for="iv-dur"><?= te('Minutes') ?></label><input id="iv-dur" type="number" name="duration" min="10" max="480" value="30"></div>
+            </div>
+            <div class="row mt-s">
+              <div><label for="iv-mode"><?= te('How') ?></label><select id="iv-mode" name="mode"><?php foreach (interview_modes() as $k => $l): ?><option value="<?= e($k) ?>"><?= e($l) ?></option><?php endforeach; ?></select></div>
+              <div class="f2"><label for="iv-who"><?= te('Interviewer') ?></label><select id="iv-who" name="interviewer_id"><?php foreach ($hwPeople as $p): ?><option value="<?= (int) $p['id'] ?>"<?= (int) $p['id'] === uid() ? ' selected' : '' ?>><?= e($p['name']) ?></option><?php endforeach; ?></select></div>
+            </div>
+            <div class="field mt-s"><label for="iv-place"><?= te('Where, or the call link') ?></label><input id="iv-place" name="place" maxlength="255"></div>
+            <button class="btn sm"><?= te('Schedule') ?></button>
+          </form>
+        </details>
+        <?php endif; ?>
+      </div>
+    </div>
     <div class="grid g2">
       <div class="card" id="screener"><h3><?= te('Screener questions') ?></h3>
         <?php if (! $a['questions']): ?><p class="muted small"><?= te('This project asks no screening question.') ?></p><?php endif; ?>
@@ -172,7 +212,7 @@ $hwScore = static function (?string $s): string {
       <?php if ($r['skills']): ?><div><?= e(implode(' · ', $r['skills'])) ?></div><?php endif; ?>
       <div class="checks"><?php if ($r['required']): ?><span class="<?= $r['answered'] >= $r['required'] ? 'ok' : 'wait' ?>"><?= te(':a/:n answers', ['a' => (int) $r['answered'], 'n' => (int) $r['required']]) ?></span><?php endif; ?>
         <?php if (! empty($chk['passed'])): ?><span class="ok">✓ <?= (int) $chk['passed'] ?></span><?php endif; ?><?php if (! empty($chk['failed'])): ?><span class="ko">✗ <?= (int) $chk['failed'] ?></span><?php endif; ?><?php if (! empty($chk['pending'])): ?><span class="wait">… <?= (int) $chk['pending'] ?></span><?php endif; ?>
-        <?php if ((int) $r['screened_out']): ?><span class="ko"><?= te('screened out') ?></span><?php endif; ?></div></div>
+        <?php if ((int) $r['screened_out']): ?><span class="ko"><?= te('screened out') ?></span><?php endif; ?><?php if (! empty($r['review_status'])): ?> <span class="tag <?= $r['review_status'] === 'validated' ? 'green' : ($r['review_status'] === 'declined' ? 'red' : 'amber') ?>" data-row-review="<?= e($r['review_status']) ?>"><?= e(review_statuses()[$r['review_status']]) ?></span><?php endif; ?></div></div>
     <div class="sm"><?= te('Applied :when', ['when' => hw_ago((string) $r['created_at'])]) ?><div><?= $r['last_contact_at'] ? te('Last contact :when', ['when' => hw_ago((string) $r['last_contact_at'])]) : te('Not contacted yet') ?></div><div><?= e((string) $r['source']) ?></div></div>
     <div><?php $hwInterestButtons($r, $hwSelf); ?></div>
   </div><?php endforeach; ?>

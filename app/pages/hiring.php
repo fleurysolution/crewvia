@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../hiring.php';
 require_once __DIR__ . '/../geo.php';
+require_once __DIR__ . '/../reviews.php';
 
 require_role('recruiter');
 
@@ -39,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'reject'   => hw_move($id, 'rejected', (string) ($_POST['note'] ?? ''), uid()),
         'note'     => hw_note($id, (string) ($_POST['note'] ?? ''), uid()),
         'add'      => hw_add((int) ($_POST['vacancy_id'] ?? 0), (int) ($_POST['candidate_id'] ?? 0), uid())[0],
+        // P5-M44: to the manager, and interviews.
+        'review_request'     => review_request($id, (int) ($_POST['reviewer_id'] ?? 0), (int) ($_POST['rating'] ?? 0), (string) ($_POST['recommendation'] ?? ''), uid()),
+        'review_withdraw'    => review_withdraw((int) ($_POST['review_id'] ?? 0), uid()),
+        'interview_schedule' => interview_schedule($id, (int) ($_POST['interviewer_id'] ?? 0), (string) ($_POST['interview_at'] ?? ''), (int) ($_POST['duration'] ?? 30),
+                                                   (string) ($_POST['mode'] ?? 'video'), (string) ($_POST['place'] ?? ''), uid()),
         default    => t('Unknown action.'),
     };
     if ($why !== null) {
@@ -49,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'move', 'reject' => t('Moved.'),
             'note'           => t('Note recorded against the application.'),
             'add'            => t('Added to this requisition as a new applicant.'),
+            'review_request'     => t('Passed to the manager. You will be told when they decide.'),
+            'review_withdraw'    => t('Taken back from the manager.'),
+            'interview_schedule' => t('Interview scheduled. The interviewer is told.'),
             default          => t('Saved.'),
         });
     }
@@ -111,12 +120,16 @@ if (isset($_GET['app'])) {
     $hwApp['notes'] = rows("SELECT e.stage, e.note, e.created_at, u.name FROM application_events e LEFT JOIN users u ON u.id = e.user_id
                             WHERE e.application_id = ? AND e.note IS NOT NULL AND e.note <> '' ORDER BY e.id DESC LIMIT 30", [(int) $hwApp['id']]);
     $hwApp['timeline'] = hw_timeline($hwApp);
+    // P5-M44: the manager's review and the interviews.
+    $hwApp['reviews'] = rows('SELECT r.*, m.name AS reviewer FROM application_reviews r JOIN users m ON m.id = r.reviewer_id WHERE r.application_id = ? ORDER BY r.id DESC', [(int) $hwApp['id']]);
+    $hwApp['interviews'] = rows('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.application_id = ? ORDER BY i.scheduled_at DESC', [(int) $hwApp['id']]);
     $hwApp['skills'] = rows('SELECT skill_slug, years, confirmed FROM candidate_skills WHERE candidate_id = ? ORDER BY confirmed DESC, years DESC', [(int) $hwApp['candidate_id']]);
     require_once __DIR__ . '/../messaging.php';
     $textPanel = msg_panel((int) $hwApp['candidate_id']);
 }
+$hwPeople = isset($_GET['app']) ? review_people() : [];
 $hwAddForm = $hwView === 'add' ? (array) ($_SESSION['hw_add_form'] ?? []) : [];
 unset($_SESSION['hw_add_form']);
 $hwDetail = in_array($_GET['detail'] ?? '', ['application', 'activity'], true) ? (string) $_GET['detail'] : 'application';
 
-render('hiring', compact('hwVacancy', 'hwTab', 'hwView', 'hwFilter', 'hwCounts', 'hwList', 'hwMatches', 'hwSelf', 'hwApp', 'hwDetail', 'textPanel', 'hwSite', 'hwAddForm'));
+render('hiring', compact('hwVacancy', 'hwTab', 'hwView', 'hwFilter', 'hwCounts', 'hwList', 'hwMatches', 'hwSelf', 'hwApp', 'hwDetail', 'textPanel', 'hwSite', 'hwAddForm', 'hwPeople'));
