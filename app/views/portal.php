@@ -71,5 +71,24 @@
 <?php endif; ?>
 
 <?php if ($applications): ?>
-<div class="card" id="applications"><h2><?= te('Your applications') ?></h2><?php foreach($applications as $a): ?><div class="card"><h3><?= e($a['title'].' · '.$a['project']) ?></h3><p><?= e($a['stage_word'] ?? $a['stage']) ?></p><?php if($a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']): ?><?php if(!empty($a['terms'])): ?><ul class="steps" id="offer-terms-<?= (int)$a['id'] ?>"><?php foreach($a['terms'] as $term): ?><li><?= e($term) ?></li><?php endforeach; ?></ul><?php endif; ?><?php if(trim((string)$a['offer_text'])!==''): ?><p class="small mt-s"><strong><?= te('From recruiting:') ?></strong> <?= nl2br(e($a['offer_text'])) ?></p><?php endif; ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="accept_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><input class="w-auto" type="checkbox" name="consent" required> <?= te('I accept the offer terms displayed above and intend to sign electronically.') ?></label><label><?= te('Your full name') ?><input name="signer_name" required maxlength="190" autocomplete="name"></label><button class="btn"><?= te('Sign and accept offer') ?></button></form><?php endif; ?></div><?php endforeach; ?></div>
+<div class="card" id="applications"><h2><?= te('Your applications') ?></h2><?php foreach($applications as $a): ?><div class="card"><h3><?= e($a['title'].' · '.$a['project']) ?></h3><p><?= e($a['stage_word'] ?? $a['stage']) ?></p><?php if($a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']): $L=$a['letter']; ?>
+<article class="offer-letter" id="offer-letter-<?= (int)$a['id'] ?>">
+<p class="eyebrow"><?= e($L['agency']) ?> · <?= te('Offer of employment') ?></p>
+<p><?= te('Dear :name,', ['name'=>$L['candidate']]) ?></p>
+<p><?= te(':agency is pleased to offer you the position of :position at :site, on the terms below.', ['agency'=>$L['agency'],'position'=>$L['position'],'site'=>$L['site']]) ?></p>
+<h4><?= te('The terms') ?></h4>
+<?php if(!empty($a['terms'])): ?><ul class="steps" id="offer-terms-<?= (int)$a['id'] ?>"><?php foreach($a['terms'] as $term): ?><li><?= e($term) ?></li><?php endforeach; ?></ul><?php endif; ?>
+<?php if($L['note']!==''): ?><p class="small mt-s"><strong><?= te('From recruiting:') ?></strong> <?= nl2br(e($L['note'])) ?></p><?php endif; ?>
+<?php if($L['description']!==''): ?><h4><?= te('The job') ?></h4><div class="small" id="offer-job-<?= (int)$a['id'] ?>"><?= nl2br(e($L['description'])) ?></div><?php endif; ?>
+<?php if($L['conditions']!==''): ?><h4><?= te('General conditions') ?></h4><div class="small" id="offer-conditions-<?= (int)$a['id'] ?>"><?= nl2br(e($L['conditions'])) ?></div><?php endif; ?>
+<p class="small muted mt-s"><?= te('Your signature below accepts this offer. The office then reviews it and countersigns it; you are hired once it is countersigned, and you will be told.') ?></p>
+<p class="no-print"><button type="button" class="btn ghost" onclick="document.querySelectorAll('.offer-letter').forEach(x=>x.classList.remove('printing'));this.closest('.offer-letter').classList.add('printing');document.body.classList.add('print-offer');window.print();"><?= te('Print or save as PDF') ?></button></p>
+</article>
+<?php if(!empty($a['signed'])): ?>
+<p class="tag amber" id="offer-signed-<?= (int)$a['id'] ?>"><?= te('Signed by you on :date (:name). The office is reviewing and countersigning it.', ['date'=>d(substr((string)$a['signed']['signed_at'],0,10)),'name'=>$a['signed']['signer_name']]) ?></p>
+<?php else: ?>
+<form method="post" id="offer-accept-<?= (int)$a['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="accept_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><input class="w-auto" type="checkbox" name="consent" required> <?= te('I accept the offer terms displayed above and intend to sign electronically.') ?></label><label><?= te('Your full name') ?><input name="signer_name" required maxlength="190" autocomplete="name"></label><button class="btn"><?= te('Sign and accept offer') ?></button></form>
+<details class="mt-s" id="offer-decline-<?= (int)$a['id'] ?>"><summary class="small"><?= te('Decline this offer') ?></summary>
+<form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="decline_offer"><input type="hidden" name="application_id" value="<?= (int)$a['id'] ?>"><label><?= te('Why (optional, the office reads it)') ?><textarea name="reason" rows="2" maxlength="2000"></textarea></label><label><input class="w-auto" type="checkbox" name="confirm" required> <?= te('I decline this offer.') ?></label><button class="btn ghost"><?= te('Decline the offer') ?></button></form></details>
+<?php endif; ?><?php endif; ?></div><?php endforeach; ?></div>
 <?php endif; ?>

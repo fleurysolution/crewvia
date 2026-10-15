@@ -135,7 +135,8 @@ function offer_terms(int $vacancyId): array
         $terms[] = t('Guaranteed: :n hours a week', ['n' => (int) $hours]);
     }
     if (! empty($role['starts_on'])) {
-        $terms[] = t('Starts: :date', ['date' => d((string) $role['starts_on'])])
+        // P5-M53: a start date already passed reads "immediately", as on the job posters.
+        $terms[] = ((string) $role['starts_on'] <= date('Y-m-d') ? t('Starts: immediately') : t('Starts: :date', ['date' => d((string) $role['starts_on'])]))
                  . (! empty($role['shift']) ? ' · ' . t('Shift: :shift', ['shift' => $role['shift']]) : '');
     }
     if (! empty($role['site_city'])) {

@@ -4564,3 +4564,42 @@ You have been selected for :job. Your offer is in your portal: read it and accep
 Your interview for :job: :date, :minutes minutes, :mode:place.	Votre entretien pour :job : :date, :minutes minutes, :mode:place.	Su entrevista para :job: :date, :minutes minutos, :mode:place.
 your interview for :job	votre entretien pour :job	su entrevista para :job
 your offer for :job	votre offre pour :job	su oferta para :job
+:agency is pleased to offer you the position of :position at :site, on the terms below.	:agency a le plaisir de vous offrir le poste de :position à :site, aux conditions ci-dessous.	:agency se complace en ofrecerle el puesto de :position en :site, en las condiciones siguientes.
+:name declined the offer for :job.	:name a refusé l'offre pour :job.	:name rechazó la oferta para :job.
+:name signed the offer for :job: review it and countersign it.	:name a signé l'offre pour :job : vérifiez-la et contresignez-la.	:name firmó la oferta para :job: revísela y refréndela.
+Countersign: hire them	Contresigner : l'embaucher	Refrendar: contratarle
+Countersigned by :name on :date.	Contresignée par :name le :date.	Refrendada por :name el :date.
+Countersigned. They are hired: their assignment and onboarding have started, and they are told.	Contresignée. La personne est embauchée : son affectation et son intégration ont commencé, et elle est prévenue.	Refrendada. La persona está contratada: su asignación y su incorporación han comenzado, y se le ha avisado.
+Dear :name,	Bonjour :name,	Estimado(a) :name:
+Decline the offer	Refuser l'offre	Rechazar la oferta
+Decline this offer	Refuser cette offre	Rechazar esta oferta
+General conditions	Conditions générales	Condiciones generales
+General conditions of every offer	Conditions générales de chaque offre	Condiciones generales de cada oferta
+I decline this offer.	Je refuse cette offre.	Rechazo esta oferta.
+I have reviewed the signed offer and countersign it for :agency.	J'ai vérifié l'offre signée et je la contresigne pour :agency.	He revisado la oferta firmada y la refrendo en nombre de :agency.
+Offer countersigned; onboarding started	Offre contresignée ; intégration commencée	Oferta refrendada; incorporación iniciada
+Offer of employment	Offre d'emploi	Oferta de empleo
+Offer signed and countersigned	Offre signée et contresignée	Oferta firmada y refrendada
+Print or save as PDF	Imprimer ou enregistrer en PDF	Imprimir o guardar en PDF
+Printed on every offer letter, under the job and its terms, and part of what the candidate signs: employment type, conditions of the offer (background check, drug test, documents), policies, how to reach the office.	Imprimées sur chaque lettre d'offre, sous le poste et ses conditions, et incluses dans ce que le candidat signe : type d'emploi, conditions de l'offre (vérification des antécédents, test de dépistage, documents), règlements, comment joindre le bureau.	Se imprimen en cada carta de oferta, bajo el puesto y sus condiciones, y forman parte de lo que firma el candidato: tipo de empleo, condiciones de la oferta (verificación de antecedentes, prueba de drogas, documentos), políticas, cómo contactar a la oficina.
+Read the signed offer, tick the box and sign with your name.	Lisez l'offre signée, cochez la case et signez de votre nom.	Lea la oferta firmada, marque la casilla y firme con su nombre.
+Signed by :name on :date.	Signée par :name le :date.	Firmada por :name el :date.
+Signed by you on :date (:name). The office is reviewing and countersigning it.	Signée par vous le :date (:name). Le bureau la vérifie et la contresigne.	Firmada por usted el :date (:name). La oficina la revisa y la refrenda.
+Signed: to countersign	Signée : à contresigner	Firmada: por refrendar
+Starts: immediately	Début : immédiatement	Inicio: inmediato
+Thank you. Your signed offer goes to the office, which countersigns it; you will be told here and by email.	Merci. Votre offre signée part au bureau, qui la contresigne ; vous serez prévenu(e) ici et par courriel.	Gracias. Su oferta firmada pasa a la oficina, que la refrenda; se le avisará aquí y por correo.
+The candidate signed the offer: review it and countersign it	Le candidat a signé l'offre : vérifiez-la et contresignez-la	El candidato firmó la oferta: revísela y refréndela
+The terms	Les conditions	Las condiciones
+Their assignment and onboarding start, and they are told in their portal and by email. To refuse instead, reject the application with the reason.	Son affectation et son intégration commencent, et la personne est prévenue dans son portail et par courriel. Pour refuser, rejetez plutôt la candidature avec la raison.	Su asignación y su incorporación comienzan, y se le avisa en su portal y por correo. Para negarse, rechace la candidatura con el motivo.
+There is no signed offer waiting for a countersignature here.	Aucune offre signée n'attend de contresignature ici.	Aquí no hay ninguna oferta firmada pendiente de refrendo.
+This offer is no longer open.	Cette offre n'est plus ouverte.	Esta oferta ya no está abierta.
+Tick the box to confirm you decline this offer.	Cochez la case pour confirmer que vous refusez cette offre.	Marque la casilla para confirmar que rechaza esta oferta.
+What the candidate signed	Ce que le candidat a signé	Lo que firmó el candidato
+Why (optional, the office reads it)	Pourquoi (facultatif, le bureau le lit)	Por qué (opcional, la oficina lo lee)
+You declined the offer. The office is told.	Vous avez refusé l'offre. Le bureau est prévenu.	Rechazó la oferta. Se ha avisado a la oficina.
+You have already signed this offer. Contact the office to change it.	Vous avez déjà signé cette offre. Contactez le bureau pour la modifier.	Ya firmó esta oferta. Contacte a la oficina para cambiarla.
+You have already signed this offer. The office is countersigning it.	Vous avez déjà signé cette offre. Le bureau la contresigne.	Ya firmó esta oferta. La oficina la está refrendando.
+Your offer for :job is countersigned: you are hired. Your next steps are in your portal.	Votre offre pour :job est contresignée : vous êtes embauché(e). Vos prochaines étapes sont dans votre portail.	Su oferta para :job está refrendada: está contratado(a). Sus próximos pasos están en su portal.
+Your signature below accepts this offer. The office then reviews it and countersigns it; you are hired once it is countersigned, and you will be told.	Votre signature ci-dessous accepte cette offre. Le bureau la vérifie ensuite et la contresigne ; vous êtes embauché(e) une fois l'offre contresignée, et vous en serez prévenu(e).	Su firma a continuación acepta esta oferta. Luego la oficina la revisa y la refrenda; queda contratado(a) una vez refrendada, y se le avisará.
+you are hired for :job	vous êtes embauché(e) pour :job	está contratado(a) para :job
+Employee portal	Portail employé	Portal del empleado

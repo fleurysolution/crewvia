@@ -568,7 +568,8 @@ function account_role_label(array $u): string
 {
     if (($u['role'] ?? '') === 'worker') {
         $placed = (int) val("SELECT COUNT(*) FROM worker_accounts w JOIN placements p ON p.candidate_id = w.candidate_id WHERE w.user_id = ?", [(int) ($u['id'] ?? 0)]);
-        return $placed ? 'Worker portal' : 'Candidate portal';
+        // P5-M53: hired (the office countersigned the offer), the candidate's portal becomes their employee portal.
+        return $placed ? 'Employee portal' : 'Candidate portal';
     }
 
     return roles()[$u['role'] ?? ''] ?? '';

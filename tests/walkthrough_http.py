@@ -114,6 +114,8 @@ body = w2.get('/portal')[1]
 check('The offer shows its terms: pay, per diem, guaranteed hours, start, place', all(s in body for s in ('Pay: $45.00 an hour', 'Per diem: $75.00 a day', 'Guaranteed: 50 hours a week', 'Starts:', 'Where: Houston, TX')), re.sub(r'\s+', ' ', body)[-900:])
 check('with the recruiter\'s note beside them, and the stage in words', 'From recruiting:' in body and 'Bring your steel-toe boots.' in body and '>Offered<' in body)
 w2.post('/portal', {'do': 'accept_offer', 'application_id': fx['app3'], 'consent': '1', 'signer_name': 'Walk offered'})
+# P5-M53: the office countersigns what the worker signed; that hires them.
+rec.post('/hiring', {'do': 'countersign', 'application_id': fx['app3'], 'countersigner_name': 'Walk recruiter', 'reviewed': '1', 'back': '/hiring'})
 st = probe('state')
 check('What is signed is what was shown: the terms and the note', st['acceptance'] and 'Pay: $45.00 an hour' in st['acceptance'] and 'Bring your steel-toe boots.' in st['acceptance'], st['acceptance'])
 check('and the placement starts the day the requisition does (it had none)', st['accepted_start'] == '2026-11-02', st['accepted_start'])

@@ -10,25 +10,26 @@ if(!$worker) { render('unlinked', []); exit; }
 q('INSERT IGNORE INTO onboarding_tasks(placement_id,requirement_id) SELECT p.id,r.id FROM placements p JOIN onboarding_requirements r ON r.job_id=p.job_id WHERE p.candidate_id=?',[$worker['id']]);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  if(($_POST['do'] ?? '')==='accept_offer') {
-  $aid=(int)($_POST['application_id'] ?? 0);$name=trim((string)($_POST['signer_name'] ?? ''));
+  $aid=(int)($_POST['application_id'] ?? 0);
   db()->beginTransaction();q('SELECT id FROM candidates WHERE id=? FOR UPDATE',[$worker['id']]);
   $a=row("SELECT a.*,v.job_id FROM applications a JOIN vacancies v ON v.id=a.vacancy_id WHERE a.id=? AND a.candidate_id=? AND a.stage='offered' FOR UPDATE",[$aid,$worker['id']]);
-  $offerNote=$a?trim((string)val("SELECT note FROM application_events WHERE application_id=? AND stage='offered' ORDER BY id DESC LIMIT 1",[$aid])):'';
-  require_once __DIR__.'/../placement-rates.php';
-  // What is signed is what was shown: the agreed terms, then the recruiter's note.
-  $terms=$a?trim(implode("\n",offer_terms((int)$a['vacancy_id'])).($offerNote!==''?"\n".t('From recruiting:').' '.$offerNote:'')):'';
   if($a && (contract_latest($aid)||val('SELECT required_before_deployment FROM contract_policies WHERE job_id=?',[$a['job_id']]))){db()->rollBack();flash(t('Review and sign the current contract in Contracts & signatures.'),'err');redirect('/contracts');}
   if($a && contract_document_gaps((int)$worker['id'],(int)$a['job_id'])){db()->rollBack();flash(t('Required documents must be approved before offer acceptance.'),'err');redirect('/portal');}
-  if($a && $terms && $name && strlen($name)<=190 && isset($_POST['consent'])) {
-   q("UPDATE applications SET stage='accepted' WHERE id=?",[$aid]);candidate_follow_application($aid);
-   q('INSERT INTO offer_acceptances(application_id,user_id,offer_text,offer_hash,signer_name) VALUES (?,?,?,?,?)',[$aid,uid(),$terms,hash('sha256',$terms),$name]);
-   q('INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,?,?)',[$aid,uid(),'accepted','Signed offer hash '.hash('sha256',$terms)]);
-   $assignment=row("SELECT id FROM placements WHERE candidate_id=? AND job_id=? AND status NOT IN ('completed','cancelled')",[$worker['id'],$a['job_id']]);
-   if(!$assignment) { require_once __DIR__.'/../placement-rates.php';$rates=placement_rates((int)$a['job_id'],(int)($a['vacancy_id'] ?? 0) ?: null);q("INSERT INTO placements(candidate_id,job_id,vacancy_id,order_line_id,status,created_by,pay_rate,bill_rate,per_diem_rate,guarantee_hours,start_date) VALUES (?,?,?,?,'offered',?,?,?,?,?,?)",[$worker['id'],$a['job_id'],$rates['vacancy_id'],$rates['order_line_id'],uid(),$rates['pay_rate'],$rates['bill_rate'],$rates['per_diem_rate'],$rates['guarantee_hours'],offer_start_date((int)$rates['vacancy_id'])]);$assignment=['id'=>(int)db()->lastInsertId()];require_once __DIR__.'/../procurement.php';procurement_request_lodging_for((int)$assignment['id']); }
-   q('INSERT IGNORE INTO onboarding_tasks(placement_id,requirement_id) SELECT ?,id FROM onboarding_requirements WHERE job_id=?',[$assignment['id'],$a['job_id']]);
-   q("INSERT INTO notifications(user_id,message,target) SELECT id,?,? FROM users WHERE role IN ('admin','recruiter') AND is_active=1",['Offer accepted; onboarding started','/onboarding']);
-  }else flash(t('Offer terms, your signature and consent are required.'),'err');
-  db()->commit();redirect('/portal');
+  // P5-M53: the candidate's signature goes to the office, which countersigns it; only then are they hired.
+  require_once __DIR__.'/../offers.php';
+  $why=offer_sign($aid,(int)$worker['id'],uid(),(string)($_POST['signer_name'] ?? ''),isset($_POST['consent']));
+  db()->commit();
+  if($why!==null){refuse(422,$why,'/portal#applications');}
+  flash(t('Thank you. Your signed offer goes to the office, which countersigns it; you will be told here and by email.'));redirect('/portal#applications');
+ }
+ // P5-M53: the candidate may decline the offer, saying why if they wish.
+ if(($_POST['do'] ?? '')==='decline_offer') {
+  require_once __DIR__.'/../offers.php';
+  db()->beginTransaction();
+  $why=isset($_POST['confirm'])?offer_decline((int)($_POST['application_id'] ?? 0),(int)$worker['id'],uid(),(string)($_POST['reason'] ?? '')):t('Tick the box to confirm you decline this offer.');
+  db()->commit();
+  if($why!==null){refuse(422,$why,'/portal#applications');}
+  flash(t('You declined the offer. The office is told.'));redirect('/portal#applications');
  }
  // P5-M32: the room number, then the clock-in, on the worker's own assignment.
  if(in_array($_POST['do'] ?? '',['room_number','clock_in'],true)) {
@@ -78,6 +79,10 @@ foreach($applications as &$portalApp){
  $portalApp['stage_word']=hw_stages()[$portalApp['stage']]??$portalApp['stage'];
  if($portalApp['stage']!=='offered'){continue;}
  $portalApp['terms']=offer_terms((int)$portalApp['vacancy_id']);
+ // P5-M53: the whole letter, and the candidate's signature if they signed it already.
+ require_once __DIR__.'/../offers.php';
+ $portalApp['letter']=offer_letter((int)$portalApp['id']);
+ $portalApp['signed']=row('SELECT signer_name,signed_at FROM offer_acceptances WHERE application_id=?',[(int)$portalApp['id']]);
 }
 unset($portalApp);
 // T10: how many open jobs fit this file and are not yet answered.
@@ -93,7 +98,7 @@ $home=self_service_home((int)$worker['id']);
 $extraWaiting=[];
 $pendingTasks=count(array_filter($tasks,static fn($t)=>in_array($t['status'],['pending','rejected'],true)));
 if($pendingTasks){$extraWaiting[]=['#onboarding',tn($pendingTasks,':n onboarding task to complete',':n onboarding tasks to complete'),'onboarding'];}
-$offers=count(array_filter($applications,static fn($a)=>$a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']));
+$offers=count(array_filter($applications,static fn($a)=>$a['stage']==='offered'&&!$a['has_contract']&&!$a['contract_required']&&empty($a['signed'])));
 if($offers){$extraWaiting[]=['#applications',tn($offers,':n job offer to answer',':n job offers to answer'),'offer'];}
 // P5-M32: today's shift: the room number first, then the clock-in, then the supervisor's answer.
 require_once __DIR__.'/../clock-in.php';

@@ -126,6 +126,7 @@ function hw_applicants(array $v, string $tab, array $f, ?array $site = null): ar
     $list = rows('SELECT a.id, a.stage, a.source, a.created_at, a.screening_score, a.screened_out, a.screened_out_why, a.interest,
                          (SELECT r.status FROM application_reviews r WHERE r.application_id = a.id AND r.status <> \'withdrawn\' ORDER BY r.id DESC LIMIT 1) AS review_status,
                          ' . rehire_block_sql('c') . ' AS blocked_status,
+                         EXISTS(SELECT 1 FROM offer_acceptances o WHERE o.application_id = a.id AND o.countersigned_at IS NULL AND a.stage = \'offered\') AS to_countersign,
                          c.id AS candidate_id, c.full_name, c.city, c.state, c.degree, c.years_exp, c.discipline, c.last_contact_at, c.phone, c.email, c.availability, c.available_from,
                          ' . $distanceSql . ' AS miles_away
                   FROM applications a JOIN candidates c ON c.id = a.candidate_id

@@ -123,6 +123,22 @@ $hwScore = static function (?string $s): string {
       <p class="small m0 mt-s"><a href="/candidates/<?= (int) $bk['record'] ?>#rehire"><?= te('Open the record that carries it') ?></a> · <?= te('Screening, interviews, the manager\'s review, invitations and offers are refused; rejecting stays possible.') ?></p>
     </div>
     <?php endif; ?>
+    <?php if (! empty($a['signed'])): $so = $a['signed']; ?>
+    <div class="card <?= $so['countersigned_at'] ? '' : 'tone-alert' ?>" id="countersign">
+      <h3 class="m0"><?= $so['countersigned_at'] ? te('Offer signed and countersigned') : te('The candidate signed the offer: review it and countersign it') ?></h3>
+      <p class="small m0 mt-s"><?= te('Signed by :name on :date.', ['name' => $so['signer_name'], 'date' => d(substr((string) $so['signed_at'], 0, 10))]) ?>
+        <?php if ($so['countersigned_at']): ?> <?= te('Countersigned by :name on :date.', ['name' => (string) $so['countersigner_name'], 'date' => d(substr((string) $so['countersigned_at'], 0, 10))]) ?><?php endif; ?></p>
+      <details class="mt-s" <?= $so['countersigned_at'] ? '' : 'open' ?>><summary class="small"><?= te('What the candidate signed') ?></summary><div class="small" id="signed-offer-text"><?= nl2br(e((string) $so['offer_text'])) ?></div></details>
+      <?php if (! $so['countersigned_at'] && $a['stage'] === 'offered'): ?>
+      <form method="post" action="/hiring" class="mt-s" id="countersign-form"><?= csrf_field() ?><input type="hidden" name="do" value="countersign"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
+        <label><input class="w-auto" type="checkbox" name="reviewed" required> <?= te('I have reviewed the signed offer and countersign it for :agency.', ['agency' => agency_name()]) ?></label>
+        <label><?= te('Your full name') ?><input name="countersigner_name" required maxlength="190" value="<?= e((string) (user()['name'] ?? '')) ?>"></label>
+        <button class="btn"><?= te('Countersign: hire them') ?></button>
+        <p class="small muted m0 mt-s"><?= te('Their assignment and onboarding start, and they are told in their portal and by email. To refuse instead, reject the application with the reason.') ?></p>
+      </form>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
     <?php if ($hwDetail === 'application'): ?>
     <?php $rvStat = review_statuses(); $rvPending = null; foreach ($a['reviews'] as $rr) { if ($rr['status'] === 'pending') { $rvPending = $rr; } } ?>
     <div class="grid g2">
@@ -232,7 +248,7 @@ $hwScore = static function (?string $s): string {
       <?php if ($r['skills']): ?><div><?= e(implode(' · ', $r['skills'])) ?></div><?php endif; ?>
       <div class="checks"><?php if ($r['required']): ?><span class="<?= $r['answered'] >= $r['required'] ? 'ok' : 'wait' ?>"><?= te(':a/:n answers', ['a' => (int) $r['answered'], 'n' => (int) $r['required']]) ?></span><?php endif; ?>
         <?php if (! empty($chk['passed'])): ?><span class="ok">✓ <?= (int) $chk['passed'] ?></span><?php endif; ?><?php if (! empty($chk['failed'])): ?><span class="ko">✗ <?= (int) $chk['failed'] ?></span><?php endif; ?><?php if (! empty($chk['pending'])): ?><span class="wait">… <?= (int) $chk['pending'] ?></span><?php endif; ?>
-        <?php if ((int) $r['screened_out']): ?><span class="ko"><?= te('screened out') ?></span><?php endif; ?><?php if (($avw = availability_words($r['availability'] ?? null, $r['available_from'] ?? null)) !== ''): ?> <span class="tag <?= availability_tone($r['availability'], $r['available_from']) ?>" data-row-availability="<?= (int) $r['id'] ?>"><?= e($avw) ?></span><?php endif; ?><?php if (! empty($r['blocked_status'])): ?> <span class="tag red" data-row-blocked="<?= (int) $r['id'] ?>"><?= te(rehire_states()[$r['blocked_status']] ?? 'DO NOT USE') ?></span><?php endif; ?><?php if (! empty($r['review_status'])): ?> <span class="tag <?= $r['review_status'] === 'validated' ? 'green' : ($r['review_status'] === 'declined' ? 'red' : 'amber') ?>" data-row-review="<?= e($r['review_status']) ?>"><?= e(review_statuses()[$r['review_status']]) ?></span><?php endif; ?></div></div>
+        <?php if ((int) $r['screened_out']): ?><span class="ko"><?= te('screened out') ?></span><?php endif; ?><?php if (($avw = availability_words($r['availability'] ?? null, $r['available_from'] ?? null)) !== ''): ?> <span class="tag <?= availability_tone($r['availability'], $r['available_from']) ?>" data-row-availability="<?= (int) $r['id'] ?>"><?= e($avw) ?></span><?php endif; ?><?php if (! empty($r['blocked_status'])): ?> <span class="tag red" data-row-blocked="<?= (int) $r['id'] ?>"><?= te(rehire_states()[$r['blocked_status']] ?? 'DO NOT USE') ?></span><?php endif; ?><?php if (! empty($r['to_countersign'])): ?> <span class="tag amber" data-row-countersign="<?= (int) $r['id'] ?>"><?= te('Signed: to countersign') ?></span><?php endif; ?><?php if (! empty($r['review_status'])): ?> <span class="tag <?= $r['review_status'] === 'validated' ? 'green' : ($r['review_status'] === 'declined' ? 'red' : 'amber') ?>" data-row-review="<?= e($r['review_status']) ?>"><?= e(review_statuses()[$r['review_status']]) ?></span><?php endif; ?></div></div>
     <div class="sm"><?= te('Applied :when', ['when' => hw_ago((string) $r['created_at'])]) ?><div><?= $r['last_contact_at'] ? te('Last contact :when', ['when' => hw_ago((string) $r['last_contact_at'])]) : te('Not contacted yet') ?></div><div><?= e((string) $r['source']) ?></div></div>
     <div><?php $hwInterestButtons($r, $hwSelf); ?></div>
   </div><?php endforeach; ?>

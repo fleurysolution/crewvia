@@ -2586,4 +2586,14 @@ if (! val("SELECT COUNT(*) FROM platform_settings WHERE setting_key = 'candidate
     echo 'Candidate emails: test mode is on. Every email to a candidate or worker goes to solutionsfleury+<first name>@gmail.com, marked with who it was for; replies go to pa@rsinc.com. Turn it off on Email delivery when the flows are validated.' . PHP_EOL;
 }
 
+// ── P5-M53: the candidate signs the offer, the office countersigns it, then they are hired ──
+// Offers accepted before this step count as countersigned when they were signed (they were hired then).
+// Reversed by install/rollback/p5-m53.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='offer_acceptances' AND column_name='countersigned_at'")) {
+    q("ALTER TABLE offer_acceptances ADD COLUMN countersigned_by INT UNSIGNED NULL, ADD COLUMN countersigned_at DATETIME NULL, ADD COLUMN countersigner_name VARCHAR(190) NULL,
+       ADD CONSTRAINT fk_offer_countersigned_by FOREIGN KEY (countersigned_by) REFERENCES users(id)");
+    q("UPDATE offer_acceptances SET countersigned_at = signed_at, countersigner_name = 'Hired on signature (before P5-M53)' WHERE countersigned_at IS NULL");
+    echo 'Offers: the portal shows the whole offer letter (the job, its terms, the general conditions from Settings); the candidate accepts or declines it; a signed offer goes back to the office, which countersigns it in Hiring, and only then is the person hired.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

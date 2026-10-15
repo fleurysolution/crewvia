@@ -20,6 +20,16 @@ function hw_back(): string
     return str_starts_with($back, '/hiring') && ! preg_match('/[\r\n]/', $back) ? $back : '/hiring';
 }
 
+// P5-M53: the office countersigns the offer the candidate signed; only then are they hired.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'countersign') {
+    require_once __DIR__ . '/../offers.php';
+    $appId = (int) ($_POST['application_id'] ?? 0);
+    $why = offer_countersign($appId, uid(), (string) ($_POST['countersigner_name'] ?? ''), isset($_POST['reviewed']));
+    if ($why !== null) { refuse(422, $why, hw_back()); }
+    flash(t('Countersigned. They are hired: their assignment and onboarding have started, and they are told.'));
+    redirect(hw_back());
+}
+
 // P5-M42: somebody who applied by email, phone or in person, added with what they sent.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'add_applicant') {
     $vacancyId = (int) ($_POST['vacancy_id'] ?? 0);
@@ -162,6 +172,8 @@ if (isset($_GET['app'])) {
     // P5-M51: held by the do-not-rehire register, under this record or an earlier one with the same email or phone.
     require_once __DIR__ . '/../rehire.php';
     $hwApp['block'] = rehire_block_for((int) $hwApp['candidate_id']);
+    // P5-M53: the offer the candidate signed, countersigned or waiting for it.
+    $hwApp['signed'] = row('SELECT o.*, u.name AS countersigner_user FROM offer_acceptances o LEFT JOIN users u ON u.id = o.countersigned_by WHERE o.application_id = ?', [(int) $hwApp['id']]);
     // P5-M44: the manager's review and the interviews.
     $hwApp['reviews'] = rows('SELECT r.*, m.name AS reviewer FROM application_reviews r JOIN users m ON m.id = r.reviewer_id WHERE r.application_id = ? ORDER BY r.id DESC', [(int) $hwApp['id']]);
     $hwApp['interviews'] = rows('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.application_id = ? ORDER BY i.scheduled_at DESC', [(int) $hwApp['id']]);

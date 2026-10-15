@@ -117,6 +117,11 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
              value="<?= e($settings['agency_name'] ?? '') ?>">
       <span class="hint"><?= te('The employer named in the emails to candidates and on the job posters. Left empty, the platform name is used.') ?></span>
     </div>
+    <div class="field">
+      <label for="s-offer-conditions"><?= te('General conditions of every offer') ?></label>
+      <textarea id="s-offer-conditions" name="offer_conditions" maxlength="8000" rows="8"><?= e($settings['offer_conditions'] ?? '') ?></textarea>
+      <span class="hint"><?= te('Printed on every offer letter, under the job and its terms, and part of what the candidate signs: employment type, conditions of the offer (background check, drug test, documents), policies, how to reach the office.') ?></span>
+    </div>
 
     <div class="field">
       <label for="s-legal"><?= te('Legal contact') ?></label>
