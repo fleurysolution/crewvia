@@ -158,4 +158,10 @@ check('Another file the applicant sent is kept under its own name, as another do
 status, body = bulk(admin, wk['vA'], [('CoverLetterIndeedTestTwo.txt', LETTER), ('Attachment__IndeedTestTwo__Forklift certificate.pdf', PDF)])
 check('Sent again, neither is added twice', len(probe('notes', 'in-two@test.invalid')) == 1 and len(probe('docs', 'in-two@test.invalid')) == len(docs), body[:200])
 
+# ── P5-M40: Hiring shows what came with the application ──
+two = probe('person', 'in-two@test.invalid')
+body = admin.get('/hiring?v=%d&app=%d' % (wk['vA'], two['application']['id']))[1]
+check('Hiring shows what came with the application: the board status, the answers and the cover letter',
+      'id="application-notes"' in body and 'Status on the board: Awaiting Review' in body and 'I would love to travel for this work.' in body, body[:300])
+
 json.dump(results, open('work/ii-http-results.json', 'w'), indent=1)

@@ -94,6 +94,9 @@ if (isset($_GET['app'])) {
                                 WHERE q.job_id = ? AND (q.vacancy_id IS NULL OR q.vacancy_id = (SELECT vacancy_id FROM applications WHERE id = ?)) ORDER BY q.sort_order, q.id', [(int) $hwApp['id'], (int) $hwVacancy['job_id'], (int) $hwApp['id']]);
     $hwApp['checks'] = rows('SELECT * FROM screening_checks WHERE application_id = ? ORDER BY id', [(int) $hwApp['id']]);
     $hwApp['resumes'] = rows('SELECT id, kind, original_name, created_at FROM candidate_resumes WHERE candidate_id = ? ORDER BY id DESC', [(int) $hwApp['candidate_id']]);
+    // P5-M40: what came with the application (a job board's status and answers, a cover letter) and every note written on it.
+    $hwApp['notes'] = rows("SELECT e.stage, e.note, e.created_at, u.name FROM application_events e LEFT JOIN users u ON u.id = e.user_id
+                            WHERE e.application_id = ? AND e.note IS NOT NULL AND e.note <> '' ORDER BY e.id DESC LIMIT 30", [(int) $hwApp['id']]);
     $hwApp['timeline'] = hw_timeline($hwApp);
     $hwApp['skills'] = rows('SELECT skill_slug, years, confirmed FROM candidate_skills WHERE candidate_id = ? ORDER BY confirmed DESC, years DESC', [(int) $hwApp['candidate_id']]);
     require_once __DIR__ . '/../messaging.php';

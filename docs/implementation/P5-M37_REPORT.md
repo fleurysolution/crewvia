@@ -65,3 +65,15 @@ The bulk attach also takes:
   It is filed as "Other document" under its original name.
 
 Neither is added twice. Tested in indeed_import_http.py (79 checks).
+
+## P5-M40 — Hiring shows what came with the application
+
+The applicant pane in Hiring gains "From the application". It lists every note
+written on the application, newest first, with the date and who wrote it:
+- the job board status;
+- the screening answers, with those that do not meet marked;
+- the cover letter;
+- the offer notes.
+
+Until now these were stored but shown nowhere. Tested in indeed_import_http.py
+(80 checks).

@@ -127,6 +127,11 @@ $hwScore = static function (?string $s): string {
           <?php foreach ($a['checks'] as $ch): ?><div class="qa"><span class="tag <?= $ch['status'] === 'passed' ? 'green' : ($ch['status'] === 'failed' ? 'red' : 'grey') ?>"><?= te(ucfirst($ch['status'])) ?></span> <?= e($ch['title']) ?><?= $ch['note'] ? '<div class="small muted">' . e($ch['note']) . '</div>' : '' ?></div><?php endforeach; ?>
           <p class="small"><a href="/recruitment"><?= te('Manage checks on Application screening') ?></a></p>
         </div>
+        <?php if (! empty($a['notes'])): ?>
+        <div class="card" id="application-notes"><h3><?= te('From the application') ?></h3>
+          <?php foreach ($a['notes'] as $n): ?><div class="mb-s" data-note-stage="<?= e((string) $n['stage']) ?>"><p class="small muted m0"><?= e(d(substr((string) $n['created_at'], 0, 10))) ?><?= $n['name'] ? ' · ' . e($n['name']) : '' ?></p><p class="small m0 pre-wrap"><?= e((string) $n['note']) ?></p></div><?php endforeach; ?>
+        </div>
+        <?php endif; ?>
         <div class="card" id="background"><h3><?= te('Background') ?></h3>
           <p class="small"><?= $a['degree'] ? e($a['degree']) : '<span class="muted">' . te('No degree on file') . '</span>' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
           <?php if ($a['skills']): ?><p class="small"><?php foreach ($a['skills'] as $sk): ?><span class="tag <?= (int) $sk['confirmed'] ? 'green' : 'grey' ?>"><?= e((string) $sk['skill_slug']) ?><?= $sk['years'] ? ' · ' . (int) $sk['years'] . 'y' : '' ?></span> <?php endforeach; ?></p><?php endif; ?>
