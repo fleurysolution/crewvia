@@ -159,6 +159,11 @@ function interview_schedule(int $applicationId, int $interviewerId, string $when
     if ($interviewerId !== $by) {
         review_notify($interviewerId, t('Interview with :name on :date', ['name' => $a['full_name'], 'date' => date('M j, g:i a', $at)]), '/reviews?interview=' . $id);
     }
+    // P5-M52: the candidate hears of it too, in their portal and by email.
+    require_once __DIR__ . '/notices.php';
+    candidate_tell((int) $a['candidate_id'], t('your interview for :job', ['job' => $a['title']]),
+                   t('Your interview for :job: :date, :minutes minutes, :mode:place.', ['job' => $a['title'], 'date' => date('l, F j, g:i a', $at), 'minutes' => $duration,
+                     'mode' => strtolower(interview_modes()[$mode]), 'place' => trim($place) !== '' ? ' (' . trim($place) . ')' : '']), '/my-jobs');
     log_activity('scheduled an interview', 'application', $applicationId, date('Y-m-d H:i', $at));
 
     return null;

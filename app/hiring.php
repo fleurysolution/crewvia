@@ -272,6 +272,13 @@ function hw_move(int $id, string $stage, string $note, int $by, bool $validated 
     candidate_follow_application($id);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, $stage, $note]);
     log_activity('moved an application', 'application', $id, $stage);
+    // P5-M52: the candidate hears of their offer, in their portal and by email (an offer validated first included).
+    if ($stage === 'offered') {
+        require_once __DIR__ . '/notices.php';
+        $job = (string) val('SELECT v.title FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ?', [$id]);
+        candidate_tell((int) $a['candidate_id'], t('your offer for :job', ['job' => $job]),
+                       t('You have been selected for :job. Your offer is in your portal: read it and accept it there.', ['job' => $job]), '/portal');
+    }
     if (in_array($stage, ['screening', 'offered'], true)) {
         require_once __DIR__ . '/invitations.php';
         try {
@@ -448,7 +455,7 @@ function hiring_offer_settled(int $applicationId, string $state, array $request)
             return;
         }
         notify_user($recruiter, t(':name was validated; the offer for :job is with the candidate.', ['name' => $a['full_name'], 'job' => $a['title']]), $back);
-        notify_candidate((int) $a['candidate_id'], t('You have been selected for :job. Your offer is in your portal.', ['job' => $a['title']]));
+        // The candidate is told by hw_move (P5-M52), in their portal and by email.
     } else {
         $comments = trim((string) val("SELECT comments FROM approval_requests WHERE subject_type = 'offer' AND subject_id = ? AND status = 'rejected' ORDER BY decided_at DESC LIMIT 1", [$applicationId]));
         notify_user($recruiter, t('The offer for :name was not validated:', ['name' => $a['full_name']]) . ' ' . ($comments !== '' ? $comments : t('no reason given.')), $back);

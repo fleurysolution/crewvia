@@ -41,6 +41,34 @@ function notify_candidate(int $candidateId, string $message, string $target = '/
 }
 
 /**
+ * P5-M52: tell a candidate who has a portal what changed for them - in the
+ * app (the bell, Notifications) and by email with the link to their portal,
+ * signed by the agency. Somebody without a portal yet is reached by their
+ * portal invitation instead. Returns whether they have a portal.
+ */
+function candidate_tell(int $candidateId, string $subject, string $message, string $target = '/portal'): bool
+{
+    global $config;
+    if (! notify_candidate($candidateId, $message, $target)) {
+        return false;
+    }
+    $c = row('SELECT full_name, email FROM candidates WHERE id = ?', [$candidateId]) ?: [];
+    $first = trim((string) strtok((string) ($c['full_name'] ?? ''), ' '));
+    $agency = agency_name();
+    $url = rtrim((string) ($config['app_url'] ?? ''), '/') . $target;
+    mail_queue($candidateId, (string) ($c['email'] ?? ''), $agency . ': ' . $subject,
+               'Hello ' . ($first !== '' ? $first : 'there') . ",
+
+" . $message . "
+
+Your portal: " . $url . "
+
+" . $agency, 'candidate notice');
+
+    return true;
+}
+
+/**
  * P5-M30: an email to a worker (an itinerary, a notice), queued and sealed
  * with the workspace key; install/deliver-mail.php sends it through the
  * configured relay. Returns whether it was queued.

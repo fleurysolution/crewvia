@@ -4560,3 +4560,7 @@ Open the record that carries it	Ouvrir le dossier qui le porte	Abrir el expedien
 Screening, interviews, the manager's review, invitations and offers are refused; rejecting stays possible.	Présélection, entretiens, revue du manager, invitations et offres sont refusés ; le refus reste possible.	Preselección, entrevistas, revisión del gerente, invitaciones y ofertas se rechazan; rechazar sigue siendo posible.
 Why:	Pourquoi :	Por qué:
 On the do-not-rehire register.	Sur le registre de non-réembauche.	En el registro de no recontratación.
+You have been selected for :job. Your offer is in your portal: read it and accept it there.	Vous avez été retenu(e) pour :job. Votre offre est dans votre portail : lisez-la et acceptez-la là.	Ha sido seleccionado(a) para :job. Su oferta está en su portal: léala y acéptela allí.
+Your interview for :job: :date, :minutes minutes, :mode:place.	Votre entretien pour :job : :date, :minutes minutes, :mode:place.	Su entrevista para :job: :date, :minutes minutos, :mode:place.
+your interview for :job	votre entretien pour :job	su entrevista para :job
+your offer for :job	votre offre pour :job	su oferta para :job
