@@ -5,7 +5,8 @@
  * The navigation shows a desk only to the people who work it, so a recruiter
  * opening this at 7am sees Candidates and the roster, not payroll.
  */
-$u = user();
+// P5-M48: a page meant for somebody else (a candidate's portal activation) shows no desk, even to a signed-in office user.
+$u = ! empty($publicPage) ? null : user();
 $f = flash();
 
 require_once __DIR__ . '/../navigation.php';

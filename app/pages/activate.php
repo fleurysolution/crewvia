@@ -12,6 +12,9 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  if(!$locked || row('SELECT id FROM users WHERE email=?',[$inv['email']]) || row('SELECT user_id FROM worker_accounts WHERE candidate_id=?',[$inv['candidate_id']])) { db()->rollBack(); refuse(409, t('Account already exists or invitation was used. Sign in or contact recruiting.')); }
  q("INSERT INTO users(name,email,password_hash,role,must_change_pw) VALUES (?,?,?,'worker',0)",[$inv['full_name'],$inv['email'],password_hash($pass,PASSWORD_DEFAULT)]);
  $id=(int)db()->lastInsertId(); q('INSERT INTO worker_accounts(user_id,candidate_id) VALUES (?,?)',[$id,$inv['candidate_id']]);
- q('UPDATE invitations SET used_at=NOW() WHERE id=?',[$inv['id']]); db()->commit(); security_log_attempt('activated an account from an invitation',$id,'invitation '.$inv['id']); redirect('/login');
+ q('UPDATE invitations SET used_at=NOW() WHERE id=?',[$inv['id']]); db()->commit(); security_log_attempt('activated an account from an invitation',$id,'invitation '.$inv['id']);
+ // P5-M48: whoever was signed in on this browser is signed out; the candidate lands in their own portal, signed in.
+ security_finish_login(row('SELECT id,name,email,role,locale FROM users WHERE id=?',[$id]),'/my-jobs');
 }
-render('activate',compact('token','inv'));
+$publicPage=true;$signedInAs=user()['name']??null;
+render('activate',compact('token','inv','publicPage','signedInAs'));

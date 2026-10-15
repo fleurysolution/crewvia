@@ -14,10 +14,11 @@ function workforce_invite_candidate(int $candidateId, bool $replace = false): ?s
     if(!$replace && row('SELECT i.id FROM invitations i JOIN email_outbox o ON o.invitation_id=i.id WHERE i.candidate_id=? AND i.used_at IS NULL AND i.expires_at>NOW()',[$candidateId])) {if($transaction) db()->commit();return null;}
     $token=bin2hex(random_bytes(32));$url=rtrim($config['app_url'],'/').'/activate?token='.$token;
     // Walkthrough finding 14: the message named neither the agency nor the job, which reads like a phishing email.
-    $brand=$config['app_name']??'Crewvia';try{$named=val("SELECT setting_value FROM platform_settings WHERE setting_key='brand_name'");if($named)$brand=(string)$named;}catch(Throwable $ignored){}
+    // P5-M48: the agency the candidate applied to, not the platform's name.
+    $brand=agency_name();
     $job=(string)(val("SELECT v.title FROM applications a JOIN vacancies v ON v.id=a.vacancy_id WHERE a.candidate_id=? ORDER BY a.id DESC LIMIT 1",[$candidateId])?:'');
     $first=trim((string)strtok((string)$candidate['full_name'],' '));
-    $message=['subject'=>$brand.': activate your employee portal'.($job!==''?' for '.$job:''),
+    $message=['subject'=>$brand.': activate your candidate portal'.($job!==''?' for '.$job:''),
               'body'=>'Hello '.($first!==''?$first:'there').",\n\n"
                      .'Your application'.($job!==''?' for '.$job:'').' with '.$brand.' has moved forward. '
                      .'Activate your personal portal and choose your password with this private link, valid for 48 hours:'."\n\n".$url."\n\n"

@@ -63,6 +63,17 @@ check('What is sent goes to the test inbox with the marked subject and the reply
       count($sent) === 1 && $sent[0]['to'] === 'solutionsfleury+otis@gmail.com' && $sent[0]['subject'] === '[TEST for Otis Armstrong] Your portal'
       && $sent[0]['body'] === 'Hello Otis' && ($sent[0]['headers']['Reply-To'] ?? '') === 'pa@rsinc.com', json_encode($sent));
 
+// P5-M48: the invitation names the agency the candidate applied to, and calls it their candidate portal.
+require_once __DIR__ . '/test-app/app/invitations.php';
+$set('agency_name', 'RSS Inc.');
+$otisId = (int) val("SELECT id FROM candidates WHERE email = 'mr-otis@test.invalid'");
+workforce_invite_candidate($otisId);
+$queued = token_decrypt((string) val('SELECT o.encrypted_message FROM email_outbox o JOIN invitations i ON i.id = o.invitation_id WHERE i.candidate_id = ? ORDER BY o.id DESC LIMIT 1', [$otisId]));
+check('The invitation names the agency (RSS Inc.), not the platform, and calls it their candidate portal',
+      str_starts_with((string) $queued['subject'], 'RSS Inc.: activate your candidate portal') && str_contains((string) $queued['body'], 'with RSS Inc. has moved forward') && agency_name() === 'RSS Inc.', json_encode($queued));
+$set('agency_name', '');
+check('Without an agency name, the platform name stands in', agency_name() !== '' && agency_name() !== 'RSS Inc.');
+
 $set('candidate_mail_test', '0');
 check('Test mode off: the candidate receives it', mail_route('mr-otis@test.invalid')['to'] === 'mr-otis@test.invalid');
 

@@ -25,8 +25,7 @@ if (! $vacancy) {
     refuse(404, t('That requisition does not exist.'), '/requisitions');
 }
 $applyUrl = rtrim((string) ($config['app_url'] ?? ''), '/') . '/apply?id=' . (int) $vacancy['id'];
-$brand = (string) ($config['app_name'] ?? 'Crewvia');
-try { $named = val("SELECT setting_value FROM platform_settings WHERE setting_key = 'brand_name'"); if ($named) { $brand = (string) $named; } } catch (Throwable $ignored) {}
+$brand = agency_name();
 log_activity('opened a job poster', 'vacancy', (int) $vacancy['id'], (string) $vacancy['title']);
 
 require __DIR__ . '/../views/poster.php';

@@ -111,6 +111,12 @@ $counted   = $basis === 'deployed_workers' ? $deployed : $active;
              value="<?= e($settings['brand_name'] ?? $config['app_name']) ?>">
       <span class="hint"><?= te('Shown in the header, the browser tab and the installed app.') ?></span>
     </div>
+    <div class="field">
+      <label for="s-agency"><?= te('Agency name, as candidates see it') ?></label>
+      <input id="s-agency" name="agency_name" maxlength="190" placeholder="<?= e($settings['brand_name'] ?? $config['app_name']) ?>"
+             value="<?= e($settings['agency_name'] ?? '') ?>">
+      <span class="hint"><?= te('The employer named in the emails to candidates and on the job posters. Left empty, the platform name is used.') ?></span>
+    </div>
 
     <div class="field">
       <label for="s-legal"><?= te('Legal contact') ?></label>

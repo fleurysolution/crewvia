@@ -343,6 +343,24 @@ function refuse_origin(): string
     return '/';
 }
 
+/**
+ * P5-M48: the employer as candidates see it (Settings, "Agency name"): the
+ * emails to candidates and the job posters. Falls back to the platform name.
+ */
+function agency_name(): string
+{
+    global $config;
+    try {
+        foreach (['agency_name', 'brand_name'] as $key) {
+            $v = trim((string) val('SELECT setting_value FROM platform_settings WHERE setting_key = ?', [$key]));
+            if ($v !== '') { return $v; }
+        }
+    } catch (Throwable $ignored) {
+    }
+
+    return (string) ($config['app_name'] ?? 'Crewvia');
+}
+
 function render(string $view, array $data = []): void
 {
     global $config;

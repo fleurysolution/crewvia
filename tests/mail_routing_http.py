@@ -69,6 +69,28 @@ check('Unticked, test mode goes off and the page says candidates now receive the
 status, body = admin.post('/email-delivery', {'do': 'routing', 'test_mode': '1', 'test_to': 'solutionsfleury+{first}@gmail.com', 'reply_to': 'pa@rsinc.com'}, '/email-delivery')
 check('and back on', setting('candidate_mail_test') == '1' and 'Test mode' in body)
 
+# P5-M48: the agency name, set in Settings, is what a job poster shows.
+wk = json.load(open('work/walkthrough.json'))
+status, body = admin.post('/settings', {'do': 'workspace', 'agency_name': 'RSS Inc.'}, '/settings')
+status, body = admin.get('/poster?id=%d' % wk['vA'])
+check('Settings names the agency candidates see, and the job poster shows it', setting('agency_name') == 'RSS Inc.' and '<div class="brand">RSS Inc.</div>' in body)
+status, body = admin.get('/settings')
+check('while the platform keeps its own name', 'id="s-agency"' in body and setting('brand_name') != 'RSS Inc.')
+
+# P5-M48: an activation link opened on a browser where the office is signed in.
+url = subprocess.run([php, '-r', 'require "work/test-app/app/bootstrap.php"; require_once "work/test-app/app/invitations.php"; echo workforce_invite_candidate((int) val("SELECT id FROM candidates WHERE email = ?", [$argv[1]]));', 'mr-andrew-s@test.invalid'],
+                     check=True, capture_output=True, text=True).stdout.strip()
+link = url[url.index('/activate'):]
+status, body = admin.get(link)
+check('The activation page stands on its own, without the office menu, and says who is signed in',
+      'id="activate-portal"' in body and 'Andrew Sheppard' in body and 'Candidate reviews' not in body and 'id="signed-in-warning"' in body and 'Walk admin' in body, body[:300])
+status, raw = admin.open(urllib.request.Request(base + '/activate', urllib.parse.urlencode({'_csrf': admin.token, 'token': link.split('=')[1], 'password': 'Portal-Test-Pass-2026'}).encode(), {'Accept': 'text/html'}))
+status, body = admin.get('/my-jobs')
+check('Activating signs the office user out and the candidate into their portal', 'id="availability"' in body and 'Andrew' in body)
+status, body = admin.get('/email-delivery')
+check('and the office account is no longer signed in on that browser', 'id="candidate-mail"' not in body)
+admin = Client(); admin.login('wk-admin@test.invalid')
+
 rec = Client(); rec.login('wk-rec@test.invalid')
 status, body = rec.get('/email-delivery')
 check('Only an administrator opens it', 'id="candidate-mail"' not in body, status)

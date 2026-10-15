@@ -22,6 +22,8 @@ const SETTINGS_DESKS = ['recruiter', 'hotels', 'payroll'];
 /** Text settings this screen owns, each one read somewhere in the product. */
 const SETTINGS_TEXT = [
     'brand_name'        => 190,
+    // P5-M48: the employer candidates deal with (emails, job posters), apart from the platform's own name.
+    'agency_name'       => 190,
     'legal_contact'     => 190,
     'adp_company_code'  => 40,
     'adp_hours_code'    => 40,
