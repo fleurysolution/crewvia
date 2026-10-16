@@ -4603,3 +4603,18 @@ Your offer for :job is countersigned: you are hired. Your next steps are in your
 Your signature below accepts this offer. The office then reviews it and countersigns it; you are hired once it is countersigned, and you will be told.	Votre signature ci-dessous accepte cette offre. Le bureau la vérifie ensuite et la contresigne ; vous êtes embauché(e) une fois l'offre contresignée, et vous en serez prévenu(e).	Su firma a continuación acepta esta oferta. Luego la oficina la revisa y la refrenda; queda contratado(a) una vez refrendada, y se le avisará.
 you are hired for :job	vous êtes embauché(e) pour :job	está contratado(a) para :job
 Employee portal	Portail employé	Portal del empleado
+Hired on their signature, before the office countersigned offers (P5-M53).	Embauché(e) sur sa signature, avant que le bureau ne contresigne les offres (P5-M53).	Contratado(a) con su firma, antes de que la oficina refrendara las ofertas (P5-M53).
+Hired: the offer is signed and countersigned.	Embauché(e) : l'offre est signée et contresignée.	Contratado(a): la oferta está firmada y refrendada.
+Interview cancelled: :name, :date.	Entretien annulé : :name, :date.	Entrevista cancelada: :name, :date.
+Offer signed	Offre signée	Oferta firmada
+Signed through the contract workflow, approved by the office before it was issued.	Signée par le circuit des contrats, approuvée par le bureau avant son envoi.	Firmada mediante el circuito de contratos, aprobada por la oficina antes de enviarse.
+That part of the portal opens once you are hired.	Cette partie du portail s'ouvre une fois que vous êtes embauché(e).	Esa parte del portal se abre cuando esté contratado(a).
+The application was rejected.	La candidature a été rejetée.	La candidatura fue rechazada.
+The application was withdrawn.	La candidature a été retirée.	La candidatura fue retirada.
+The candidate declined the offer.	Le candidat a refusé l'offre.	El candidato rechazó la oferta.
+Withdrawn: the candidate signed the offer for :job.	Retirée : le candidat a signé l'offre pour :job.	Retirada: el candidato firmó la oferta para :job.
+Your applications with us in one place: what needs you, your offers and your papers. Your employee portal opens when you are hired.	Vos candidatures chez nous en un seul endroit : ce qui vous attend, vos offres et vos papiers. Votre portail employé s'ouvre quand vous êtes embauché(e).	Sus candidaturas con nosotros en un solo lugar: lo que le espera, sus ofertas y sus documentos. Su portal de empleado se abre cuando esté contratado(a).
+Signing this offer withdraws your other application in progress.	Signer cette offre retire votre autre candidature en cours.	Firmar esta oferta retira su otra candidatura en curso.
+Signing this offer withdraws your :n other applications in progress.	Signer cette offre retire vos :n autres candidatures en cours.	Firmar esta oferta retira sus :n otras candidaturas en curso.
+Their other application is withdrawn.	Son autre candidature est retirée.	Su otra candidatura queda retirada.
+Their :n other applications are withdrawn.	Ses :n autres candidatures sont retirées.	Sus :n otras candidaturas quedan retiradas.

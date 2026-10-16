@@ -273,6 +273,11 @@ function hw_move(int $id, string $stage, string $note, int $by, bool $validated 
     candidate_follow_application($id);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$id, $by, $stage, $note]);
     log_activity('moved an application', 'application', $id, $stage);
+    // P5-M54: settled, it closes the manager's review and the interviews still open on it.
+    if (in_array($stage, ['rejected', 'withdrawn'], true)) {
+        require_once __DIR__ . '/reviews.php';
+        review_close_for_application($id, $by, $stage === 'rejected' ? t('The application was rejected.') : t('The application was withdrawn.'));
+    }
     // P5-M52: the candidate hears of their offer, in their portal and by email (an offer validated first included).
     if ($stage === 'offered') {
         require_once __DIR__ . '/notices.php';

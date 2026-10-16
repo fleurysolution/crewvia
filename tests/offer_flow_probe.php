@@ -4,6 +4,8 @@
  *   offer <application>   the application's stage, the signature and countersignature, its open placements
  *   apps <email>          the applications of the record that has the portal, oldest first
  *   staff-notes <text>    how many staff notifications contain this text
+ *   open-vacancy <a> <b>  an open requisition other than these two (P5-M54)
+ *   closed-items <app>    the manager's reviews and the interviews on an application, with their status (P5-M54)
  */
 
 declare(strict_types=1);
@@ -22,6 +24,11 @@ if ($cmd === 'offer') {
     ]);
 } elseif ($cmd === 'apps') {
     echo json_encode(rows('SELECT a.id, a.stage, a.vacancy_id, a.candidate_id FROM applications a JOIN worker_accounts w ON w.candidate_id = a.candidate_id JOIN candidates c ON c.id = a.candidate_id WHERE c.email = ? ORDER BY a.id', [$arg]));
+} elseif ($cmd === 'open-vacancy') {
+    echo json_encode((int) val('SELECT id FROM vacancies WHERE is_open = 1 AND id NOT IN (?, ?) ORDER BY id LIMIT 1', [(int) $arg, (int) ($argv[3] ?? 0)]));
+} elseif ($cmd === 'closed-items') {
+    echo json_encode(['reviews' => array_column(rows('SELECT status FROM application_reviews WHERE application_id = ?', [(int) $arg]), 'status'),
+                      'interviews' => array_column(rows('SELECT status FROM interviews WHERE application_id = ?', [(int) $arg]), 'status')]);
 } elseif ($cmd === 'staff-notes') {
     echo json_encode((int) val("SELECT COUNT(*) FROM notifications n JOIN users u ON u.id = n.user_id WHERE u.role <> 'worker' AND n.message LIKE ?", ['%' . $arg . '%']));
 }

@@ -198,6 +198,11 @@ function workspace_nav(?array $u): array
         $nav = [['/client-portal', 'Client portal', null]];
     }
 
+    // P5-M54: a candidate's menu holds what a candidate does; the employee screens come with the hire.
+    if (worker_is_candidate($u)) {
+        $nav = array_values(array_filter($nav, static fn($item) => in_array($item[0], candidate_paths(), true)));
+    }
+
     return $nav;
 }
 
@@ -217,7 +222,7 @@ function workspace_daily(?array $u): array
         'hotels'     => ['/home', '/activity', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
         'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
         'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
-        'worker'     => ['/portal', '/my-jobs', '/attendance', '/timeoff', '/my-payslips', '/notifications', '/activity'],
+        'worker'     => worker_is_candidate($u) ? ['/portal', '/my-jobs', '/notifications', '/activity'] : ['/portal', '/my-jobs', '/attendance', '/timeoff', '/my-payslips', '/notifications', '/activity'],
         default      => [],
     };
 }

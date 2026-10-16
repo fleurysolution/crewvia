@@ -567,12 +567,40 @@ function disciplines(bool $includeRetired = false): array
 function account_role_label(array $u): string
 {
     if (($u['role'] ?? '') === 'worker') {
-        $placed = (int) val("SELECT COUNT(*) FROM worker_accounts w JOIN placements p ON p.candidate_id = w.candidate_id WHERE w.user_id = ?", [(int) ($u['id'] ?? 0)]);
         // P5-M53: hired (the office countersigned the offer), the candidate's portal becomes their employee portal.
-        return $placed ? 'Employee portal' : 'Candidate portal';
+        return worker_is_candidate($u) ? 'Candidate portal' : 'Employee portal';
     }
 
     return roles()[$u['role'] ?? ''] ?? '';
+}
+
+/**
+ * P5-M54: a portal account that is still a candidate - never placed, so not an employee yet.
+ * A candidate sees their applications, offers and papers, not the employee screens.
+ */
+function worker_is_candidate(?array $u): bool
+{
+    static $known = [];
+    if (($u['role'] ?? '') !== 'worker') {
+        return false;
+    }
+    $id = (int) ($u['id'] ?? 0);
+
+    return $known[$id] ??= ! candidate_is_employee((int) val('SELECT candidate_id FROM worker_accounts WHERE user_id = ?', [$id]));
+}
+
+/** P5-M54: an employee is somebody placed, or on the employee register with a number (an import, a hire before Crewvia). */
+function candidate_is_employee(int $candidateId): bool
+{
+    return $candidateId > 0 && (bool) val('SELECT (SELECT COUNT(*) FROM placements WHERE candidate_id = ?)
+                                                + (SELECT COUNT(*) FROM employee_profiles WHERE candidate_id = ? AND employee_number IS NOT NULL AND employee_number <> \'\')', [$candidateId, $candidateId]);
+}
+
+/** P5-M54: the screens a candidate opens (the rest waits until they are hired). */
+function candidate_paths(): array
+{
+    return ['/portal', '/my-jobs', '/contracts', '/proofs', '/checks', '/screening-workflow', '/resumes', '/notifications', '/notification-feed',
+            '/activity', '/devices', '/account', '/account-security', '/language'];
 }
 
 function roles(): array
@@ -658,115 +686,115 @@ function contact_outcomes(): array
     ];
 }
 
-/**
- * Where a placement stands, in words and in colour.
- *
- * A placement status is not a candidate stage, and the two were being
- * mixed: Manning coloured 'on_site' with stage_colour(), which knows
- * nothing about it and returned grey for everything.
- */
-function placement_word(string $status): string
-{
-    return [
-        'offered'    => 'Offered',
-        'confirmed'  => 'Confirmed',
-        'travelling' => 'Travelling',
-        'on_site'    => 'On site',
-        'completed'  => 'Completed',
-        'cancelled'  => 'Cancelled',
-    ][$status] ?? ucfirst(str_replace('_', ' ', $status));
-}
-
-function placement_tone(string $status): string
-{
-    return match ($status) {
-        'on_site'    => 'green',
-        'travelling' => 'amber',
-        'confirmed'  => 'blue',
-        'cancelled'  => 'red',
-        default      => 'grey',
-    };
-}
-
-/**
- * Whether somebody can be called again.
- *
- * A flag nobody can see is the redlined spreadsheet with extra steps,
- * so these have words, a colour, and a reason recorded against them.
- * "No rehire" means do not put them back on a job. "Do not use" means
- * do not contact them at all.
- */
-/**
- * What the agency staffs for, as opposed to which department somebody
- * belongs to.
- *
- * Discipline answers "mechanical or chemical". It does not answer
- * "can they weld", which is the question a recruiter is actually
- * asked. A person has several of these; a discipline is one.
- */
-function skills_list(bool $includeRetired = false): array
-{
-    static $cache = [];
-
-    $key = $includeRetired ? 'all' : 'active';
-
-    if (isset($cache[$key])) {
-        return $cache[$key];
-    }
-
-    try {
-        $found = rows('SELECT slug, label FROM skills'
-                      . ($includeRetired ? '' : ' WHERE is_active = 1')
-                      . ' ORDER BY sort_order, label');
-    } catch (Throwable $e) {
-        // Until the upgrade has run there is no list. An empty one
-        // would make every skill invalid and refuse every save.
-        return $cache[$key] = [];
-    }
-
-    $list = [];
-
-    foreach ($found as $row) {
-        $list[(string) $row['slug']] = (string) $row['label'];
-    }
-
-    return $cache[$key] = $list;
-}
-
-function rehire_states(): array
-{
-    return [
-        'review'     => 'Check before calling',
-        'eligible'   => 'Fine to call',
-        'ineligible' => 'No rehire',
-        'do_not_use' => 'DO NOT USE',
-    ];
-}
-
-/** The states that mean stop, for a filter and for a warning. */
-function rehire_blocked(): array
-{
-    return ['ineligible', 'do_not_use'];
-}
-
-/**
- * The red tag beside a name, or an empty string.
- *
- * Returned ready to print so that every list showing people shows the
- * same warning in the same place, rather than each screen deciding for
- * itself whether it is worth mentioning.
- */
-function rehire_tag(?string $status): string
-{
-    if ($status === null || ! in_array($status, rehire_blocked(), true)) {
-        return '';
-    }
-
-    return '<span class="tag red">'
-         . e(t(rehire_states()[$status]))
-         . '</span>';
-}
-
+/**
+ * Where a placement stands, in words and in colour.
+ *
+ * A placement status is not a candidate stage, and the two were being
+ * mixed: Manning coloured 'on_site' with stage_colour(), which knows
+ * nothing about it and returned grey for everything.
+ */
+function placement_word(string $status): string
+{
+    return [
+        'offered'    => 'Offered',
+        'confirmed'  => 'Confirmed',
+        'travelling' => 'Travelling',
+        'on_site'    => 'On site',
+        'completed'  => 'Completed',
+        'cancelled'  => 'Cancelled',
+    ][$status] ?? ucfirst(str_replace('_', ' ', $status));
+}
+
+function placement_tone(string $status): string
+{
+    return match ($status) {
+        'on_site'    => 'green',
+        'travelling' => 'amber',
+        'confirmed'  => 'blue',
+        'cancelled'  => 'red',
+        default      => 'grey',
+    };
+}
+
+/**
+ * Whether somebody can be called again.
+ *
+ * A flag nobody can see is the redlined spreadsheet with extra steps,
+ * so these have words, a colour, and a reason recorded against them.
+ * "No rehire" means do not put them back on a job. "Do not use" means
+ * do not contact them at all.
+ */
+/**
+ * What the agency staffs for, as opposed to which department somebody
+ * belongs to.
+ *
+ * Discipline answers "mechanical or chemical". It does not answer
+ * "can they weld", which is the question a recruiter is actually
+ * asked. A person has several of these; a discipline is one.
+ */
+function skills_list(bool $includeRetired = false): array
+{
+    static $cache = [];
+
+    $key = $includeRetired ? 'all' : 'active';
+
+    if (isset($cache[$key])) {
+        return $cache[$key];
+    }
+
+    try {
+        $found = rows('SELECT slug, label FROM skills'
+                      . ($includeRetired ? '' : ' WHERE is_active = 1')
+                      . ' ORDER BY sort_order, label');
+    } catch (Throwable $e) {
+        // Until the upgrade has run there is no list. An empty one
+        // would make every skill invalid and refuse every save.
+        return $cache[$key] = [];
+    }
+
+    $list = [];
+
+    foreach ($found as $row) {
+        $list[(string) $row['slug']] = (string) $row['label'];
+    }
+
+    return $cache[$key] = $list;
+}
+
+function rehire_states(): array
+{
+    return [
+        'review'     => 'Check before calling',
+        'eligible'   => 'Fine to call',
+        'ineligible' => 'No rehire',
+        'do_not_use' => 'DO NOT USE',
+    ];
+}
+
+/** The states that mean stop, for a filter and for a warning. */
+function rehire_blocked(): array
+{
+    return ['ineligible', 'do_not_use'];
+}
+
+/**
+ * The red tag beside a name, or an empty string.
+ *
+ * Returned ready to print so that every list showing people shows the
+ * same warning in the same place, rather than each screen deciding for
+ * itself whether it is worth mentioning.
+ */
+function rehire_tag(?string $status): string
+{
+    if ($status === null || ! in_array($status, rehire_blocked(), true)) {
+        return '';
+    }
+
+    return '<span class="tag red">'
+         . e(t(rehire_states()[$status]))
+         . '</span>';
+}
+
 function stage_colour(string $stage): string
 {
     return match ($stage) {

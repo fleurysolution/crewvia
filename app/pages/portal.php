@@ -83,6 +83,8 @@ foreach($applications as &$portalApp){
  require_once __DIR__.'/../offers.php';
  $portalApp['letter']=offer_letter((int)$portalApp['id']);
  $portalApp['signed']=row('SELECT signer_name,signed_at FROM offer_acceptances WHERE application_id=?',[(int)$portalApp['id']]);
+ // P5-M54: signing withdraws the other applications in progress; the letter says so before they sign.
+ $portalApp['others']=candidate_is_employee((int)$worker['id'])?0:(int)val("SELECT COUNT(*) FROM applications WHERE candidate_id=? AND id<>? AND stage IN ('new','screening','interview','offered')",[$worker['id'],(int)$portalApp['id']]);
 }
 unset($portalApp);
 // T10: how many open jobs fit this file and are not yet answered.
@@ -115,4 +117,5 @@ $adpReg=adp_reg_settings();$adpStatus=adp_reg_status((int)$worker['id']);
 $adpShow=$adpReg['code']!==''&&(bool)array_filter($assignments,static fn($a)=>in_array($a['status'],['confirmed','travelling','on_site'],true));
 if($adpShow&&!$adpStatus['adp_registered_at']){$extraWaiting[]=['#adp',t('Register with ADP to be paid'),'adp'];}
 if($tripAhead&&!$travelProfile){$extraWaiting[]=['#travel-details',t('Your travel details for the booking'),'travel'];}
-render('portal',compact('worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou','hotelCharges','home','extraWaiting','travelAdvice','travelProfile','tripAhead','adpReg','adpStatus','adpShow','clock'));
+$isCandidate=worker_is_candidate(user());
+render('portal',compact('isCandidate','worker','tasks','assignments','lodging','travel','routes','details','applications','jobsForYou','hotelCharges','home','extraWaiting','travelAdvice','travelProfile','tripAhead','adpReg','adpStatus','adpShow','clock'));

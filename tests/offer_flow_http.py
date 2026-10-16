@@ -92,7 +92,31 @@ check('The candidate declines the offer: withdrawn, with their reason, and the o
       st['stage'] == 'withdrawn' and any('Offer declined by the candidate. I took a day job nearer home.' in (n or '') for n in st['events'])
       and probe('offer_flow', 'staff-notes', 'declined the offer for') > 0, st)
 
+# P5-M54: a third application, with an interview to come, that signing will withdraw.
+v3 = probe('offer_flow', 'open-vacancy', wk['vA'], wk['vB'])
+p3 = '/hiring?v=%d&tab=matches' % v3
+rec.post('/hiring', {'do': 'add', 'vacancy_id': v3, 'candidate_id': offer['candidate_id'], 'back': p3}, p3)
+third = [a for a in probe('offer_flow', 'apps', QUINN) if a['vacancy_id'] == v3][0]
+p3 = '/hiring?v=%d&app=%d' % (v3, third['id'])
+who = re.findall(r'<select id="iv-who" name="interviewer_id">.*?<option value="(\d+)"', rec.get(p3)[1], re.S)
+import datetime
+rec.post('/hiring', {'do': 'interview_schedule', 'application_id': third['id'], 'interviewer_id': who[0], 'duration': 30, 'mode': 'phone', 'place': '',
+                     'interview_at': (datetime.datetime.now() + datetime.timedelta(days=6)).strftime('%Y-%m-%dT10:00'), 'back': p3}, p3)
+check('(a third application, with an interview to come)', third['stage'] == 'new' and probe('offer_flow', 'closed-items', third['id'])['interviews'] == ['scheduled'])
+
+status, body = quinn.get('/portal')
+nav = re.findall(r'href="(/[a-z-]+)"', body)
+check("A candidate's menu holds what a candidate does: no pay, attendance, time off or HR screens",
+      '/my-jobs' in nav and not ({'/my-payslips', '/attendance', '/timeoff', '/hr-records', '/benefits'} & set(nav)) and 'data-card="payslips"' not in body, sorted(set(nav)))
+status, body = quinn.get('/attendance')
+check('and those screens are refused, not only hidden', 'That part of the portal opens once you are hired.' in body and 'Welcome, Quinn Poster' in body)
+check('The letter says, before signing, that signing withdraws the other applications', ('id="offer-others-%d"' % offer['id']) in quinn.get('/portal')[1])
+
 status, body = quinn.post('/portal', {'do': 'accept_offer', 'application_id': offer['id'], 'consent': '1', 'signer_name': 'Quinn Poster'}, '/portal')
+st3 = probe('offer_flow', 'offer', third['id'])
+check('Signing withdraws the other applications in progress, saying why, and cancels their interviews',
+      st3['stage'] == 'withdrawn' and any('the candidate signed the offer for Walk machinist req' in (n or '') for n in st3['events'])
+      and probe('offer_flow', 'closed-items', third['id'])['interviews'] == ['cancelled'], [st3, probe('offer_flow', 'closed-items', third['id'])])
 st = probe('offer_flow', 'offer', offer['id'])
 check('Signing does not hire: still Offered, signed, waiting for the countersignature, no assignment yet',
       st['stage'] == 'offered' and st['signed'] and st['signed']['signer_name'] == 'Quinn Poster' and st['signed']['countersigned_at'] is None and st['placements'] == 0, st)
@@ -118,5 +142,7 @@ check('One countersignature hires them: Hired, countersigned by name, the assign
 check('They are told in their portal and by email', len(sent) == mails + 1 and 'you are hired for' in sent[-1]['subject'] and 'countersigned: you are hired' in sent[-1]['body'], sent[-1:])
 status, body = quinn.get('/portal')
 check('Their portal is now their employee portal', 'Employee portal' in body and 'Candidate portal' not in body)
+nav = re.findall(r'href="(/[a-z-]+)"', body)
+check('with the employee screens in the menu, and open', '/my-payslips' in nav and '/attendance' in nav and 'That part of the portal opens' not in quinn.get('/attendance')[1])
 
 json.dump(results, open('work/offer-http-results.json', 'w'), indent=1)

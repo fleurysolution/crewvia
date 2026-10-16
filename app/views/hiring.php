@@ -125,9 +125,11 @@ $hwScore = static function (?string $s): string {
     <?php endif; ?>
     <?php if (! empty($a['signed'])): $so = $a['signed']; ?>
     <div class="card <?= $so['countersigned_at'] ? '' : 'tone-alert' ?>" id="countersign">
-      <h3 class="m0"><?= $so['countersigned_at'] ? te('Offer signed and countersigned') : te('The candidate signed the offer: review it and countersign it') ?></h3>
+      <h3 class="m0"><?= $so['countersigned_at'] ? ($so['countersigned_by'] ? te('Offer signed and countersigned') : te('Offer signed')) : te('The candidate signed the offer: review it and countersign it') ?></h3>
       <p class="small m0 mt-s"><?= te('Signed by :name on :date.', ['name' => $so['signer_name'], 'date' => d(substr((string) $so['signed_at'], 0, 10))]) ?>
-        <?php if ($so['countersigned_at']): ?> <?= te('Countersigned by :name on :date.', ['name' => (string) $so['countersigner_name'], 'date' => d(substr((string) $so['countersigned_at'], 0, 10))]) ?><?php endif; ?></p>
+        <?php if ($so['countersigned_at'] && $so['countersigned_by']): ?> <?= te('Countersigned by :name on :date.', ['name' => (string) $so['countersigner_name'], 'date' => d(substr((string) $so['countersigned_at'], 0, 10))]) ?>
+        <?php elseif ($so['countersigned_at'] && str_starts_with((string) $so['countersigner_name'], 'Contract workflow')): ?> <?= te('Signed through the contract workflow, approved by the office before it was issued.') ?>
+        <?php elseif ($so['countersigned_at']): ?> <?= te('Hired on their signature, before the office countersigned offers (P5-M53).') ?><?php endif; ?></p>
       <details class="mt-s" <?= $so['countersigned_at'] ? '' : 'open' ?>><summary class="small"><?= te('What the candidate signed') ?></summary><div class="small" id="signed-offer-text"><?= nl2br(e((string) $so['offer_text'])) ?></div></details>
       <?php if (! $so['countersigned_at'] && $a['stage'] === 'offered'): ?>
       <form method="post" action="/hiring" class="mt-s" id="countersign-form"><?= csrf_field() ?><input type="hidden" name="do" value="countersign"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">

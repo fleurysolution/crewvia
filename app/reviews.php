@@ -60,6 +60,24 @@ function review_notify(int $userId, string $message, string $target): void
     q('INSERT INTO notifications (user_id, message, target) VALUES (?,?,?)', [$userId, mb_substr($message, 0, 255), $target]);
 }
 
+/**
+ * P5-M54: an application that is settled (rejected, withdrawn, hired) closes what was still open on it:
+ * a manager's review still waiting is taken back, an interview still to come is cancelled, and each
+ * person concerned is told, so nobody decides on, or waits for, somebody who is no longer in the running.
+ */
+function review_close_for_application(int $applicationId, int $by, string $why): void
+{
+    $who = (string) val('SELECT c.full_name FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE a.id = ?', [$applicationId]);
+    foreach (rows("SELECT id, reviewer_id FROM application_reviews WHERE application_id = ? AND status = 'pending'", [$applicationId]) as $r) {
+        q("UPDATE application_reviews SET status = 'withdrawn', decided_at = NOW(), decision_note = ? WHERE id = ?", [mb_substr($why, 0, 2000), (int) $r['id']]);
+        review_notify((int) $r['reviewer_id'], t('A review was taken back: nothing to decide') . ' (' . $who . ': ' . $why . ')', '/reviews');
+    }
+    foreach (rows("SELECT id, interviewer_id, scheduled_at FROM interviews WHERE application_id = ? AND status = 'scheduled'", [$applicationId]) as $i) {
+        q("UPDATE interviews SET status = 'cancelled' WHERE id = ?", [(int) $i['id']]);
+        review_notify((int) $i['interviewer_id'], t('Interview cancelled: :name, :date.', ['name' => $who, 'date' => date('D j M, g:i a', strtotime((string) $i['scheduled_at']))]) . ' ' . $why, '/reviews');
+    }
+}
+
 /** The recruiter passes a screened applicant to a manager. @return ?string an error */
 function review_request(int $applicationId, int $reviewerId, int $rating, string $recommendation, int $by): ?string
 {

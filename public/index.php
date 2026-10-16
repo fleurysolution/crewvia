@@ -111,6 +111,11 @@ if ($fresh['role']==='client' && !in_array($path,['/client-portal','/account','/
 }
 if ($fresh['role'] === 'supervisor' && !in_array($path,['/lateness','/select-project','/project-tasks','/project-board','/workload','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/reviews','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
 if ($fresh['role'] === 'worker' && !in_array($path, ['/lateness','/my-jobs','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/my-payslips','/appraisals','/performance','/benefits','/hr-records','/hr-requests','/self-service','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
+// P5-M54: a candidate (not placed yet) opens their applications, offers and papers; the employee screens wait until they are hired.
+if ($fresh['role'] === 'worker' && !in_array($path, candidate_paths(), true) && worker_is_candidate($fresh)) {
+    flash(t('That part of the portal opens once you are hired.'));
+    redirect('/portal');
+}
 
 if ($fresh['must_change_pw'] && $path !== '/account') redirect('/account');
 if (($config['commercial_mode'] ?? 'demo')==='subscription' && !empty($config['saas_enforce_subscription'])

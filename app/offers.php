@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/placement-rates.php';
 require_once __DIR__ . '/notices.php';
+require_once __DIR__ . '/reviews.php';
 
 /** The agency's general conditions printed on every offer letter (Settings), or ''. */
 function offer_conditions(): string
@@ -85,9 +86,31 @@ function offer_sign(int $applicationId, int $candidateId, int $userId, string $n
     q('INSERT INTO offer_acceptances (application_id, user_id, offer_text, offer_hash, signer_name) VALUES (?,?,?,?,?)', [$applicationId, $userId, $text, $hash, $name]);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)',
       [$applicationId, $userId, 'offered', 'Offer signed by the candidate (' . $name . '), waiting for the countersignature. Hash ' . $hash]);
-    notify_desks(['recruiter'], t(':name signed the offer for :job: review it and countersign it.', ['name' => $a['full_name'], 'job' => $a['title']]), offer_hiring_link($applicationId));
+    // P5-M54: committed to this job, a candidate (not an employee yet) is no longer in the running for the others.
+    // An employee already working with us may hold applications for their next assignments; those stay.
+    $others = candidate_is_employee($candidateId) ? 0 : offer_withdraw_others($applicationId, $candidateId, $userId, (string) $a['title']);
+    notify_desks(['recruiter'], t(':name signed the offer for :job: review it and countersign it.', ['name' => $a['full_name'], 'job' => $a['title']])
+        . ($others ? ' ' . tn($others, 'Their other application is withdrawn.', 'Their :n other applications are withdrawn.') : ''), offer_hiring_link($applicationId));
 
     return null;
+}
+
+/**
+ * P5-M54: the candidate signed an offer; their other open applications are withdrawn, each saying why,
+ * with the manager's reviews and the interviews still open on them closed. Returns how many.
+ */
+function offer_withdraw_others(int $applicationId, int $candidateId, int $by, string $job): int
+{
+    $others = rows("SELECT id FROM applications WHERE candidate_id = ? AND id <> ? AND stage IN ('new','screening','interview','offered') FOR UPDATE", [$candidateId, $applicationId]);
+    $why = t('Withdrawn: the candidate signed the offer for :job.', ['job' => $job]);
+    foreach ($others as $o) {
+        q("UPDATE applications SET stage = 'withdrawn' WHERE id = ?", [(int) $o['id']]);
+        candidate_follow_application((int) $o['id']);
+        q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [(int) $o['id'], $by, 'withdrawn', $why]);
+        review_close_for_application((int) $o['id'], $by, $why);
+    }
+
+    return count($others);
 }
 
 /** The candidate declines the offer. Returns why not, or null. */
@@ -102,6 +125,7 @@ function offer_decline(int $applicationId, int $candidateId, int $userId, string
     candidate_follow_application($applicationId);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)',
       [$applicationId, $userId, 'withdrawn', 'Offer declined by the candidate.' . ($reason !== '' ? ' ' . $reason : '')]);
+    review_close_for_application($applicationId, $userId, t('The candidate declined the offer.'));
     notify_desks(['recruiter'], t(':name declined the offer for :job.', ['name' => $a['full_name'], 'job' => $a['title']]) . ($reason !== '' ? ' ' . $reason : ''), offer_hiring_link($applicationId));
 
     return null;
@@ -126,6 +150,7 @@ function offer_countersign(int $applicationId, int $by, string $name, bool $revi
       [$applicationId, $by, 'accepted', 'Offer countersigned by ' . $name . '. Signed offer hash ' . $signed['offer_hash']]);
     $candidateId = (int) $a['candidate_id'];
     $jobId = (int) $a['job_id'];
+    review_close_for_application($applicationId, $by, t('Hired: the offer is signed and countersigned.'));
     $assignment = row("SELECT id FROM placements WHERE candidate_id = ? AND job_id = ? AND status NOT IN ('completed','cancelled')", [$candidateId, $jobId]);
     if (! $assignment) {
         $rates = placement_rates($jobId, (int) ($a['vacancy_id'] ?? 0) ?: null);
