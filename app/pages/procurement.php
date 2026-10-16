@@ -23,9 +23,8 @@ $jobId = (int) ($job['id'] ?? 0);
 
 // P4-M06: a supervisor sees the purchasing of a project they supervise a
 // crew on, or own the budget of; not of any project that happens to be live.
-if ((user()['role'] ?? '') === 'supervisor'
-    && ! val('SELECT COUNT(*) FROM placements p JOIN assignment_details d ON d.placement_id = p.id WHERE d.supervisor_id = ? AND p.job_id = ?', [uid(), $jobId])
-    && (int) val('SELECT budget_owner_id FROM jobs WHERE id = ?', [$jobId]) !== uid()) {
+// P5-M62: through supervised_job_ids(), so a project manager opens their project's purchasing too.
+if ((user()['role'] ?? '') === 'supervisor' && ! in_array($jobId, supervised_job_ids(uid()), true)) {
     refuse(403, t('Procurement is open to the supervisors of this project\'s crews.'));
 }
 

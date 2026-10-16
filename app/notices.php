@@ -34,7 +34,10 @@ function notify_candidate(int $candidateId, string $message, string $target = '/
 {
     $user = (int) val('SELECT user_id FROM worker_accounts WHERE candidate_id = ?', [$candidateId]);
     if ($user) {
-        notify_user($user, $message, $target);
+        // P5-M62: the person concerned is told about their own file whoever acts on it. The demonstration
+        // guard (notices_cross_demo) kept a real candidate's notice from them when a demonstration account
+        // (Owner Number 1, recruiter1) worked on their application, while their email still went out.
+        q('INSERT INTO notifications (user_id, message, target) VALUES (?, ?, ?)', [$user, mb_substr($message, 0, 250), mb_substr($target, 0, 190)]);
     }
 
     return $user > 0;

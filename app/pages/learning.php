@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   $incidentJob=(int)($_POST['job_id'] ?? $jobId);
   // P4-M06: a supervisor reports on a project they supervise a crew on; a worker on their own project.
   $allowed=$isWorker?row('SELECT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=? AND p.job_id=?',[uid(),$incidentJob])
-   :((user()['role']??'')==='supervisor'?row('SELECT p.id FROM placements p JOIN assignment_details d ON d.placement_id=p.id WHERE d.supervisor_id=? AND p.job_id=? LIMIT 1',[uid(),$incidentJob]):row('SELECT id FROM jobs WHERE id=?',[$incidentJob]));
+   :((user()['role']??'')==='supervisor'?in_array($incidentJob,supervised_job_ids(uid()),true) /* P5-M62 */:row('SELECT id FROM jobs WHERE id=?',[$incidentJob]));
   $severity=$_POST['severity'] ?? 'low';$desc=trim((string)($_POST['description'] ?? ''));
   if($allowed && $desc && in_array($severity,['low','medium','high'],true)) q('INSERT INTO safety_incidents(job_id,reported_by,description,severity) VALUES (?,?,?,?)',[$incidentJob,uid(),$desc,$severity]);
  }

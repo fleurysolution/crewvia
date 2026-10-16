@@ -125,6 +125,10 @@ check('The project board opens on their project, with the task they added', stat
 status, body = pm.get('/workload')
 check('and the workload counts it against them', status == 200 and 'Menu crawl supervisor' in body and 'Nobody has open tasks' not in body, re.sub(r'<[^>]+>', ' ', body)[-800:])
 
+for path, label in [('/procurement', 'purchasing'), ('/safety-plan', 'site safety plan')]:
+    status, body = pm.get(path)
+    check('The %s opens on their project (P5-M62)' % label, status == 200 and title in body, (status, body[:200]))
+
 sup = Client(); sup.login('wk-sup@test.invalid')
 status, body = sup.get('/my-team')
 check('A supervisor who manages no project sees no such section', status == 200 and 'data-managed=' not in body and 'My supervised team' in body)

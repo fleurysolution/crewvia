@@ -3,7 +3,7 @@ require_login();$own=is_worker_account();$supervisor=user()['role']==='superviso
 if(!$own&&!$supervisor)require_role('recruiter','hotels');
 $jobId=(int)($_GET['job_id']??$_POST['job_id']??current_job()['id']??0);
 if($own)$allowed=row('SELECT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE p.job_id=? AND w.user_id=?',[$jobId,uid()]);
-elseif($supervisor)$allowed=row('SELECT p.id FROM placements p JOIN assignment_details d ON d.placement_id=p.id WHERE p.job_id=? AND d.supervisor_id=?',[$jobId,uid()]);
+elseif($supervisor)$allowed=in_array($jobId,supervised_job_ids(uid()),true); // P5-M62: their crews' projects, their budgets, the projects they manage
 else $allowed=row('SELECT id FROM jobs WHERE id=?',[$jobId]);
 if($jobId&&!$allowed){refuse(404, t('Project unavailable.'));}
 if($_SERVER['REQUEST_METHOD']==='POST') {
@@ -14,5 +14,5 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     log_activity('updated safety plan','project',$jobId);redirect('/safety-plan?job_id='.$jobId);
 }
 $plan=$jobId?row('SELECT * FROM project_safety_plans WHERE job_id=?',[$jobId]):null;
-$jobs=$own?rows('SELECT DISTINCT j.id,j.title FROM jobs j JOIN placements p ON p.job_id=j.id JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=?',[uid()]):($supervisor?rows('SELECT DISTINCT j.id,j.title FROM jobs j JOIN placements p ON p.job_id=j.id JOIN assignment_details d ON d.placement_id=p.id WHERE d.supervisor_id=?',[uid()]):rows('SELECT id,title FROM jobs ORDER BY id DESC'));
+$jobs=$own?rows('SELECT DISTINCT j.id,j.title FROM jobs j JOIN placements p ON p.job_id=j.id JOIN worker_accounts w ON w.candidate_id=p.candidate_id WHERE w.user_id=?',[uid()]):($supervisor?(($sj=supervised_job_ids(uid()))?rows('SELECT id,title FROM jobs WHERE id IN ('.implode(',',$sj).') ORDER BY id DESC'):[]):rows('SELECT id,title FROM jobs ORDER BY id DESC'));
 render('safety-plan',compact('plan','jobId','jobs'));
