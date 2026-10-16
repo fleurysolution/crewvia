@@ -93,9 +93,10 @@ status, body = worker.get('/portal')
 check('The worker\'s tasks hold the forms, not a note', 'data-form-kind="w4"' in body and 'href="/tax-forms?fill=w4"' in body and 'href="/tax-forms?fill=i9"' in body
       and 'data-bank-task="' in body and 'Do not enter Social Security numbers' not in body, body[body.find('id="onboarding"'):][:600])
 check('The portal itself still asks for no Social Security number', 'name="ssn"' not in body)
-check('The bank account is typed twice, masked', re.search(r'name="account_number" type="password"', body) and 'data-secret-pair="tb-acct-' in body)
+check('No password field: the browser never puts a saved sign-in into a bank or SSN field', 'type="password"' not in body)
+check('The bank account is typed twice, masked', re.search(r'name="account_number" type="text" class="secret"', body) and 'data-secret-pair="tb-acct-' in body)
 status, body = worker.get('/tax-forms?fill=w4')
-check('The W-4: the SSN masked and typed twice', re.search(r'name="ssn" type="password"', body) and re.search(r'name="ssn_confirm" type="password"[^>]*data-secret-pair', body)
+check('The W-4: the SSN masked and typed twice', re.search(r'name="ssn" type="text" class="secret"', body) and re.search(r'name="ssn_confirm" type="text" class="secret"[^>]*data-secret-pair', body)
       and 'Under penalties of perjury' in body and '/assets/masked-fields.js' in body, body[:400])
 
 W4 = {'do': 'sign', 'form': 'w4', 'first_name': 'Walk', 'last_name': 'onsite', 'address': '12 Test Street', 'city': 'Gary', 'state': 'IN', 'zip': '46402',
@@ -156,7 +157,7 @@ I9 = {'do': 'sign', 'form': 'i9', 'first_name': 'Walk', 'last_name': 'onsite', '
       'birth_date': '1990-05-04', 'ssn': SSN, 'ssn_confirm': SSN, 'status': 'authorized', 'doc_type': 'i94', 'doc_number': I94, 'doc_number_confirm': I94,
       'work_until_na': '1', 'signer_name': 'Walk onsite', 'attest': '1'}
 status, body = worker.get('/tax-forms?fill=i9')
-check('The I-9: the SSN and the document number masked and typed twice', re.search(r'name="doc_number" type="password"', body) and re.search(r'name="doc_number_confirm" type="password"', body)
+check('The I-9: the SSN and the document number masked and typed twice', re.search(r'name="doc_number" type="text" class="secret"', body) and re.search(r'name="doc_number_confirm" type="text" class="secret"', body)
       and 'I attest, under penalty of perjury' in body)
 status, body = worker.post('/tax-forms', {**I9, 'doc_number_confirm': '12345678902'}, '/tax-forms?fill=i9')
 check('Two document numbers that differ: nothing is sent', 'The two document numbers differ' in body and len(probe()['forms']) == 2)

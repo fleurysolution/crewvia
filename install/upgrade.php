@@ -2657,4 +2657,37 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Forms in the portal: the worker fills in and signs the W-4 and Section 1 of the I-9 in their portal (the SSN masked and typed twice, the form encrypted); payroll checks the W-4, the office the I-9, on Change requests. The Direct deposit task holds the bank form. Requirements tied to their form: W-4 ' . (int) $w4 . ', I-9 ' . (int) $i9 . ', direct deposit ' . (int) $dd . '.' . PHP_EOL;
 }
 
+// ── P5-M64b: the W-4, I-9 and direct deposit tasks say the form is filled here; those approved without it reopen ──
+// The consignes still sent the worker to ADP or to "My details". Each requirement tied to a form whose
+// consigne is one of those earlier texts gets the new one (recorded as a change of the requirement).
+// Somebody still in onboarding (offered, confirmed, travelling) whose W-4 or I-9 task was approved with no
+// form signed here, or whose direct deposit task was approved with no bank details in use, gets the task
+// back: the owner, 17 Oct 2026, "the forms are filled by the employees, securely, on the platform".
+// Reversed by install/rollback/p5-m64.sql (the earlier consignes are in onboarding_requirement_events).
+if ((string) val("SELECT setting_value FROM platform_settings WHERE setting_key = 'p5_m64b_form_consignes'") !== '1') {
+    $consignes = [
+        'w4' => ['Complete Form W-4 through the payroll provider%', 'Fill in your Form W-4 here, in this task: "Fill in my W-4 here". Your Social Security number is masked as you type it and typed twice, and the form is encrypted. Payroll enters it with ADP and you are told here when it is accepted.'],
+        'i9' => ['Bring the original documents that prove your identity%', 'Fill in Section 1 of your Form I-9 here, in this task, no later than your first day: "Fill in Section 1 of my I-9 here". On your first day, bring the original documents that prove your identity and your authorization to work in the United States (see the list of acceptable documents on Form I-9): the office examines them and completes Section 2 with you. Do not upload these documents here.'],
+        'bank' => ['Enter your bank details for direct deposit in your portal%', 'Enter your bank details for direct deposit right here, in this task: the account number twice, and a photo of a voided check, or the direct deposit form or letter from your bank (a phone photo or a PDF), where the routing and account numbers can be read. Payroll compares them with what you typed before your pay goes there.'],
+    ];
+    $rewritten = 0;
+    foreach ($consignes as $kind => [$was, $now]) {
+        foreach (rows('SELECT * FROM onboarding_requirements WHERE form_kind = ? AND instructions LIKE ?', [$kind, $was]) as $old) {
+            q('UPDATE onboarding_requirements SET instructions = ? WHERE id = ?', [$now, (int) $old['id']]);
+            q('INSERT INTO onboarding_requirement_events (requirement_id, user_id, previous_json, current_json) VALUES (?,?,?,?)',
+              [(int) $old['id'], (int) val("SELECT id FROM users WHERE role = 'admin' AND is_active = 1 ORDER BY id LIMIT 1"), json_encode($old, JSON_THROW_ON_ERROR), json_encode(['instructions' => $now, 'by' => 'P5-M64b upgrade'], JSON_THROW_ON_ERROR)]);
+            $rewritten++;
+        }
+    }
+    $onboarding = "p.status IN ('offered','confirmed','travelling') AND t.status IN ('submitted','approved')";
+    $reopened = db()->exec("UPDATE onboarding_tasks t JOIN placements p ON p.id = t.placement_id JOIN onboarding_requirements r ON r.id = t.requirement_id
+        SET t.status = 'pending', t.reviewed_by = NULL, t.reviewed_at = NULL
+        WHERE $onboarding AND ((r.form_kind = 'w4' AND NOT EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = 'w4' AND f.status IN ('submitted','accepted')))
+           OR (r.form_kind = 'i9' AND NOT EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = 'i9' AND f.status IN ('submitted','accepted')))
+           OR (r.form_kind = 'bank' AND NOT EXISTS (SELECT 1 FROM worker_bank_details b WHERE b.candidate_id = p.candidate_id AND b.status = 'verified')
+                                    AND NOT EXISTS (SELECT 1 FROM worker_bank_change_requests b WHERE b.candidate_id = p.candidate_id AND b.status = 'pending')))");
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('p5_m64b_form_consignes', '1') ON DUPLICATE KEY UPDATE setting_value = '1'");
+    echo 'Form tasks: consignes rewritten to say the form is filled in the task: ' . $rewritten . '. Tasks reopened for people still in onboarding, approved without the form signed here: ' . (int) $reopened . '.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

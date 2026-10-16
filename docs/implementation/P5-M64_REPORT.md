@@ -190,3 +190,30 @@ The two older tests were adapted:
 
 **Full suite.** `SKIP_BROWSER=1 python tests/run_windows.py`: 3,843 PASS,
 0 failures (browser screenshots skipped).
+
+## P5-M64b — after the first day in production (17 Oct 2026)
+
+- **The portal broke on deploy.** The catch-up query compared two ENUM
+  columns across tables whose collations differ in production. Fixed by
+  comparing each form with its literal value (85cd492).
+- **The browser filled saved sign-ins into the bank fields.** Chrome put the
+  owner's email in "Routing number" and the saved password in "Account
+  number": the masked fields were password fields, which browsers read as a
+  sign-in form. The secrets are now text fields masked by style (`input.secret`,
+  `-webkit-text-security`), with a password field only where the browser has
+  no such style. The test checks that no page with these forms has a
+  password field.
+- **The consignes and the tasks.** The owner wants the forms filled by the
+  employees on the platform, those already in onboarding included. The
+  upgrade:
+  - rewrites the consignes of the W-4, I-9 and direct deposit requirements
+    that still sent the worker to ADP or to "My details" (a consigne the
+    office wrote itself is left alone; each change is recorded in
+    onboarding_requirement_events);
+  - reopens, for people still in onboarding (offered, confirmed, travelling),
+    the W-4 and I-9 tasks approved with no form signed here, and the direct
+    deposit tasks approved with no bank details in use. The crew already on
+    site is not asked again.
+
+  Checked on the test database: rewritten 1, custom text kept, task
+  reopened, the second upgrade silent.

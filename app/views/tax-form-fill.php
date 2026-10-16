@@ -7,11 +7,11 @@ $secret = static function (string $name, string $label, string $hint, bool $requ
     $id = 'tf-' . $name; ?>
   <div class="grid g2" data-secret="<?= e($name) ?>">
     <div><label for="<?= $id ?>"><?= e($label) ?></label>
-      <div class="row no-wrap"><input id="<?= $id ?>" name="<?= e($name) ?>" type="password" inputmode="<?= $pattern === 'digits' ? 'numeric' : 'text' ?>" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" <?= $required ? 'required' : '' ?>>
+      <div class="row no-wrap"><input id="<?= $id ?>" name="<?= e($name) ?>" type="text" class="secret" data-lpignore="true" data-1p-ignore inputmode="<?= $pattern === 'digits' ? 'numeric' : 'text' ?>" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" <?= $required ? 'required' : '' ?>>
       <button type="button" class="btn ghost sm" data-reveal="<?= $id ?>" data-show="<?= te('Show') ?>" data-hide="<?= te('Hide') ?>" aria-pressed="false"><?= te('Show') ?></button></div>
       <?php if ($hint !== ''): ?><p class="small muted m0"><?= e($hint) ?></p><?php endif; ?></div>
     <div><label for="<?= $id ?>2"><?= te('The same number, again') ?></label>
-      <input id="<?= $id ?>2" name="<?= e($name) ?>_confirm" type="password" inputmode="<?= $pattern === 'digits' ? 'numeric' : 'text' ?>" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" <?= $required ? 'required' : '' ?> data-secret-pair="<?= $id ?>">
+      <input id="<?= $id ?>2" name="<?= e($name) ?>_confirm" type="text" class="secret" data-lpignore="true" data-1p-ignore inputmode="<?= $pattern === 'digits' ? 'numeric' : 'text' ?>" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" <?= $required ? 'required' : '' ?> data-secret-pair="<?= $id ?>">
       <p id="<?= $id ?>2-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p></div>
   </div>
 <?php };

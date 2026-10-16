@@ -24,8 +24,8 @@
       <div><label for="bank-holder"><?= te('Name on the account') ?></label><input id="bank-holder" name="account_holder" required maxlength="190" value="<?= e($c['full_name']) ?>"></div>
       <div><label for="bank-name"><?= te('Bank') ?></label><input id="bank-name" name="bank_name" required maxlength="90"></div>
       <div><label for="bank-routing"><?= te('Routing number') ?></label><input id="bank-routing" name="routing_number" required inputmode="numeric" pattern="[0-9 ]{9,11}" autocomplete="off"></div>
-      <div><label for="bank-account"><?= te('Account number') ?></label><input id="bank-account" name="account_number" type="password" required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"></div>
-      <div><label for="bank-account2"><?= te('Account number, again') ?></label><input id="bank-account2" name="account_number_confirm" type="password" required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off" data-secret-pair="bank-account"><p id="bank-account2-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p></div>
+      <div><label for="bank-account"><?= te('Account number') ?></label><input id="bank-account" name="account_number" type="text" class="secret" data-lpignore="true" data-1p-ignore required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"></div>
+      <div><label for="bank-account2"><?= te('Account number, again') ?></label><input id="bank-account2" name="account_number_confirm" type="text" class="secret" data-lpignore="true" data-1p-ignore required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off" data-secret-pair="bank-account"><p id="bank-account2-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p></div>
       <div><label for="bank-proof"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="bank-proof" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
     </div>
     <p class="small muted"><?= te('A photo or a PDF where the routing and account numbers can be read. Payroll compares them with what you typed before your pay goes there, so a wrong digit never sends your pay to another account. Everything is encrypted as soon as it is sent; only the last four digits are ever shown.') ?></p>
@@ -172,12 +172,12 @@
       </div>
       <div>
         <label for="b-account"><?= te('Account number') ?></label>
-        <input id="b-account" name="account_number" type="password" maxlength="20" required
+        <input id="b-account" name="account_number" type="text" class="secret" data-lpignore="true" data-1p-ignore maxlength="20" required
                inputmode="numeric" autocomplete="off">
       </div>
       <div>
         <label for="b-account2"><?= te('Account number, again') ?></label>
-        <input id="b-account2" name="account_number_confirm" type="password" maxlength="20" required
+        <input id="b-account2" name="account_number_confirm" type="text" class="secret" data-lpignore="true" data-1p-ignore maxlength="20" required
                inputmode="numeric" autocomplete="off" data-secret-pair="b-account">
         <p id="b-account2-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p>
       </div>

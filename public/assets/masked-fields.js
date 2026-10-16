@@ -5,6 +5,12 @@
 //  - Parts of a form that apply only to some answers (data-when="name:value,value", data-unless) are
 //    shown with them; hidden, their fields are disabled, so they are neither required nor sent.
 (function () {
+  // Masked by style, not as password fields: a password field makes the browser offer the person's saved
+  // sign-in (their email in the field before it, their password in it). Without the style, a password field.
+  var masksByStyle = window.CSS && CSS.supports('-webkit-text-security', 'disc');
+  if (!masksByStyle) {
+    document.querySelectorAll('input.secret').forEach(function (i) { i.type = 'password'; i.autocomplete = 'new-password'; });
+  }
   var norm = function (v) { return v.replace(/[\s-]/g, '').toUpperCase(); };
   document.querySelectorAll('[data-secret-pair]').forEach(function (second) {
     var first = document.getElementById(second.dataset.secretPair);
@@ -22,8 +28,8 @@
   document.querySelectorAll('[data-reveal]').forEach(function (b) {
     b.addEventListener('click', function () {
       var i = document.getElementById(b.dataset.reveal);
-      var show = i.type === 'password';
-      i.type = show ? 'text' : 'password';
+      var show = masksByStyle ? !i.classList.contains('shown') : i.type === 'password';
+      if (masksByStyle) { i.classList.toggle('shown', show); } else { i.type = show ? 'text' : 'password'; }
       b.textContent = show ? b.dataset.hide : b.dataset.show;
       b.setAttribute('aria-pressed', show ? 'true' : 'false');
     });

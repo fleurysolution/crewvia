@@ -356,3 +356,6 @@ label.tick input{margin-top:.2rem;flex:none}
 .tax-form .g2,.tax-form .g3,[data-bank-task] .g2,#my-bank .g2{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}
 .tax-form .row.no-wrap>input,[data-bank-task] .row.no-wrap>input{flex:1 1 auto;min-width:0;width:auto}
 .tax-form .row.no-wrap>.btn,[data-bank-task] .row.no-wrap>.btn{flex:none;width:auto;min-width:0;padding-left:.75rem;padding-right:.75rem}
+/* P5-M64: a secret is masked by style (a password field would bring the browser's saved sign-in into it). */
+input.secret{-webkit-text-security:disc;text-security:disc;font-family:monospace}
+input.secret.shown{-webkit-text-security:none;text-security:none}

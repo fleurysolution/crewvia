@@ -10,3 +10,5 @@ ALTER TABLE employment_clearance DROP COLUMN w4_form_id, DROP COLUMN i9_form_id;
 ALTER TABLE onboarding_requirements DROP COLUMN form_kind;
 DROP TABLE worker_tax_form_access;
 DROP TABLE worker_tax_forms;
+-- P5-M64b: the consignes it rewrote stay (the earlier ones are in onboarding_requirement_events); its marker goes.
+DELETE FROM platform_settings WHERE setting_key = 'p5_m64b_form_consignes';
