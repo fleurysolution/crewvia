@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         log_activity('added a user', 'user', (int) db()->lastInsertId(), $name . ' (' . $role . ')');
         flash(t(':name added. Their temporary password is: :password', ['name'=>$name,'password'=>$temp]));
-        redirect('/people');
+        // P5-M57: back on the person just added, whatever page of the staff they fall on.
+        redirect('/people?tab=staff&q=' . rawurlencode($email));
     }
 
     if ($do === 'role') {
@@ -111,7 +112,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$team = rows('SELECT * FROM users ORDER BY FIELD(role,"admin","recruiter","hotels","payroll"), name');
+// P5-M57: the staff first, on their own tab, with the form to add somebody on top. The employees'
+// and clients' portal accounts (a thousand and more) have their own tabs, searched and paged; listed
+// all together, they buried the staff and the form under them, and "Add somebody" could not be found.
+const PEOPLE_STAFF = ['admin', 'recruiter', 'hotels', 'payroll', 'supervisor'];
+$peopleTab = in_array($_GET['tab'] ?? '', ['staff', 'clients', 'workers'], true) ? (string) $_GET['tab'] : 'staff';
+$peopleQ = trim((string) ($_GET['q'] ?? ''));
+$peoplePage = max(1, (int) ($_GET['page'] ?? 1));
+$tabWhere = ['staff' => "role IN ('admin','recruiter','hotels','payroll','supervisor')", 'clients' => "role = 'client'", 'workers' => "role = 'worker'"];
+$peopleCounts = [];
+foreach ($tabWhere as $k => $w) { $peopleCounts[$k] = (int) val('SELECT COUNT(*) FROM users WHERE ' . $w); }
+$where = $tabWhere[$peopleTab];
+$args = [];
+if ($peopleQ !== '') { $where .= ' AND (name LIKE ? OR email LIKE ?)'; $args = ['%' . $peopleQ . '%', '%' . $peopleQ . '%']; }
+$peopleFound = (int) val('SELECT COUNT(*) FROM users WHERE ' . $where, $args);
+$peoplePer = 100;
+$peoplePages = max(1, (int) ceil($peopleFound / $peoplePer));
+$peoplePage = min($peoplePage, $peoplePages);
+$team = rows('SELECT * FROM users WHERE ' . $where . ' ORDER BY is_active DESC, FIELD(role,"admin","recruiter","hotels","payroll","supervisor"), name LIMIT ' . $peoplePer . ' OFFSET ' . (($peoplePage - 1) * $peoplePer), $args);
+$staffDesks = array_intersect_key(roles(), array_flip(PEOPLE_STAFF));
 $lockedUntil = [];
 foreach ($team as $member) {
     if ($until = security_login_locked_until((string) $member['email'])) {
@@ -122,4 +141,4 @@ $recent = rows('SELECT a.*, u.name AS who FROM activity a LEFT JOIN users u ON u
                 ORDER BY a.id DESC LIMIT 25');
 
 $pageTitle = t('Team').' · '.$config['app_name'];
-render('people', compact('team','recent','lockedUntil'));
+render('people', compact('team','recent','lockedUntil','peopleTab','peopleQ','peoplePage','peoplePages','peopleFound','peopleCounts','staffDesks'));

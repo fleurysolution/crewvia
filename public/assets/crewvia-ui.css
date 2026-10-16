@@ -335,3 +335,9 @@ a.brand { text-decoration: none !important; color: inherit !important; }
 .offer-letter{border:1px solid var(--ui-line);border-radius:var(--ui-radius);padding:18px 20px;margin:10px 0;background:#fff}
 .offer-letter h4{margin:14px 0 6px}
 @media print{body.print-offer *{visibility:hidden}body.print-offer .offer-letter.printing,body.print-offer .offer-letter.printing *{visibility:visible}body.print-offer .offer-letter.printing{position:absolute;left:0;top:0;width:100%;border:0}body.print-offer .offer-letter .no-print{display:none}}
+/* P5-M57: a heading inside a summary stays on the summary's line. */
+summary .inline-title{display:inline}
+summary{cursor:pointer}
+/* P5-M57: a form laid out on a grid keeps its fields on one line; a row of buttons that must not break. */
+.form-grid>label{margin-top:0}
+.row.no-wrap{flex-wrap:nowrap}

@@ -87,7 +87,7 @@ check('A resignation leaves the portal open: they still read their pay and answe
 check('A termination decided outside the screens (as before this change) is not locked by the screens', Client().login('w3'))
 admin.post('/hr-records', {'do': 'separation', 'placement_id': P['w3'], 'reason': 'terminated', 'case_id': fx['case3'], 'separated_on': '2026-10-10', 'rehire': 'ineligible', 'detail': 'Repeated permit violations on the unit.'}, '/hr-records?candidate=%d' % C['w3'])
 check('A separation recorded as terminated locks it too', not active('w3') and not Client().login('w3'))
-status, body = admin.get('/people')
+status, body = admin.get('/people?tab=workers')  # P5-M57: portal accounts have their own tab
 check('People shows the account off, and an administrator can switch it back on', status == 200 and 'value="toggle"' in body)
 admin.post('/people', {'do': 'toggle', 'user_id': IDS['w']})
 check('Switched back on, the worker signs in again', active('w') and Client().login('w'))
