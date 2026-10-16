@@ -50,6 +50,12 @@
       box.hidden = !show;
       box.querySelectorAll('input,select,textarea').forEach(function (i) { i.disabled = !show; });
     });
+    form.querySelectorAll('[data-times]').forEach(function (out) {
+      var spec = out.dataset.times.split(':');
+      var e = form.querySelector('[name="' + spec[0] + '"]');
+      var n = e && !e.disabled ? (parseFloat(e.value) || 0) : 0;
+      out.textContent = '$' + (n * Number(spec[1])).toLocaleString('en-US');
+    });
     var total = form.querySelector('[data-step3-total]');
     if (total) {
       var n = function (k) { var e = form.querySelector('[name="' + k + '"]'); return e && !e.disabled ? (parseFloat(String(e.value).replace(/[,$\s]/g, '')) || 0) : 0; };

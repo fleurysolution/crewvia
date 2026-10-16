@@ -10,10 +10,31 @@
   - the Direct deposit task holds the bank form, typed twice with the proof, and closes when payroll accepts.
 Runs after project_manager_http.py (menu_crawl_db.php created the payroll account), on the walkthrough fixture.
 """
-import base64, http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
+import base64, html, http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
 
 base = 'http://127.0.0.1:8097'
 php = os.environ.get('PHP_BIN', 'php')
+node = os.environ.get('NODE_BIN', 'node')
+EMP_W4 = {'employer_name_address': 'RSS Test Inc., 1 Test Way, Gary, IN 46402', 'first_day': '2026-11-02', 'ein': '12-3456789'}
+S2 = {'s2_b1_title': "Driver's license issued by a State or outlying possession of the U.S.", 's2_b1_authority': 'Indiana BMV', 's2_b1_number': 'D123456789', 's2_b1_expires': '2030-05-04',
+      's2_c1_title': 'U.S. Social Security account number card (unrestricted)', 's2_c1_authority': 'SSA', 's2_c1_number': '', 's2_c1_expires': '',
+      'first_day': '2026-11-02', 's2_rep_name_title': 'Walk, Recruiter, HR coordinator', 's2_signature': 'Walk Recruiter',
+      's2_business_name': 'RSS Test Inc.', 's2_business_address': '1 Test Way, Gary, IN 46402'}
+
+
+def official(client, fid, label):
+    """The map the page gives the browser, filled into the official PDF by node, as official-form.js does."""
+    status, body = client.get('/tax-forms?id=%d' % fid)
+    m = re.search(r'<script type="application/json" id="tf-pdf-map">(.*?)</script>', body, re.S)
+    assert m, label + ': no official form map on the page'
+    mp = json.loads(m[1])
+    status, raw = client.open(base + mp['src'])
+    assert status == 200 and raw.startswith('%PDF'), label + ': the official blank form is not served'
+    open('work/tf-map.json', 'w', encoding='utf-8').write(json.dumps(mp))
+    out = subprocess.run([node, 'work/official_form_fill.cjs', 'work/test-app/public', 'work/tf-map.json', 'work/tf-%s.pdf' % label],
+                         capture_output=True, text=True, encoding='utf-8')
+    assert out.returncode == 0, label + ': ' + out.stderr[-600:]
+    return mp, json.loads(out.stdout.strip().splitlines()[-1])
 results = []
 CRLF = chr(13) + chr(10)
 PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')
@@ -146,7 +167,10 @@ check('The worker can fill it again from the task', 'href="/tax-forms?fill=w4"' 
 worker.post('/tax-forms', {**W4, 'address': '12B Test Street'}, '/tax-forms?fill=w4')
 w4b = probe()['forms'][-1]['id']
 payroll.get('/tax-forms?id=%d' % w4b)
-payroll.post('/tax-forms', {'do': 'decide', 'form_id': w4b, 'decision': 'accept', 'note': '', 'processed': '1'}, '/tax-forms?id=%d' % w4b)
+status, body = payroll.post('/tax-forms', {'do': 'decide', 'form_id': w4b, 'decision': 'accept', 'note': '', 'processed': '1', **EMP_W4, 'ein': '12-345'}, '/tax-forms?id=%d' % w4b)
+check('Accepting a W-4 needs the "Employers Only" box: a short EIN is refused, what was typed comes back',
+      'nine digits' in body and probe()['forms'][-1]['status'] == 'submitted' and 'RSS Test Inc., 1 Test Way' in body, body[:200])
+payroll.post('/tax-forms', {'do': 'decide', 'form_id': w4b, 'decision': 'accept', 'note': '', 'processed': '1', **EMP_W4}, '/tax-forms?id=%d' % w4b)
 p = probe()
 check('Accepted: the task closes by itself, the employment record says reviewed, the worker is told',
       [x['status'] for x in p['forms']] == ['returned', 'accepted'] and task('w4')['status'] == 'approved' and p['clearance']['w4_status'] == 'reviewed'
@@ -172,10 +196,40 @@ status, body = payroll.get('/tax-forms?id=%d' % i9['id'])
 check('Payroll does not open an I-9', status == 404 and I94 not in body, status)
 status, body = rec.get('/tax-forms?id=%d' % i9['id'])
 check('The office opens it in full while it waits', I94 in body and SSN in body and probe()['forms'][-1]['access'].count('opened') == 1)
-rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1'}, '/tax-forms?id=%d' % i9['id'])
+mp, filled = official(rec, i9['id'], 'i9')
+v = filled['values']
+check('The official I-9 (01/20/25) is filled with Section 1: names, address, birth date, SSN, box 4, the I-94 number, the signature',
+      mp['src'].endswith('i-9-01-20-25.pdf') and v['Last Name (Family Name)'] == 'onsite' and v['First Name Given Name'] == 'Walk' and v['Address Street Number and Name'] == '12B Test Street'
+      and v['Date of Birth mmddyyyy'] == '05/04/1990' and v['US Social Security Number'] == SSN and v['Form I94 Admission Number'] == I94 and v['Exp Date mmddyyyy'] == 'N/A'
+      and filled['checked'] == ['CB_4'] and mp['choices'] == {'State': 'IN'} and v['Signature of Employee'].startswith('/s/ Walk onsite'), (v, filled['checked']))
+status, body = rec.get('/tax-forms?id=%d' % i9['id'])
+check('Section 2 is on the page, word for word, with the lists of acceptable documents', 'Section 2. Employer Review and Verification' in body and 'U.S. Passport Card' in body
+      and html.unescape('I attest, under penalty of perjury, that (1) I have examined the documentation presented') in html.unescape(body))
+status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', **{**S2, 's2_c1_title': ''}}, '/tax-forms?id=%d' % i9['id'])
+check('Section 2 with a List B document and no List C is refused', 'one from List B and one from List C' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
+status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', **S2}, '/tax-forms?id=%d' % i9['id'])
+check('Section 2 without the certification ticked is refused', 'tick the certification' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
+rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', **S2}, '/tax-forms?id=%d' % i9['id'])
+p = probe()
+check('Section 2 completed: the employment record says employer completed, first day 11/02, review due three business days later',
+      p['clearance']['i9_status'] == 'employer_completed' and p['clearance']['first_day'] == '2026-11-02' and p['clearance']['review_due_on'] == '2026-11-05'
+      and 'D123456789' not in json.dumps(p['forms'][-1]['employer_raw']), p['clearance'])
 check('Accepted: the I-9 task closes', probe()['forms'][-1]['status'] == 'accepted' and task('i9')['status'] == 'approved')
 status, body = rec.get('/tax-forms?id=%d' % i9['id'])
 check('Once accepted, the office no longer opens it (identity documents, P5-M33)', status == 404 and I94 not in body, status)
+
+# ── P5-M64c: the official forms, filled ───────────────────────────────────
+mp, filled = official(payroll, w4b, 'w4')
+P = 'topmostSubform[0].Page1[0].'
+v = filled['values']
+check('The official 2026 W-4 is filled from the record: name, address, SSN, Step 3, 4(c), the employer box',
+      mp['src'].endswith('fw4-2026.pdf') and v[P + 'Step1a[0].f1_01[0]'] == 'Walk' and v[P + 'Step1a[0].f1_02[0]'] == 'onsite'
+      and v[P + 'Step1a[0].f1_03[0]'] == '12B Test Street' and v[P + 'Step1a[0].f1_04[0]'] == 'Gary, IN 46402' and v[P + 'f1_05[0]'] == '212-55-1234'
+      and v[P + 'Step3_ReadOrder[0].f1_06[0]'] == '2,200.00' and v[P + 'f1_08[0]'] == '2,200.00' and v[P + 'f1_11[0]'] == '20.00'
+      and v[P + 'f1_12[0]'] == EMP_W4['employer_name_address'] and v[P + 'f1_13[0]'] == '11/02/2026' and v[P + 'f1_14[0]'] == '12-3456789'
+      and filled['checked'] == [P + 'c1_1[0]'] and filled['fields_left'] == 0 and any('/s/ Walk onsite' in d['text'] for d in mp['draw']), (v, filled['checked']))
+mp, filled = official(worker, w4b, 'w4-own')
+check('The worker\'s own copy of the official W-4 shows the SSN by its last four only', filled['values'][P + 'f1_05[0]'] == 'XXX-XX-1234' and SSN not in json.dumps(mp))
 
 # ── direct deposit, in the task ───────────────────────────────────────────
 check('No bank details on file yet for the worker', not probe()['bank_verified'])
@@ -193,6 +247,6 @@ status, body = worker.get('/portal')
 check('The portal shows the account in use by its last four, and no form any more', 'account ending 1111' in body and 'data-bank-task="' not in body and '555500001111' not in body)
 
 status, body = worker.get('/tax-forms?fill=w4&lang=fr')
-check('The forms are translated into French', 'Numéro de sécurité sociale' in body and 'Under penalties of perjury' in body)
+check('The help is in French, the official wording stays as on the form', 'numéro de sécurité sociale' in body and 'Under penalties of perjury' in body and 'Step 1: Enter Personal Information' in body)
 
 json.dump(results, open('work/tax-forms-results.json', 'w'), indent=1)

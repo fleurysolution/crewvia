@@ -217,3 +217,76 @@ The two older tests were adapted:
 
   Checked on the test database: rewritten 1, custom text kept, task
   reopened, the second upgrade silent.
+
+## P5-M64c — the official forms themselves (17 Oct 2026)
+
+The owner: the I-9 and the W-4 must be exactly as the IRS and USCIS publish
+them, filled from what the employee signed.
+
+**The official blank forms are in the repository, as published.** They sit
+in `public/assets/forms/` (see SOURCES.txt):
+- Form W-4 (2026), created 12/8/25, from irs.gov;
+- Form I-9, Edition 01/20/25 (expires 05/31/2027), from uscis.gov.
+
+**"The official W-4 / I-9, filled (PDF)"** on an opened form fills the
+published PDF's own fields in the browser and downloads it.
+- It uses pdf-lib 1.17.1, MIT, vendored. Its integrity was checked against
+  the npm registry.
+- The form's XFA copy is removed, the fields are flattened, and nothing is
+  sent anywhere.
+- The typed signature is drawn on the W-4's signature line, which has no field.
+- The W-4's boxes have no visible "on" look in the IRS file, so a ✕ is drawn
+  in each one ticked.
+- The worker's own copy shows the SSN as XXX-XX-1234.
+
+**Word for word.** The fill-in screens carry the official English wording:
+- **W-4**: steps 1 to 5, the TIP, the Caution, Step 2 (a)(b)(c), Step 3(a)(b)
+  with 3(a)/3(b) computed, Step 4(a)(b)(c), and the 2026 exemption line in
+  its place before Step 5.
+- **I-9**: START HERE, the ANTI-DISCRIMINATION NOTICE, Section 1 in the
+  form's order (last name first), the four boxes as printed ("4. An alien
+  authorized to work until (exp. date, if any)"), and the state list of the
+  form.
+
+A short help in the reader's language stays under the official wording.
+
+**The employer's parts, in Crewvia.**
+- **W-4 "Employers Only"**: payroll gives the employer's name and address,
+  the first date of employment and the EIN (nine digits) when accepting. They
+  are remembered for the next W-4.
+- **I-9 Section 2**: the office completes it when accepting, with the person
+  and the original documents in front of it:
+  - one document from List A, or one from List B and one from List C (the
+    lists of acceptable documents are suggested);
+  - additional information;
+  - the alternative procedure box;
+  - the first day;
+  - the name and title of who examined the documents, with their typed
+    signature and the certification word for word;
+  - the business name and address.
+
+  The employment record then says "employer completed", with the review due
+  three business days after the first day.
+- **Storage**: the employer's part is encrypted (`encrypted_employer`,
+  rotated with the key).
+- **Supplement A**: it takes the preparer's last name, first name and middle
+  initial, and their address, city, state and ZIP. The form says its signature
+  "cannot be signed electronically": the office prints page 3 for the preparer
+  to sign in ink, and Crewvia says so.
+
+**Each year.** Check irs.gov in January for the new W-4, and uscis.gov/i-9
+for a new I-9 edition. Replace the file, update its name in `TF_PDF`, and
+run the test: it fills the real PDF and fails on any field name that has
+changed.
+
+**Tests** (tax_forms_http.py, now 45 checks):
+- **W-4, official PDF**: every field is filled from the record, including the
+  employer box. The node script fills the real official PDF with the page's
+  map, exactly as the browser does.
+- **Worker's copy**: their copy shows only the last four.
+- **I-9, official PDF**: the Section 1 fields are filled.
+- **Section 2**: it is on the page word for word. It is refused with List B
+  and no List C, and refused without the certification. Once completed, the
+  employment record says employer completed and the review is due 3 business
+  days later. No document number can be read in storage.
+- **W-4 refusals**: a short EIN is refused, and what was typed comes back.

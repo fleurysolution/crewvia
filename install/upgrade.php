@@ -2690,4 +2690,11 @@ if ((string) val("SELECT setting_value FROM platform_settings WHERE setting_key 
     echo 'Form tasks: consignes rewritten to say the form is filled in the task: ' . $rewritten . '. Tasks reopened for people still in onboarding, approved without the form signed here: ' . (int) $reopened . '.' . PHP_EOL;
 }
 
+// ── P5-M64c: the employer's part of the official forms (W-4 "Employers Only", I-9 Section 2), encrypted ──
+// Reversed by install/rollback/p5-m64.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='worker_tax_forms' AND column_name='encrypted_employer'")) {
+    q('ALTER TABLE worker_tax_forms ADD COLUMN encrypted_employer MEDIUMTEXT NULL');
+    echo 'Official forms: payroll completes the W-4 "Employers Only" box, the office Section 2 of the I-9 in Crewvia; the official IRS and USCIS PDFs are filled from the record.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

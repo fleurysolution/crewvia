@@ -6,6 +6,7 @@
 --     every form first (Change requests, or /tax-forms?id=N), and keep them with the employment records.
 --   * The earlier code does not know the forms: the onboarding tasks go back to a completion note.
 
+-- P5-M64c (dropped with the table below): worker_tax_forms.encrypted_employer.
 ALTER TABLE employment_clearance DROP COLUMN w4_form_id, DROP COLUMN i9_form_id;
 ALTER TABLE onboarding_requirements DROP COLUMN form_kind;
 DROP TABLE worker_tax_form_access;

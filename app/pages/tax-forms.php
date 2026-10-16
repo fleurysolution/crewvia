@@ -39,9 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $id = (int) ($_POST['form_id'] ?? 0);
         db()->beginTransaction();
-        $why = tf_decide($id, (string) ($_POST['decision'] ?? ''), (string) ($_POST['note'] ?? ''), uid(), isset($_POST['processed']));
+        $why = tf_decide($id, (string) ($_POST['decision'] ?? ''), (string) ($_POST['note'] ?? ''), uid(), isset($_POST['processed']), $_POST);
         if ($why !== null) {
             db()->rollBack();
+            // What the office typed in Section 2 (or payroll in "Employers Only") comes back, kept in the session only.
+            $_SESSION['tf_decide_old'][$id] = array_map(static fn($v) => is_string($v) ? mb_substr($v, 0, 1000) : '', array_diff_key($_POST, ['_csrf' => 1]));
             refuse(422, $why, '/tax-forms?id=' . $id);
         }
         db()->commit();
@@ -63,8 +65,13 @@ if (isset($_GET['id'])) {
     $reviewer = $tf['reviewed_by'] ? (string) val('SELECT name FROM users WHERE id = ?', [(int) $tf['reviewed_by']]) : '';
     $firstDay = (string) val("SELECT MIN(start_date) FROM placements WHERE candidate_id = ? AND status IN ('confirmed','travelling','on_site','completed')", [(int) $tf['candidate_id']]);
     $canDecide = ! $own && $tf['status'] === 'submitted' && can(tf_forms()[$tf['form']]['desk']);
+    // P5-M64c: the official form, filled in the browser from this record; the employer's part once accepted.
+    $pdf = $tf['intact'] ? tf_pdf_map($tf, $tf['employer'], $own) : null;
+    $empDefaults = tf_employer_defaults();
+    $decideOld = $_SESSION['tf_decide_old'][(int) $tf['id']] ?? [];
+    unset($_SESSION['tf_decide_old'][(int) $tf['id']]);
     $pageTitle = tf_forms()[$tf['form']]['short'] . ' · ' . $tf['full_name'];
-    render('tax-form-show', compact('tf', 'own', 'reviewer', 'firstDay', 'canDecide'));
+    render('tax-form-show', compact('tf', 'own', 'reviewer', 'firstDay', 'canDecide', 'pdf', 'empDefaults', 'decideOld'));
     exit;
 }
 

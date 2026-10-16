@@ -1,0 +1,11 @@
+Official blank forms, kept exactly as published (US government works, not under copyright).
+P5-M64c fills them in the browser from what the worker signed (public/assets/official-form.js).
+
+fw4-2026.pdf       Form W-4 (2026), Created 12/8/25    https://www.irs.gov/pub/irs-pdf/fw4.pdf          downloaded 2026-10-16
+i-9-01-20-25.pdf   Form I-9, Edition 01/20/25          https://www.uscis.gov/sites/default/files/document/forms/i-9.pdf   downloaded 2026-10-16
+
+pdf-lib.min.js: pdf-lib 1.17.1 (MIT, pdf-lib.LICENSE.md), from the npm registry,
+sha512-V/mpyJAoTsN4cnP31vc0wfNA1+p20evqqnap0KLoRUN0Yk/p3wN52DOEsL4oBFcLdb76hlpKPtzJIgo67j/XLw== (the published integrity).
+
+Check each January for a new W-4, and on uscis.gov/i-9 for a new I-9 edition: replace the file, its
+name in TF_PDF (app/tax-forms.php), and check the field names still match tf_pdf_map().

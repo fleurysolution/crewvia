@@ -10,7 +10,7 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
 ?>
 <div class="page-head no-print"><div><h1><?= e(tf_forms()[$tf['form']]['name']) ?> · <?= e($tf['full_name']) ?></h1>
   <p class="sub"><?= $own ? te('What you signed. The full numbers are shown only to payroll and the office.') : te('Opened in full: this look is recorded. Print it or save it as PDF from the browser for the employment file.') ?></p></div>
-  <div class="actions"><button type="button" class="btn ghost" onclick="window.print()"><?= te('Print') ?></button><a class="btn ghost" href="<?= $own ? '/portal#onboarding' : '/change-requests#tax-forms' ?>"><?= te('Back') ?></a></div></div>
+  <div class="actions"><?php if ($pdf): ?><button type="button" class="btn" data-official-pdf="tf-pdf-map"><?= $tf['form'] === 'w4' ? te('The official W-4, filled (PDF)') : te('The official I-9, filled (PDF)') ?></button><?php endif; ?><button type="button" class="btn ghost" onclick="window.print()"><?= te('Print') ?></button><a class="btn ghost" href="<?= $own ? '/portal#onboarding' : '/change-requests#tax-forms' ?>"><?= te('Back') ?></a></div></div>
 
 <div class="tf-sheet">
 <?php if (! $tf['intact']): ?><div class="card"><p class="t-red" data-tax-form-broken="1"><strong><?= te('This form cannot be read, or it no longer matches what was signed. Do not use it: ask the worker to sign it again, and tell an administrator.') ?></strong></p></div><?php endif; ?>
@@ -59,13 +59,61 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
   <p><?= te('Signed electronically by :name on :date, from their own account in the portal.', ['name' => $tf['signer_name'], 'date' => date('m/d/Y g:i a', strtotime((string) $tf['signed_at']))]) ?></p>
   <?php if (! $own): ?><p class="small muted mono"><?= te('Address :ip · record :hash', ['ip' => (string) $tf['signer_ip'], 'hash' => substr((string) $tf['payload_hash'], 0, 16)]) ?> · <?= $tf['intact'] ? te('matches what was signed') : te('does not match') ?></p><?php endif; ?>
 </div>
+<?php if (! empty($tf['employer'])): $em = $tf['employer']; ?>
+<div class="card" data-employer-part="1"><h2><?= $tf['form'] === 'w4' ? e('Employers Only') : e('Section 2. Employer Review and Verification') ?></h2>
+  <?php if ($tf['form'] === 'w4'): ?>
+  <p><?= e($em['name_address']) ?> · <?= te('First date of employment') ?>: <?= e(d($em['first_day'])) ?> · EIN <?= e($em['ein']) ?></p>
+  <?php else: ?>
+  <table><?php foreach ($em['list_a'] ?: [$em['list_b'], $em['list_c']] as $i => $doc): ?><tr><td class="muted"><?= $em['list_a'] ? 'List A' : ($i === 0 ? 'List B' : 'List C') ?></td><td><?= e($doc['title'] . ' · ' . $doc['authority'] . ' · ' . ($doc['number'] !== '' ? ($own ? '•••••' . substr($doc['number'], -4) : $doc['number']) : 'N/A') . ' · ' . ($doc['expires'] !== '' ? d($doc['expires']) : 'N/A')) ?></td></tr><?php endforeach; ?>
+    <tr><td class="muted"><?= te('First day of employment') ?></td><td><?= e(d($em['first_day'])) ?></td></tr>
+    <tr><td class="muted"><?= te('Examined by') ?></td><td><?= e($em['rep_name_title']) ?> · /s/ <?= e($em['signature']) ?> · <?= e(d($em['signed_on'])) ?><?= ! empty($em['alternative']) ? ' · ' . te('alternative procedure authorized by DHS') : '' ?></td></tr>
+    <tr><td class="muted"><?= te('Employer') ?></td><td><?= e($em['business_name'] . ', ' . $em['business_address']) ?></td></tr>
+    <?php if ($em['additional'] !== ''): ?><tr><td class="muted"><?= te('Additional Information') ?></td><td><?= e($em['additional']) ?></td></tr><?php endif; ?></table>
+  <?php endif; ?>
 </div>
+<?php endif; ?>
+</div>
+<?php if ($pdf): ?><script type="application/json" id="tf-pdf-map"><?= json_encode($pdf, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?></script>
+<p class="small muted no-print" id="tf-pdf-status" aria-live="polite" data-wait="<?= te('Filling the official form…') ?>" data-fail="<?= te('The official form could not be filled in this browser. Print this page instead.') ?>"><?= te('The official form, as published (:edition), filled from what was signed.', ['edition' => TF_PDF[$tf['form']][1]]) ?></p>
+<script src="/assets/pdf-lib.min.js"></script><script src="/assets/official-form.js"></script><?php endif; ?>
 
-<?php if ($canDecide): ?>
+<?php if ($canDecide): $o = $decideOld; $ov = static fn($k, $def = '') => e((string) ($o[$k] ?? $def)); ?>
 <form class="card no-print" method="post" action="/tax-forms" id="decide"><?= csrf_field() ?><input type="hidden" name="do" value="decide"><input type="hidden" name="form_id" value="<?= (int) $tf['id'] ?>">
   <h2><?= te('Decide') ?></h2>
-  <label class="tick"><input class="w-auto" type="checkbox" name="processed" value="1"> <?= $tf['form'] === 'w4' ? te('I entered this W-4 in ADP') : te('Section 1 is complete and legible; Section 2 is done with the person and their original documents, within three business days of the first day') ?></label>
-  <label for="tf-note"><?= te('Note (needed to send it back: say what to correct)') ?></label><input id="tf-note" name="note" maxlength="500">
+  <?php if ($tf['form'] === 'w4'): ?>
+  <h3>Employers Only</h3>
+  <div class="grid g3">
+    <div><label for="em-na"><?= te('Employer\'s name and address') ?></label><input id="em-na" name="employer_name_address" maxlength="250" value="<?= $ov('employer_name_address', $empDefaults['name_address']) ?>"></div>
+    <div><label for="em-first"><?= te('First date of employment') ?></label><input id="em-first" name="first_day" type="date" value="<?= $ov('first_day', $firstDay) ?>"></div>
+    <div><label for="em-ein"><?= te('Employer identification number (EIN)') ?></label><input id="em-ein" name="ein" maxlength="10" placeholder="12-3456789" value="<?= $ov('ein', $empDefaults['ein']) ?>"></div>
+  </div>
+  <label class="tick"><input class="w-auto" type="checkbox" name="processed" value="1"> <?= te('I entered this W-4 in ADP') ?></label>
+  <?php else: $docs = tf_i9_documents(); ?>
+  <h3>Section 2. Employer Review and Verification</h3>
+  <p class="small muted"><?= te('With the person and their original documents in front of you, within three business days of their first day: one document from List A, OR one from List B AND one from List C. Accept only an unexpired original.') ?></p>
+  <?php foreach (['A' => [1, 2, 3], 'B' => [1], 'C' => [1]] as $list => $rows): ?><datalist id="docs-<?= $list ?>"><?php foreach ($docs[$list] as $t): ?><option value="<?= e($t) ?>"><?php endforeach; ?></datalist><?php endforeach; ?>
+  <?php foreach ([['a', 1, 'List A', 'A'], ['a', 2, 'List A · Document 2 (if any)', 'A'], ['a', 3, 'List A · Document 3 (if any)', 'A'], ['b', 1, 'OR List B', 'B'], ['c', 1, 'AND List C', 'C']] as [$l, $n, $label, $list]): $k = "s2_{$l}{$n}_"; ?>
+  <fieldset class="tax-form"><legend><?= e($label) ?></legend><div class="grid g3">
+    <div><label for="<?= $k ?>t"><?= e('Document Title') ?></label><input id="<?= $k ?>t" name="<?= $k ?>title" list="docs-<?= $list ?>" maxlength="190" value="<?= $ov($k . 'title') ?>"></div>
+    <div><label for="<?= $k ?>a"><?= e('Issuing Authority') ?></label><input id="<?= $k ?>a" name="<?= $k ?>authority" maxlength="190" value="<?= $ov($k . 'authority') ?>"></div>
+    <div><label for="<?= $k ?>n"><?= e('Document Number (if any)') ?></label><input id="<?= $k ?>n" name="<?= $k ?>number" maxlength="60" autocomplete="off" value="<?= $ov($k . 'number') ?>"></div>
+    <div><label for="<?= $k ?>x"><?= e('Expiration Date (if any)') ?></label><input id="<?= $k ?>x" name="<?= $k ?>expires" type="date" value="<?= $ov($k . 'expires') ?>"></div>
+  </div></fieldset>
+  <?php endforeach; ?>
+  <label for="s2-add"><?= e('Additional Information') ?></label><textarea id="s2-add" name="s2_additional" maxlength="1000"><?= $ov('s2_additional') ?></textarea>
+  <label class="tick"><input class="w-auto" type="checkbox" name="s2_alternative" value="1" <?= ! empty($o['s2_alternative']) ? 'checked' : '' ?>> <?= e('Check here if you used an alternative procedure authorized by DHS to examine documents.') ?></label>
+  <div class="grid g3">
+    <div><label for="s2-first"><?= e('First Day of Employment (mm/dd/yyyy)') ?></label><input id="s2-first" name="first_day" type="date" value="<?= $ov('first_day', $firstDay) ?>"></div>
+    <div><label for="s2-rep"><?= e('Last Name, First Name and Title of Employer or Authorized Representative') ?></label><input id="s2-rep" name="s2_rep_name_title" maxlength="190" value="<?= $ov('s2_rep_name_title') ?>"></div>
+    <div><label for="s2-sig"><?= te('Your signature: type your first and last name') ?></label><input id="s2-sig" name="s2_signature" maxlength="190" autocomplete="off" value="<?= $ov('s2_signature') ?>"></div>
+    <div><label for="s2-bn"><?= e('Employer\'s Business or Organization Name') ?></label><input id="s2-bn" name="s2_business_name" maxlength="190" value="<?= $ov('s2_business_name', $empDefaults['business_name']) ?>"></div>
+    <div><label for="s2-ba"><?= e('Employer\'s Business or Organization Address, City or Town, State, ZIP Code') ?></label><input id="s2-ba" name="s2_business_address" maxlength="250" value="<?= $ov('s2_business_address', $empDefaults['business_address']) ?>"></div>
+  </div>
+  <p class="small" lang="en"><strong>Certification: <?= e(TF_I9_S2_ATTEST) ?></strong></p>
+  <label class="tick"><input class="w-auto" type="checkbox" name="processed" value="1"> <?= te('I certify it, and I sign Section 2') ?></label>
+  <?php if (! empty($d['preparer'])): ?><p class="small t-red"><?= te('A preparer or translator helped: print the official I-9 and have them sign Supplement A (page 3) in ink.') ?></p><?php endif; ?>
+  <?php endif; ?>
+  <label for="tf-note"><?= te('Note (needed to send it back: say what to correct)') ?></label><input id="tf-note" name="note" maxlength="500" value="<?= $ov('note') ?>">
   <div class="row mt-s"><button class="btn" name="decision" value="accept"><?= te('Accept') ?></button><button class="btn ghost" name="decision" value="return"><?= te('Send back to the worker') ?></button></div>
 </form>
 <?php endif; ?>

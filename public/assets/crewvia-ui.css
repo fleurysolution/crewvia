@@ -359,3 +359,5 @@ label.tick input{margin-top:.2rem;flex:none}
 /* P5-M64: a secret is masked by style (a password field would bring the browser's saved sign-in into it). */
 input.secret{-webkit-text-security:disc;text-security:disc;font-family:monospace}
 input.secret.shown{-webkit-text-security:none;text-security:none}
+.card.official h2{font-size:1.05rem}
+.official-head{border-bottom:2px solid currentColor;padding-bottom:.4rem;margin-top:0}
