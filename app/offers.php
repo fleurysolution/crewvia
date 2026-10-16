@@ -160,7 +160,8 @@ function offer_countersign(int $applicationId, int $by, string $name, bool $revi
         require_once __DIR__ . '/procurement.php';
         procurement_request_lodging_for((int) $assignment['id']);
     }
-    q('INSERT IGNORE INTO onboarding_tasks (placement_id, requirement_id) SELECT ?, id FROM onboarding_requirements WHERE job_id = ?', [$assignment['id'], $jobId]);
+    require_once __DIR__ . '/onboarding-tasks.php';
+    onboarding_sync('p.id = ?', [$assignment['id']]);
     notify_desks(['recruiter'], t('Offer countersigned; onboarding started'), '/onboarding', $by);
     candidate_tell($candidateId, t('you are hired for :job', ['job' => $a['title']]),
                    t('Your offer for :job is countersigned: you are hired. Your next steps are in your portal.', ['job' => $a['title']]), '/portal');

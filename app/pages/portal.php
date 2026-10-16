@@ -7,7 +7,7 @@ $worker=row('SELECT c.* FROM worker_accounts w JOIN candidates c ON c.id=w.candi
 // password signed in successfully and landed on a white page with no
 // menu and nothing to click. Say what is missing instead.
 if(!$worker) { render('unlinked', []); exit; }
-q('INSERT IGNORE INTO onboarding_tasks(placement_id,requirement_id) SELECT p.id,r.id FROM placements p JOIN onboarding_requirements r ON r.job_id=p.job_id WHERE p.candidate_id=?',[$worker['id']]);
+require_once __DIR__.'/../onboarding-tasks.php';onboarding_sync('p.candidate_id = ?',[$worker['id']]);
 if($_SERVER['REQUEST_METHOD']==='POST') {
  if(($_POST['do'] ?? '')==='accept_offer') {
   $aid=(int)($_POST['application_id'] ?? 0);

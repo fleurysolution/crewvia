@@ -24,7 +24,8 @@ q("INSERT INTO jobs(client_id,title,status,headcount_target) VALUES (?,'P5-M21 h
 $job = (int) db()->lastInsertId();
 q("INSERT INTO vacancies(job_id,title,description,is_open,openings) VALUES (?,'P5-M21 fitter','Synthetic.',1,5)", [$job]);
 $vacancy = (int) db()->lastInsertId();
-q("INSERT INTO onboarding_requirements(job_id,title,instructions) VALUES (?,'P5-M21 orientation','Watch the site video.')", [$job]);
+// P5-M55: the worker here is on site already, so the requirement is one meant for the crew on site too.
+q("INSERT INTO onboarding_requirements(job_id,title,instructions,for_crew) VALUES (?,'P5-M21 orientation','Watch the site video.',1)", [$job]);
 $crew = [];
 foreach (['w' => 'w', 'c2' => null] as $k => $account) {
     q("INSERT INTO candidates(full_name,email,stage) VALUES (?,?,'placed')", ['Home crew ' . $k, 'hm-cand-' . $k . '@test.invalid']);

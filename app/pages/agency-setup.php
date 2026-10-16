@@ -8,7 +8,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
     foreach($template['questions'] as $question)if(!row('SELECT id FROM screening_questions WHERE job_id=? AND question=?',[$jobId,$question]))q('INSERT INTO screening_questions(job_id,question) VALUES (?,?)',[$jobId,$question]);
     foreach($template['tasks'] as $task)if(!row('SELECT id FROM onboarding_requirements WHERE job_id=? AND title=?',[$jobId,$task])) {
         q('INSERT INTO onboarding_requirements(job_id,title,instructions) VALUES (?,?,?)',[$jobId,$task,'Agency must provide approved project-specific instructions.']);$rid=(int)db()->lastInsertId();
-        q("INSERT IGNORE INTO onboarding_tasks(placement_id,requirement_id) SELECT id,? FROM placements WHERE job_id=? AND status NOT IN ('completed','cancelled')",[$rid,$jobId]);
+        require_once __DIR__.'/../onboarding-tasks.php';onboarding_sync('r.id = ?',[$rid]);
     }
     foreach($template['qualifications'] as $name=>$expiry) {
         q('INSERT IGNORE INTO qualification_types(name,expires_required) VALUES (?,?)',[$name,$expiry?1:0]);$type=(int)val('SELECT id FROM qualification_types WHERE name=?',[$name]);

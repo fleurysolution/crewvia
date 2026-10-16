@@ -27,7 +27,7 @@ function contract_accept(array $c,array $application,int $user,string $name): vo
  q("INSERT INTO application_events(application_id,user_id,stage,note) VALUES (?,?,'accepted',?)",[$application['id'],$user,'Contract signed: '.$c['content_hash']]);
  $assignment=row("SELECT id FROM placements WHERE candidate_id=? AND job_id=? AND status NOT IN ('completed','cancelled')",[$application['candidate_id'],$application['job_id']]);
  if(!$assignment){require_once __DIR__.'/placement-rates.php';$rates=placement_rates((int)$application['job_id'],application_vacancy((int)$application['id']));q("INSERT INTO placements(candidate_id,job_id,vacancy_id,order_line_id,status,created_by,pay_rate,bill_rate,per_diem_rate,guarantee_hours,start_date) VALUES (?,?,?,?,'offered',?,?,?,?,?,?)",[$application['candidate_id'],$application['job_id'],$rates['vacancy_id'],$rates['order_line_id'],$user,$rates['pay_rate'],$rates['bill_rate'],$rates['per_diem_rate'],$rates['guarantee_hours'],offer_start_date((int)$rates['vacancy_id'])]);$assignment=['id'=>(int)db()->lastInsertId()];require_once __DIR__.'/procurement.php';procurement_request_lodging_for((int)$assignment['id']);}
- q('INSERT IGNORE INTO onboarding_tasks(placement_id,requirement_id) SELECT ?,id FROM onboarding_requirements WHERE job_id=?',[$assignment['id'],$application['job_id']]);
+ require_once __DIR__.'/onboarding-tasks.php';onboarding_sync('p.id = ?',[$assignment['id']]);
  contract_event((int)$c['id'],'signed',['method'=>$c['method'],'content_hash'=>$c['content_hash'],'signer'=>$name]);
  q("INSERT INTO notifications(user_id,message,target) SELECT id,?,? FROM users WHERE role IN ('admin','recruiter') AND is_active=1",['Contract signed; onboarding started','/onboarding']);
 }

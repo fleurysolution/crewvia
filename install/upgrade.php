@@ -2596,4 +2596,14 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Offers: the portal shows the whole offer letter (the job, its terms, the general conditions from Settings); the candidate accepts or declines it; a signed offer goes back to the office, which countersigns it in Hiring, and only then is the person hired.' . PHP_EOL;
 }
 
+// ── P5-M55: an onboarding requirement asks the new hires; the crew on site only when the office says so ──
+// The tasks a requirement gave the crew already on site, nobody having touched them, are removed.
+// Reversed by install/rollback/p5-m55.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='onboarding_requirements' AND column_name='for_crew'")) {
+    q('ALTER TABLE onboarding_requirements ADD COLUMN for_crew TINYINT NOT NULL DEFAULT 0');
+    $untouched = db()->exec("DELETE t FROM onboarding_tasks t JOIN placements p ON p.id = t.placement_id
+                             WHERE p.status IN ('on_site','completed','cancelled') AND t.status = 'pending' AND t.response IS NULL AND t.reviewed_at IS NULL");
+    echo 'Onboarding: a requirement now asks the new hires (assignments not started yet); the crew already on site only when "Also ask the crew already on site" is ticked. Untouched tasks removed from the crew on site: ' . (int) $untouched . '. A requirement nobody answered can be removed.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
