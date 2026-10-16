@@ -41,6 +41,12 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
  await mp.goto('http://127.0.0.1:8097/contracts');
  if(await mp.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1))throw Error('Mobile contracts have horizontal overflow');
  await mp.screenshot({path:path.resolve('outputs/contracts-mobile.png'),fullPage:true});
+ // P5-M60: on a phone the working-project bar keeps its button clear of the "waiting for you" pill, and the project's name readable.
+ await page.setViewportSize({width:375,height:812});await page.goto('http://127.0.0.1:8097/hours');
+ const bar=await page.evaluate(()=>{const f=document.querySelector('form.workbar-project');if(!f)return null;const b=f.querySelector('button').getBoundingClientRect(),s=f.querySelector('select').getBoundingClientRect(),u=document.querySelector('.workbar-unread');const p=u?u.getBoundingClientRect():null;
+  return {buttonInside:b.right<=window.innerWidth+1,selectWide:s.width>=90,clear:!p||p.top>=b.bottom-1||p.left>=b.right||p.right<=b.left};});
+ if(!bar||!bar.buttonInside||!bar.selectWide||!bar.clear)throw Error('Mobile project bar is cramped: '+JSON.stringify(bar));
+ console.log('PASS Mobile project bar: the project name readable, the button clear of the pill');
  if(issues.length) throw Error(issues.join('\n'));
  fs.writeFileSync('work/browser-results.json',JSON.stringify({qr:true,mobileOverflow:false,javascriptErrors:issues},null,2));
  console.log('PASS Desktop/mobile browser checks and screenshots');await browser.close();

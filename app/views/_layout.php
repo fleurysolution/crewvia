@@ -392,8 +392,8 @@ label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight
   border-radius:999px;background:#FFF4E0;color:#8A5A04;font-size:12.5px;font-weight:600}
 .workbar-unread::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--amber)}
 .workbar-unread:hover{text-decoration:none;background:#FBE8C8}
-@media(max-width:620px){.workbar-project{min-width:0;width:100%}
-  .workbar-project select{max-width:none;flex:1}}
+@media(max-width:620px){.workbar-project{min-width:0;width:100%;flex:1 1 100%}
+  .workbar-project select{max-width:none;flex:1;min-width:0}}
 
 /* Settings: section jumps, the permission grid, and what a desk opens. */
 .settings-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
