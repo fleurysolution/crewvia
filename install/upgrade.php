@@ -2606,4 +2606,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Onboarding: a requirement now asks the new hires (assignments not started yet); the crew already on site only when "Also ask the crew already on site" is ticked. Untouched tasks removed from the crew on site: ' . (int) $untouched . '. A requirement nobody answered can be removed.' . PHP_EOL;
 }
 
+// ── P5-M63: new bank details come with a proof that payroll compares before accepting them ──
+// Reversed by install/rollback/p5-m63.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='worker_bank_change_requests' AND column_name='proof_storage_name'")) {
+    q('ALTER TABLE worker_bank_change_requests ADD COLUMN proof_storage_name CHAR(64) NULL, ADD COLUMN proof_mime VARCHAR(40) NULL, ADD COLUMN proof_hash CHAR(64) NULL');
+    echo 'Bank details: the account number is typed twice and comes with a proof (voided cheque, or the bank\'s direct deposit form or letter); payroll sees it beside the numbers and ticks that they match before accepting.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

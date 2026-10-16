@@ -60,7 +60,64 @@ function self_service_notify(string $role, string $message): void
        SELECT id, ?, '/change-requests' FROM users WHERE is_active = 1 AND role IN (?, 'admin')", [$message, $role]);
 }
 
-function self_bank_submit(int $candidateId, array $in, int $userId, bool $byStaff = false): ?string
+/**
+ * P5-M63: the proof that goes with new bank details - a voided cheque, or the bank's direct deposit form or
+ * letter, as a photo or a PDF - so payroll can compare the numbers before they are used. Wrong account
+ * numbers send pay to someone else's account or delay it; a typed number alone cannot be checked.
+ * Encrypted at rest, outside the general document store (recruiters never see it), served to payroll only.
+ *
+ * @return array{0:?string,1:?array} an error, or null and the stored proof (storage name, type, hash)
+ */
+function bank_proof_store(?array $file): array
+{
+    global $config;
+    if (! $file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return [t('Attach a voided cheque or the direct deposit form or letter from your bank (photo or PDF), so payroll can check the numbers.'), null];
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK || $file['size'] > 10 * 1024 * 1024) {
+        return [t('The proof must be a photo or a PDF of up to 10 MB.'), null];
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (! in_array($mime, ['application/pdf', 'image/jpeg', 'image/png'], true)) {
+        return [t('The proof must be a photo (JPEG or PNG) or a PDF.'), null];
+    }
+    require_once __DIR__ . '/crypto.php';
+    if (! crypto_key_ready()) {
+        return [t('Secure document storage is not configured.'), null];
+    }
+    $bytes = (string) file_get_contents($file['tmp_name']);
+    $dir = workforce_storage_path($config) . '/bank-proofs';
+    if (! is_dir($dir)) {
+        mkdir($dir, 0700, true);
+    }
+    $name = bin2hex(random_bytes(32));
+    if (file_put_contents($dir . '/' . $name, crypto_seal($bytes), LOCK_EX) === false) {
+        return [t('Document storage unavailable.'), null];
+    }
+
+    return [null, ['name' => $name, 'mime' => $mime, 'hash' => hash('sha256', $bytes)]];
+}
+
+/** The proof of a bank change request, opened for payroll, checked and the look recorded; null if there is none. */
+function bank_proof_read(int $requestId, int $userId): ?array
+{
+    global $config;
+    $r = row('SELECT candidate_id, proof_storage_name, proof_mime, proof_hash FROM worker_bank_change_requests WHERE id = ?', [$requestId]);
+    if (! $r || ! $r['proof_storage_name']) {
+        return null;
+    }
+    require_once __DIR__ . '/crypto.php';
+    $raw = @file_get_contents(workforce_storage_path($config) . '/bank-proofs/' . $r['proof_storage_name']);
+    $plain = $raw === false ? null : crypto_open($raw);
+    if ($plain === null || ! hash_equals((string) $r['proof_hash'], hash('sha256', $plain))) {
+        return null;
+    }
+    q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)', [(int) $r['candidate_id'], $userId, 'viewed the proof']);
+
+    return ['mime' => $r['proof_mime'], 'bytes' => $plain];
+}
+
+function self_bank_submit(int $candidateId, array $in, int $userId, bool $byStaff = false, ?array $proofFile = null): ?string
 {
     $account = preg_replace('/\s+/', '', (string) ($in['account_number'] ?? ''));
     $routing = preg_replace('/\s+/', '', (string) ($in['routing_number'] ?? ''));
@@ -74,14 +131,22 @@ function self_bank_submit(int $candidateId, array $in, int $userId, bool $byStaf
     if (mb_strlen($holder) < 2 || mb_strlen($holder) > 190) {
         return t('Give the name on the account.');
     }
+    // P5-M63: typed twice, so one wrong digit is caught before anybody checks it.
+    if (preg_replace('/\s+/', '', (string) ($in['account_number_confirm'] ?? '')) !== $account) {
+        return t('The two account numbers differ. Type it again, digit by digit, from the cheque or the bank letter.');
+    }
 
     if (val("SELECT COUNT(*) FROM worker_bank_change_requests WHERE candidate_id = ? AND status = 'pending'", [$candidateId])) {
         return $byStaff ? t('Bank details for this person are already waiting to be checked on Change requests.') : t('Your last bank details are still being checked. Wait for payroll before sending new ones.');
     }
 
-    q('INSERT INTO worker_bank_change_requests (candidate_id, encrypted_details, last_four, bank_label, submitted_by) VALUES (?,?,?,?,?)',
+    [$why, $proof] = bank_proof_store($proofFile);
+    if ($why !== null) {
+        return $why;
+    }
+    q('INSERT INTO worker_bank_change_requests (candidate_id, encrypted_details, last_four, bank_label, submitted_by, proof_storage_name, proof_mime, proof_hash) VALUES (?,?,?,?,?,?,?,?)',
       [$candidateId, token_encrypt(['account_number' => $account, 'routing_number' => $routing, 'bank_name' => $bank, 'account_holder' => $holder]),
-       substr($account, -4), $bank, $userId]);
+       substr($account, -4), $bank, $userId, $proof['name'], $proof['mime'], $proof['hash']]);
     q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)', [$candidateId, $userId, $byStaff ? 'proposed by payroll' : 'proposed by the worker']);
     if (! $byStaff) {
         log_activity('proposed own bank details', 'candidate', $candidateId, 'ending ' . substr($account, -4));
@@ -92,7 +157,7 @@ function self_bank_submit(int $candidateId, array $in, int $userId, bool $byStaf
 }
 
 /** Payroll's decision on proposed bank details. The caller checks the role. */
-function self_bank_decide(int $requestId, string $decision, string $note, int $userId): ?string
+function self_bank_decide(int $requestId, string $decision, string $note, int $userId, bool $matched = false): ?string
 {
     $r = row("SELECT * FROM worker_bank_change_requests WHERE id = ? FOR UPDATE", [$requestId]);
 
@@ -111,6 +176,10 @@ function self_bank_decide(int $requestId, string $decision, string $note, int $u
         q("UPDATE worker_bank_change_requests SET status = 'rejected', reviewed_by = ?, reviewed_at = NOW(), review_note = ? WHERE id = ?",
           [$userId, mb_substr(trim($note), 0, 500), $requestId]);
     } elseif ($decision === 'approve') {
+        // P5-M63: accepted only by somebody who says they compared the numbers with the proof.
+        if (! $matched) {
+            return t('Compare the account and routing numbers with the proof, then tick the box to accept.');
+        }
         q("INSERT INTO worker_bank_details (candidate_id, encrypted_details, last_four, bank_label, status, submitted_by, reviewed_by, reviewed_at)
            VALUES (?,?,?,?, 'verified', ?, ?, NOW())
            ON DUPLICATE KEY UPDATE encrypted_details = VALUES(encrypted_details), last_four = VALUES(last_four),

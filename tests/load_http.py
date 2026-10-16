@@ -164,7 +164,7 @@ try:
 
     def decide(c):
         barrier.wait()
-        return c.request('/change-requests', {'do': 'bank', 'request_id': fx['bank_request'], 'decision': 'approve', 'note': ''})[0]
+        return c.request('/change-requests', {'do': 'bank', 'request_id': fx['bank_request'], 'decision': 'approve', 'note': '', 'matched': '1'})[0]
 
     with concurrent.futures.ThreadPoolExecutor(12) as pool:
         codes = list(pool.map(decide, pay))

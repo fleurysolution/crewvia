@@ -34,7 +34,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  // ── the worker's own: proposed, then validated by staff (R22-R24) ──
  if($own && $do==='self_bank') {
-  if(($why=self_bank_submit($cid,$_POST,uid()))!==null) refuse(422,$why);
+  if(($why=self_bank_submit($cid,$_POST,uid(),false,$_FILES['bank_proof']??null))!==null) refuse(422,$why);
   flash(t('Thank you. Payroll checks your bank details before they are used; until then your pay goes where it went before.'));
  }
  if($own && $do==='self_detail') {
@@ -78,7 +78,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   // checked on Change requests by someone else (payroll or an administrator):
   // one person alone cannot send somebody's pay to another account.
   require_once __DIR__ . '/../self-service.php';
-  if(($why=self_bank_submit($cid,$_POST,uid(),true))!==null){flash($why,'err');redirect('/employee-folder?id='.$cid);}
+  if(($why=self_bank_submit($cid,$_POST,uid(),true,$_FILES['bank_proof']??null))!==null){flash($why,'err');redirect('/employee-folder?id='.$cid);}
   log_activity('proposed bank details', 'candidate', $cid, 'ending '.substr(preg_replace('/\s+/', '', (string) ($_POST['account_number'] ?? '')), -4).', waiting for a second person');
   flash(t('Bank details recorded for :name. Another person checks them on Change requests before they are used.', ['name' => $c['full_name']]));
   redirect('/employee-folder?id=' . $cid);

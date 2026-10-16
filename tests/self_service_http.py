@@ -1,7 +1,7 @@
 """HR self-service through the screens: a worker proposes bank details and
 detail changes, staff validate them, and only then does anything change.
 """
-import http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
+import base64, http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
 
 base = 'http://127.0.0.1:8097'
 ss = json.load(open('work/ss.json'))
@@ -32,6 +32,15 @@ class Client:
     def post(self, path, values):
         return self._send(urllib.request.Request(base + path, urllib.parse.urlencode({'_csrf': self.token, **values}).encode()))
 
+    def post_files(self, path, values, files):
+        # P5-M63: bank details go with a proof file.
+        b, CRLF = '----ssbank', chr(13) + chr(10)
+        body = b''.join(('--' + b + CRLF + 'Content-Disposition: form-data; name="%s"' % k + CRLF + CRLF + str(v) + CRLF).encode() for k, v in [('_csrf', self.token)] + list(values.items()))
+        for k, (name, data, ctype) in files.items():
+            body += ('--' + b + CRLF + 'Content-Disposition: form-data; name="%s"; filename="%s"' % (k, name) + CRLF + 'Content-Type: ' + ctype + CRLF + CRLF).encode() + data + CRLF.encode()
+        body += ('--' + b + '--' + CRLF).encode()
+        return self._send(urllib.request.Request(base + path, body, {'Content-Type': 'multipart/form-data; boundary=' + b}))
+
     def login(self, email):
         self.get('/login')
         status, body = self.post('/login', {'email': email, 'password': 'TestPassword123!'})
@@ -48,14 +57,21 @@ def probe(cid=None):
     return json.loads(subprocess.run([php, 'work/self_service_probe.php', str(cid or ss['me'])], check=True, capture_output=True, text=True).stdout)
 
 
-def mine(values):
+PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')
+
+
+def mine(values, proof=True):
     worker.get('/employee-folder')
+    if values.get('do') == 'self_bank':
+        # P5-M63: the account number typed twice, and a proof attached.
+        values = {'account_number_confirm': values.get('account_number', ''), **values}
+        return worker.post_files('/employee-folder', values, {'bank_proof': ('cheque.png', PNG, 'image/png')} if proof else {})
     return worker.post('/employee-folder', values)
 
 
-def decide(client, kind, rid, decision, note=''):
+def decide(client, kind, rid, decision, note='', matched=True):
     client.get('/change-requests')
-    return client.post('/change-requests', {'do': kind, 'request_id': rid, 'decision': decision, 'note': note})
+    return client.post('/change-requests', {'do': kind, 'request_id': rid, 'decision': decision, 'note': note, **({'matched': '1'} if matched else {})})
 
 
 worker = Client(); check('Self-service worker login', worker.login('ss-worker@test.invalid')[0] == 200)
@@ -75,6 +91,8 @@ for label, change in [('Letters in an account number are refused', {'account_num
                       ('A bank with no name is refused', {'bank_name': ''})]:
     status, body = mine({**good, **change})
     check(label, status == 422, (status, body[:200]))
+check('Without a proof attached they are refused (P5-M63)', mine(good, proof=False)[0] == 422)
+check('Two account numbers that differ are refused (P5-M63)', mine({**good, 'account_number_confirm': '123456789013'})[0] == 422)
 check('Refused bank details wrote nothing', probe()['bank_requests'] == [])
 check('The worker sends valid bank details', mine(good)[0] == 200)
 p = probe()

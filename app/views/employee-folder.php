@@ -19,14 +19,16 @@
   <h2><?= te('My bank details') ?></h2>
   <?php if ($ownBank): ?><p><?= te('In use: :bank, account ending :last.', ['bank' => $ownBank['bank_label'], 'last' => $ownBank['last_four']]) ?></p><?php else: ?><p class="muted"><?= te('No bank details on file yet.') ?></p><?php endif; ?>
   <?php foreach ($selfService['bank'] as $r): ?><div class="small" data-bank-request="<?= (int) $r['id'] ?>"><?= te('Sent :date: :bank, ending :last', ['date' => d(substr((string) $r['submitted_at'], 0, 10)), 'bank' => $r['bank_label'], 'last' => $r['last_four']]) ?> · <span class="tag <?= $r['status'] === 'approved' ? 'green' : ($r['status'] === 'rejected' ? 'red' : 'amber') ?>"><?= e($states[$r['status']]) ?></span><?= $r['review_note'] ? ' · ' . e($r['review_note']) : '' ?></div><?php endforeach; ?>
-  <form class="mt-s" method="post" autocomplete="off"><?= csrf_field() ?><input type="hidden" name="do" value="self_bank">
+  <form class="mt-s" method="post" autocomplete="off" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="do" value="self_bank">
     <div class="grid g2">
       <div><label for="bank-holder"><?= te('Name on the account') ?></label><input id="bank-holder" name="account_holder" required maxlength="190" value="<?= e($c['full_name']) ?>"></div>
       <div><label for="bank-name"><?= te('Bank') ?></label><input id="bank-name" name="bank_name" required maxlength="90"></div>
       <div><label for="bank-routing"><?= te('Routing number') ?></label><input id="bank-routing" name="routing_number" required inputmode="numeric" pattern="[0-9 ]{9,11}" autocomplete="off"></div>
       <div><label for="bank-account"><?= te('Account number') ?></label><input id="bank-account" name="account_number" required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"></div>
+      <div><label for="bank-account2"><?= te('Account number, again') ?></label><input id="bank-account2" name="account_number_confirm" required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"></div>
+      <div><label for="bank-proof"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="bank-proof" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
     </div>
-    <p class="small muted"><?= te('Encrypted as soon as it is sent. Only the last four digits are ever shown, and payroll checks it before it is used.') ?></p>
+    <p class="small muted"><?= te('A photo or a PDF where the routing and account numbers can be read. Payroll compares them with what you typed before your pay goes there, so a wrong digit never sends your pay to another account. Everything is encrypted as soon as it is sent; only the last four digits are ever shown.') ?></p>
     <button class="btn"><?= te('Send my bank details') ?></button></form>
 </div>
 <?php elseif (can('recruiter') || can('payroll')): $waiting = count(array_filter($selfService['details'], fn($r) => $r['status'] === 'pending')) + count(array_filter($selfService['bank'], fn($r) => $r['status'] === 'pending')); ?>
@@ -143,7 +145,7 @@
     <?php endif; ?>
   <?php endif; ?>
 
-  <form class="mt" method="post">
+  <form class="mt" method="post" enctype="multipart/form-data">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="bank">
     <input type="hidden" name="candidate_id" value="<?= (int) $cid ?>">
@@ -172,6 +174,16 @@
         <label for="b-account"><?= te('Account number') ?></label>
         <input id="b-account" name="account_number" maxlength="20" required
                inputmode="numeric" autocomplete="off">
+      </div>
+      <div>
+        <label for="b-account2"><?= te('Account number, again') ?></label>
+        <input id="b-account2" name="account_number_confirm" maxlength="20" required
+               inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="f2">
+        <label for="b-proof"><?= te('Proof: voided cheque or bank letter') ?></label>
+        <input id="b-proof" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png">
+        <span class="hint"><?= te('Another payroll person compares it with the numbers before they are used.') ?></span>
       </div>
       <div class="row tight"><button class="btn" type="submit"><?= te('Save') ?></button></div>
     </div>

@@ -7,7 +7,7 @@ own projects, the privacy notice, consent, subject export and
 anonymisation, the audit log and its refusal to change, accessibility
 markers, translations.
 """
-import http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
+import base64, http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
 
 base = 'http://127.0.0.1:8097'
 fx = json.load(open('work/security-review.json'))
@@ -48,6 +48,17 @@ class Client:
     def post(self, path, values, follow=True):
         status, h, body = self.open(urllib.request.Request(base + path, urllib.parse.urlencode({'_csrf': self.token, **values}).encode()), follow)
         assert 'Fatal error' not in body and 'Warning:' not in body, body[:800]
+        self.headers = h
+        return status, body
+
+    def post_files(self, path, values, files):
+        # P5-M63: bank details go with a proof file.
+        b, CRLF = '----srbank', chr(13) + chr(10)
+        body = b''.join(('--' + b + CRLF + 'Content-Disposition: form-data; name="%s"' % k + CRLF + CRLF + str(v) + CRLF).encode() for k, v in [('_csrf', self.token)] + list(values.items()))
+        for k, (name, data, ctype) in files.items():
+            body += ('--' + b + CRLF + 'Content-Disposition: form-data; name="%s"; filename="%s"' % (k, name) + CRLF + 'Content-Type: ' + ctype + CRLF + CRLF).encode() + data + CRLF.encode()
+        body += ('--' + b + '--' + CRLF).encode()
+        status, h, body = self.open(urllib.request.Request(base + path, body, {'Content-Type': 'multipart/form-data; boundary=' + b}), True)
         self.headers = h
         return status, body
 
@@ -157,17 +168,17 @@ check('Payroll sees the pay change', status == 200 and '42.50' in body and 'data
 check('The bank fields payroll fills have labels tied to them', all('for="%s"' % i in body and 'id="%s"' % i in body for i in ['b-holder', 'b-bank', 'b-routing', 'b-account']))
 
 # ── bank details need a second person ───────────────────────────────────
-payroll.post('/employee-folder', {'do': 'bank', 'candidate_id': fx['placed'], 'account_holder': 'Wren Placed', 'bank_name': 'Review Bank', 'routing_number': '021000021', 'account_number': '555566667777'})
+payroll.post_files('/employee-folder', {'do': 'bank', 'candidate_id': fx['placed'], 'account_holder': 'Wren Placed', 'bank_name': 'Review Bank', 'routing_number': '021000021', 'account_number': '555566667777', 'account_number_confirm': '555566667777'}, {'bank_proof': ('cheque.png', base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='), 'image/png')})
 req = [r for r in probe()['bank_requests'] if int(r['candidate_id']) == fx['placed']]
 check('Bank details payroll types are a proposal, not in use', len(req) == 1 and req[0]['status'] == 'pending' and int(req[0]['submitted_by']) == IDS['payroll']
       and not [b for b in probe()['bank'] if int(b['candidate_id']) == fx['placed']], req)
 check('and the proposal is in the audit log with the last four digits only', any('7777' in (a['detail'] or '') and '555566667777' not in (a['detail'] or '') for a in logged('proposed bank details', entity_id=fx['placed'])))
 payroll.get('/change-requests')
-status, body = payroll.post('/change-requests', {'do': 'bank', 'request_id': req[0]['id'], 'decision': 'approve', 'note': ''})
+status, body = payroll.post('/change-requests', {'do': 'bank', 'request_id': req[0]['id'], 'decision': 'approve', 'note': '', 'matched': '1'})
 check('Whoever entered them cannot accept them', status == 422 and probe()['bank_requests'][-1]['status'] == 'pending')
 payroll2 = user('payroll2')
 payroll2.get('/change-requests')
-status, body = payroll2.post('/change-requests', {'do': 'bank', 'request_id': req[0]['id'], 'decision': 'approve', 'note': ''})
+status, body = payroll2.post('/change-requests', {'do': 'bank', 'request_id': req[0]['id'], 'decision': 'approve', 'note': '', 'matched': '1'})
 bank = [b for b in probe()['bank'] if int(b['candidate_id']) == fx['placed']]
 check('A second payroll person accepts them, and only then are they used', status == 200 and len(bank) == 1 and bank[0]['status'] == 'verified'
       and int(bank[0]['submitted_by']) == IDS['payroll'] and int(bank[0]['reviewed_by']) == IDS['payroll2'], bank)

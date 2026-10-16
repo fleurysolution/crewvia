@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($do === 'bank') {
         require_role('payroll');
-        $refusal = self_bank_decide((int) ($_POST['request_id'] ?? 0), $decision, $note, uid());
+        $refusal = self_bank_decide((int) ($_POST['request_id'] ?? 0), $decision, $note, uid(), isset($_POST['matched']));
     } elseif ($do === 'detail') {
         require_role('recruiter');
         $refusal = self_detail_decide((int) ($_POST['request_id'] ?? 0), $decision, $note, uid());
@@ -37,7 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('/change-requests');
 }
 
-$bank = can('payroll') ? rows("SELECT r.id, r.candidate_id, r.last_four, r.bank_label, r.submitted_at, c.full_name,
+// P5-M63: the proof sent with the bank details, opened in the browser by payroll only; every look is recorded.
+if (isset($_GET['proof'])) {
+    require_role('payroll');
+    $proof = bank_proof_read((int) $_GET['proof'], uid());
+    if (! $proof) { refuse(404, t('No readable proof for these bank details.')); }
+    header('Content-Type: ' . $proof['mime']);
+    header('Content-Disposition: inline; filename="bank-proof-' . (int) $_GET['proof'] . ($proof['mime'] === 'application/pdf' ? '.pdf' : ($proof['mime'] === 'image/png' ? '.png' : '.jpg')) . '"');
+    header('Cache-Control: no-store');
+    header('X-Content-Type-Options: nosniff');
+    echo $proof['bytes'];
+    exit;
+}
+
+$bank = can('payroll') ? rows("SELECT r.id, r.candidate_id, r.last_four, r.bank_label, r.submitted_at, c.full_name, r.proof_mime,
                                       (SELECT b.last_four FROM worker_bank_details b WHERE b.candidate_id = r.candidate_id) AS current_last_four
                                FROM worker_bank_change_requests r JOIN candidates c ON c.id = r.candidate_id
                                WHERE r.status = 'pending' ORDER BY r.id") : [];

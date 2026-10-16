@@ -341,3 +341,5 @@ summary{cursor:pointer}
 /* P5-M57: a form laid out on a grid keeps its fields on one line; a row of buttons that must not break. */
 .form-grid>label{margin-top:0}
 .row.no-wrap{flex-wrap:nowrap}
+/* P5-M63: the bank proof shown beside the numbers to compare. */
+.bank-proof-img{display:block;max-width:100%;width:520px;border:1px solid var(--ui-line);border-radius:var(--ui-radius)}
