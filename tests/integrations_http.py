@@ -85,6 +85,8 @@ status, body = admin.get('/inbox')
 check('The inbox says Google is not set up, and offers no connection', status == 200 and 'Google setup required' in body and '/google-start' not in body)
 status, body = raw('GET', '/google-start')
 check('Starting a Google connection while it is off is refused', status in (302, 503))
+status, body = raw('GET', '/login')
+check('and the sign-in page does not offer "Sign in with Google" while it is off (P5-M58)', status == 200 and '/google-start' not in body and 'name="password"' in body)
 
 status, body = admin.get('/integrations?lang=fr')
 check('Integrations is translated into French', 'File Connect de DocuSign' in body and 'Piste d’audit' in body)

@@ -134,7 +134,7 @@ button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(52,110,182,.4)}
   <label for="password"><?= te('Password') ?></label>
   <input id="password" name="password" type="password" required autocomplete="current-password">
 
-  <button type="submit"><?= te('Sign in') ?></button><p class="foot"><a href="/google-start"><?= te('Sign in / connect with Google') ?></a></p>
+  <button type="submit"><?= te('Sign in') ?></button><?php /* P5-M58: offered only once Google is set up; before, it led to a bare error page. */ require_once __DIR__ . '/../gmail.php'; if (gmail_configured()): ?><p class="foot"><a href="/google-start"><?= te('Sign in / connect with Google') ?></a></p><?php endif; ?>
   <p class="foot"><a href="/recover"><?= te('Recover account') ?></a></p>
 </form>
 </body>

@@ -105,7 +105,8 @@ if (in_array($fresh['role'], ['admin', 'payroll'], true) && ! in_array($path, ['
     flash(t('Two-step verification is required for your role. Turn it on here to continue.'), 'err');
     redirect('/account-security');
 }
-if ($fresh['role']==='client' && !in_array($path,['/client-portal','/account','/account-security','/language'],true)) {
+// P5-M58: a client opens their own notifications too (the bell is in their header).
+if ($fresh['role']==='client' && !in_array($path,['/client-portal','/notifications','/account','/account-security','/language'],true)) {
     if($path==='/') redirect('/client-portal');
     http_response_code(403);render('403',['need'=>['client']]);exit;
 }

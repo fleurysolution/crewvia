@@ -30,6 +30,7 @@ $pct = $target > 0 ? min(100, (int) round($placed / $target * 100)) : 0;
    order they happen, each with the number of people standing at it and a way
    in. A manager reads it as a status; somebody new reads it as an
    explanation of the business. */
+require_once __DIR__ . '/../navigation.php';
 $steps = [
   ['/candidates',     'Applied',      $journey['applied'], 'people in the pipeline'],
   ['/recruitment',    'Being hired',  $journey['hiring'],  'offer and paperwork'],
@@ -40,14 +41,14 @@ $steps = [
 ?>
 <div class="card p0 clip">
   <div class="flex flex-wrap">
-    <?php foreach ($steps as $i => [$href, $label, $count, $hint]): ?>
-      <a href="<?= e($href) ?>" class="stage-step">
+    <?php foreach ($steps as $i => [$href, $label, $count, $hint]): $open = workspace_can_open($href); ?>
+      <<?= $open ? 'a href="' . e($href) . '"' : 'div' ?> class="stage-step">
         <div class="stat-label">
           <?= $i + 1 ?>. <?= te($label) ?>
         </div>
         <div class="big-figure"><?= (int) $count ?></div>
         <div class="small t-muted"><?= te($hint) ?></div>
-      </a>
+      </<?= $open ? 'a' : 'div' ?>>
     <?php endforeach; ?>
   </div>
 </div>

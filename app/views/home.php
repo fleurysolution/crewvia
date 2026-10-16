@@ -75,7 +75,8 @@ $who = (string) (user()['name'] ?? '');
   <section class="card" id="home-checks"><h2><?= te('To check') ?></h2>
     <ul class="attention-list">
       <li><a href="/change-requests"><strong data-figure="changes"><?= (int) $hd['changes'] ?></strong> <?= ten((int) $hd['changes'], 'detail or bank change waiting for a check', 'detail or bank changes waiting for a check') ?></a></li>
-      <li><a href="/timeoff"><strong data-figure="timeoff"><?= (int) $hd['timeoff'] ?></strong> <?= ten((int) $hd['timeoff'], 'time-off request to decide', 'time-off requests to decide') ?></a></li>
+      <?php /* P5-M58: Recruiting decides time off; a desk that cannot open the screen sees the count, not a link that refuses it. */ require_once __DIR__ . '/../navigation.php'; $toOpen = workspace_can_open('/timeoff'); ?>
+      <li><<?= $toOpen ? 'a href="/timeoff"' : 'span' ?>><strong data-figure="timeoff"><?= (int) $hd['timeoff'] ?></strong> <?= ten((int) $hd['timeoff'], 'time-off request to decide', 'time-off requests to decide') ?><?= $toOpen ? '' : ' <span class="muted">(' . te('Recruiting decides') . ')</span>' ?></<?= $toOpen ? 'a' : 'span' ?>></li>
       <li><a href="/accounts-payable"><strong data-figure="bills_week"><?= (int) $hd['bills_week'] ?></strong> <?= ten((int) $hd['bills_week'], 'bill due in the next 7 days', 'bills due in the next 7 days') ?></a></li>
     </ul></section>
   <section class="card" id="home-run"><h2><?= te('Run the week') ?></h2>

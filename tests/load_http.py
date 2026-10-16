@@ -109,6 +109,10 @@ try:
     with concurrent.futures.ThreadPoolExecutor(40) as pool:
         signed = list(pool.map(lambda ic: ic[1].login('load-desk-%02d@test.invalid' % (ic[0] + 1)), enumerate(desk)))
     check('40 people sign in at the same moment, each in their own session', all(signed), signed.count(False))
+    # P5-M58: /assets is a screen and a folder; production answered the folder (403) and the screen never opened.
+    status, body, _, broken = desk[0].request('/assets')
+    check('Under Apache /assets opens the equipment screen, and the folder still serves its files',
+          status == 200 and not broken and '<h1' in body and 'Assets' in body and code('/assets/crewvia-ui.css') == 200, status)
 
     # ── what one view costs the database, on a 1,000-person project ──────
     def statements(page):

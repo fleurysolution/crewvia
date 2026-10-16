@@ -95,7 +95,7 @@ check('A second load is refused', code == 1 and 'already loaded' in out, out)
 
 # ── people sign in and work ─────────────────────────────────────────────
 for label, page, marker in (('owner1', '/home', 'href="/projects"'), ('vp2', '/approvals', 'Approvals'), ('recruiter1', '/hiring', 'Hiring'),
-                            ('coordinator1', '/hotels', 'Hotels'), ('payroll1', '/payroll-export', 'Payroll review and export'), ('manager1', '/my-team', 'My supervised team')):
+                            ('coordinator1', '/hotels', 'Hotels'), ('payroll1', '/payroll-export', 'Payroll review and export'), ('manager1', '/my-team', 'My projects and team')):
     c = Client()
     check('%s signs in with the shared password and opens %s' % (label, page), c.login(label) and marker in c.get(page)[1])
 check('A wrong password is refused', not Client().login('owner1', password='wrong-' + PASSWORD))

@@ -207,6 +207,24 @@ function workspace_nav(?array $u): array
 }
 
 /**
+ * P5-M58: whether the signed-in person can open this screen, by the menu's own definition (the screen
+ * is in their menu, and their desk opens it). A link to a screen that answers "Not your desk" is not
+ * shown as a link: the audit of 16 Oct 2026 found the project dashboard sending Hotels, Payroll and
+ * Recruiting to screens their desk does not open.
+ */
+function workspace_can_open(string $path, ?array $u = null): bool
+{
+    $u ??= user();
+    foreach (workspace_nav($u) as [$href, , $need]) {
+        if ($href === $path) {
+            return $need === null || can(...(array) $need);
+        }
+    }
+
+    return false;
+}
+
+/**
  * Wave 3: the screens each role opens every day, in the order of its day.
  * They stay in view at the top of the menu; every other screen the role may
  * open is folded under "More", in its section. A screen listed here that the

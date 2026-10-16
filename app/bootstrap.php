@@ -841,10 +841,14 @@ function current_job(): ?array {
 
     return $id ? row('SELECT j.*, c.name AS client_name, pp.weekly_overtime_after,pp.overtime_multiplier,pp.guarantee_absence_rule,pp.guarantee_day_hours,pp.guarantee_overtime FROM jobs j LEFT JOIN clients c ON c.id=j.client_id LEFT JOIN project_pay_policies pp ON pp.job_id=j.id WHERE j.id=?', [$id]) : null;
 }
-/** P4-M06: the projects a supervisor works on: a crew they supervise there, or its budget. */
+/**
+ * P4-M06: the projects a supervisor works on: a crew they supervise there, or its budget.
+ * P5-M59: or the projects they manage (project manager in Job setup).
+ */
 function supervised_job_ids(int $userId): array {
     return array_map('intval', array_column(rows('SELECT DISTINCT p.job_id AS id FROM placements p JOIN assignment_details d ON d.placement_id = p.id WHERE d.supervisor_id = ?
-                                                  UNION SELECT id FROM jobs WHERE budget_owner_id = ?', [$userId, $userId]), 'id'));
+                                                  UNION SELECT id FROM jobs WHERE budget_owner_id = ?
+                                                  UNION SELECT id FROM jobs WHERE project_manager_id = ?', [$userId, $userId, $userId]), 'id'));
 }
 function valid_date(string $date): bool {
     $d = DateTimeImmutable::createFromFormat('!Y-m-d', $date);

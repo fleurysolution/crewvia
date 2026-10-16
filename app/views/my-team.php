@@ -1,4 +1,21 @@
-<div class="page-head"><div><h1><?= te('My supervised team') ?></h1><p class="sub"><?= te('Workers currently assigned to you. Coordinate through your private channels and review time-off requests.') ?></p></div></div>
+<div class="page-head"><div><h1><?= $managed ? te('My projects and team') : te('My supervised team') ?></h1><p class="sub"><?= $managed ? te('The projects you manage, then the workers assigned to you directly.') : te('Workers currently assigned to you. Coordinate through your private channels and review time-off requests.') ?></p></div>
+<?php if ($managed): ?><div class="actions"><a class="btn ghost" href="/project-board"><?= te('Project board') ?></a><a class="btn ghost" href="/project-tasks"><?= te('Project tasks') ?></a><a class="btn ghost" href="/workload"><?= te('Workload') ?></a></div><?php endif; ?></div>
+<?php foreach ($managed as $mp): $pp = $mp['people']; $rc = $mp['recruiting']; ?>
+<section class="card" id="managed-<?= (int) $mp['id'] ?>" data-managed="<?= (int) $mp['id'] ?>">
+  <h2 class="m0"><?= e($mp['title']) ?> <span class="small muted"><?= e(trim(($mp['site_city'] ?? '') . ', ' . ($mp['site_state'] ?? ''), ', ')) ?> · <?= te(ucfirst((string) $mp['status'])) ?></span></h2>
+  <div class="home-tiles mt-s">
+    <div class="card home-tile" data-pm="on_site"><div class="n"><?= (int) $pp['on_site'] ?></div><div class="l"><?= te('on site') ?></div></div>
+    <div class="card home-tile" data-pm="not_started"><div class="n"><?= (int) $pp['not_started'] ?></div><div class="l"><?= te('hired, not started yet') ?></div></div>
+    <div class="card home-tile<?= $pp['unassigned'] ? ' amber' : '' ?>" data-pm="unassigned"><div class="n"><?= (int) $pp['unassigned'] ?></div><div class="l"><?= te('without a supervisor') ?></div></div>
+    <div class="card home-tile" data-pm="recruiting"><div class="n"><?= (int) $rc['applicants'] ?></div><div class="l"><?= ten((int) $rc['requisitions'], 'applicants on :n open requisition (:o openings)', 'applicants on :n open requisitions (:o openings)', ['o' => (int) $rc['openings']]) ?></div></div>
+  </div>
+  <?php if ($mp['supervisors']): ?>
+  <table class="mt-s"><thead><tr><th><?= te('Supervisor') ?></th><th class="right"><?= te('Crew') ?></th><th class="right"><?= te('On site') ?></th></tr></thead><tbody>
+    <?php foreach ($mp['supervisors'] as $s): ?><tr><td><?= e($s['name']) ?></td><td class="right"><?= (int) $s['crew'] ?></td><td class="right"><?= (int) $s['on_site'] ?></td></tr><?php endforeach; ?>
+  </tbody></table>
+  <?php else: ?><p class="small muted mt-s"><?= te('No crew is assigned to a supervisor on this project yet.') ?></p><?php endif; ?>
+</section>
+<?php endforeach; ?>
 <div class="home-tiles" id="crew-today">
   <a class="card home-tile" href="/attendance" data-tile="on_site"><div class="n"><?= (int) $today['on_site'] ?></div><div class="l"><?= te('of your crew on site') ?></div></a>
   <a class="card home-tile<?= $today['on_site'] > $today['marked'] ? ' amber' : '' ?>" href="#crew" data-tile="unmarked"><div class="n"><?= max(0, $today['on_site'] - $today['marked']) ?></div><div class="l"><?= te('not marked at roll call today') ?></div></a>

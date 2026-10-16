@@ -9,6 +9,13 @@ Require all granted
 
 # Everything goes through index.php.
 RewriteEngine On
+
+# P5-M58: /assets is both a screen (the equipment register) and the folder of stylesheets and images.
+# Apache answered /assets with the folder - a redirect to /assets/, then a refused directory listing -
+# so the screen never opened in production. The screen's own address goes to the application; the
+# files inside the folder are still served as files.
+DirectorySlash Off
+RewriteRule ^assets/?$ index.php [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [L]

@@ -48,4 +48,7 @@ $today = home_supervisor(uid());
 // P5-M32: clock-ins to validate by 30 minutes after the shift starts, and room numbers overdue.
 require_once __DIR__ . '/../clock-in.php';
 $clockDay = ci_crew_today(uid());
-render('my-team', compact('team', 'toGrade', 'today', 'clockDay'));
+// P5-M59: the projects this person manages, when they are a project manager.
+require_once __DIR__ . '/../project-manager.php';
+$managed = pm_projects(uid());
+render('my-team', compact('team', 'toGrade', 'today', 'clockDay', 'managed'));
