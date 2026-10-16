@@ -2613,4 +2613,48 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Bank details: the account number is typed twice and comes with a proof (voided cheque, or the bank\'s direct deposit form or letter); payroll sees it beside the numbers and ticks that they match before accepting.' . PHP_EOL;
 }
 
+// ── P5-M64: the W-4 and Section 1 of the I-9 filled in the portal; the onboarding task holds its form ──
+// The requirements already named after the forms (W-4, I-9, Direct deposit) are tied to them.
+// Reversed by install/rollback/p5-m64.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='worker_tax_forms'")) {
+    q("CREATE TABLE worker_tax_forms (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        candidate_id INT UNSIGNED NOT NULL,
+        form ENUM('w4','i9') NOT NULL,
+        encrypted_payload MEDIUMTEXT NOT NULL,
+        payload_hash CHAR(64) NOT NULL,
+        ssn_last_four CHAR(4) NULL,
+        signer_name VARCHAR(190) NOT NULL,
+        signed_at DATETIME NOT NULL,
+        signed_by INT UNSIGNED NOT NULL,
+        signer_ip VARCHAR(45) NULL,
+        signer_agent VARCHAR(255) NULL,
+        status ENUM('submitted','accepted','returned','replaced') NOT NULL DEFAULT 'submitted',
+        reviewed_by INT UNSIGNED NULL,
+        reviewed_at DATETIME NULL,
+        review_note VARCHAR(500) NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX (candidate_id, form, status), INDEX (status, form),
+        FOREIGN KEY (candidate_id) REFERENCES candidates(id),
+        FOREIGN KEY (signed_by) REFERENCES users(id),
+        FOREIGN KEY (reviewed_by) REFERENCES users(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    q("CREATE TABLE worker_tax_form_access (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        form_id INT UNSIGNED NOT NULL,
+        candidate_id INT UNSIGNED NOT NULL,
+        user_id INT UNSIGNED NOT NULL,
+        action VARCHAR(40) NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX (form_id), INDEX (candidate_id),
+        FOREIGN KEY (form_id) REFERENCES worker_tax_forms(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    q("ALTER TABLE onboarding_requirements ADD COLUMN form_kind ENUM('w4','i9','bank') NULL");
+    q("ALTER TABLE employment_clearance ADD COLUMN w4_form_id INT UNSIGNED NULL, ADD COLUMN i9_form_id INT UNSIGNED NULL");
+    $w4 = db()->exec("UPDATE onboarding_requirements SET form_kind = 'w4' WHERE title LIKE '%W-4%' OR title LIKE '%W4%'");
+    $i9 = db()->exec("UPDATE onboarding_requirements SET form_kind = 'i9' WHERE form_kind IS NULL AND (title LIKE '%I-9%' OR title LIKE '%I9%')");
+    $dd = db()->exec("UPDATE onboarding_requirements SET form_kind = 'bank' WHERE form_kind IS NULL AND title LIKE '%direct deposit%'");
+    echo 'Forms in the portal: the worker fills in and signs the W-4 and Section 1 of the I-9 in their portal (the SSN masked and typed twice, the form encrypted); payroll checks the W-4, the office the I-9, on Change requests. The Direct deposit task holds the bank form. Requirements tied to their form: W-4 ' . (int) $w4 . ', I-9 ' . (int) $i9 . ', direct deposit ' . (int) $dd . '.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

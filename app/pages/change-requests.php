@@ -63,5 +63,8 @@ if (can('payroll') && isset($_GET['reveal'])) {
 }
 
 $fields = self_service_fields();
+// P5-M64: the W-4s (payroll) and I-9s (the office) signed in the portal, waiting to be checked.
+require_once __DIR__ . '/../tax-forms.php';
+$taxForms = tf_waiting();
 $pageTitle = t('Change requests') . ' · ' . $config['app_name'];
-render('change-requests', compact('bank', 'details', 'revealed', 'fields'));
+render('change-requests', compact('bank', 'details', 'revealed', 'fields', 'taxForms'));

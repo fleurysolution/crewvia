@@ -6,7 +6,9 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   $title=trim((string)($_POST['title'] ?? ''));
   // P5-M55: the same title twice on a project is refused; the crew on site is asked only when ticked.
   if($title && row('SELECT id FROM onboarding_requirements WHERE job_id=? AND title=?',[$jobId,$title])){refuse(422,t('This project already has that requirement.'),'/onboarding');}
-  if($title) q('INSERT INTO onboarding_requirements(job_id,title,instructions,for_crew) VALUES (?,?,?,?)',[$jobId,$title,trim((string)($_POST['instructions'] ?? '')),isset($_POST['for_crew'])?1:0]);
+  // P5-M64: a requirement can hold its form (W-4, I-9, direct deposit), filled in the task itself.
+  $kind=in_array($_POST['form_kind']??'',['w4','i9','bank'],true)?$_POST['form_kind']:null;
+  if($title) q('INSERT INTO onboarding_requirements(job_id,title,instructions,for_crew,form_kind) VALUES (?,?,?,?,?)',[$jobId,$title,trim((string)($_POST['instructions'] ?? '')),isset($_POST['for_crew'])?1:0,$kind]);
  }
  // P5-M55: a requirement nobody has answered yet can be removed, with its untouched tasks.
  if($do==='remove_requirement') {
@@ -26,6 +28,9 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
    q('INSERT INTO onboarding_requirement_events(requirement_id,user_id,previous_json,current_json) VALUES (?,?,?,?)',[$rid,uid(),json_encode($old,JSON_THROW_ON_ERROR),json_encode(['instructions'=>$instructions,'required'=>$required],JSON_THROW_ON_ERROR)]);
    q("UPDATE onboarding_tasks t JOIN placements p ON p.id=t.placement_id SET t.status='pending',t.reviewed_by=NULL,t.reviewed_at=NULL WHERE t.requirement_id=? AND p.status NOT IN ('completed','cancelled')",[$rid]);
   }
+  // P5-M64: the form the task holds.
+  $kind=in_array($_POST['form_kind']??'',['w4','i9','bank'],true)?$_POST['form_kind']:null;
+  if(($old['form_kind']??null)!==$kind){q('UPDATE onboarding_requirements SET form_kind=? WHERE id=?',[$kind,$rid]);}
   // P5-M55: asking the crew on site too, or no longer (their untouched tasks go; what they answered stays).
   $forCrew=isset($_POST['for_crew'])?1:0;
   if((int)$old['for_crew']!==$forCrew){
@@ -40,6 +45,8 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  }
  if($do==='review') {
   $status=in_array($_POST['status'] ?? '',['approved','rejected'],true)?$_POST['status']:'rejected';
+  // P5-M64: a task holding a form closes with its form, checked on Change requests.
+  if(val('SELECT r.form_kind FROM onboarding_tasks t JOIN onboarding_requirements r ON r.id=t.requirement_id WHERE t.id=?',[(int)($_POST['task_id'] ?? 0)])){refuse(422,t('This task closes by itself when its form is checked on Change requests.'),'/onboarding');}
   // Walkthrough finding 25: a task the worker had not done could be approved, which opened the deployment gate.
   // Only what the worker submitted is reviewed.
   $reviewed=db()->prepare("UPDATE onboarding_tasks t JOIN placements p ON p.id=t.placement_id SET t.status=?,t.reviewed_by=?,t.reviewed_at=NOW() WHERE t.id=? AND p.job_id=? AND t.status='submitted'");
@@ -53,7 +60,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 // P5-M55: the new hires get the project's requirements; the crew on site only those meant for them too.
 if($jobId) onboarding_sync('p.job_id = ?',[$jobId]);
 $requirements=rows('SELECT * FROM onboarding_requirements WHERE job_id=?',[$jobId]);
-$tasks=rows('SELECT t.*,c.full_name,r.title FROM onboarding_tasks t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN onboarding_requirements r ON r.id=t.requirement_id WHERE p.job_id=? ORDER BY c.full_name,r.id',[$jobId]);
+$tasks=rows('SELECT t.*,c.full_name,r.title,r.form_kind FROM onboarding_tasks t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN onboarding_requirements r ON r.id=t.requirement_id WHERE p.job_id=? ORDER BY c.full_name,r.id',[$jobId]);
 $vacancies=rows('SELECT * FROM vacancies WHERE job_id=?',[$jobId]);
 $applications=rows('SELECT a.*,c.full_name,v.title FROM applications a JOIN candidates c ON c.id=a.candidate_id JOIN vacancies v ON v.id=a.vacancy_id WHERE v.job_id=? ORDER BY a.id DESC',[$jobId]);
 

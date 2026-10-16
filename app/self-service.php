@@ -152,6 +152,9 @@ function self_bank_submit(int $candidateId, array $in, int $userId, bool $byStaf
         log_activity('proposed own bank details', 'candidate', $candidateId, 'ending ' . substr($account, -4));
     }
     self_service_notify('payroll', 'Bank details waiting to be checked');
+    // P5-M64: the Direct deposit task follows the bank details.
+    require_once __DIR__ . '/onboarding-tasks.php';
+    onboarding_form_tasks($candidateId, 'bank', 'submitted', t('Bank details sent, account ending :last, with the proof.', ['last' => substr($account, -4)]));
 
     return null;
 }
@@ -194,6 +197,9 @@ function self_bank_decide(int $requestId, string $decision, string $note, int $u
 
     q('INSERT INTO worker_bank_access (candidate_id, user_id, action) VALUES (?,?,?)',
       [(int) $r['candidate_id'], $userId, $decision === 'approve' ? 'approved the change' : 'refused the change']);
+    require_once __DIR__ . '/onboarding-tasks.php';
+    onboarding_form_tasks((int) $r['candidate_id'], 'bank', $decision === 'approve' ? 'approved' : 'rejected',
+                          $decision === 'approve' ? t('Bank details checked and in use.') : t('Bank details refused: :why', ['why' => mb_substr(trim($note), 0, 200)]), $userId);
     q('INSERT INTO notifications (user_id, message, target) VALUES (?,?,?)',
       [(int) $r['submitted_by'], $decision === 'approve' ? 'Your bank details were checked and are now in use' : 'Your bank details were refused: ' . mb_substr(trim($note), 0, 200), '/employee-folder']);
 

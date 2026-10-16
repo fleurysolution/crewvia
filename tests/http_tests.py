@@ -420,7 +420,7 @@ _,body=operational.post('/onboarding',{'do':'configure_requirement','requirement
 check('Project onboarding instructions editable','Updated approved safety instruction' in body)
 _,body=operational.post('/roster',{'do':'status','placement_id':data['ids'][0]['placement'],'status':'on_site'})
 _,body=worker.get('/portal')
-check('Updated instructions require fresh review',bool(re.search(r'Updated approved safety instruction</p><span class="tag">pending',body)))
+check('Updated instructions require fresh review',bool(re.search(r'Updated approved safety instruction</p><span class="tag ">To do',body)))
 status,manifest=public.get('/app-manifest')
 check('Public mobile manifest available',status==200 and len(json.loads(manifest)['icons'])>=2)
 with public.opener.open(base+'/assets/app-icon-192.png') as icon_response:

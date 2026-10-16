@@ -54,7 +54,7 @@
     <li><?= te('Choose how you are paid there (direct deposit or a pay card).') ?></li>
   </ol>
   <?php if ($adpReg['note'] !== ''): ?><p class="small"><?= e($adpReg['note']) ?></p><?php endif; ?>
-  <p class="small muted"><?= te('Crewvia never asks for your Social Security number or ITIN. If anyone asks for them here or by text, do not answer.') ?></p>
+  <p class="small muted"><?= te('Crewvia asks for your Social Security number only in your W-4 and I-9, in this portal. Never give it by text, phone or email, to anyone.') ?></p>
   <?php if (! $adpStatus['adp_registered_at']): ?><form method="post" action="/portal"><?= csrf_field() ?><input type="hidden" name="do" value="adp_registered"><button class="btn"><?= te('I have registered with ADP') ?></button></form><?php endif; ?>
 </div>
 <?php endif; ?>
@@ -76,7 +76,34 @@
 <?php if ($hotelCharges): ?><div class="card" id="hotel-charges"><h2><?= te('Hotel charges to you') ?></h2><p class="small muted"><?= te('Charges the hotel billed for your room that the agency asks you to pay. Payroll recovers them with an adjustment they approve; ask payroll if one is wrong.') ?></p><table><?php foreach ($hotelCharges as $hc): ?><tr><td><?= e(d((string) $hc['week_ending'])) ?></td><td><?= e($hc['hotel']) ?></td><td><?= e($hc['description']) ?><?= $hc['accepted_note'] ? '<div class="small muted">' . e($hc['accepted_note']) . '</div>' : '' ?></td><td class="num"><?= e(money($hc['amount'])) ?></td></tr><?php endforeach; ?></table></div><?php endif; ?>
 
 <?php if ($tasks): ?>
-<div class="card" id="onboarding"><h2><?= te('Onboarding tasks') ?></h2><p class="muted small"><?= te('Do not enter Social Security numbers, banking details or identity documents here.') ?></p><?php foreach($tasks as $t): ?><form method="post" class="card"><?= csrf_field() ?><input type="hidden" name="task_id" value="<?= (int)$t['id'] ?>"><h3><?= e($t['project'].' · '.$t['title']) ?></h3><p><?= e($t['instructions']) ?></p><span class="tag"><?= e($t['status']) ?></span><?php if(in_array($t['status'],['pending','rejected'],true)): ?><label><?= te('Completion note') ?></label><textarea name="response" maxlength="2000" required></textarea><button class="btn"><?= te('Submit for review') ?></button><?php endif; ?></form><?php endforeach; ?></div>
+<div class="card" id="onboarding"><h2><?= te('Onboarding tasks') ?></h2><p class="muted small"><?= te('Your Social Security number and bank numbers go only in the forms of these tasks: masked as you type them, encrypted, seen only by payroll and the office. Never send them by text or email.') ?></p>
+<?php $taskWord=['pending'=>t('To do'),'submitted'=>t('Sent, waiting to be checked'),'approved'=>t('Done'),'rejected'=>t('Sent back to you')];$formWord=['submitted'=>t('Waiting to be checked'),'accepted'=>t('Accepted'),'returned'=>t('Sent back to you'),'replaced'=>t('Replaced by a newer one')];
+foreach($tasks as $t): $kind=(string)($t['form_kind']??'');$open=in_array($t['status'],['pending','rejected'],true);$tid=(int)$t['id']; ?>
+<div class="card" id="task-<?= $tid ?>" data-task="<?= $tid ?>" data-form-kind="<?= e($kind) ?>"><h3><?= e($t['project'].' · '.$t['title']) ?></h3><p><?= e($t['instructions']) ?></p><span class="tag <?= $t['status']==='approved'?'green':($t['status']==='rejected'?'red':($t['status']==='submitted'?'amber':'')) ?>"><?= e($taskWord[$t['status']]??$t['status']) ?></span>
+<?php if($kind==='w4'||$kind==='i9'): $fm=$taskForms[$kind]; ?>
+  <?php if($fm): ?><p class="small"><?= te('Signed :date', ['date'=>d(substr((string)$fm['signed_at'],0,10))]) ?> · <?= e($formWord[$fm['status']]??$fm['status']) ?><?= $fm['review_note']?' · '.e($fm['review_note']):'' ?> · <a href="/tax-forms?id=<?= (int)$fm['id'] ?>"><?= te('See what I signed') ?></a></p><?php endif; ?>
+  <?php if($open&&(!$fm||$fm['status']==='returned')): ?><p class="mt-s"><a class="btn" href="/tax-forms?fill=<?= e($kind) ?>" data-fill="<?= e($kind) ?>"><?= $kind==='w4'?te('Fill in my W-4 here'):te('Fill in Section 1 of my I-9 here') ?></a></p><?php endif; ?>
+<?php elseif($kind==='bank'): $last=$taskBank['last']; ?>
+  <?php if($taskBank['in_use']): ?><p class="small"><?= te('In use: :bank, account ending :last.', ['bank'=>$taskBank['in_use']['bank_label'],'last'=>$taskBank['in_use']['last_four']]) ?></p><?php endif; ?>
+  <?php if($last): ?><p class="small"><?= te('Sent :date: :bank, ending :last', ['date'=>d(substr((string)$last['submitted_at'],0,10)),'bank'=>$last['bank_label'],'last'=>$last['last_four']]) ?> · <?= e(['pending'=>t('Waiting to be checked'),'approved'=>t('Accepted'),'rejected'=>t('Refused')][$last['status']]??$last['status']) ?><?= $last['review_note']?' · '.e($last['review_note']):'' ?></p><?php endif; ?>
+  <?php if($open&&(!$last||$last['status']!=='pending')): ?>
+  <form class="mt-s" method="post" action="/portal" autocomplete="off" enctype="multipart/form-data" data-bank-task="<?= $tid ?>"><?= csrf_field() ?><input type="hidden" name="do" value="task_bank">
+    <div class="grid g2">
+      <div><label for="tb-holder-<?= $tid ?>"><?= te('Name on the account') ?></label><input id="tb-holder-<?= $tid ?>" name="account_holder" required maxlength="190" value="<?= e($worker['full_name']) ?>"></div>
+      <div><label for="tb-bank-<?= $tid ?>"><?= te('Bank') ?></label><input id="tb-bank-<?= $tid ?>" name="bank_name" required maxlength="90"></div>
+      <div><label for="tb-routing-<?= $tid ?>"><?= te('Routing number') ?></label><input id="tb-routing-<?= $tid ?>" name="routing_number" required inputmode="numeric" pattern="[0-9 ]{9,11}" autocomplete="off"><p class="small muted m0"><?= te('Nine digits, at the bottom left of a cheque.') ?></p></div>
+      <div></div>
+      <div><label for="tb-acct-<?= $tid ?>"><?= te('Account number') ?></label><div class="row no-wrap"><input id="tb-acct-<?= $tid ?>" name="account_number" type="password" required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"><button type="button" class="btn ghost sm" data-reveal="tb-acct-<?= $tid ?>" data-show="<?= te('Show') ?>" data-hide="<?= te('Hide') ?>" aria-pressed="false"><?= te('Show') ?></button></div></div>
+      <div><label for="tb-acct2-<?= $tid ?>"><?= te('Account number, again') ?></label><input id="tb-acct2-<?= $tid ?>" name="account_number_confirm" type="password" required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off" data-secret-pair="tb-acct-<?= $tid ?>"><p id="tb-acct2-<?= $tid ?>-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p></div>
+      <div><label for="tb-proof-<?= $tid ?>"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="tb-proof-<?= $tid ?>" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
+    </div>
+    <p class="small muted"><?= te('A photo or a PDF where the routing and account numbers can be read. Payroll compares them with what you typed before your pay goes there, so a wrong digit never sends your pay to another account. Everything is encrypted as soon as it is sent; only the last four digits are ever shown.') ?></p>
+    <button class="btn"><?= te('Send my bank details') ?></button></form>
+  <?php endif; ?>
+<?php elseif($open): ?>
+  <form method="post"><?= csrf_field() ?><input type="hidden" name="task_id" value="<?= $tid ?>"><label for="tn-<?= $tid ?>"><?= te('Completion note') ?></label><textarea id="tn-<?= $tid ?>" name="response" maxlength="2000" required></textarea><button class="btn"><?= te('Submit for review') ?></button></form>
+<?php endif; ?>
+</div><?php endforeach; ?><script src="/assets/masked-fields.js"></script></div>
 <?php endif; ?>
 
 <?php if ($applications): ?>

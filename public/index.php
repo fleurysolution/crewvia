@@ -110,8 +110,8 @@ if ($fresh['role']==='client' && !in_array($path,['/client-portal','/notificatio
     if($path==='/') redirect('/client-portal');
     http_response_code(403);render('403',['need'=>['client']]);exit;
 }
-if ($fresh['role'] === 'supervisor' && !in_array($path,['/lateness','/select-project','/project-tasks','/project-board','/workload','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/reviews','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
-if ($fresh['role'] === 'worker' && !in_array($path, ['/lateness','/my-jobs','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/my-payslips','/appraisals','/performance','/benefits','/hr-records','/hr-requests','/self-service','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
+if ($fresh['role'] === 'supervisor' && !in_array($path,['/lateness','/select-project','/project-tasks','/project-board','/workload','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/procurement','/appraisals','/performance','/hr-records','/activity','/approvals','/reviews','/my-team','/safety-plan','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/notification-feed','/timeoff','/learning','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/tax-forms','/employee-folder','/checks','/expenses','/attendance'],true)) redirect('/my-team');
+if ($fresh['role'] === 'worker' && !in_array($path, ['/lateness','/my-jobs','/my-tasks','/my-training','/recognition','/feedback','/surveys','/devices','/my-payslips','/appraisals','/performance','/benefits','/hr-records','/hr-requests','/self-service','/payslip','/activity','/approvals','/portal','/account','/account-security','/language','/qualifications','/screening-workflow','/resumes','/offboarding','/safety-plan','/comms','/notifications','/learning','/timeoff','/agreements','/contracts','/inbox','/notification-feed','/proofs','/employment','/tax-forms','/employee-folder','/checks','/expenses','/attendance'], true)) redirect('/portal');
 // P5-M54: a candidate (not placed yet) opens their applications, offers and papers; the employee screens wait until they are hired.
 if ($fresh['role'] === 'worker' && !in_array($path, candidate_paths(), true) && worker_is_candidate($fresh)) {
     flash(t('That part of the portal opens once you are hired.'));
@@ -250,6 +250,7 @@ $routes = [
     '/my-payslips' => 'my-payslips',
     '/procurement' => 'procurement',
     '/change-requests' => 'change-requests',
+    '/tax-forms' => 'tax-forms',
     '/pay-grades' => 'pay-grades',
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',

@@ -343,3 +343,16 @@ summary{cursor:pointer}
 .row.no-wrap{flex-wrap:nowrap}
 /* P5-M63: the bank proof shown beside the numbers to compare. */
 .bank-proof-img{display:block;max-width:100%;width:520px;border:1px solid var(--ui-line);border-radius:var(--ui-radius)}
+/* P5-M64: the forms filled in the portal (W-4, I-9 Section 1), and a signed form opened or printed. */
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card.soft{background:var(--ui-soft,#f6f7fb)}
+label.tick{display:flex;gap:.5rem;align-items:flex-start;font-weight:400;margin-top:.5rem}
+label.tick input{margin-top:.2rem;flex:none}
+.tax-form fieldset{border:0;padding:0;margin:.75rem 0 0}
+.tax-form legend{font-weight:600}
+.tf-sheet{max-width:900px}
+.tf-sheet table td:first-child{width:40%}
+@media print{.sidebar,.top,.nav,.no-print,.flash{display:none!important}.tf-sheet{max-width:none}main{padding:0!important;margin:0!important}}
+.tax-form .g2,.tax-form .g3,[data-bank-task] .g2,#my-bank .g2{grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr))}
+.tax-form .row.no-wrap>input,[data-bank-task] .row.no-wrap>input{flex:1 1 auto;min-width:0;width:auto}
+.tax-form .row.no-wrap>.btn,[data-bank-task] .row.no-wrap>.btn{flex:none;width:auto;min-width:0;padding-left:.75rem;padding-right:.75rem}

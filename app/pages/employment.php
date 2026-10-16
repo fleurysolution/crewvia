@@ -25,7 +25,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  if($do==='employer') {
   require_role('recruiter');$name=trim((string)($_POST['verifier_name'] ?? ''));$method=$_POST['verification_method'] ?? '';$first=(string)($_POST['first_day'] ?? '');$due=(string)($_POST['review_due_on'] ?? '');
   $case=row('SELECT * FROM employment_clearance WHERE candidate_id=?',[$cid]);
-  if(!$doc || !$name || !$case || !$case['section1_document_id'] || !valid_date($first) || !valid_date($due) || !in_array($method,['in_person','authorized_representative'],true) || !isset($_POST['attest'])) { refuse(422, t('Completed Section 1, employer-signed form evidence, verifier and dates are required.')); }
+  if(!$doc || !$name || !$case || (!$case['section1_document_id'] && !$case['i9_form_id']) || !valid_date($first) || !valid_date($due) || !in_array($method,['in_person','authorized_representative'],true) || !isset($_POST['attest'])) { refuse(422, t('Completed Section 1, employer-signed form evidence, verifier and dates are required.')); }
   q("UPDATE employment_clearance SET first_day=?,review_due_on=?,section2_document_id=?,verifier_name=?,verification_method=?,verified_by=?,verified_at=NOW(),i9_status='employer_completed' WHERE candidate_id=?",[$first,$due,$docId,$name,$method,uid(),$cid]);
  }
  if($do==='review_w4') {
@@ -42,4 +42,7 @@ $signing=null;
 if(!$isWorker && isset($_SESSION['signing_code']) && (int)$_SESSION['signing_code']['candidate_id']===$cid && $_SESSION['signing_code']['expires']>date('Y-m-d H:i:s')){$signing=$_SESSION['signing_code'];unset($_SESSION['signing_code']);}
 $witness=$case && !empty($case['w4_witness_id'])?(string)val('SELECT name FROM users WHERE id=?',[(int)$case['w4_witness_id']]):'';
 $signFromLink=$isWorker?preg_replace('/\D/','',(string)($_GET['sign']??'')):'';
-render('employment',compact('isWorker','case','documents','candidates','cid','signing','witness','signFromLink'));
+// P5-M64: the W-4 and the I-9 signed in the portal.
+require_once __DIR__.'/../tax-forms.php';
+$portalForms=$cid?['w4'=>tf_history($cid,'w4')[0]??null,'i9'=>tf_history($cid,'i9')[0]??null]:[];
+render('employment',compact('isWorker','case','documents','candidates','cid','signing','witness','signFromLink','portalForms'));

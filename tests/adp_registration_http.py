@@ -92,7 +92,8 @@ check('The worker sees the steps: ADP\'s site, the code, and that payroll gives 
       card and 'href="https://my.adp.com" target="_blank" rel="noopener noreferrer"' in card[1] and 'id="adp-code">RSSINC-2026<' in card[1]
       and 'Payroll gives you your employee ID' in card[1] and 'Register before your first Friday.' in card[1], card[1][:500] if card else body[:300])
 check('Their home lists it as waiting on them', 'Register with ADP to be paid' in body and 'href="#adp"' in body)
-check('Crewvia tells them it never asks for an SSN or ITIN, and has no field for one', 'Crewvia never asks for your Social Security number or ITIN' in body and no_identity_fields(body))
+# P5-M64: the SSN is asked only in the W-4 and the I-9 the worker fills in the portal (/tax-forms), never on this page.
+check('Crewvia tells them where it asks for the SSN, and this page has no field for one', 'Crewvia asks for your Social Security number only in your W-4 and I-9' in body and no_identity_fields(body))
 
 # ── payroll records the employee ID ─────────────────────────────────────
 status, body = payroll.post(PAGE, {'do': 'adp_employee_id', 'candidate_id': fx['worker'], 'adp_employee_id': 'x y'}, PAGE)

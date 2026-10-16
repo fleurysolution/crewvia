@@ -1,6 +1,19 @@
 <div class="page-head"><div><h1><?= te('Change requests') ?></h1>
 <p class="sub"><?= te('What workers asked to change from their own folder. Nothing changes until it is accepted here; a refusal tells the worker why.') ?></p></div></div>
 
+<div class="card" id="tax-forms">
+  <h2><?= te('Forms signed in the portal') ?></h2>
+  <p class="muted"><?= can('payroll') && can('recruiter') ? te('W-4s for payroll to enter in ADP; I-9s for the office to check before Section 2. Opening a form shows the full numbers, and is recorded.') : (can('payroll') ? te('W-4s to enter in ADP, then accept. Opening a form shows the full numbers, and is recorded.') : te('Section 1 of the I-9, to check before you complete Section 2 with the person and their original documents. Opening a form shows the full numbers, and is recorded.')) ?></p>
+  <?php if (! $taxForms): ?><p class="muted"><?= te('No form waiting.') ?></p><?php endif; ?>
+  <?php foreach ($taxForms as $r): ?>
+  <div class="row list-row" data-tax-form-waiting="<?= (int) $r['id'] ?>">
+    <div class="min-w"><strong><a href="/employee-folder?id=<?= (int) $r['candidate_id'] ?>"><?= e($r['full_name']) ?></a></strong>
+      <div class="small"><?= e(tf_forms()[$r['form']]['short']) ?> · <?= te('signed :date', ['date' => d(substr((string) $r['signed_at'], 0, 10))]) ?><?= $r['ssn_last_four'] ? ' · ' . te('SSN ending :last', ['last' => $r['ssn_last_four']]) : '' ?></div></div>
+    <a class="btn sm" href="/tax-forms?id=<?= (int) $r['id'] ?>"><?= te('Open and decide') ?></a>
+  </div>
+  <?php endforeach; ?>
+</div>
+
 <?php if (can('payroll')): ?>
 <div class="card" id="bank-requests">
   <h2><?= te('Bank details to check') ?></h2>

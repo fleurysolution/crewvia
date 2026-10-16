@@ -606,7 +606,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=5">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=7">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
