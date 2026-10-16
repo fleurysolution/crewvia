@@ -57,9 +57,12 @@ function onboarding_form_tasks(int $candidateId, string $kind, string $status, s
  */
 function onboarding_form_catch_up(string $where, array $args): void
 {
-    $done = "(r.form_kind IN ('w4','i9') AND EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = r.form_kind AND f.status = 'accepted'))
+    // Each form by its literal value: the tables do not share a collation everywhere (production), so their ENUMs are never compared.
+    $done = "(r.form_kind = 'w4' AND EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = 'w4' AND f.status = 'accepted'))
+             OR (r.form_kind = 'i9' AND EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = 'i9' AND f.status = 'accepted'))
              OR (r.form_kind = 'bank' AND EXISTS (SELECT 1 FROM worker_bank_details b WHERE b.candidate_id = p.candidate_id AND b.status = 'verified'))";
-    $sent = "(r.form_kind IN ('w4','i9') AND EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = r.form_kind AND f.status = 'submitted'))
+    $sent = "(r.form_kind = 'w4' AND EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = 'w4' AND f.status = 'submitted'))
+             OR (r.form_kind = 'i9' AND EXISTS (SELECT 1 FROM worker_tax_forms f WHERE f.candidate_id = p.candidate_id AND f.form = 'i9' AND f.status = 'submitted'))
              OR (r.form_kind = 'bank' AND EXISTS (SELECT 1 FROM worker_bank_change_requests b WHERE b.candidate_id = p.candidate_id AND b.status = 'pending'))";
     q("UPDATE onboarding_tasks t JOIN placements p ON p.id = t.placement_id JOIN onboarding_requirements r ON r.id = t.requirement_id
        SET t.status = 'approved', t.response = 'Already on file', t.reviewed_at = NOW()
