@@ -50,8 +50,19 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   // P5-M27: a shift chosen from the plant's list brings its name and start time with it.
   require_once __DIR__.'/../shifts.php';$shift=(int)($_POST['shift_id'] ?? 0)?shift_of($jobId,(int)$_POST['shift_id']):null;
   if((int)($_POST['shift_id'] ?? 0) && !$shift) { refuse(422, t('That shift is not on this project.')); }
+  // P5-M61: nothing was saved without a trade, and nothing said so.
+  if($trade==='') { refuse(422, t('Enter the trade this person works on the project.'), ($_POST['back'] ?? '')==='/organization' ? '/organization?assign='.$pid : '/operations'); }
+  $wasSupervisor=(int)val('SELECT supervisor_id FROM assignment_details WHERE placement_id=?',[$pid]);
   if($trade && $shift) q('INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label,shift_id,shift_start) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE trade=VALUES(trade),supervisor_id=VALUES(supervisor_id),shift_label=VALUES(shift_label),shift_id=VALUES(shift_id),shift_start=VALUES(shift_start)',[$pid,$trade,$sid?:null,$shift['name'],(int)$shift['id'],$shift['starts_at']]);
   elseif($trade) q('INSERT INTO assignment_details(placement_id,trade,supervisor_id,shift_label) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE trade=VALUES(trade),supervisor_id=VALUES(supervisor_id),shift_label=VALUES(shift_label)',[$pid,$trade,$sid?:null,trim((string)($_POST['shift_label'] ?? ''))]);
+  // P5-M61: said so, and the supervisor who gains the person is told.
+  $who=(string)val('SELECT c.full_name FROM placements p JOIN candidates c ON c.id=p.candidate_id WHERE p.id=?',[$pid]);
+  $supName=$sid?(string)val('SELECT name FROM users WHERE id=?',[$sid]):'';
+  if($sid && $sid!==$wasSupervisor){
+   require_once __DIR__.'/../notices.php';
+   notify_user($sid,t(':name joins your crew on :project (:trade:shift), from :date.',['name'=>$who,'project'=>(string)(current_job()['title'] ?? ''),'trade'=>$trade,'shift'=>$shift?', '.$shift['name']:'','date'=>d((string)($placement['start_date'] ?? date('Y-m-d')))]),'/my-team');
+  }
+  flash($sid?t(':name: :trade, with :supervisor.',['name'=>$who,'trade'=>$trade,'supervisor'=>$supName]).($sid!==$wasSupervisor?' '.t('They are told.'):''):t(':name: :trade, without a supervisor yet.',['name'=>$who,'trade'=>$trade]));
   // Saved from the organization chart: back to the chart, at that person.
   if(($_POST['back'] ?? '')==='/organization') { log_activity('operations update','project',$jobId,$do); redirect('/organization#person-'.$pid); }
  }

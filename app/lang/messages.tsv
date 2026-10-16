@@ -4642,3 +4642,8 @@ on site	sur site	en el sitio
 without a supervisor	sans superviseur	sin supervisor
 applicants on :n open requisition (:o openings)	candidats sur :n réquisition ouverte (:o postes)	candidatos en :n requisición abierta (:o puestos)
 applicants on :n open requisitions (:o openings)	candidats sur :n réquisitions ouvertes (:o postes)	candidatos en :n requisiciones abiertas (:o puestos)
+:name joins your crew on :project (:trade:shift), from :date.	:name rejoint votre équipe sur :project (:trade:shift), à partir du :date.	:name se une a su equipo en :project (:trade:shift), desde el :date.
+:name: :trade, with :supervisor.	:name : :trade, avec :supervisor.	:name: :trade, con :supervisor.
+:name: :trade, without a supervisor yet.	:name : :trade, pas encore de superviseur.	:name: :trade, todavía sin supervisor.
+Enter the trade this person works on the project.	Indiquez le métier de cette personne sur le projet.	Indique el oficio de esta persona en el proyecto.
+They are told.	La personne est prévenue.	Se le ha avisado.

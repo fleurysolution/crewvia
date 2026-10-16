@@ -3,6 +3,7 @@
  * The P5-M17 test's eyes and hands, on the test database only.
  *   read        the fixture's assignments
  *   staff <n>   adds n more active staff who could be given a crew
+ *   notes <id>  the notifications of that user (P5-M61)
  */
 
 declare(strict_types=1);
@@ -15,6 +16,10 @@ if (($argv[1] ?? '') === 'staff') {
     for ($i = 0; $i < (int) $argv[2]; $i++) {
         q("INSERT INTO users(name,email,password_hash,role,must_change_pw) VALUES (?,?,'x','supervisor',0)", ['Org extra ' . bin2hex(random_bytes(3)), 'org-x-' . bin2hex(random_bytes(4)) . '@test.invalid']);
     }
+    exit(0);
+}
+if (($argv[1] ?? '') === 'notes') {
+    echo json_encode(array_column(rows('SELECT message FROM notifications WHERE user_id = ? ORDER BY id', [(int) $argv[2]]), 'message'));
     exit(0);
 }
 $fx = json_decode((string) file_get_contents(__DIR__ . '/organization.json'), true);
