@@ -152,10 +152,17 @@ function offer_terms(int $vacancyId): array
     return $terms;
 }
 
-/** The day a requisition starts, for the placement made from it (walkthrough finding: it was left empty). */
+/**
+ * The day a requisition starts, for the placement made from it (walkthrough finding: it was left empty).
+ * P5-M56: a start already passed means "starts immediately", as the offer letter says: the placement
+ * starts the day it is made (the office changes it on the placement), not on a date in the past.
+ */
 function offer_start_date(int $vacancyId): ?string
 {
     $start = val('SELECT starts_on FROM vacancies WHERE id = ?', [$vacancyId]);
+    if (! $start) {
+        return null;
+    }
 
-    return $start ? (string) $start : null;
+    return max((string) $start, date('Y-m-d'));
 }
