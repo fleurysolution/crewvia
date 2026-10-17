@@ -149,7 +149,7 @@ function review_decide(int $reviewId, string $decision, string $note, int $by, a
     review_notify((int) $r['requested_by'], $hr
                       ? t(':name approved by :who and handed to HR (:hr). Nothing more for you.', ['name' => (string) ($a['full_name'] ?? ''), 'who' => $who, 'hr' => $hr])
                       : t(':name: :decision', ['name' => (string) ($a['full_name'] ?? ''), 'decision' => review_statuses()[$decision]]),
-                  '/hiring?v=' . (int) ($a['vacancy_id'] ?? 0) . '&app=' . $applicationId);
+                  $hr ? '/hiring?v=' . (int) ($a['vacancy_id'] ?? 0) . '&app=' . $applicationId : '/candidates/' . (int) ($a['candidate_id'] ?? 0));
     log_activity('decided on an applicant', 'application', $applicationId, $decision);
 
     return null;
@@ -208,7 +208,7 @@ function interview_record(int $interviewId, string $status, int $rating, string 
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [(int) $i['application_id'], $by, 'interview', trim($note)]);
     if ((int) $i['created_by'] !== $by) {
         $a = review_application((int) $i['application_id']);
-        review_notify((int) $i['created_by'], t('Interview recorded for :name', ['name' => (string) ($a['full_name'] ?? '')]), '/hiring?v=' . (int) ($a['vacancy_id'] ?? 0) . '&app=' . (int) $i['application_id']);
+        review_notify((int) $i['created_by'], t('Interview recorded for :name', ['name' => (string) ($a['full_name'] ?? '')]), '/candidates/' . (int) ($a['candidate_id'] ?? 0));
     }
     log_activity('recorded an interview', 'application', (int) $i['application_id'], $status);
 
@@ -235,6 +235,9 @@ function review_dossier(int $applicationId): ?array
     $a['notes'] = rows("SELECT e.note, e.created_at, u.name FROM application_events e LEFT JOIN users u ON u.id = e.user_id WHERE e.application_id = ? AND e.note IS NOT NULL AND e.note <> '' ORDER BY e.id DESC LIMIT 20", [$applicationId]);
     $a['reviews'] = rows('SELECT r.*, q.name AS requester, m.name AS reviewer FROM application_reviews r JOIN users q ON q.id = r.requested_by JOIN users m ON m.id = r.reviewer_id WHERE r.application_id = ? ORDER BY r.id DESC', [$applicationId]);
     $a['interviews'] = rows('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.application_id = ? ORDER BY i.scheduled_at DESC', [$applicationId]);
+    // P5-M92: the recruiter's checklist answers, for the person who decides.
+    require_once __DIR__ . '/checklists.php';
+    $a['checklist'] = cl_for_application($applicationId);
 
     return $a;
 }
@@ -267,6 +270,12 @@ function review_hand_to_hr(int $applicationId, int $by, bool $expedite = false):
            $hr ?: null, date('Y-m-d', strtotime('+2 days')), $by]);
         $task = (int) db()->lastInsertId();
         pt_event($task, $by, 'created', null, $title);
+        try {
+            // P5-M92: the task opens the person's forms, where they are signed in person.
+            q('UPDATE project_tasks SET link = ? WHERE id = ?', ['/tax-forms?person=' . (int) $a['candidate_id'], $task]);
+        } catch (Throwable $e) {
+            // Before the upgrade: the task without its link.
+        }
         if ($hr) {
             pt_notify($hr, $by, t('To onboard: :name, approved for :role', ['name' => $a['full_name'], 'role' => $a['title']]), '/my-tasks?task=' . $task);
         }
@@ -311,6 +320,11 @@ function review_travel_task(int $handoffId, int $by): ?int
        $who, date('Y-m-d', strtotime('+1 day')), $by]);
     $task = (int) db()->lastInsertId();
     pt_event($task, $by, 'created', null, $title);
+    try {
+        q("UPDATE project_tasks SET link = '/travel' WHERE id = ?", [$task]);
+    } catch (Throwable $e) {
+        // Before the upgrade: the task without its link.
+    }
     if ($who) {
         pt_notify($who, $by, t('Travel to book: :name for :job', ['name' => $h['full_name'], 'job' => $h['job']]), '/my-tasks?task=' . $task);
     }

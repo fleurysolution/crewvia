@@ -80,7 +80,7 @@ t0 = probe('notices', IDS['temp'])['count']; r1 = probe('notices', IDS['rec'])['
 line = probe('line', 'Walk welder')['id']
 rec.post('/requisitions', {'do': 'create', 'order_line_id': line, 'title': 'Walk welder req', 'discipline': 'mechanical', 'openings': '50', 'starts_on': '2026-11-09', 'description': 'Synthetic.'}, '/requisitions')
 n = probe('notices', IDS['temp'])
-check('A requisition tells the other recruiters to find the candidates, linking to it in Hiring', n['count'] == t0 + 1 and 'New requisition on P5-M26 plant: 50 x Walk welder req starting' in n['last'] and n['target'].startswith('/hiring?v='), n)
+check('A requisition tells the other recruiters to find the candidates, linking to its applicants', n['count'] == t0 + 1 and 'New requisition on P5-M26 plant: 50 x Walk welder req starting' in n['last'] and n['target'].startswith('/candidates?vacancy='), n)
 check('but not the recruiter who raised it', probe('notices', IDS['rec'])['count'] == r1)
 
 # ── the VP validates an offer before it reaches the candidate ──────────

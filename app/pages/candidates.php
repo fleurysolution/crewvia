@@ -157,6 +157,7 @@ if(isset($_GET['screened_before'])) $where[]="EXISTS(SELECT 1 FROM screening_cas
 // 'do_not_use' added, listing it as available for rehire would be the
 // exact mistake the register is there to prevent.
 if(isset($_GET['available'])) $where[]="EXISTS(SELECT 1 FROM employee_profiles ep WHERE ep.candidate_id=c.id AND ep.availability='available' AND ep.rehire_status NOT IN ('ineligible','do_not_use'))";
+require_once __DIR__ . '/../availability.php';
 $sql = 'SELECT c.*, u.name AS owner_name, ep.rehire_status,
                (SELECT COUNT(*) FROM candidate_calls k WHERE k.candidate_id = c.id) AS calls,
                (SELECT k.outcome FROM candidate_calls k WHERE k.candidate_id = c.id
@@ -165,6 +166,8 @@ $sql = 'SELECT c.*, u.name AS owner_name, ep.rehire_status,
                   FROM candidate_skills cs WHERE cs.candidate_id = c.id) AS skill_slugs,
                (SELECT MIN(aa.created_at) FROM applications aa WHERE aa.candidate_id = c.id' . ($vacancyFilter ? ' AND aa.vacancy_id = ' . $vacancyFilter : '') . ') AS applied_at,
                (SELECT aa.source FROM applications aa WHERE aa.candidate_id = c.id' . ($vacancyFilter ? ' AND aa.vacancy_id = ' . $vacancyFilter : '') . ' ORDER BY aa.id LIMIT 1) AS applied_via,
+               (SELECT r.status FROM application_reviews r JOIN applications ra ON ra.id = r.application_id
+                 WHERE ra.candidate_id = c.id AND r.status <> \'withdrawn\' ORDER BY r.id DESC LIMIT 1) AS review_status,
                ' . $distanceSql . ' AS miles_away
         FROM candidates c
         LEFT JOIN users u ON u.id = c.owner_id

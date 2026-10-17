@@ -404,3 +404,6 @@ details.fold[open] .fold-note { display: none; }
 .req-pop.wide { width: 320px; }
 /* P5-M88: a list of people to tick, side by side. */
 .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 2px 14px; }
+
+/* P5-M92: a section reached by its link stays clear of the sticky header. */
+main [id] { scroll-margin-top: 72px; }

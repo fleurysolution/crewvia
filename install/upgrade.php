@@ -3064,4 +3064,16 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Scope history: each edit of a line of the scope of work is kept with what changed, why, who and when (the plant).' . PHP_EOL;
 }
 
+// P5-M92: a task opens the screen where it is done (HR: the person's forms; travel: Travel).
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='project_tasks' AND column_name='link'")) {
+    q('ALTER TABLE project_tasks ADD COLUMN link VARCHAR(255) NULL');
+    try {
+        q("UPDATE project_tasks t JOIN hiring_handoffs h ON h.hr_task_id = t.id SET t.link = CONCAT('/tax-forms?person=', h.candidate_id)");
+        q("UPDATE project_tasks t JOIN hiring_handoffs h ON h.travel_task_id = t.id SET t.link = '/travel'");
+    } catch (Throwable $e) {
+        // No hand-over table yet: nothing to point.
+    }
+    echo 'Tasks: the onboarding and travel tasks open the screen where they are done.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

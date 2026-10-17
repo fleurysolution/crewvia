@@ -611,7 +611,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=13">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=14">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -645,8 +645,9 @@ input,select,textarea{border-color:#8a96a6}
                 ? '<span class="nav-badge">' . (int) $n . '</span>'
                 : '';
 
-            printf('<a href="%s" class="%s">%s%s</a>',
-                   e($href), $here === $href ? 'on' : '', te($label), $badge);
+            // P5-M93: the public job board opens beside the workspace.
+            printf('<a href="%s" class="%s"%s>%s%s</a>',
+                   e($href), $here === $href ? 'on' : '', $href === '/careers' ? ' target="_blank" rel="noopener" data-careers' : '', te($label), $badge);
         };
 
         // Wave 3: the role's daily screens first, in the order of its day;

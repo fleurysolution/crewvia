@@ -94,24 +94,23 @@ W = H + '?v=%d' % OPEN
 # ── the requisitions list ──────────────────────────────────────────────
 status, body = rec.get(H)
 check('A recruiter opens Hiring from the menu', status == 200 and 'href="/hiring"' in body and 'id="jobs"' in body)
-check('The open requisition is listed with its new applicants counted', 'data-vacancy="%d"' % OPEN in body and re.search(r'href="/hiring\?v=%d&amp;stage=new" data-new="2"' % OPEN, body))
+check('The open requisition is listed: its approved people, and its applicants a link to Candidates (P5-M93)', 'data-vacancy="%d"' % OPEN in body and 'data-to-onboard="0"' in body and ('href="/candidates?vacancy=%d"' % OPEN) in body and 'data-applicants="4"' in body)
 check('The closed one is not, until asked for', 'data-vacancy="%d"' % CLOSED not in body and 'data-vacancy="%d"' % CLOSED in rec.get(H + '?status=closed')[1])
 
 # ── one requisition ────────────────────────────────────────────────────
 status, body = rec.get(W)
-check('The workspace opens on the active applicants', status == 200 and listed(body) == {ANN, BEN, DEE}, listed(body))
-check('Its stage tabs count every application', (tab_count(body, 'active'), tab_count(body, 'new'), tab_count(body, 'screening'), tab_count(body, 'accepted'), tab_count(body, 'all')) == (3, 2, 1, 1, 4))
+check('The workspace holds no applicant a manager has not approved', status == 200 and listed(body) == set(), listed(body))
+check('Its tabs count the approved people only', (tab_count(body, 'active'), tab_count(body, 'accepted'), tab_count(body, 'all')) == (0, 1, 1))
 check('Hired shows the hired person only', listed(rec.get(W + '&stage=accepted')[1]) == {CARA})
-check('All shows all four, as the list counted them', listed(rec.get(W + '&stage=all')[1]) == {ANN, BEN, CARA, DEE})
-check('Search narrows by name', listed(rec.get(W + '&q=Ann')[1]) == {ANN})
-check('The best score comes first when asked', re.findall(r'data-app="(\d+)"', rec.get(W + '&sort=score')[1])[:1] == [str(ANN)])
+check('All shows the hired one, not the applicants', listed(rec.get(W + '&stage=all')[1]) == {CARA})
+check('Search narrows by name', listed(rec.get(W + '&stage=all&q=Cara')[1]) == {CARA} and listed(rec.get(W + '&stage=all&q=Ann')[1]) == set())
 check('A requisition that does not exist is refused', rec.get(H + '?v=999999')[0] == 404)
 
 # ── interest ───────────────────────────────────────────────────────────
 rec.post({'do': 'interest', 'application_id': ANN, 'interest': 'yes', 'back': W})
 a = app('ann')
 check('Marking an applicant as interesting records who and when', a['interest'] == 'yes' and int(a['interest_by']) == IDS['rec'] and a['interest_at'])
-check('The interest filter finds them', listed(rec.get(W + '&interest=yes')[1]) == {ANN} and ANN not in listed(rec.get(W + '&interest=unset')[1]))
+check('An applicant marked interesting stays out of Hiring until approved', ANN not in listed(rec.get(W + '&stage=all&interest=yes')[1]))
 rec.post({'do': 'interest', 'application_id': ANN, 'interest': 'yes', 'back': W})
 check('A second click clears it', app('ann')['interest'] is None and app('ann')['interest_by'] is None)
 rec.post({'do': 'interest', 'application_id': DEE, 'interest': 'maybe', 'back': W})
@@ -134,20 +133,21 @@ check('and while a document the project requires is not verified', rec.post({'do
 probe('require', JOB, 'off')
 rec.post({'do': 'move', 'application_id': BEN, 'stage': 'offered', 'note': '40/h, 12 weeks', 'back': W})
 check('Ready, the offer goes through with its terms', app('ben')['stage'] == 'offered' and [e for e in probe()['events'] if int(e['application_id']) == BEN][-1]['note'] == '40/h, 12 weeks')
+check('Offered, they come into Hiring, to onboard', listed(rec.get(W)[1]) == {BEN})
 check('A hired application is settled', rec.post({'do': 'move', 'application_id': CARA, 'stage': 'new'})[0] == 422 and app('cara')['stage'] == 'accepted')
 rec.post({'do': 'reject', 'application_id': DEE, 'note': 'No travel', 'back': W})
 check('Rejecting keeps the reason', app('dee')['stage'] == 'rejected' and [e for e in probe()['events'] if int(e['application_id']) == DEE][-1]['note'] == 'No travel')
 check('and settles it', rec.post({'do': 'move', 'application_id': DEE, 'stage': 'screening'})[0] == 422)
-check('The rejected tab shows it', listed(rec.get(W + '&stage=closed')[1]) == {DEE})
+check('Rejected before any approval, they never come into Hiring', listed(rec.get(W + '&stage=closed')[1]) == set())
 
 # ── notes, the split review ────────────────────────────────────────────
 check('An empty note is refused', rec.post({'do': 'note', 'application_id': ANN, 'note': ' '})[0] == 422)
 rec.post({'do': 'note', 'application_id': ANN, 'note': 'Prefers night shift', 'back': W})
 check('A note joins the application\'s events', [e for e in probe()['events'] if int(e['application_id']) == ANN][-1]['note'] == 'Prefers night shift')
-status, body = rec.get(W + '&stage=all&app=%d' % ANN)
-check('The split review shows the applicant beside the list', status == 200 and 'id="review"' in body and 'data-application="%d"' % ANN in body and 'data-list-app="%d"' % BEN in body)
+status, body = rec.get(W + '&stage=all&app=%d' % BEN)
+check('The split review shows the person beside the list', status == 200 and 'id="review"' in body and 'data-application="%d"' % BEN in body and 'data-list-app="%d"' % CARA in body)
 check('with the screener questions, the move and reject forms', 'id="screener"' in body and 'id="move-form"' in body and 'id="reject-form"' in body)
-check('and the next and previous applicants', 'id="prev-app"' in body and 'id="next-app"' in body)
+check('and the next or previous person', 'id="prev-app"' in body or 'id="next-app"' in body)
 body = rec.get(W + '&stage=all&app=%d&detail=activity' % ANN)[1]
 check('Its activity shows the notes and moves', 'id="activity"' in body and 'Prefers night shift' in body and 'Phone screen booked' in body)
 check('An application of another requisition is not opened here', rec.get(H + '?v=%d&app=%d' % (CLOSED, ANN))[0] == 404)
@@ -160,7 +160,8 @@ check('but nobody on the do-not-rehire register, in another discipline or alread
 rec.post({'do': 'add', 'vacancy_id': OPEN, 'candidate_id': CANDS['pool'], 'back': W + '&tab=matches'})
 added = [a for a in probe()['applications'] if int(a['candidate_id']) == CANDS['pool']]
 check('Adding one makes a new application from the talent pool', len(added) == 1 and added[0]['stage'] == 'new' and added[0]['source'] == 'Talent pool' and [e for e in probe()['events'] if int(e['application_id']) == int(added[0]['id'])][-1]['note'] == 'Added from the talent pool')
-check('They leave the matches and join the applicants', 'data-match="%d"' % CANDS['pool'] not in rec.get(W + '&tab=matches')[1] and int(added[0]['id']) in listed(rec.get(W + '&stage=new')[1]))
+check('They leave the matches and join the applicants, on Candidates', 'data-match="%d"' % CANDS['pool'] not in rec.get(W + '&tab=matches')[1] and int(added[0]['id']) not in listed(rec.get(W + '&stage=all')[1])
+      and ('/candidates/%d"' % CANDS['pool']) in rec.get('/candidates?vacancy=%d' % OPEN)[1])
 check('Never twice', rec.post({'do': 'add', 'vacancy_id': OPEN, 'candidate_id': CANDS['pool']})[0] == 422)
 check('Never someone on the do-not-rehire register', rec.post({'do': 'add', 'vacancy_id': OPEN, 'candidate_id': CANDS['banned']})[0] == 422)
 check('Never to a closed requisition', rec.post({'do': 'add', 'vacancy_id': CLOSED, 'candidate_id': CANDS['veteran']})[0] == 422)
@@ -177,8 +178,8 @@ body = rec.get(H)[1]
 check('The header has the bell and the account menu', 'id="bell"' in body and 'id="account-menu"' in body and 'action="/logout"' in body)
 check('with the language picker kept inside it', 'id="lang-pick"' in body)
 body = rec.get(W + '&lang=fr')[1]
-check('Hiring in French', 'Correspondances du vivier' in body and 'Toutes les demandes' in body)
-check('and in Spanish', 'Coincidencias de la bolsa de talento' in rec.get(W + '&lang=es')[1])
+check('Hiring in French', 'À intégrer' in body and 'Toutes les demandes' in body)
+check('and in Spanish', 'Por incorporar' in rec.get(W + '&lang=es')[1])
 rec.get(H + '?lang=en')
 
 json.dump(results, open('work/hw-http-results.json', 'w'), indent=1)

@@ -23,14 +23,14 @@
         $link = rtrim((string) ($config['app_url'] ?? ''), '/') . '/apply?id=' . (int) $requisition['id'];
         $where = trim((string) $requisition['site_city'] . ' ' . (string) $requisition['site_state']); ?>
       <tr data-requisition="<?= (int) $requisition['id'] ?>">
-        <td><strong><?= e($requisition['title']) ?></strong>
+        <td><a href="/candidates?vacancy=<?= (int) $requisition['id'] ?>" data-applicants-link><strong><?= e($requisition['title']) ?></strong></a>
           <div class="small muted"><?= te(ucfirst((string) ($requisition['discipline'] ?? 'other'))) ?><?= $where !== '' ? ' &middot; ' . e($where) : '' ?><?= ! empty($requisition['shift']) ? ' &middot; ' . e($requisition['shift']) : '' ?><?= ! empty($requisition['starts_on']) ? ' &middot; ' . te('Starts') . ' ' . e(d($requisition['starts_on'])) : '' ?>
           <?php if (empty($requisition['line_role'])): ?> &middot; <span class="tag amber"><?= te('Not on the scope of work') ?></span><?php endif; ?></div></td>
         <td class="nowrap"><strong><?= $rolePay !== null ? e(money((float) $rolePay)) : '&mdash;' ?></strong> <span class="small muted"><?= te('/h') ?></span>
           <?php if ($roleBill !== null): ?><div class="small muted"><?= te('billed :amount', ['amount' => money((float) $roleBill)]) ?></div><?php endif; ?></td>
         <td class="req-fill"><div class="headcount-bar"><span style="width:<?= (int) round(min($placed, $asked) / $asked * 100) ?>%"></span></div>
           <span class="small"><?= te(':placed of :asked placed', ['placed' => $placed, 'asked' => $asked]) ?></span></td>
-        <td><?= (int) $requisition['applications'] ?></td>
+        <td><?php // P5-M91: the applicants of this requisition, a click away, on Candidates. ?><a class="btn ghost sm" href="/candidates?vacancy=<?= (int) $requisition['id'] ?>" title="<?= te('See the applicants') ?>"><?= (int) $requisition['applications'] ?></a></td>
         <td><span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>"><?= $requisition['is_open'] ? te('Open') : te('Closed') ?></span></td>
         <td class="right nowrap">
           <button type="button" class="btn ghost sm" data-copy-link="<?= e($link) ?>" data-copied="<?= te('Link copied') ?>"><?= te('Copy link') ?></button>

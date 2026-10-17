@@ -29,7 +29,7 @@ $stages = candidate_stages();
         <option value=""><?= te('Any requisition, or none') ?></option>
         <?php foreach ($vacancyChoices as $vc): ?><option value="<?= (int) $vc['id'] ?>"<?= (int) $vc['id'] === $vacancyFilter ? ' selected' : '' ?>><?= e($vc['title'] . ' · ' . $vc['job']) ?> (<?= (int) $vc['applied'] ?>)</option><?php endforeach; ?>
       </select>
-      <?php if ($vacancyFilter): ?><span class="hint d-block" data-pool-tabs><?php foreach (['applied' => t('Applicants'), 'match' => t('Matching in the database')] as $pk => $pl): ?><?= $vacancyPool === $pk ? '<strong>' . e($pl) . '</strong>' : '<a href="?' . e(http_build_query(['pool' => $pk === 'match' ? 'match' : '', 'page' => ''] + $_GET)) . '">' . e($pl) . '</a>' ?> &middot; <?php endforeach; ?></span><?php endif; ?>
+      <?php if ($vacancyFilter): ?><span class="hint d-block" data-pool-tabs><a href="/hiring?v=<?= (int) $vacancyFilter ?>&amp;tab=add" id="add-applicant-link"><?= te('Add an applicant') ?></a> &middot; <?php foreach (['applied' => t('Applicants'), 'match' => t('Matching in the database')] as $pk => $pl): ?><?= $vacancyPool === $pk ? '<strong>' . e($pl) . '</strong>' : '<a href="?' . e(http_build_query(['pool' => $pk === 'match' ? 'match' : '', 'page' => ''] + $_GET)) . '">' . e($pl) . '</a>' ?> &middot; <?php endforeach; ?></span><?php endif; ?>
       <?php if ($vacancyFilter && $vacancyPool === 'applied'): ?><span class="hint"><?= ($_GET['order'] ?? '') === 'newest' ? te('Newest application first.') : te('First applied, first listed.') ?> <a href="?<?= e(http_build_query(['order' => ($_GET['order'] ?? '') === 'newest' ? '' : 'newest'] + $_GET)) ?>"><?= ($_GET['order'] ?? '') === 'newest' ? te('Oldest first') : te('Newest first') ?></a></span><?php endif; ?>
     </div>
     <div>
@@ -189,6 +189,9 @@ $stages = candidate_stages();
             <?= e($c['full_name']) ?>
           </a>
           <?= rehire_tag($c['rehire_status'] ?? null) ?>
+          <?php // P5-M93: what the recruiter read in Hiring, now here: when they can start, and where the review stands. ?>
+          <?php if (($avw = availability_words($c['availability'] ?? null, $c['available_from'] ?? null)) !== ''): ?><span class="tag <?= availability_tone($c['availability'], $c['available_from']) ?>" data-row-availability="<?= (int) $c['id'] ?>"><?= e($avw) ?></span><?php endif; ?>
+          <?php if (($c['review_status'] ?? '') === 'pending'): ?><span class="tag blue" data-row-review="pending"><?= te('In review') ?></span><?php elseif (($c['review_status'] ?? '') === 'validated'): ?><span class="tag green" data-row-review="validated"><?= te('Approved') ?></span><?php endif; ?>
           <?php if (! empty($c['applied_at'])): ?><div class="small muted" data-applied><?= te('Applied :date', ['date' => d(substr((string) $c['applied_at'], 0, 10))]) ?><?= $c['applied_via'] ? ' &middot; ' . e((string) $c['applied_via']) : '' ?></div><?php endif; ?>
           <?php if ((int) $c['calls'] > 0): ?>
             <span class="small muted">&middot; <?= (int) $c['calls'] ?> call<?= (int) $c['calls'] === 1 ? '' : 's' ?></span>

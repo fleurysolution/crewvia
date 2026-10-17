@@ -83,8 +83,8 @@ check('Passed to the manager, who is told in the app', review and review['status
 check('Hiring shows it with the manager, and offers to take it back', 'data-review-status="pending"' in body and 'Take it back' in body, body[:200])
 status, body = rec.post('/hiring', {'do': 'review_request', 'application_id': one['id'], 'reviewer_id': uid('wk-admin@test.invalid'), 'rating': 5, 'recommendation': 'Again', 'back': page}, page)
 check('Only one manager at a time', probe('review', one['id'])['id'] == review['id'])
-body = rec.get('/hiring?v=%d&stage=all' % one['vacancy_id'])[1]
-check('The applicant list shows who is with the manager', 'data-row-review="pending"' in body)
+body = rec.get('/candidates?vacancy=%d' % one['vacancy_id'])[1]
+check('The applicant list on Candidates shows who is with the manager', 'data-row-review="pending"' in body)
 
 body = sup.get('/activity')[1]
 check("The supervisor's menu offers Candidate reviews", 'href="/reviews"' in body)

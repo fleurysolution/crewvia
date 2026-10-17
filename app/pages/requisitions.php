@@ -219,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . '/../notices.php';
     $notice = t('New requisition on :project: :n x :title:start. Find the candidates.', ['project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title,
                 'start' => $startsOn ? ' ' . t('starting :date', ['date' => d($startsOn)]) : '']);
-    notify_desks(['recruiter'], $notice, '/hiring?v=' . $vacancyId, uid());
+    notify_desks(['recruiter'], $notice, '/candidates?vacancy=' . $vacancyId, uid());
     if (! empty($job['project_manager_id']) && (int) $job['project_manager_id'] !== uid()) { notify_user((int) $job['project_manager_id'], $notice, '/my-team'); }
     flash(t('Requisition created. Share its QR code or public link to start receiving applications.'));
     redirect('/requisitions');

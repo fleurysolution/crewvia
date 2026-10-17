@@ -89,8 +89,8 @@ check('Not placed yet, the portal calls itself theirs as a candidate, and saves 
 check('Their portal shows what they said and lets them change it', 'id="availability"' in body and 'Available from' in body and ('value="%s"' % start) in body, body[:300])
 
 rec = Client(); rec.login('wk-rec@test.invalid')
-body = rec.get('/hiring?v=%d&stage=all' % wk['vA'])[1]
-check('Hiring shows the recruiter when the applicant can start', ('data-row-availability="%d"' % quinn['application']) in body)
+body = rec.get('/candidates?vacancy=%d' % wk['vA'])[1]
+check('Candidates shows the recruiter when the applicant can start', ('data-row-availability="%d"' % quinn['id']) in body)
 
 status, body, url = quinnc.post('/my-jobs', {'do': 'availability', 'availability': 'available', 'available_from': ''}, '/my-jobs')
 check('They change it: available now', probe('candidate', 'av-quinn@test.invalid')['availability'] == 'available')

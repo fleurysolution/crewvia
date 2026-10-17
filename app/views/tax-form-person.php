@@ -5,7 +5,7 @@ $drafts = array_filter($forms, static fn($f) => $f && $f['row']['status'] === 'd
 $docs = tf_i9_documents(); ?>
 <div class="page-head"><div><h1><?= te('Forms to sign') ?> · <?= e($person['full_name']) ?></h1>
   <p class="sub"><?= te('With the person in front of you: check their forms with them, open the signature, then examine their original documents for Section 2.') ?></p></div>
-  <div class="actions"><a class="btn ghost" href="/change-requests#tax-forms"><?= te('Back') ?></a></div></div>
+  <div class="actions"><a class="btn ghost" href="<?= ! empty($siteHr) ? '/my-tasks' : '/change-requests#tax-forms' ?>"><?= te('Back') ?></a></div></div>
 
 <div class="grid g2">
 <?php foreach (['w4' => 'W-4', 'i9' => 'I-9'] as $f => $label): $x = $forms[$f]; ?>
@@ -24,7 +24,7 @@ $docs = tf_i9_documents(); ?>
       <tr><td class="muted">1(c)</td><td><?= e(tf_filing_statuses()[$d['filing_status'] ?? ''] ?? '—') ?></td></tr>
       <?php endif; ?>
     </table>
-    <?php if ($f === 'i9'): ?><p class="small"><a href="/tax-forms?id=<?= (int) $x['row']['id'] ?>"><?= $x['row']['status'] === 'submitted' ? te('Open it and complete Section 2') : te('Open it') ?></a></p><?php endif; ?>
+    <?php if ($f === 'i9' && empty($siteHr)): ?><p class="small"><a href="/tax-forms?id=<?= (int) $x['row']['id'] ?>"><?= $x['row']['status'] === 'submitted' ? te('Open it and complete Section 2') : te('Open it') ?></a></p><?php endif; ?>
   <?php endif; ?>
   </div>
 <?php endforeach; ?>
@@ -77,7 +77,7 @@ if ($differ || $wholeAddress): ?><div class="card" id="forms-differ">
 foreach ($remaining as $pl): ?>
 <div class="card" data-remaining="<?= (int) $pl['id'] ?>"><h2><?= te('Next steps · :project', ['project' => $pl['title']]) ?></h2>
   <?php if ($pl['status'] === 'offered'): ?>
-    <?php if (! $pl['blockers']): ?><p><span class="tag green"><?= te('Ready to travel') ?></span> <?= te('Everything done from home is done: confirm them on the roster, and hotel and travel book.') ?> <a class="btn sm" href="/roster"><?= te('Roster') ?></a></p>
+    <?php if (! $pl['blockers']): ?><p><span class="tag green"><?= te('Ready to travel') ?></span> <?= te('Everything done from home is done: confirm them on the roster, and hotel and travel book.') ?> <?php if (empty($siteHr)): ?><a class="btn sm" href="/roster"><?= te('Roster') ?></a><?php endif; ?></p>
     <?php else: ?><p class="small muted"><?= te('Before travelling (from home):') ?></p><ul><?php foreach ($pl['blockers'] as $b): ?><li><a href="<?= e($b['where']) ?>"><?= te($b['label'], $b['vars']) ?></a></li><?php endforeach; ?></ul>
     <p class="small muted"><?= te('When the last one clears, the office is told to confirm them on the roster, so hotel and travel book.') ?></p><?php endif; ?>
   <?php else: ?>

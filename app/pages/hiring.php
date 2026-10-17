@@ -38,8 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'add_appli
         $_SESSION['hw_add_form'] = array_intersect_key($_POST, array_flip(['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'zip', 'channel', 'received_on', 'degree', 'years_exp', 'message']));
         refuse(422, $why, '/hiring?v=' . $vacancyId . '&tab=add');
     }
-    flash(t('Applicant added, with what they sent. Review them here.'));
-    redirect('/hiring?v=' . $vacancyId . '&app=' . $appId);
+    flash(t('Applicant added, with what they sent.'));
+    // P5-M93: an applicant is the recruiter's, on Candidates, until a hiring manager approves them.
+    redirect('/candidates/' . (int) val('SELECT candidate_id FROM applications WHERE id = ?', [(int) $appId]));
 }
 
 // P5-M50: several applicants at once - invited to their portal, or moved to Screening (which invites them).

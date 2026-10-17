@@ -12,8 +12,16 @@ require_once __DIR__ . '/../tax-forms.php';
 
 $isWorker = is_worker_account();
 $cid = $isWorker ? (int) val('SELECT candidate_id FROM worker_accounts WHERE user_id = ?', [uid()]) : 0;
-if (! $isWorker) {
+// P5-M92: a supervisor named HR of a project opens the forms of that project's people (checked per person below).
+$siteHr = ! $isWorker && (user()['role'] ?? '') === 'supervisor';
+if (! $isWorker && ! $siteHr) {
     require_role('payroll', 'recruiter');
+}
+if ($siteHr && ! tf_can_sign_in((int) ($_POST['candidate_id'] ?? $_GET['person'] ?? 0))) {
+    refuse(403, t('You sign in the people of the projects you are HR for.'), '/my-tasks');
+}
+if ($siteHr && ! (($_SERVER['REQUEST_METHOD'] === 'POST' && in_array((string) ($_POST['do'] ?? ''), ['authorize', 'add_copy'], true)) || ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['person'])))) {
+    refuse(403, t('You sign in the people of the projects you are HR for.'), '/my-tasks');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -74,7 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     // The coordinator, with the worker in front of them, opens the signature.
     if ($do === 'authorize') {
-        require_role('recruiter');
+        if (! $siteHr) {
+            require_role('recruiter');
+        }
         $person = (int) ($_POST['candidate_id'] ?? 0);
         $made = tf_code_make($person, uid());
         if (! $made) {
@@ -85,7 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     // The office photographs an original document for Section 2.
     if ($do === 'add_copy') {
-        require_role('recruiter');
+        if (! $siteHr) {
+            require_role('recruiter');
+        }
         $person = (int) ($_POST['candidate_id'] ?? 0);
         $back = (string) ($_POST['back'] ?? '');
         $back = preg_match('#^/tax-forms\?(id|person)=\d+$#', $back) ? $back : '/tax-forms?person=' . $person;
@@ -149,7 +161,9 @@ if (isset($_GET['copy'])) {
 
 // The coordinator's screen: the person, their forms filled in, their documents, the signature to open.
 if (isset($_GET['person'])) {
-    require_role('recruiter');
+    if (! $siteHr) {
+        require_role('recruiter');
+    }
     $person = row('SELECT id, full_name, email, phone FROM candidates WHERE id = ?', [(int) $_GET['person']]);
     if (! $person) {
         refuse(404, t('That person does not exist.'));
@@ -176,7 +190,7 @@ if (isset($_GET['person'])) {
         unset($_SESSION['tf_code']);
     }
     $pageTitle = t('Forms to sign') . ' · ' . $person['full_name'];
-    render('tax-form-person', compact('person', 'forms', 'copies', 'signCode', 'remaining'));
+    render('tax-form-person', compact('person', 'forms', 'copies', 'signCode', 'remaining', 'siteHr'));
     exit;
 }
 

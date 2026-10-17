@@ -96,13 +96,9 @@ $settled = ['accepted', 'rejected', 'withdrawn'];
 
     <?php foreach ($identityMatches as $match): ?>
       <?php if ((int) $match['applicant_id'] !== (int) $a['candidate_id']) { continue; } ?>
-      <p class="flash err">
-        <?= te('Possible existing candidate:') ?>
-        <a href="/employee-folder?id=<?= (int) $match['id'] ?>">
-          <?= e($match['full_name'] . ' · ' . $match['stage']) ?>
-        </a>
-        <?= te('. Verify identity and prior decisions before continuing. A matching contact or name does not prove identity.') ?>
-      </p>
+      <?php // P5-M92: a possible duplicate, said plainly - a same name or contact is a hint, not an alert. ?>
+      <p class="small m0 mb" data-duplicate="<?= (int) $match['id'] ?>"><span class="tag amber"><?= te('Possible duplicate') ?></span>
+        <?= te('Same name or contact as') ?> <a href="/candidates/<?= (int) $match['id'] ?>"><?= e($match['full_name']) ?></a> &middot; <?= te(candidate_stages()[$match['stage']] ?? ucfirst((string) $match['stage'])) ?></p>
     <?php endforeach; ?>
 
     <div class="grid g2">

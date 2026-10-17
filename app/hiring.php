@@ -22,11 +22,19 @@
 
 declare(strict_types=1);
 
+/**
+ * P5-M93: Hiring holds the people a hiring manager approved (or offered, or hired) - HR's work. Until then an
+ * applicant is the recruiter's, on Candidates.
+ */
+function hw_approved_sql(string $alias = 'a'): string
+{
+    return str_replace('a.', $alias . '.', "(a.stage IN ('offered','accepted') OR EXISTS (SELECT 1 FROM application_reviews hr WHERE hr.application_id = a.id AND hr.status = 'validated'))");
+}
+
 /** @return array<string,string> */
 function hw_tabs(): array
 {
-    return ['active' => t('Active'), 'new' => t('New'), 'screening' => t('Screening'), 'interview' => t('Interview'), 'offered' => t('Offered'),
-            'accepted' => t('Hired'), 'closed' => t('Rejected or withdrawn'), 'all' => t('All')];
+    return ['active' => t('To onboard'), 'accepted' => t('Hired'), 'closed' => t('Withdrawn'), 'all' => t('All')];
 }
 
 /** @return array<string,string> */
@@ -44,10 +52,12 @@ function hw_interests(): array
 
 function hw_tab_where(string $tab): string
 {
-    return match ($tab) {
-        'active' => "a.stage IN ('new','screening','interview','offered')",
+    $approved = hw_approved_sql();
+
+    return $approved . ' AND ' . match ($tab) {
+        'active' => "a.stage NOT IN ('accepted','rejected','withdrawn')",
         'closed' => "a.stage IN ('rejected','withdrawn')",
-        'new', 'screening', 'interview', 'offered', 'accepted' => "a.stage = '" . $tab . "'",
+        'accepted' => "a.stage = 'accepted'",
         default  => '1',
     };
 }
@@ -62,10 +72,9 @@ function hw_jobs(string $status, int $jobId): array
     if ($jobId) { $where[] = 'v.job_id = ?'; $args[] = $jobId; }
 
     return rows("SELECT v.id, v.title, v.is_open, v.openings, v.discipline, v.starts_on, j.title AS project, j.id AS job_id,
-                        COUNT(a.id) AS total,
-                        COALESCE(SUM(a.stage = 'new'), 0) AS new_count,
-                        COALESCE(SUM(a.stage IN ('screening','interview')), 0) AS reviewing,
-                        COALESCE(SUM(a.stage = 'offered'), 0) AS offered,
+                        COUNT(a.id) AS applicants,
+                        COALESCE(SUM(" . hw_approved_sql() . "), 0) AS total,
+                        COALESCE(SUM(" . hw_approved_sql() . " AND a.stage NOT IN ('accepted','rejected','withdrawn')), 0) AS to_onboard,
                         COALESCE(SUM(a.stage = 'accepted'), 0) AS hired,
                         MAX(a.created_at) AS last_applied
                  FROM vacancies v JOIN jobs j ON j.id = v.job_id LEFT JOIN applications a ON a.vacancy_id = v.id
@@ -83,11 +92,11 @@ function hw_vacancy(int $id): ?array
 function hw_counts(int $vacancyId): array
 {
     $out = array_fill_keys(array_keys(hw_tabs()), 0);
-    foreach (rows('SELECT stage, COUNT(*) AS n FROM applications WHERE vacancy_id = ? GROUP BY stage', [$vacancyId]) as $r) {
+    foreach (rows('SELECT a.stage, COUNT(*) AS n FROM applications a WHERE a.vacancy_id = ? AND ' . hw_approved_sql() . ' GROUP BY a.stage', [$vacancyId]) as $r) {
         $n = (int) $r['n'];
         $out['all'] += $n;
-        if (in_array($r['stage'], ['new', 'screening', 'interview', 'offered'], true)) { $out['active'] += $n; }
-        if (isset($out[$r['stage']])) { $out[$r['stage']] += $n; }
+        if (! in_array($r['stage'], ['accepted', 'rejected', 'withdrawn'], true)) { $out['active'] += $n; }
+        if ($r['stage'] === 'accepted') { $out['accepted'] += $n; }
         if (in_array($r['stage'], ['rejected', 'withdrawn'], true)) { $out['closed'] += $n; }
     }
 

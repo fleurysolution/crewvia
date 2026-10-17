@@ -199,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cl = cl_for_application($appId);
         log_activity('answered the recruiting checklist', 'application', $appId, $cl['met'] . '/' . $cl['total']);
         flash($cl['passes'] ? t('Checklist complete: every question met. Send them for review.') : t('Checklist saved: :met of :total met.', ['met' => $cl['met'], 'total' => $cl['total']]));
-        redirect('/candidates/' . $id . '#checklist');
+        redirect('/candidates/' . $id . '#send-review');
     }
 
     // ── P5-M83: the recruiter sends the applicant to the person who decides (the owner, a manager) ──
@@ -588,7 +588,10 @@ $reviewDefault = (int) (val("SELECT id FROM users WHERE is_active = 1 AND role =
 $openVacancies = rows('SELECT v.id, v.title, j.title AS job FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.is_open = 1 ORDER BY j.title, v.title LIMIT 300');
 $pendingReview = row("SELECT r.*, u.name AS reviewer FROM application_reviews r JOIN applications a ON a.id = r.application_id JOIN users u ON u.id = r.reviewer_id
                       WHERE a.candidate_id = ? AND r.status IN ('pending','validated') ORDER BY r.status = 'pending' DESC, r.id DESC LIMIT 1", [$id]);
-render('candidate', compact('textPanel', 'reviewPeople', 'reviewDefault', 'openVacancies', 'pendingReview', 'checklists', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
+// P5-M93: what they sent with their application (CV, cover letter, diploma), on the recruiter's page.
+require_once __DIR__ . '/../intake.php';
+$sent = rows('SELECT id, kind, original_name FROM candidate_resumes WHERE candidate_id = ? ORDER BY id DESC LIMIT 12', [(int) $c['id']]);
+render('candidate', compact('sent', 'textPanel', 'reviewPeople', 'reviewDefault', 'openVacancies', 'pendingReview', 'checklists', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
                             'qualifications', 'contracts', 'clearance', 'account',
                             'invitation', 'job', 'jobId', 'standing', 'theirSkills',
                             'workHistory', 'owedToUs'));

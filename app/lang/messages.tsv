@@ -4388,7 +4388,7 @@ A review was taken back: nothing to decide	Une revue a été reprise : rien à d
 All reviews	Toutes les revues	Todas las revisiones
 Another interview	Un autre entretien	Otra entrevista
 Another interview asked	Autre entretien demandé	Otra entrevista solicitada
-Applicants the recruiting desk has screened and passed to you, and the interviews you hold. Decide here; the recruiter is told and takes it from there with the candidate.	Les candidats que le recrutement a présélectionnés et vous a passés, et les entretiens que vous menez. Décidez ici ; le recruteur est prévenu et poursuit avec le candidat.	Los candidatos que reclutamiento preseleccionó y le pasó, y las entrevistas que usted realiza. Decida aquí; el reclutador recibe aviso y continúa con el candidato.
+Applicants the recruiters have screened and sent to you, and the interviews you hold. Decide here: an approved person goes to HR for onboarding.	Les candidats que les recruteurs ont présélectionnés et vous ont envoyés, et les entretiens que vous menez. Décidez ici : une personne approuvée passe aux RH pour l'intégration.	Los candidatos que los reclutadores preseleccionaron y le enviaron, y las entrevistas que usted realiza. Decida aquí: una persona aprobada pasa a RR. HH. para la incorporación.
 Candidate reviews	Revues des candidats	Revisiones de candidatos
 Choose a date and time for the interview, not in the past.	Choisissez une date et une heure pour l’entretien, pas dans le passé.	Elija una fecha y hora para la entrevista, no en el pasado.
 Choose a decision.	Choisissez une décision.	Elija una decisión.
@@ -4466,7 +4466,7 @@ Your note	Votre note	Su nota
 Your recommendation	Votre recommandation	Su recomendación
 schedule it below, or leave it to the recruiter	planifiez-le ci-dessous, ou laissez-le au recruteur	prográmela abajo, o déjela al reclutador
 the recruiter closes it with the candidate	le recruteur clôt avec le candidat	el reclutador lo cierra con el candidato
-the recruiter goes on toward an offer	le recruteur avance vers une offre	el reclutador avanza hacia una oferta
+handed to HR for onboarding	confié aux RH pour l'intégration	entregado a RR. HH. para la incorporación
 Applicant waiting for your review	Candidat en attente de votre revue	Candidato esperando su revisión
 Screened by the recruiting desk and passed to you to decide	Présélectionné par le recrutement et passé à vous pour décision	Preseleccionado por reclutamiento y pasado a usted para decidir
 Interview to hold	Entretien à mener	Entrevista por realizar
@@ -5576,3 +5576,15 @@ Every trade is already on requisitions. When the client asks for more people, ed
 Welcome aboard: your onboarding is complete	Bienvenue : votre intégration est terminée	Bienvenido: su incorporación está completa
 Congratulations: your onboarding for :project is complete. Your portal shows your assignment, your start date (:start), your hotel and travel, your schedule and your pay statements.	Félicitations : votre intégration pour :project est terminée. Votre portail affiche votre affectation, votre date de début (:start), votre hôtel et votre voyage, votre horaire et vos relevés de paie.	Felicidades: su incorporación para :project está completa. Su portal muestra su asignación, su fecha de inicio (:start), su hotel y su viaje, su horario y sus recibos de pago.
 to be confirmed	à confirmer	por confirmar
+See the applicants	Voir les candidats	Ver los candidatos
+Possible duplicate	Doublon possible	Posible duplicado
+Same name or contact as	Même nom ou coordonnées que	Mismo nombre o contacto que
+You sign in the people of the projects you are HR for.	Vous accueillez les personnes des projets dont vous êtes RH.	Usted recibe a las personas de los proyectos de los que es RR. HH.
+:a of :t met	:a sur :t remplis	:a de :t cumplidos
+No phone	Pas de téléphone	Sin teléfono
+No email	Pas d'email	Sin correo
+To onboard	À intégrer	Por incorporar
+Applicants on Candidates	Les candidats dans Candidates	Los candidatos en Candidates
+Applicant added, with what they sent.	Candidat ajouté, avec ce qu'il a envoyé.	Candidato añadido, con lo que envió.
+The people the hiring managers approved, by requisition: offer, onboarding and hire. Applicants are worked on Candidates until they are approved.	Les personnes approuvées par les responsables du recrutement, par réquisition : offre, intégration et embauche. Les candidats sont suivis dans Candidates jusqu'à leur approbation.	Las personas aprobadas por los responsables de contratación, por requisición: oferta, incorporación y contratación. Los candidatos se trabajan en Candidates hasta su aprobación.
+Careers page	Page carrières	Página de empleos

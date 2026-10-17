@@ -126,7 +126,7 @@ check('The candidate reads that the office is countersigning it; nothing left to
 check('The office is told to countersign', probe('offer_flow', 'staff-notes', 'signed the offer for') > 0)
 
 page = '/hiring?v=%d&app=%d' % (offer['vacancy_id'], offer['id'])
-check('Hiring marks it "Signed: to countersign" in the list', ('data-row-countersign="%d"' % offer['id']) in rec.get('/hiring?v=%d&stage=offered' % offer['vacancy_id'])[1])
+check('Hiring marks it "Signed: to countersign" in the list', ('data-row-countersign="%d"' % offer['id']) in rec.get('/hiring?v=%d' % offer['vacancy_id'])[1])
 status, body = rec.get(page)
 check('and shows what the candidate signed, with the countersignature form', 'id="countersign"' in body and 'id="countersign-form"' in body and CONDITIONS in body)
 

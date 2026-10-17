@@ -71,8 +71,8 @@ check('So does Candidate documents (View and Download)', '&amp;view=1' in body a
 
 # ── several applicants at once ──
 status, body = rec.get('/hiring?v=%d&stage=all' % wk['vA'])
-check('The applicant list can be picked from: a box per applicant, Select all, invite or move to Screening',
-      'id="bulk-form"' in body and 'id="bulk-all"' in body and 'name="apps[]"' in body and 'value="invite"' in body and 'value="screening"' in body)
+_emma = probe('reviews', 'app', 'add-emma@test.invalid')
+check('Hiring lists nobody a manager has not approved (P5-M93)', status == 200 and ('data-app="%d"' % _emma['id']) not in body)
 page = '/hiring?v=%d&stage=all' % wk['vA']
 status, body = rec.post('/hiring', {'do': 'bulk', 'vacancy_id': wk['vA'], 'bulk_action': 'invite', 'back': page}, page)
 check('Nothing selected is refused', 'Select at least one applicant' in body)

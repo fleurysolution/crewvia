@@ -291,11 +291,14 @@ check('Manning shows the group, and the one who leads it needs a vehicle', 'Grou
 # P5-M84: the HR role does onboarding; Project coordinator is the hotels desk's name.
 php_q("INSERT INTO users (name, email, password_hash, role, must_change_pw) SELECT 'HR Tester', 'wk-hr@test.invalid', password_hash, 'hr', 0 FROM users WHERE email = 'wk-rec@test.invalid'")
 hr = Client(); hr.login('wk-hr@test.invalid')
+check('HR signs in and lands on Onboarding (no loop on /home)', hr.url.endswith('/onboarding'), hr.url)
+status, body = hr.get('/home')
+check('Today sends HR to Onboarding', status == 200 and hr.url.endswith('/onboarding'), (status, hr.url))
 status, body = hr.get('/onboarding')
 check('HR opens Onboarding', status == 200 and 'Fatal' not in body, status)
 nav = re.sub(r'<div class="nav-marks" data-nav-marks>.*?</div>', '', re.search(r'<nav[^>]*>(.*?)</nav>', body, re.S)[1], flags=re.S)
 daily = re.findall(r'<a href="(/[^"]*)"', re.search(r'<div class="nav-daily">(.*?)</div>', nav, re.S)[1])
-check('HR\'s menu starts with its own day: onboarding, then tax forms', daily[:3] == ['/activity', '/onboarding', '/tax-forms'], daily)
+check('HR\'s menu starts with its own day: hiring, onboarding, then tax forms', daily[:4] == ['/activity', '/hiring', '/onboarding', '/tax-forms'], daily)
 status, body = admin.get('/people')
 check('Team offers HR (onboarding) and Project coordinator', 'HR (onboarding)' in body and 'Project coordinator' in body)
 
@@ -345,12 +348,15 @@ php_q("INSERT INTO candidates (full_name, email, phone, discipline, stage) VALUE
 php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source) SELECT id, %d, 'new', 'QR code' FROM candidates WHERE email = 'checked@test.invalid'" % vac_id)
 ck = one("SELECT c.id AS cid, a.id AS aid FROM candidates c JOIN applications a ON a.candidate_id = c.id WHERE c.email = 'checked@test.invalid'")
 status, body = rec.get('/candidates/%s' % ck['cid'])
-check('The person\'s page: applied for and assignment first, then contact, then the checklist, then the review',
-      'data-applied-for="%s"' % ck['aid'] in body and 'data-assignment-none' in body and body.index('id="person-summary"') < body.index('id="contact"') < body.index('id="checklist"') < body.index('id="send-review"'))
+check('The person\'s page: the next step on top, then applied for and assignment, contact, the checklist',
+      'data-applied-for="%s"' % ck['aid'] in body and 'data-assignment-none' in body and body.index('id="send-review"') < body.index('id="person-summary"') < body.index('id="contact"') < body.index('id="checklist"'))
 rec.post('/candidates/%s' % ck['cid'], {'do': 'send_review', 'application_id': ck['aid'], 'rating': '4', 'recommendation': 'Good.'}, '/candidates/%s' % ck['cid'])
 check('No review before the checklist is done', not sql('SELECT id FROM application_reviews WHERE application_id = %s' % ck['aid']))
 items = [x['id'] for x in sql('SELECT id FROM checklist_items WHERE template_id = %s ORDER BY position' % tpl['id'])]
+check('An unanswered checklist is open', ('id="checklist-%s" data-fold-forget open' % ck['aid']) in body)
 rec.post('/candidates/%s' % ck['cid'], {'do': 'checklist', 'application_id': ck['aid'], 'answer[%s]' % items[0]: 'met', 'answer[%s]' % items[1]: 'not_met'}, '/candidates/%s' % ck['cid'])
+status, body = rec.get('/candidates/%s' % ck['cid'])
+check('Once saved, the checklist folds away', ('id="checklist-%s" data-fold-forget>' % ck['aid']) in body)
 rec.post('/candidates/%s' % ck['cid'], {'do': 'send_review', 'application_id': ck['aid'], 'rating': '4', 'recommendation': 'Good.'}, '/candidates/%s' % ck['cid'])
 check('A question not met keeps them from the review', not sql('SELECT id FROM application_reviews WHERE application_id = %s' % ck['aid']))
 rec.post('/candidates/%s' % ck['cid'], {'do': 'checklist', 'application_id': ck['aid'], 'answer[%s]' % items[0]: 'met', 'answer[%s]' % items[1]: 'met', 'note[%s]' % items[1]: 'Lifts 60 lb'}, '/candidates/%s' % ck['cid'])
@@ -398,3 +404,26 @@ check('The edit is kept: from what to what, why and who', h and int(h['quantity_
       and h['note'] == 'Client asked for 20 more, PO 4471' and int(h['created_by']) == int(owner_id), h)
 status, body = admin.get('/job')
 check('The scope lists its changes', 'id="change-orders"' in body and 'PO 4471' in body)
+
+# P5-M91: from a requisition, its applicants a click away.
+status, body = admin.get('/requisitions')
+check('A requisition\'s applicant count opens its applicants on Candidates', ('href="/candidates?vacancy=%d"' % vac_id) in body)
+
+# P5-M92: the onboarding task opens the person's forms; a supervisor named HR of the project signs its people in.
+hand = sql('SELECT h.candidate_id, t.link FROM hiring_handoffs h JOIN project_tasks t ON t.id = h.hr_task_id')
+check('The onboarding task opens the person\'s forms', hand and all(x['link'] == '/tax-forms?person=%s' % x['candidate_id'] for x in hand), hand)
+sup_user = one("SELECT id, email FROM users WHERE role = 'supervisor' AND is_active = 1 ORDER BY id LIMIT 1")
+php_q('UPDATE jobs SET coordinator_id = %d WHERE id = %d' % (int(sup_user['id']), int(job['id'])))
+site = Client(); site.login(sup_user['email'])
+status, body = site.get('/tax-forms?person=%s' % ck['cid'])
+check('A supervisor named HR of the project opens the forms of its people', status == 200 and 'Signature, in person' in body and '/change-requests' not in body, status)
+other = one("SELECT c.id FROM candidates c WHERE NOT EXISTS (SELECT 1 FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.candidate_id = c.id AND v.job_id = %d) AND NOT EXISTS (SELECT 1 FROM placements p WHERE p.candidate_id = c.id AND p.job_id = %d) LIMIT 1" % (int(job['id']), int(job['id'])))
+status, body = site.get('/tax-forms?person=%s' % other['id'])
+check('but not the people of other projects', status == 403, status)
+status, body = site.get('/change-requests')
+check('nor the office\'s screens', status in (302, 403) or 'Change requests' not in body, status)
+php_q('UPDATE jobs SET coordinator_id = NULL WHERE id = %d' % int(job['id']))
+rv = one('SELECT id FROM application_reviews WHERE application_id = %s ORDER BY id LIMIT 1' % ck['aid'])
+status, body = admin.get('/reviews?id=%s' % rv['id'])
+check('The person who decides sees the recruiter\'s checklist answers', 'id="dossier-checklist"' in body and 'Lifts 60 lb' in body and '2 of 2 met' in body)
+check('and how to reach them: phone and email', 'id="dossier-contact"' in body and 'checked@test.invalid' in body and '555-070-7006' in body)

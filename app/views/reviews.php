@@ -13,7 +13,7 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
 <div class="page-heading">
   <div>
     <h1><?= te('Candidate reviews') ?></h1>
-    <p class="sub"><?= te('Applicants the recruiting desk has screened and passed to you, and the interviews you hold. Decide here; the recruiter is told and takes it from there with the candidate.') ?></p>
+    <p class="sub"><?= te('Applicants the recruiters have screened and sent to you, and the interviews you hold. Decide here: an approved person goes to HR for onboarding.') ?></p>
   </div>
 </div>
 
@@ -24,6 +24,8 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
     <div class="f2">
       <h2 class="m0"><?= e($a['full_name']) ?></h2>
       <p class="small muted m0"><?= e($a['title']) ?> · <?= e($a['project']) ?><?= $a['city'] ? ' · ' . e(trim($a['city'] . ', ' . $a['state'], ', ')) : '' ?></p>
+      <?php // P5-M92: how to reach them, first thing the manager needs. ?>
+      <p class="m0 mt-xs" id="dossier-contact"><?php if ($a['phone']): ?><a class="mono" href="tel:<?= e(preg_replace('/[^0-9+]/', '', (string) $a['phone'])) ?>"><?= e($a['phone']) ?></a><?php else: ?><span class="muted"><?= te('No phone') ?></span><?php endif; ?> &middot; <?php if ($a['email']): ?><a href="mailto:<?= e($a['email']) ?>"><?= e($a['email']) ?></a><?php else: ?><span class="muted"><?= te('No email') ?></span><?php endif; ?><?php if (can('recruiter')): ?> &middot; <a href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= te('Everything about this person') ?></a><?php endif; ?><?php if (! empty($a['checklist']['items'])): ?> &middot; <a href="#dossier-checklist"><?= te('Recruiting checklist') ?></a><?php endif; ?></p>
       <p class="small m0"><?= $a['degree'] ? e($a['degree']) : '' ?><?= $a['years_exp'] !== null ? ' · ' . ten((int) $a['years_exp'], ':n year of experience', ':n years of experience') : '' ?></p>
     </div>
     <div class="right">
@@ -41,6 +43,10 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
         <?php if ($r['decision_note']): ?><div class="small muted mt-s"><?= te('Decision:') ?> <?= nl2br(e($r['decision_note'])) ?></div><?php endif; ?></div>
     <?php endforeach; ?>
     <?php if (! $a['reviews']): ?><p class="small muted"><?= te('Not passed to a manager.') ?></p><?php endif; ?>
+    <?php if (! empty($a['checklist']['items'])): ?>
+    <h3 class="mt" id="dossier-checklist"><?= te('Recruiting checklist') ?> <span class="tag <?= $a['checklist']['passes'] ? 'green' : 'amber' ?>"><?= te(':a of :t met', ['a' => $a['checklist']['met'], 't' => $a['checklist']['total']]) ?></span></h3>
+    <table class="small"><tbody><?php foreach ($a['checklist']['items'] as $it): ?><tr data-checklist-item="<?= (int) $it['id'] ?>"><td><?= e($it['question']) ?></td><td class="nowrap"><?= $it['answer'] === 'met' ? '<span class="tag green">' . te('Met') . '</span>' : ($it['answer'] === 'not_met' ? '<span class="tag red">' . te('Not met') . '</span>' : '<span class="muted">' . te('Not answered') . '</span>') ?></td><td class="muted"><?= e((string) ($it['note'] ?? '')) ?></td></tr><?php endforeach; ?></tbody></table>
+    <?php endif; ?>
   </div>
   <div class="card" id="dossier-answers"><h3><?= te('Screening answers') ?></h3>
     <?php foreach ($a['questions'] as $qq): ?>
@@ -72,7 +78,7 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
   <input type="hidden" name="do" value="decide"><input type="hidden" name="review_id" value="<?= (int) $review['id'] ?>">
   <h2><?= te('Your decision') ?></h2>
   <div class="row">
-    <label class="own-room"><input type="radio" name="decision" value="validated" required> <strong><?= te('Validate') ?></strong> <span class="small muted"><?= te('the recruiter goes on toward an offer') ?></span></label>
+    <label class="own-room"><input type="radio" name="decision" value="validated" required> <strong><?= te('Validate') ?></strong> <span class="small muted"><?= te('handed to HR for onboarding') ?></span></label>
     <label class="own-room"><input type="radio" name="decision" value="interview"> <strong><?= te('Another interview') ?></strong> <span class="small muted"><?= te('schedule it below, or leave it to the recruiter') ?></span></label>
     <label class="own-room"><input type="radio" name="decision" value="declined"> <strong><?= te('Decline') ?></strong> <span class="small muted"><?= te('the recruiter closes it with the candidate') ?></span></label>
   </div>

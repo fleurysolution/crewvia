@@ -369,6 +369,25 @@ function tf_drafts(?int $candidateId = null): array
                  WHERE f.status = 'draft'" . ($candidateId ? ' AND f.candidate_id = ' . (int) $candidateId : '') . ' ORDER BY c.full_name, f.form LIMIT 500');
 }
 
+/**
+ * P5-M92: whether the signed-in user may sign this person in: the office desks, or a supervisor named HR
+ * (onboarding) of a running project the person has applied to or is placed on.
+ */
+function tf_can_sign_in(int $candidateId): bool
+{
+    if (can('recruiter')) {
+        return true;
+    }
+    if ((user()['role'] ?? '') !== 'supervisor' || is_worker_account()) {
+        return false;
+    }
+
+    return (bool) val("SELECT COUNT(*) FROM jobs j WHERE j.coordinator_id = ? AND j.status <> 'closed'
+                        AND (EXISTS (SELECT 1 FROM placements p WHERE p.job_id = j.id AND p.candidate_id = ?)
+                             OR EXISTS (SELECT 1 FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE v.job_id = j.id AND a.candidate_id = ?))",
+                      [uid(), $candidateId, $candidateId]);
+}
+
 /** The coordinator, with the worker in front of them, makes the one-time code that opens the signature. */
 function tf_code_make(int $candidateId, int $by): ?array
 {

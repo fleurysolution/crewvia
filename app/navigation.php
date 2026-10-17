@@ -103,6 +103,8 @@ function workspace_nav(?array $u): array
         ['/hiring',             'Hiring',                             'recruiter'],
         ['/campaigns',          'Campaign email',                     'recruiter'],
         ['/requisitions',       'Requisitions',                       'recruiter'],
+        // P5-M93: the public job board, every open job, as applicants see it.
+        ['/careers',            'Careers page',                       ['recruiter','hotels','payroll']],
         ['/screening-questions','Screening questions',                'recruiter'],
         ['/channels',           'Distribution channels',              'recruiter'],
         ['/ai-review',          'AI Review',                          'recruiter'],
@@ -241,9 +243,9 @@ function workspace_can_open(string $path, ?array $u = null): bool
 function workspace_daily(?array $u): array
 {
     return match ($u['role'] ?? '') {
-        'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings'],
-        'recruiter'  => ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/tax-forms', '/contracts', '/client-orders', '/approvals'],
-        'hr'         => ['/home', '/activity', '/onboarding', '/tax-forms', '/candidates', '/contracts', '/manning', '/my-tasks', '/approvals'],
+        'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings', '/careers'],
+        'recruiter'  => ['/home', '/activity', '/candidates', '/reviews', '/careers', '/requisitions', '/recruitment', '/onboarding', '/tax-forms', '/contracts', '/client-orders', '/approvals'],
+        'hr'         => ['/activity', '/hiring', '/onboarding', '/tax-forms', '/candidates', '/contracts', '/manning', '/my-tasks', '/approvals'],
         'hotels'     => ['/home', '/activity', '/arrivals', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
         'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
         'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
@@ -303,9 +305,9 @@ function workspace_sections(?array $u = null): array
     return [
         'Overview' => ['/home', '/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
-        'Recruiting' => ['/hiring', '/reviews', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
+        'Recruiting' => ['/careers', '/reviews', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
-        'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
+        'Hiring' => ['/hiring', '/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',
                      '/agreements', '/employee-folder', '/change-requests', '/tax-forms', '/forms-register'],
         'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/folios', '/procurement', '/vendors', '/arrivals', '/travel', '/operations', '/assets', '/asset-valuation'],

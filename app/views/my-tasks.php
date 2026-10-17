@@ -14,6 +14,7 @@ $ptPriorityTone = ['urgent' => 'red', 'high' => 'amber', 'normal' => 'grey', 'lo
       <?php if ($late): ?><span class="tag red"><?= te('Overdue') ?></span><?php endif; ?></h3>
     <p class="small muted"><?= e($tk['job_title']) ?><?= $tk['milestone_title'] ? ' · ' . e($tk['milestone_title']) : '' ?> · <?= te('Due') ?>: <?= $tk['due_on'] ? e(d($tk['due_on'])) : '–' ?></p>
     <?php if ($tk['description']): ?><p class="pre-wrap"><?= e($tk['description']) ?></p><?php endif; ?>
+    <?php if (! empty($tk['link']) && str_starts_with((string) $tk['link'], '/')): ?><p><a class="btn sm" href="<?= e((string) $tk['link']) ?>" data-task-link><?= te('Open') ?></a></p><?php endif; ?>
     <?php if ($tk['status'] === 'blocked'): ?><p class="small"><?= te('Waiting for') ?>: <?= e((string) $tk['blocked_reason']) ?></p><?php endif; ?>
     <?php if (! $closed): ?>
     <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="task_id" value="<?= (int) $tk['id'] ?>">

@@ -65,8 +65,8 @@ def probe(*args):
 
 
 admin = Client(); admin.login('wk-admin@test.invalid')
-body = admin.get('/hiring?v=%d' % wk['vA'])[1]
-check('An open requisition in Hiring offers Add an applicant', 'id="add-applicant-link"' in body and 'tab=add' in body)
+body = admin.get('/candidates?vacancy=%d' % wk['vA'])[1]
+check('A requisition\'s applicants on Candidates offer Add an applicant (P5-M93)', 'id="add-applicant-link"' in body and 'tab=add' in body)
 body = admin.get('/hiring?v=%d&tab=add' % wk['vA'])[1]
 form = (re.findall(r'<form[^>]*id="add-applicant".*?</form>', body, re.S) or [''])[0]
 check('The form asks for everything an applicant needs: name, contact, where they live, how and when they applied, background, their message',
@@ -97,7 +97,7 @@ docs = probe('docs', 'add-emma@test.invalid')
 check('Her CV, cover letter and diploma are on her file, each marked for what it is, with who added them',
       sorted(d['kind'] for d in docs) == ['certificate', 'cover_letter', 'cv'] and all(d['attached_by'] for d in docs), docs)
 check('Stored encrypted', all(not probe('stored', d['storage_name'])['plain_pdf'] and probe('stored', d['storage_name'])['size'] > 0 for d in docs))
-check('The office lands on her application in Hiring, the diploma listed', ('app=%d' % person['application']['id']) in url and 'BS diploma.pdf' in body and 'Diploma or certificate' in body, url)
+check('The office lands on her page on Candidates, what she sent listed', '/candidates/' in url and 'id="sent-documents"' in body and 'BS diploma.pdf' in body and 'Diploma or certificate' in body, url)
 
 body = admin.get('/resumes')[1]
 check('Candidate documents is a list of documents with their kind, not an upload box first',

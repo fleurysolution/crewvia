@@ -25,6 +25,8 @@ function home_for(string $role): string
     return match ($role) {
         'admin'      => '/overview',
         'supervisor' => '/my-team',
+        // P5-M92: HR opens on Onboarding (Today is the recruiting, travel and payroll desks' page; /home sent HR back to /home).
+        'hr'         => '/onboarding',
         'worker'     => '/portal',
         'client'     => '/client-portal',
         default      => '/home',

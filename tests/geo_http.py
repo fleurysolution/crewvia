@@ -104,10 +104,8 @@ check('The location filters are on the page', 'id="location-filter"' in rec.get(
 H = '/hiring?v=%d' % fx['v_katy']
 status, body = rec.get(H)
 check('Hiring offers a distance from the requisition\'s site', 'id="miles-filter"' in body and 'value="near"' in body)
-check('and shows each applicant\'s distance, none for an unknown city', miles(body, APPS['zip']) is not None and miles(body, APPS['houston']) is not None and miles(body, APPS['unknown']) is None)
-check('Within 50 miles of the site: two applicants', set(apps(rec.get(H + '&miles=50')[1])) == {APPS['zip'], APPS['houston']})
-check('Nearest the site first, the unplaced last', apps(rec.get(H + '&sort=near')[1]) == [APPS['zip'], APPS['houston'], APPS['dallas'], APPS['unknown']])
-tab = re.search(r'href="([^"]*)"[^>]*data-stage-tab="new"', rec.get(H + '&miles=50')[1])
+check('Applicants not approved yet are not in Hiring (P5-M93)', not apps(rec.get(H + '&stage=all')[1]))
+tab = re.search(r'href="([^"]*)"[^>]*data-stage-tab="accepted"', rec.get(H + '&miles=50')[1])
 check('The stage tabs keep the distance', tab is not None and 'miles=50' in tab[1])
 body = rec.get(H + '&tab=matches&miles=250')[1]
 found = [int(x) for x in re.findall(r'data-match="(\d+)"', body)]

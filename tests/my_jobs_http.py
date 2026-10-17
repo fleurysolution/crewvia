@@ -120,8 +120,8 @@ check('Never twice', w.post({'do': 'interest', 'vacancy_id': V['chem'], 'screeni
 check('Never for a job that does not fit', w.post({'do': 'interest', 'vacancy_id': V['senior']})[0] == 422 and w.post({'do': 'interest', 'vacancy_id': V['mech']})[0] == 422)
 check('nor a closed or expired one', w.post({'do': 'interest', 'vacancy_id': V['shut']})[0] == 422 and w.post({'do': 'interest', 'vacancy_id': V['expired']})[0] == 422 and len(mine(W)) == 1)
 check('nor for someone on the register, even by a forged form', banned.post({'do': 'interest', 'vacancy_id': V['any']})[0] == 422 and mine(CANDS['banned']) == [])
-status, body = rec.get('/hiring?v=%d' % V['chem'])
-check('The recruiter sees them in Hiring as a new applicant from the worker portal', 'data-app="%d"' % APP in body and 'Worker portal' in body)
+status, body = rec.get('/candidates?vacancy=%d' % V['chem'])
+check('The recruiter sees them on Candidates as a new applicant from the worker portal', ('/candidates/%d"' % W) in body and 'Worker portal' in body)
 
 # ── taking it back ─────────────────────────────────────────────────────
 w.post({'do': 'withdraw', 'application_id': APP})

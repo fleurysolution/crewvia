@@ -70,7 +70,7 @@ rec.post('/candidates/%d' % cand['id'], {'do': 'rehire', 'rehire_status': 'do_no
 
 page = '/hiring?v=%d&app=%d' % (wk['vA'], two['id'])
 status, body = rec.get('/hiring?v=%d&stage=all' % wk['vA'])
-check('Hiring shows DO NOT USE in red beside the applicant', ('data-row-blocked="%d"' % two['id']) in body and 'DO NOT USE' in body)
+check('A held applicant is not in Hiring (P5-M93)', ('data-row-blocked="%d"' % two['id']) not in body)
 status, body = rec.get(page)
 check('The application carries the banner, with the reason, and offers nothing that moves them forward', 'id="rehire-block"' in body and WHY in body and 'This person is on the do-not-rehire register' in body
       and 'id="pass-to-manager"' not in body and 'id="schedule-interview"' not in body)

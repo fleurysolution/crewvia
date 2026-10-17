@@ -20,8 +20,8 @@ $hwScore = static function (?string $s): string {
 ?>
 <?php if (! isset($hwVacancy)): ?>
 <div class="page-head">
-  <div><h1><?= te('Hiring') ?></h1><p class="sub m0"><?= te('Every requisition and where its applicants stand. Open one to review its applicants, move them along, or add people from the talent pool.') ?></p></div>
-  <div class="actions"><a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a></div>
+  <div><h1><?= te('Hiring') ?></h1><p class="sub m0"><?= te('The people the hiring managers approved, by requisition: offer, onboarding and hire. Applicants are worked on Candidates until they are approved.') ?></p></div>
+  <div class="actions"><a class="btn ghost" href="/candidates"><?= te('Candidates') ?></a></div>
 </div>
 <form method="get" class="filterbar" id="jobs-filter">
   <select name="status" aria-label="<?= te('Status') ?>"><?php foreach (['open' => t('Open'), 'closed' => t('Closed'), 'all' => t('All')] as $k => $l): ?><option value="<?= $k ?>"<?= $hwStatus === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
@@ -32,15 +32,14 @@ $hwScore = static function (?string $s): string {
 <div class="card empty-state" id="no-jobs"><h3><?= te('No requisition here yet') ?></h3><p><?= te('Create a requisition for a project: applicants then arrive here, by its public link and QR code, or from the talent pool.') ?></p><a class="btn" href="/requisitions"><?= te('Create a requisition') ?></a></div>
 <?php else: ?>
 <div class="card tight" id="jobs"><table>
-  <tr><th><?= te('Requisition') ?></th><th><?= te('Applicants') ?></th><th><?= te('Openings') ?></th><th><?= te('Last application') ?></th><th><?= te('Status') ?></th></tr>
+  <tr><th><?= te('Requisition') ?></th><th><?= te('Approved') ?></th><th><?= te('Openings') ?></th><th><?= te('Last application') ?></th><th><?= te('Status') ?></th></tr>
   <?php foreach ($hwJobs as $j): ?><tr data-vacancy="<?= (int) $j['id'] ?>">
     <td><a href="/hiring?v=<?= (int) $j['id'] ?>"><strong><?= e($j['title']) ?></strong></a><div class="small muted"><?= e($j['project']) ?><?= isset($hwDisc[$j['discipline'] ?? '']) ? ' · ' . e($hwDisc[$j['discipline']]) : '' ?><?= $j['starts_on'] ? ' · ' . e(starts_words((string) $j['starts_on'])) : '' ?></div></td>
     <td><div class="counts">
-      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=all"><b><?= (int) $j['total'] ?></b><?= te('All') ?></a>
-      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=new" data-new="<?= (int) $j['new_count'] ?>"><b><?= (int) $j['new_count'] ?></b><?= te('New') ?></a>
-      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=screening"><b><?= (int) $j['reviewing'] ?></b><?= te('Reviewing') ?></a>
-      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=offered"><b><?= (int) $j['offered'] ?></b><?= te('Offered') ?></a>
-      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=accepted"><b><?= (int) $j['hired'] ?></b><?= te('Hired') ?></a></div></td>
+      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=all"><b><?= (int) $j['total'] ?></b><?= te('Approved') ?></a>
+      <a href="/hiring?v=<?= (int) $j['id'] ?>" data-to-onboard="<?= (int) $j['to_onboard'] ?>"><b><?= (int) $j['to_onboard'] ?></b><?= te('To onboard') ?></a>
+      <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=accepted"><b><?= (int) $j['hired'] ?></b><?= te('Hired') ?></a>
+      <a href="/candidates?vacancy=<?= (int) $j['id'] ?>" class="muted" data-applicants="<?= (int) $j['applicants'] ?>"><b><?= (int) $j['applicants'] ?></b><?= te('Applicants') ?></a></div></td>
     <td class="num"><?= (int) $j['openings'] ?></td>
     <td class="small"><?= $j['last_applied'] ? e(hw_ago((string) $j['last_applied'])) : '<span class="muted">—</span>' ?></td>
     <td><span class="tag <?= (int) $j['is_open'] ? 'green' : 'grey' ?>"><?= (int) $j['is_open'] ? te('Open') : te('Closed') ?></span></td></tr><?php endforeach; ?>
@@ -53,11 +52,10 @@ $hwScore = static function (?string $s): string {
   <div><h1 id="vacancy-title"><?= e($v['title']) ?></h1>
     <div class="meta"><?= e($v['project']) ?><?= isset($hwDisc[$v['discipline'] ?? '']) ? ' · ' . e($hwDisc[$v['discipline']]) : '' ?> · <?= ten((int) $v['openings'], ':n opening', ':n openings') ?><?= $v['starts_on'] ? ' · ' . e(starts_words((string) $v['starts_on'])) : '' ?>
       · <span class="tag <?= (int) $v['is_open'] ? 'green' : 'grey' ?>"><?= (int) $v['is_open'] ? te('Open') : te('Closed') ?></span></div></div>
-  <div class="actions"><?php if ((int) $v['is_open']): ?><a class="btn" href="<?= e($hwUrl(['tab' => 'add'])) ?>" id="add-applicant-link"><?= te('Add an applicant') ?></a> <?php endif; ?><a class="btn ghost" href="/poster?id=<?= (int) $v['id'] ?>" target="_blank" rel="noopener" id="poster-link"><?= te('Job poster') ?></a> <a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
+  <div class="actions"><a class="btn ghost" href="/candidates?vacancy=<?= (int) $v['id'] ?>" id="applicants-link"><?= te('Applicants on Candidates') ?></a> <a class="btn ghost" href="/poster?id=<?= (int) $v['id'] ?>" target="_blank" rel="noopener" id="poster-link"><?= te('Job poster') ?></a> <a class="btn ghost" href="/requisitions"><?= te('Edit requisition') ?></a></div>
 </div>
 <nav class="tabs" aria-label="<?= te('Requisition') ?>">
-  <a href="<?= e($hwUrl([])) ?>" class="<?= $hwView === 'candidates' ? 'on' : '' ?>"><?= te('Applicants') ?></a>
-  <a href="<?= e($hwUrl(['tab' => 'matches'])) ?>" class="<?= $hwView === 'matches' ? 'on' : '' ?>" id="tab-matches"><?= te('Talent pool matches') ?></a>
+  <a href="<?= e($hwUrl([])) ?>" class="<?= $hwView === 'candidates' ? 'on' : '' ?>"><?= te('Approved') ?></a>
   <a href="<?= e($hwUrl(['tab' => 'job'])) ?>" class="<?= $hwView === 'job' ? 'on' : '' ?>"><?= te('Requisition') ?></a>
 </nav>
 
@@ -96,7 +94,7 @@ $hwScore = static function (?string $s): string {
       </div>
       <?php if (($a['validation'] ?? 'none') === 'pending'): ?><p class="flash" data-validation="pending"><?= te('Sent for validation. The candidate gets the offer once it is approved.') ?> <a href="/approvals"><?= te('Approvals') ?></a></p><?php elseif (($a['validation'] ?? 'none') === 'rejected' && $a['stage'] !== 'offered'): ?><p class="flash err" data-validation="rejected"><?= te('The offer was not validated. Change it and send it again, or move the applicant on.') ?></p><?php endif; ?>
       <?php foreach ($a['matches'] ?? [] as $match): ?>
-      <p class="flash err" data-match="<?= (int) $match['id'] ?>"><?= te('Possible existing candidate:') ?> <a href="/candidates/<?= (int) $match['id'] ?>"><?= e($match['full_name'] . ' · ' . (candidate_stages()[$match['stage']] ?? $match['stage'])) ?></a><?= te('. Verify identity and prior decisions before continuing. A matching contact or name does not prove identity.') ?></p>
+      <p class="small m0 mb" data-match="<?= (int) $match['id'] ?>"><span class="tag amber"><?= te('Possible duplicate') ?></span> <?= te('Same name or contact as') ?> <a href="/candidates/<?= (int) $match['id'] ?>"><?= e($match['full_name']) ?></a> &middot; <?= te(candidate_stages()[$match['stage']] ?? ucfirst((string) $match['stage'])) ?></p>
       <?php endforeach; ?>
       <?php if (! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
       <form method="post" action="/hiring" class="detail-actions" id="move-form"><?= csrf_field() ?><input type="hidden" name="do" value="move"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">

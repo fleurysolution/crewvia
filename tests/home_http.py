@@ -80,7 +80,7 @@ check('The administrator\'s Today is the Executive overview', c['admin'].get('/h
 # ── the recruiter ──────────────────────────────────────────────────────
 before, body = tiles(c['rec'])
 check('The recruiter\'s Today: applicants this week, waiting, in review, offers', set(before) == {'new_week', 'waiting', 'reviewing', 'offered'} and 'id="home-short"' in body and 'id="home-reach"' in body)
-check('The requisition still short of people is listed, leading to Hiring', 'data-short="%d"' % V in body and 'href="/hiring?v=%d"' % V in body)
+check('The requisition still short of people is listed, leading to its applicants', 'data-short="%d"' % V in body and 'href="/candidates?vacancy=%d"' % V in body)
 probe('applicant')
 after, _ = tiles(c['rec'])
 check('One more application: applied this week +1, waiting for review +1', after['new_week'] - before['new_week'] == 1 and after['waiting'] - before['waiting'] == 1, (before, after))

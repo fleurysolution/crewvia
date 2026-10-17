@@ -12,7 +12,7 @@ $who = (string) (user()['name'] ?? '');
                   : ($homeRole === 'hotels' ? te('Logistics today, across every running project: who arrives, who has no bed or no travel, what waits on you.')
                   : te('The pay week, across every running project: what to approve, what to settle, what is due.')) ?></p></div>
   <div class="actions">
-    <?php if ($homeRole === 'recruiter'): ?><a class="btn" href="/hiring"><?= te('Open Hiring') ?></a><a class="btn ghost" href="/candidates"><?= te('Candidates') ?></a>
+    <?php if ($homeRole === 'recruiter'): ?><a class="btn" href="/candidates"><?= te('Candidates') ?></a>
     <?php elseif ($homeRole === 'hotels'): ?><a class="btn" href="/hotels"><?= te('Hotels') ?></a><a class="btn ghost" href="/travel"><?= te('Travel') ?></a>
     <?php else: ?><a class="btn" href="/hours"><?= te('Hours') ?></a><a class="btn ghost" href="/payroll-runs"><?= te('Payroll runs') ?></a><?php endif; ?>
   </div>
@@ -20,16 +20,16 @@ $who = (string) (user()['name'] ?? '');
 
 <?php if ($homeRole === 'recruiter'): $c = $hd['counts']; ?>
 <div class="home-tiles" id="home-tiles">
-  <?php $tile('new_week', $c['new_week'] ?? 0, t('applied this week'), '/hiring'); ?>
-  <?php $tile('waiting', $c['waiting'] ?? 0, t('new applicants waiting for review'), '/hiring', 'amber'); ?>
-  <?php $tile('reviewing', $c['reviewing'] ?? 0, t('in screening or interview'), '/hiring'); ?>
+  <?php $tile('new_week', $c['new_week'] ?? 0, t('applied this week'), '/candidates?stage=all'); ?>
+  <?php $tile('waiting', $c['waiting'] ?? 0, t('new applicants waiting for review'), '/candidates?stage=new', 'amber'); ?>
+  <?php $tile('reviewing', $c['reviewing'] ?? 0, t('in screening or interview'), '/candidates?stage=screening'); ?>
   <?php $tile('offered', $c['offered'] ?? 0, t('offers waiting for an answer'), '/hiring'); ?>
 </div>
 <div class="grid g2">
   <section class="card" id="home-short"><h2><?= te('Requisitions still short of people') ?></h2>
     <?php if (! $hd['short']): ?><p class="small t-green"><?= te('Every open requisition has its people.') ?></p><?php else: ?>
     <table><tr><th><?= te('Requisition') ?></th><th class="num"><?= te('Hired') ?></th><th class="num"><?= te('New') ?></th></tr>
-      <?php foreach ($hd['short'] as $v): ?><tr data-short="<?= (int) $v['id'] ?>"><td><a href="/hiring?v=<?= (int) $v['id'] ?>"><?= e($v['title']) ?></a><div class="small muted"><?= e($v['project']) ?></div></td><td class="num"><?= (int) $v['hired'] ?> / <?= (int) $v['openings'] ?></td><td class="num"><?= (int) $v['new_count'] ?></td></tr><?php endforeach; ?>
+      <?php foreach ($hd['short'] as $v): ?><tr data-short="<?= (int) $v['id'] ?>"><td><a href="/candidates?vacancy=<?= (int) $v['id'] ?>"><?= e($v['title']) ?></a><div class="small muted"><?= e($v['project']) ?></div></td><td class="num"><?= (int) $v['hired'] ?> / <?= (int) $v['openings'] ?></td><td class="num"><?= (int) $v['new_count'] ?></td></tr><?php endforeach; ?>
     </table><?php endif; ?></section>
   <section class="card" id="home-reach"><h2><?= te('Reaching the pool') ?></h2>
     <ul class="attention-list">
