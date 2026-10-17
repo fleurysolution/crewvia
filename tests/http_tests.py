@@ -185,13 +185,13 @@ admin.post('/job',{'do':'add_line','role_title':'Plant engineer','discipline':'m
 _,scopeBody=admin.get('/job')
 check('A trade is on the order','Plant engineer' in scopeBody)
 check('One line prices a full week','$70,600.00' in scopeBody)
-check('The headcount asked for follows the order','total of the scope of work above: 20' in scopeBody)
+check('The headcount asked for follows the order','Headcount from the scope of work: 20.' in scopeBody)
 
 admin.post('/job',{'do':'add_line','role_title':'General labourer','discipline':'other','quantity':'100','pay_rate':'22','bill_rate':'38','per_diem_rate':'30','guarantee_hours':'40'})
 _,scopeBody=admin.get('/job')
 check('Two trades at two rates sum, not one rate for everybody','$179,600.00' in scopeBody)
 check('Both trades are listed','General labourer' in scopeBody and 'Plant engineer' in scopeBody)
-check('The headcount asked for is the whole order','total of the scope of work above: 120' in scopeBody)
+check('The headcount asked for is the whole order','Headcount from the scope of work: 120.' in scopeBody)
 
 # An unpriced line stays on the order and is named as unpriced rather than
 # counted as free.

@@ -5329,3 +5329,55 @@ Hotel nights, at the rate agreed for each hotel	Nuits d'hôtel, au prix convenu 
 :n hotels on this project	:n hôtels sur ce projet	:n hoteles en este proyecto
 :n hotel	:n hôtel	:n hotel
 :n hotels	:n hôtels	:n hoteles
+, same Social Security number as an earlier record	, même numéro de sécurité sociale qu'un dossier antérieur	, mismo número de Seguro Social que un registro anterior
+, same name and date of birth as an earlier record	, mêmes nom et date de naissance qu'un dossier antérieur	, mismo nombre y fecha de nacimiento que un registro anterior
+Why: :reason	Motif : :reason	Motivo: :reason
+An earlier record with the same Social Security number is on the do-not-rehire register.	Un dossier antérieur avec le même numéro de sécurité sociale est sur le registre « ne pas réembaucher ».	Un registro anterior con el mismo número de Seguro Social está en el registro de no recontratar.
+An earlier record with the same name and date of birth is on the do-not-rehire register.	Un dossier antérieur avec les mêmes nom et date de naissance est sur le registre « ne pas réembaucher ».	Un registro anterior con el mismo nombre y fecha de nacimiento está en el registro de no recontratar.
+Same name as someone on the do-not-rehire register	Même nom qu'une personne du registre « ne pas réembaucher »	Mismo nombre que alguien del registro de no recontratar
+Check it is not the same person before moving forward.	Vérifiez qu'il ne s'agit pas de la même personne avant d'avancer.	Compruebe que no es la misma persona antes de continuar.
+Everything is in place. Advance when you are ready.	Tout est en place. Avancez quand vous êtes prêt.	Todo está listo. Avance cuando quiera.
+Done (:n)	Fait (:n)	Hecho (:n)
+W-4 accepted	W-4 accepté	W-4 aceptado
+I-9 accepted	I-9 accepté	I-9 aceptado
+Direct deposit accepted	Dépôt direct accepté	Depósito directo aceptado
+The ADP connection is not set up: :missing.	La connexion ADP n'est pas configurée : :missing.	La conexión con ADP no está configurada: :missing.
+ADP refused the connection (:status). Check the credentials and the certificate.	ADP a refusé la connexion (:status). Vérifiez les identifiants et le certificat.	ADP rechazó la conexión (:status). Revise las credenciales y el certificado.
+Not ready for ADP: the W-4 and the I-9 must be accepted.	Pas prêt pour ADP : le W-4 et l'I-9 doivent être acceptés.	No está listo para ADP: el W-4 y el I-9 deben estar aceptados.
+ADP did not accept the hire: :msg	ADP n'a pas accepté l'embauche : :msg	ADP no aceptó la contratación: :msg
+Sent to ADP (:ref), but ADP refused the direct deposit: enter it in ADP.	Envoyé à ADP (:ref), mais ADP a refusé le dépôt direct : saisissez-le dans ADP.	Enviado a ADP (:ref), pero ADP rechazó el depósito directo: introdúzcalo en ADP.
+Sent to ADP (:ref).	Envoyé à ADP (:ref).	Enviado a ADP (:ref).
+Tick the people to put in the file: only those ready for ADP.	Cochez les personnes à mettre dans le fichier : seulement celles prêtes pour ADP.	Marque las personas para el archivo: solo las listas para ADP.
+Tick the people to send: only those ready for ADP.	Cochez les personnes à envoyer : seulement celles prêtes pour ADP.	Marque las personas que enviar: solo las listas para ADP.
+Connected to ADP.	Connecté à ADP.	Conectado a ADP.
+ADP	ADP	ADP
+PAYROLL	PAIE	NÓMINA
+New hires ready to be created in ADP.	Nouvelles embauches prêtes à être créées dans ADP.	Nuevas contrataciones listas para crearse en ADP.
+Weekly payroll file	Fichier de paie hebdomadaire	Archivo de nómina semanal
+:n ready	:n prêts	:n listos
+Download the new-hire file	Télécharger le fichier des embauches	Descargar el archivo de contrataciones
+Set up the ADP connection first.	Configurez d'abord la connexion ADP.	Configure primero la conexión con ADP.
+Send to ADP	Envoyer à ADP	Enviar a ADP
+Nobody to create in ADP.	Personne à créer dans ADP.	Nadie que crear en ADP.
+All ready	Tous les prêts	Todos los listos
+Job	Poste	Puesto
+Ready	Prêt	Listo
+Missing: :list	Manque : :list	Falta: :list
+Sent :date (:ref)	Envoyé le :date (:ref)	Enviado el :date (:ref)
+Send failed :date	Échec de l'envoi le :date	Envío fallido el :date
+In a file :date	Dans un fichier le :date	En un archivo el :date
+from ADP	d'ADP	de ADP
+The file holds Social Security and bank numbers. Import it in ADP, then delete it.	Le fichier contient des numéros de sécurité sociale et bancaires. Importez-le dans ADP, puis supprimez-le.	El archivo contiene números de Seguro Social y bancarios. Impórtelo en ADP y luego elimínelo.
+ADP connection	Connexion ADP	Conexión con ADP
+Not set up: the new-hire file is used	Non configurée : le fichier des embauches est utilisé	No configurada: se usa el archivo de contrataciones
+Set up	Configurée	Configurada
+To send new hires directly, RSS requests API access from ADP (ADP Marketplace or API Central). ADP provides:	Pour envoyer les embauches directement, RSS demande un accès API à ADP (ADP Marketplace ou API Central). ADP fournit :	Para enviar las contrataciones directamente, RSS solicita acceso API a ADP (ADP Marketplace o API Central). ADP proporciona:
+a client ID and a client secret	un identifiant client et un secret client	un ID de cliente y un secreto de cliente
+a certificate and its private key	un certificat et sa clé privée	un certificado y su clave privada
+Fleury Solutions installs them on the server. Missing now: :list.	Fleury Solutions les installe sur le serveur. Manque actuellement : :list.	Fleury Solutions los instala en el servidor. Falta ahora: :list.
+Test the connection	Tester la connexion	Probar la conexión
+Nothing sent yet.	Rien d'envoyé pour l'instant.	Nada enviado aún.
+API	API	API
+:n new hire	:n nouvelle embauche	:n nueva contratación
+:n new hires	:n nouvelles embauches	:n nuevas contrataciones
+:n entry	:n entrée	:n entrada

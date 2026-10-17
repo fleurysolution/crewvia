@@ -217,3 +217,13 @@ status, body = admin.get('/clients?id=%d' % cid)
 check('The client lists its sites, with a new project there', re.search(r'<tr data-client-site="%s">' % site['id'], body) and 'site=%s#new-project' % site['id'] in body)
 admin.post('/clients', {'do': 'site_remove', 'client_id': cid, 'site_id': site['id']}, '/clients?id=%d' % cid)
 check('A site is taken off the client', not sql('SELECT id FROM client_sites WHERE id = %s' % site['id']))
+
+# P5-M78 fix: Advance moves the stage and never saves an empty project form over the project.
+admin.post('/job', {'do': 'save_project', 'title': 'P5-M71 contacts plant', 'status': 'planning', 'description': 'Pipefitting support for the plant.', 'site_city': 'Gary', 'site_state': 'IN', 'ends_unknown': '1'}, '/job')
+before = one('SELECT description, site_city, lifecycle_stage FROM jobs WHERE id = %d' % int(job['id']))
+status, body = admin.post('/job', {'do': 'advance'}, '/job')
+after = one('SELECT description, site_city, lifecycle_stage FROM jobs WHERE id = %d' % int(job['id']))
+check('Advance keeps the project as written', before['description'] == 'Pipefitting support for the plant.' and after['description'] == before['description'] and after['site_city'] == 'Gary', (before, after))
+check('...and moves it to Mobilising once its signals are met', after['lifecycle_stage'] == 'mobilising' and 'Moved to Mobilising' in body, (after, re.findall(r'class="flash[^"]*"[^>]*>([^<]*)', body)))
+status, body = admin.post('/job', {'do': 'something-else', 'description': ''}, '/job')
+check('An unknown action is refused, never saved as the project', 'Unknown action.' in body and one('SELECT description FROM jobs WHERE id = %d' % int(job['id']))['description'] == 'Pipefitting support for the plant.')

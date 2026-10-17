@@ -94,8 +94,11 @@ $strike   = (bool) $job['strike_live'];
     </form>
   </div>
 
+  <?php // P5-M78: what is left to do is shown; what is done folds under "Done" (RSS: "once added, it should not show again"). ?>
+  <?php $doneSignals = array_values(array_filter($signals, static fn ($x) => $x['met'])); $todoSignals = array_values(array_filter($signals, static fn ($x) => ! $x['met'])); ?>
+  <?php if (! $todoSignals && $signals): ?><p class="small m0 mb" data-gate-ready><?= te('Everything is in place. Advance when you are ready.') ?></p><?php endif; ?>
   <ul class="signals">
-    <?php foreach ($signals as $signal): ?>
+    <?php foreach ($todoSignals as $signal): ?>
       <li class="<?= $signal['met'] ? 'met' : 'unmet' ?>">
         <span class="signal-mark" aria-hidden="true"><?= $signal['met'] ? '&#10003;' : '&times;' ?></span>
         <span class="signal-body">
@@ -108,6 +111,15 @@ $strike   = (bool) $job['strike_live'];
       </li>
     <?php endforeach; ?>
   </ul>
+  <?php if ($doneSignals): ?>
+  <details class="mt-s" id="gate-done"><summary class="small muted"><?= te('Done (:n)', ['n' => count($doneSignals)]) ?></summary>
+    <ul class="signals">
+      <?php foreach ($doneSignals as $signal): ?>
+        <li class="met"><span class="signal-mark" aria-hidden="true">&#10003;</span><span class="signal-body"><strong><?= te($signal['label']) ?></strong> <span class="muted small"><?= e($signal['detail']) ?></span></span></li>
+      <?php endforeach; ?>
+    </ul>
+  </details>
+  <?php endif; ?>
 
   <?php if (! $signals): ?>
     <div class="empty"><?= te('Nothing stands in the way of the next stage.') ?></div>
@@ -540,6 +552,7 @@ $strike   = (bool) $job['strike_live'];
 <!-- ── the agreement ────────────────────────────────────────────────── -->
 <form method="post" action="/job">
   <?= csrf_field() ?>
+  <input type="hidden" name="do" value="save_project">
 
   <?php // P5-M73: the strike switch is at the top of the page; saving the project keeps it as it is. ?>
   <?php if ($strike): ?><input type="hidden" name="strike_live" value="1"><?php endif; ?>

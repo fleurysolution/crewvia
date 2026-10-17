@@ -172,6 +172,8 @@ if (isset($_GET['app'])) {
     // P5-M51: held by the do-not-rehire register, under this record or an earlier one with the same email or phone.
     require_once __DIR__ . '/../rehire.php';
     $hwApp['block'] = rehire_block_for((int) $hwApp['candidate_id']);
+    // P5-M78: the same name as a blocked person is shown to check, not held.
+    $hwApp['name_matches'] = $hwApp['block'] ? [] : rehire_name_matches((int) $hwApp['candidate_id']);
     // P5-M53: the offer the candidate signed, countersigned or waiting for it.
     $hwApp['signed'] = row('SELECT o.*, u.name AS countersigner_user FROM offer_acceptances o LEFT JOIN users u ON u.id = o.countersigned_by WHERE o.application_id = ?', [(int) $hwApp['id']]);
     // P5-M44: the manager's review and the interviews.

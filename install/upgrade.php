@@ -2898,4 +2898,48 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Client sites: the site of each project is kept on its client and chosen for the next project (Projects, Clients). ' . (int) val('SELECT COUNT(*) FROM client_sites') . ' site(s) kept from ' . $kept . ' project(s).' . PHP_EOL;
 }
 
+// ── P5-M78: the do-not-rehire register follows the person by identity (SSN fingerprint, name and date of birth) ──
+// Reversed by install/rollback/p5-m78.sql. The forms already filled in give their identity.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='candidate_identity'")) {
+    q("CREATE TABLE candidate_identity (
+        candidate_id INT UNSIGNED PRIMARY KEY,
+        ssn_hash CHAR(64) NULL,
+        birth_date DATE NULL,
+        name_key VARCHAR(190) NULL,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        KEY (ssn_hash),
+        KEY (name_key, birth_date),
+        FOREIGN KEY (candidate_id) REFERENCES candidates(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    require_once __DIR__ . '/../app/rehire.php';
+    require_once __DIR__ . '/../app/tax-forms.php';
+    $noted = 0;
+    if (val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='worker_tax_forms'")) {
+        foreach (rows('SELECT * FROM worker_tax_forms ORDER BY id') as $tfr) {
+            $tp = tf_payload($tfr);
+            if ($tp) { identity_note((int) $tfr['candidate_id'], $tp); $noted++; }
+        }
+    }
+    echo 'Do-not-rehire: a blocked person who comes back with another email or phone is held by the same Social Security number, or the same name and date of birth; the same name alone is shown to check. ' . $noted . ' form(s) read.' . PHP_EOL;
+}
+
+// ── P5-M79: new hires to ADP, by file or by ADP's API; each download and each send is logged ──
+// Reversed by install/rollback/p5-m79.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='adp_sends'")) {
+    q("CREATE TABLE adp_sends (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        kind ENUM('hire','deposit','test') NOT NULL,
+        candidate_id INT UNSIGNED NULL,
+        mode ENUM('file','api') NOT NULL,
+        status ENUM('downloaded','sent','failed') NOT NULL,
+        adp_reference VARCHAR(120) NULL,
+        http_status SMALLINT NULL,
+        message VARCHAR(500) NULL,
+        created_by INT UNSIGNED NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY (candidate_id, kind)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    echo 'ADP: payroll sees who is ready to be created in ADP and sends them in one click, by the new-hire file or by ADP\'s API once its credentials are in the configuration (ADP).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

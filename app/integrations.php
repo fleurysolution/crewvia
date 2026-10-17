@@ -37,6 +37,13 @@ function integration_transport(?callable $set = null): callable
         if ($req['body'] !== null) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $req['body']);
         }
+        // P5-M79: a client certificate, for an API that asks for mutual TLS (ADP).
+        if (! empty($req['cert'])) {
+            curl_setopt_array($ch, [CURLOPT_SSLCERT => $req['cert'], CURLOPT_SSLKEY => (string) ($req['key'] ?? $req['cert'])]);
+            if (! empty($req['key_password'])) {
+                curl_setopt($ch, CURLOPT_SSLKEYPASSWD, (string) $req['key_password']);
+            }
+        }
         $raw = curl_exec($ch);
         $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $size = (int) curl_getinfo($ch, CURLINFO_HEADER_SIZE);

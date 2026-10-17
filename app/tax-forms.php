@@ -336,6 +336,9 @@ function tf_save_draft(int $candidateId, string $form, array $in, int $userId): 
     }
     $json = json_encode($p, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
     $last4 = $p['ssn'] !== '' ? substr($p['ssn'], -4) : null;
+    // P5-M78: the identity on the form follows the person on the do-not-rehire register.
+    require_once __DIR__ . '/rehire.php';
+    identity_note($candidateId, $p);
     if ($draft) {
         q('UPDATE worker_tax_forms SET encrypted_payload = ?, payload_hash = ?, ssn_last_four = ? WHERE id = ?', [base64_encode(crypto_seal($json)), hash('sha256', $json), $last4, (int) $draft['id']]);
         $id = (int) $draft['id'];

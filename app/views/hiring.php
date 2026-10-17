@@ -117,10 +117,18 @@ $hwScore = static function (?string $s): string {
     <?php if (! empty($a['block'])): $bk = $a['block']; ?>
     <div class="card tone-alert" id="rehire-block" role="alert">
       <h3 class="m0 t-red"><?= te(':label: do not move this applicant forward', ['label' => t($bk['label'])]) ?></h3>
-      <p class="small m0 mt-s"><?= $bk['how'] === 'record' ? te('This person is on the do-not-rehire register.') : ($bk['how'] === 'email' ? te('An earlier record with the same email is on the do-not-rehire register.') : te('An earlier record with the same phone is on the do-not-rehire register.')) ?>
+      <p class="small m0 mt-s"><?= ['record' => te('This person is on the do-not-rehire register.'), 'email' => te('An earlier record with the same email is on the do-not-rehire register.'), 'phone' => te('An earlier record with the same phone is on the do-not-rehire register.'),
+              'ssn' => te('An earlier record with the same Social Security number is on the do-not-rehire register.'), 'name_dob' => te('An earlier record with the same name and date of birth is on the do-not-rehire register.')][$bk['how']] ?? '' ?>
         <?= $bk['reason'] ? '<br><strong>' . te('Why:') . '</strong> ' . e((string) $bk['reason']) : '' ?>
         <?= $bk['by'] || $bk['at'] ? '<br><span class="muted">' . e(trim((string) $bk['by'] . ' · ' . ($bk['at'] ? d(substr((string) $bk['at'], 0, 10)) : ''), ' ·')) . '</span>' : '' ?></p>
       <p class="small m0 mt-s"><a href="/candidates/<?= (int) $bk['record'] ?>#rehire"><?= te('Open the record that carries it') ?></a> · <?= te('Screening, interviews, the manager\'s review, invitations and offers are refused; rejecting stays possible.') ?></p>
+    </div>
+    <?php endif; ?>
+    <?php if (empty($a['block']) && ! empty($a['name_matches'])): ?>
+    <div class="card tone-warn" id="rehire-name-match" role="status">
+      <h3 class="m0"><?= te('Same name as someone on the do-not-rehire register') ?></h3>
+      <p class="small m0 mt-s"><?= te('Check it is not the same person before moving forward.') ?></p>
+      <?php foreach ($a['name_matches'] as $nm): ?><p class="small m0 mt-xs"><a href="/candidates/<?= (int) $nm['record'] ?>#rehire"><?= e($nm['name']) ?></a> &middot; <?= te($nm['label']) ?><?= $nm['reason'] ? ' &middot; <strong>' . te('Why:') . '</strong> ' . e((string) $nm['reason']) : '' ?></p><?php endforeach; ?>
     </div>
     <?php endif; ?>
     <?php if (! empty($a['signed'])): $so = $a['signed']; ?>

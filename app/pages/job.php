@@ -295,6 +295,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         redirect('/job#scope');
     }
 
+    // ── the stage: Advance moves the project on when its signals are met ──
+    // P5-M78 fix: this button had no handler and fell through to the project form below, which saved an empty
+    // form over the project (description, site, dates, notes) and left it in Planning.
+    if (($_POST['do'] ?? '') === 'advance') {
+        $moved = lifecycle_advance($jobId);
+        flash($moved['message'], $moved['ok'] ? 'ok' : 'err');
+        redirect('/job');
+    }
+
+    // Only the project form saves the project: an action this page does not know is refused, never saved as an empty form.
+    if (! in_array($_POST['do'] ?? '', ['', 'save_project', 'strike'], true)) {
+        refuse(422, t('Unknown action.'), '/job');
+    }
+
     // ── the agreement itself ────────────────────────────────────────────
     $start = (string) ($_POST['starts_on'] ?? '');
     $end   = ! empty($_POST['ends_unknown']) ? '' : (string) ($_POST['ends_on'] ?? '');

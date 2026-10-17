@@ -163,6 +163,9 @@ function kr_reencrypt(int $limit = 0): array
             if ($limit > 0 && $done >= $limit) { return [$done, $raced]; }
         }
     }
+    // P5-M78: the identity fingerprints are keyed too; once everything is under the new key, they are made again from the forms.
+    require_once __DIR__ . '/rehire.php';
+    identity_rebuild();
     return [$done, $raced];
 }
 
