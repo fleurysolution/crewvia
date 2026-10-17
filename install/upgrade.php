@@ -2,7 +2,8 @@
 declare(strict_types=1);
 if (PHP_SAPI !== 'cli') exit('CLI only');
 require_once __DIR__.'/../app/bootstrap.php';
-q("ALTER TABLE users MODIFY role ENUM('admin','recruiter','hotels','payroll','worker','supervisor','client') NOT NULL DEFAULT 'recruiter'");
+// P5-M84 fix: this line runs on every upgrade, so it carries every role - 'hr' included - or it would strip HR from people.
+q("ALTER TABLE users MODIFY role ENUM('admin','recruiter','hr','hotels','payroll','worker','supervisor','client') NOT NULL DEFAULT 'recruiter'");
 if (val("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='placements' AND index_name='uq_candidate_job'")) {
  q('ALTER TABLE placements DROP INDEX uq_candidate_job, ADD INDEX ix_candidate_job(candidate_id,job_id)');
 }

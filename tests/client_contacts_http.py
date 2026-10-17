@@ -330,3 +330,7 @@ told = [int(x['user_id']) for x in sql('SELECT user_id FROM notifications WHERE 
 check("The review goes to the requisition's hiring manager, and only they are told", mr and int(mr['reviewer_id']) == int(owner_id) and told and set(told) == {int(owner_id)}, (mr, told))
 status, body = admin.get('/reviews')
 check('Their Waiting on your decision has it', 'Managed Applicant' in body)
+
+# P5-M84 fix: running the upgrade again keeps an HR person's role.
+subprocess.run([php, 'work/test-app/install/upgrade.php'], check=True, capture_output=True)
+check('Upgrading again keeps the HR role', one("SELECT role FROM users WHERE email = 'wk-hr@test.invalid'")['role'] == 'hr')
