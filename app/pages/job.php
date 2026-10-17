@@ -185,6 +185,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         redirect('/job#scope');
     }
 
+    // ── P5-M71: a new discipline, added where the scope line needs it (RSS: "we need to be able to add more") ──
+    // The same catalogue as Settings > Trades: the key is made once from the name and never changes.
+    if (($_POST['do'] ?? '') === 'add_discipline') {
+        $label = trim(preg_replace('/\s+/', ' ', (string) ($_POST['discipline_label'] ?? '')));
+        $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '_', $label), '_'));
+        $json = str_contains((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json');
+        $why = $label === '' || mb_strlen($label) > 90 ? t('A trade needs a name.')
+             : ($slug === '' || mb_strlen($slug) > 40 ? t('That name cannot be turned into a usable key. Use letters and numbers.') : null);
+        if ($why === null) {
+            if (val('SELECT COUNT(*) FROM disciplines WHERE slug = ?', [$slug])) {
+                q('UPDATE disciplines SET is_active = 1 WHERE slug = ?', [$slug]);
+                $label = (string) val('SELECT label FROM disciplines WHERE slug = ?', [$slug]);
+            } else {
+                q('INSERT INTO disciplines (slug, label, sort_order) VALUES (?,?,?)', [$slug, $label, (int) val('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM disciplines WHERE sort_order < 90')]);
+                log_activity('added a trade', 'discipline', 0, $label);
+            }
+        }
+        if ($json) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code($why ? 422 : 200);
+            echo json_encode($why ? ['ok' => false, 'message' => $why] : ['ok' => true, 'slug' => $slug, 'label' => t($label), 'message' => t(':trade added to the disciplines.', ['trade' => $label])]);
+            exit;
+        }
+        if ($why) {
+            refuse(422, $why, '/job#scope');
+        }
+        flash(t(':trade added to the disciplines.', ['trade' => $label]));
+        redirect('/job?discipline=' . rawurlencode($slug) . (isset($_POST['line_id']) && (int) $_POST['line_id'] ? '&line=' . (int) $_POST['line_id'] : '') . '#scope');
+    }
+
+    // ── P5-M71: who from the client is on the project, and who is in charge ──
+    if (($_POST['do'] ?? '') === 'project_contacts') {
+        require_once __DIR__ . '/../client-contacts.php';
+        if ($why = cc_job_save($jobId, (int) $job['client_id'], (array) ($_POST['contacts'] ?? []), (int) ($_POST['in_charge'] ?? 0))) {
+            refuse(422, $why, '/job#project-contacts');
+        }
+        flash(t('Saved: the client contacts of this project.'));
+        redirect('/job#project-contacts');
+    }
+
     // ── P5-M70: what the client is billed ───────────────────────────────
     if (($_POST['do'] ?? '') === 'billing_terms') {
         require_once __DIR__ . '/../billing-terms.php';
@@ -256,7 +296,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
 
     // ── the agreement itself ────────────────────────────────────────────
     $start = (string) ($_POST['starts_on'] ?? '');
-    $end   = (string) ($_POST['ends_on'] ?? '');
+    $end   = ! empty($_POST['ends_unknown']) ? '' : (string) ($_POST['ends_on'] ?? '');
 
     if (($start && ! valid_date($start)) || ($end && ! valid_date($end))
         || ($start && $end && $end < $start)) {
@@ -313,6 +353,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         trim((string) ($_POST['notes'] ?? '')) ?: null,
         $jobId,
     ]);
+    // P5-M71: the street address of the site.
+    q('UPDATE jobs SET site_address = ? WHERE id = ?', [mb_substr(trim((string) ($_POST['site_address'] ?? '')), 0, 190) ?: null, $jobId]);
     // P5-M67: the site's exact position and radius, against which clock-ins are compared.
     $lat = trim((string) ($_POST['site_lat'] ?? ''));
     $lng = trim((string) ($_POST['site_lng'] ?? ''));
@@ -341,7 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
             : 'Strike stood down. Every line is back to its normal guarantee - a full week of the scope is :amount.',
             ['amount' => money($totals['weekly_pay'])]));
     } else {
-        flash(t('Agreement saved.'));
+        flash(t('Project saved.'));
     }
 
     redirect('/job');
@@ -399,6 +441,9 @@ $pageTitle = ($job['title'] ?? t('Project setup')) . ' · ' . $config['app_name'
 $shifts = shifts_for((int) $job['id']);
 require_once __DIR__ . '/../billing-terms.php';
 $billing = bt_terms((int) $job['id']);
+require_once __DIR__ . '/../client-contacts.php';
+$clientContacts = cc_contacts((int) $job['client_id']);
+$projectContacts = array_column(cc_job_contacts((int) $job['id']), null, 'id');
 $staff = rows("SELECT id, name, role FROM users WHERE is_active = 1 AND role NOT IN ('worker','client') ORDER BY name");
 render('job', compact('job', 'stage', 'signals', 'next', 'figures',
-                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff', 'billing'));
+                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff', 'billing', 'clientContacts', 'projectContacts'));

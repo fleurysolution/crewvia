@@ -32,4 +32,9 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 $invoices=rows('SELECT * FROM client_invoices WHERE job_id=? ORDER BY id DESC',[$jobId]);
 $invoice=row('SELECT * FROM client_invoices WHERE id=? AND job_id=?',[(int)($_GET['id'] ?? 0),$jobId]);
 $attendance=rows("SELECT a.work_date,COUNT(DISTINCT p.candidate_id) workers,SUM(a.hours) hours FROM attendance_records a JOIN placements p ON p.id=a.placement_id WHERE p.job_id=? AND a.status='approved' GROUP BY a.work_date ORDER BY a.work_date DESC LIMIT 90",[$jobId]);
-render('client-invoices',compact('invoices','invoice','job','attendance'));
+// P5-M71: who the invoice is addressed to - the client, the contacts receiving the invoices, the one in charge of the project.
+require_once __DIR__.'/../client-contacts.php';
+$billClient=$invoice?row('SELECT * FROM clients WHERE id=?',[(int)$job['client_id']]):null;
+$billTo=$invoice?cc_invoice_recipients((int)$job['client_id']):[];
+$billChief=$invoice?(array_values(array_filter(cc_job_contacts($jobId),static fn($x)=>(int)$x['in_charge']===1))[0]??null):null;
+render('client-invoices',compact('invoices','invoice','job','attendance','billClient','billTo','billChief'));

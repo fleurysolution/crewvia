@@ -2,14 +2,14 @@
   <div>
     <h1><?= te('Projects') ?></h1>
     <p class="sub">
-      <?= te('Each one is an agreement with a client: what the work is, where, for how long, and what it covers. How many of each trade and what they are paid is the scope of work, written on the project itself.') ?>
+      <?= te('Each one is work already contracted with a client - the contract is signed before it comes here. Crewvia runs and tracks it: where, for how long, what it covers. How many of each trade and what they are paid is the scope of work, written on the project itself.') ?>
     </p>
   </div>
 </div>
 
 <form class="card" method="post" id="new-project">
   <?= csrf_field() ?>
-  <span class="eyebrow"><?= te('NEW AGREEMENT') ?></span>
+  <span class="eyebrow"><?= te('NEW PROJECT') ?></span>
   <h2><?= te('Take on a project') ?></h2>
 
   <div class="row">
@@ -35,12 +35,18 @@
   </div>
 
   <div class="field mt-l">
-    <label for="p-desc"><?= te('Scope of the agreement') ?></label>
+    <label for="p-desc"><?= te('What the work is') ?></label>
     <textarea id="p-desc" name="description" rows="4" maxlength="8000"
               placeholder="<?= te('e.g. Provide skilled labour support to the client plant for the duration of the work stoppage, in accordance with the attached scope of work.') ?>"></textarea>
-    <span class="hint"><?= te('What this agreement commits the agency to, in the words the client would recognise.') ?></span>
+    <span class="hint"><?= te('The work as the contract describes it, in the words the client would recognise.') ?></span>
   </div>
 
+  <?php // P5-M71: the site address finds the position, city, state and ZIP (app/geocode.php). ?>
+  <div class="row" data-geo data-lat="#p-lat" data-lng="#p-lng" data-city="#p-city" data-state="#p-state" data-zip="#p-zip">
+    <div class="f2"><label for="p-address"><?= te('Site address') ?></label><input id="p-address" name="site_address" maxlength="190" autocomplete="off" data-geo-address value="" placeholder="<?= te('e.g. 1 N Broadway, Gary, IN') ?>">
+      <span class="hint" data-geo-status data-searching="<?= te('Finding the address...') ?>" data-found="<?= te('Found: :address - position :lat, :lng filled in. Check it before saving.') ?>"><?= te('Type the street address: the city, state, ZIP and the position for the clock-in fill in by themselves.') ?></span></div>
+    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" data-geo-find><?= te('Find the address') ?></button></div>
+  </div>
   <div class="row">
     <div class="f2">
       <label for="p-site"><?= te('Site') ?></label>
@@ -60,7 +66,7 @@
       <input id="p-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
     </div>
   </div>
-  <?php // P5-M70: the site's exact position from the start, for the clock-in (P5-M67). ?>
+  <?php // P5-M70: the site's exact position from the start, for the clock-in (P5-M67); filled from the address (P5-M71). ?>
   <div class="row">
     <div><label for="p-lat"><?= te('Site latitude') ?></label><input id="p-lat" name="site_lat" inputmode="decimal" maxlength="12" placeholder="41.6036"></div>
     <div><label for="p-lng"><?= te('Site longitude') ?></label><input id="p-lng" name="site_lng" inputmode="decimal" maxlength="12" placeholder="-87.3378"></div>
@@ -73,12 +79,14 @@
     <div>
       <label for="p-end"><?= te('Ends') ?></label>
       <input id="p-end" type="date" name="ends_on">
+      <?php // P5-M71: many projects have no end date - they run until the client stops them; billing carries on. ?>
+      <label class="d-block small"><input type="checkbox" name="ends_unknown" value="1" onchange="var d=document.getElementById('p-end');d.disabled=this.checked;if(this.checked)d.value=''"> <?= te('End date unknown (ongoing)') ?></label>
     </div>
   </div>
 
-  <h3 class="mt-xl"><?= te('What the agreement covers') ?></h3>
+  <h3 class="mt-xl"><?= te('What the contract covers') ?></h3>
   <p class="hint m0 pull-up mb">
-    <?= te('Beyond the hourly rate. These are what the crew is told and what the client is invoiced for, so they are recorded on the agreement rather than remembered.') ?>
+    <?= te('Beyond the hourly rate. These are what the crew is told and what the client is invoiced for, so they are recorded on the project rather than remembered.') ?>
   </p>
 
   <div class="row">
@@ -96,7 +104,7 @@
     </label>
   </div>
 
-  <button class="btn mt-l" type="submit"><?= te('Create the agreement') ?></button>
+  <button class="btn mt-l" type="submit"><?= te('Create the project') ?></button>
   <span class="hint inline-block ml">
     <?= te('You will land on its scope of work, where the trades and their rates are written.') ?>
   </span>
@@ -104,11 +112,11 @@
 
 <div class="card tight">
   <div class="card-bar">
-    <h2 class="m0"><?= te('Agreements') ?></h2>
+    <h2 class="m0"><?= te('Projects') ?></h2>
   </div>
 
   <?php if (! $projects): ?>
-    <div class="empty"><?= te('No agreements yet. Create one above, then write its scope of work.') ?></div>
+    <div class="empty"><?= te('No projects yet. Create one above, then write its scope of work.') ?></div>
   <?php else: ?>
   <div class="scroll">
     <table>
@@ -167,3 +175,4 @@
   </div>
   <?php endif; ?>
 </div>
+<script src="/assets/site-address.js"></script>

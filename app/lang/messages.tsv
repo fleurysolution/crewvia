@@ -5150,3 +5150,77 @@ empty: billed at the regular rate	vide : facturé au taux régulier	vacío: se f
 Save what the client is billed	Enregistrer ce qui est facturé au client	Guardar lo que se factura al cliente
 Billed by the terms on the project (overtime, shift premiums, per diem, hotel, travel, transport). Tax and credits require accounting review.	Facturé selon les conditions du projet (heures supplémentaires, primes de quart, per diem, hôtel, voyage, transport). Les taxes et crédits demandent une revue comptable.	Facturado según las condiciones del proyecto (horas extra, recargos de turno, viáticos, hotel, viaje, transporte). Impuestos y créditos requieren revisión contable.
 Position taken	Position prise	Posición tomada
+Give the contact's name.	Indiquez le nom du contact.	Indique el nombre del contacto.
+Give an email or a phone number, so the contact can be reached.	Indiquez un e-mail ou un téléphone, pour pouvoir joindre le contact.	Indique un correo o un teléfono para poder contactarlo.
+A contact who receives the invoices needs an email.	Un contact qui reçoit les factures doit avoir un e-mail.	Un contacto que recibe las facturas necesita un correo.
+That contact is not this client's.	Ce contact n'est pas celui de ce client.	Ese contacto no es de este cliente.
+Address not found. Check it, or type the latitude and longitude, or use My position here on the site.	Adresse introuvable. Vérifiez-la, ou saisissez la latitude et la longitude, ou utilisez « Ma position ici » sur le site.	Dirección no encontrada. Revísela, escriba la latitud y la longitud, o use «Mi posición aquí» en el sitio.
+Main point of contact changed.	Contact principal changé.	Contacto principal cambiado.
+Contact removed. They are no longer on this client's projects.	Contact retiré. Il ne figure plus sur les projets de ce client.	Contacto eliminado. Ya no figura en los proyectos de este cliente.
+Contact added. Choose them on the projects they are part of.	Contact ajouté. Choisissez-le sur les projets dont il fait partie.	Contacto añadido. Elíjalo en los proyectos de los que forma parte.
+Main point of contact	Contact principal	Contacto principal
+Their title	Sa fonction	Su cargo
+e.g. Hiring manager	ex. Responsable du recrutement	p. ej. Responsable de contratación
+They also receive the invoices	Il reçoit aussi les factures	También recibe las facturas
+Invoices go to	Les factures vont à	Las facturas van a
+Chosen in the contacts below.	Choisi dans les contacts ci-dessous.	Elegido en los contactos de abajo.
+Or tick a contact below as receiving the invoices.	Ou cochez ci-dessous un contact qui reçoit les factures.	O marque abajo un contacto que recibe las facturas.
+Title or role	Fonction ou rôle	Cargo o función
+e.g. Site manager, Accounts payable	ex. Responsable de site, Comptabilité fournisseurs	p. ej. Jefe de sitio, Cuentas por pagar
+Receives the invoices	Reçoit les factures	Recibe las facturas
+Save the contact	Enregistrer le contact	Guardar el contacto
+Add the contact	Ajouter le contact	Añadir el contacto
+Contacts at :client	Contacts chez :client	Contactos en :client
+Everyone you deal with at this client. One is the main point of contact; those ticked as receiving the invoices are where invoices go. Each project then chooses its contacts and the one in charge.	Toutes les personnes avec qui vous traitez chez ce client. L'une est le contact principal ; celles cochées « reçoit les factures » reçoivent les factures. Chaque projet choisit ensuite ses contacts et son responsable.	Todas las personas con las que trata en este cliente. Una es el contacto principal; las marcadas como «recibe las facturas» reciben las facturas. Cada proyecto elige luego sus contactos y su responsable.
+No contact yet. Add the first one below: they become the main point of contact.	Aucun contact pour l'instant. Ajoutez le premier ci-dessous : il devient le contact principal.	Aún no hay contactos. Añada el primero abajo: será el contacto principal.
+Main contact	Contact principal	Contacto principal
+Make main	Rendre principal	Hacer principal
+Remove :name from this client and from its projects?	Retirer :name de ce client et de ses projets ?	¿Quitar a :name de este cliente y de sus proyectos?
+Add a contact	Ajouter un contact	Añadir un contacto
+in charge: :name	responsable : :name	responsable: :name
+More contacts - the site manager, accounts payable - are added on the client once it is created.	Les autres contacts (responsable de site, comptabilité…) s'ajoutent sur le client une fois créé.	Los demás contactos (jefe de sitio, cuentas por pagar…) se añaden en el cliente una vez creado.
++:n more contacts	+:n autres contacts	+:n contactos más
+The project as contracted, and the scope of work everything else is calculated from.	Le projet tel que contracté, et le périmètre de travail d'où tout le reste est calculé.	El proyecto tal como se contrató, y el alcance del trabajo del que se calcula todo lo demás.
+In charge at the client	Responsable chez le client	Responsable en el cliente
+ongoing, no end date	en cours, sans date de fin	en curso, sin fecha de fin
+The contract also covers	Le contrat couvre aussi	El contrato también cubre
+No scope written yet. Nothing can be recruited until the project says how many of each trade the contract covers.	Aucun périmètre écrit. Rien ne peut être recruté tant que le projet ne dit pas combien de chaque métier le contrat couvre.	Aún no hay alcance. No se puede reclutar hasta que el proyecto diga cuántos de cada oficio cubre el contrato.
+Client contacts on this project	Contacts du client sur ce projet	Contactos del cliente en este proyecto
+Choose, from :client's contacts, the people relevant to this project, and the one in charge of it.	Choisissez, parmi les contacts de :client, les personnes concernées par ce projet, et son responsable.	Elija, entre los contactos de :client, las personas de este proyecto y su responsable.
+This client has no contact yet.	Ce client n'a encore aucun contact.	Este cliente aún no tiene contactos.
+Add their contacts	Ajouter ses contacts	Añadir sus contactos
+In charge	Responsable	Responsable
+Save the project contacts	Enregistrer les contacts du projet	Guardar los contactos del proyecto
+Add or change contacts	Ajouter ou modifier des contacts	Añadir o cambiar contactos
+The project	Le projet	El proyecto
+The work as the contract describes it, in the words the client would recognise. It is what applicants read.	Le travail tel que le contrat le décrit, avec les mots du client. C'est ce que lisent les candidats.	El trabajo tal como lo describe el contrato, con las palabras del cliente. Es lo que leen los candidatos.
+Site address	Adresse du site	Dirección del sitio
+e.g. 1 N Broadway, Gary, IN	ex. 1 N Broadway, Gary, IN	p. ej. 1 N Broadway, Gary, IN
+Finding the address...	Recherche de l'adresse…	Buscando la dirección…
+Found: :address - position :lat, :lng filled in. Check it before saving.	Trouvé : :address – position :lat, :lng remplie. Vérifiez avant d'enregistrer.	Encontrado: :address – posición :lat, :lng completada. Revísela antes de guardar.
+Type the street address: the city, state, ZIP and the position for the clock-in fill in by themselves.	Saisissez l'adresse : la ville, l'État, le ZIP et la position pour le pointage se remplissent tout seuls.	Escriba la dirección: la ciudad, el estado, el ZIP y la posición para el fichaje se completan solos.
+Find the address	Trouver l'adresse	Buscar la dirección
+End date unknown (ongoing)	Date de fin inconnue (en cours)	Fecha de fin desconocida (en curso)
+What the contract covers	Ce que couvre le contrat	Lo que cubre el contrato
+Save the project	Enregistrer le projet	Guardar el proyecto
+Saved: the client contacts of this project.	Enregistré : les contacts du client sur ce projet.	Guardado: los contactos del cliente en este proyecto.
+Project saved.	Projet enregistré.	Proyecto guardado.
+Each one is work already contracted with a client - the contract is signed before it comes here. Crewvia runs and tracks it: where, for how long, what it covers. How many of each trade and what they are paid is the scope of work, written on the project itself.	Chacun est un travail déjà contracté avec un client – le contrat est signé avant d'arriver ici. Crewvia l'exécute et le suit : où, pour combien de temps, ce qu'il couvre. Combien de chaque métier et à quel tarif, c'est le périmètre de travail, écrit sur le projet.	Cada uno es un trabajo ya contratado con un cliente: el contrato se firma antes de llegar aquí. Crewvia lo ejecuta y lo sigue: dónde, por cuánto tiempo, qué cubre. Cuántos de cada oficio y cuánto se les paga es el alcance del trabajo, escrito en el proyecto.
+NEW PROJECT	NOUVEAU PROJET	NUEVO PROYECTO
+What the work is	En quoi consiste le travail	En qué consiste el trabajo
+The work as the contract describes it, in the words the client would recognise.	Le travail tel que le contrat le décrit, avec les mots du client.	El trabajo tal como lo describe el contrato, con las palabras del cliente.
+Beyond the hourly rate. These are what the crew is told and what the client is invoiced for, so they are recorded on the project rather than remembered.	Au-delà du taux horaire. C'est ce qu'on dit à l'équipe et ce qu'on facture au client : c'est donc noté sur le projet plutôt que retenu de mémoire.	Más allá de la tarifa por hora. Es lo que se dice al equipo y lo que se factura al cliente, así que se anota en el proyecto en vez de recordarlo.
+Create the project	Créer le projet	Crear el proyecto
+No projects yet. Create one above, then write its scope of work.	Aucun projet pour l'instant. Créez-en un ci-dessus, puis écrivez son périmètre de travail.	Aún no hay proyectos. Cree uno arriba y luego escriba su alcance.
+The project cannot end before it starts.	Le projet ne peut pas finir avant de commencer.	El proyecto no puede terminar antes de empezar.
+Bill to	Facturer à	Facturar a
+Attention	À l'attention de	A la atención de
+Choose who receives the invoices	Choisir qui reçoit les factures	Elegir quién recibe las facturas
+Project: :name	Projet : :name	Proyecto: :name
+Net :n days	Net :n jours	Neto :n días
+Due :date	Échéance :date	Vence :date
+:trade added to the disciplines.	:trade ajouté aux disciplines.	:trade añadido a las disciplinas.
++ Add a discipline	+ Ajouter une discipline	+ Añadir una disciplina
+e.g. Millwright	ex. Mécanicien de chantier	p. ej. Mecánico montador
+New discipline	Nouvelle discipline	Nueva disciplina
+Add	Ajouter	Añadir

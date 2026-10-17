@@ -2789,4 +2789,45 @@ if (val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATAB
     q('ALTER TABLE project_shifts ADD COLUMN bill_premium DECIMAL(8,2) NOT NULL DEFAULT 0');
 }
 
+// ── P5-M71: a client's contacts, one of them the main point of contact; who from the client is on each project ──
+// Reversed by install/rollback/p5-m71.sql. The contact typed on each client becomes its first, main contact.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='client_contacts'")) {
+    q("CREATE TABLE client_contacts (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        client_id INT UNSIGNED NOT NULL,
+        name VARCHAR(120) NOT NULL,
+        title VARCHAR(120) NULL,
+        email VARCHAR(190) NULL,
+        phone VARCHAR(40) NULL,
+        notes VARCHAR(500) NULL,
+        is_main TINYINT(1) NOT NULL DEFAULT 0,
+        receives_invoices TINYINT(1) NOT NULL DEFAULT 0,
+        created_by INT UNSIGNED NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY (client_id),
+        FOREIGN KEY (client_id) REFERENCES clients(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    q("CREATE TABLE job_contacts (
+        job_id INT UNSIGNED NOT NULL,
+        contact_id INT UNSIGNED NOT NULL,
+        in_charge TINYINT(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (job_id, contact_id),
+        FOREIGN KEY (job_id) REFERENCES jobs(id),
+        FOREIGN KEY (contact_id) REFERENCES client_contacts(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    $moved = q("INSERT INTO client_contacts (client_id, name, email, phone, is_main)
+                SELECT id, COALESCE(NULLIF(TRIM(contact_name), ''), NULLIF(TRIM(contact_email), ''), NULLIF(TRIM(contact_phone), '')), NULLIF(TRIM(contact_email), ''), NULLIF(TRIM(contact_phone), ''), 1
+                FROM clients WHERE COALESCE(NULLIF(TRIM(contact_name), ''), NULLIF(TRIM(contact_email), ''), NULLIF(TRIM(contact_phone), '')) IS NOT NULL")->rowCount();
+    q("INSERT INTO client_contacts (client_id, name, email, receives_invoices)
+       SELECT id, 'Accounts payable', TRIM(billing_email), 1 FROM clients WHERE NULLIF(TRIM(billing_email), '') IS NOT NULL AND LOWER(TRIM(billing_email)) <> LOWER(COALESCE(TRIM(contact_email), ''))");
+    q("UPDATE client_contacts cc JOIN clients c ON c.id = cc.client_id SET cc.receives_invoices = 1 WHERE cc.is_main = 1 AND NULLIF(TRIM(c.billing_email), '') IS NOT NULL AND LOWER(TRIM(c.billing_email)) = LOWER(COALESCE(cc.email, ''))");
+    echo 'Client contacts: each client has a directory of contacts, one the main point of contact (Clients, the client); the contacts ticked as receiving invoices are where invoices go; each project chooses its contacts and the one in charge (the plant). ' . $moved . ' existing contact(s) became their client\'s main contact.' . PHP_EOL;
+}
+
+// P5-M71: the street address of each site; the position and the city, state and ZIP are found from it.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name='site_address'")) {
+    q('ALTER TABLE jobs ADD COLUMN site_address VARCHAR(190) NULL AFTER site_name');
+    echo 'Site address: Projects and the plant take the street address of the site, and find its position for the clock-in, its city, state and ZIP.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

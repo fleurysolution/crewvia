@@ -18,7 +18,7 @@ require_once __DIR__ . '/../scope.php';
           &middot; <span class="tag red"><?= te('Strike is live') ?></span>
         <?php endif; ?>
       <?php else: ?>
-        <?= te('The agreement, and the scope of work everything else is calculated from.') ?>
+        <?= te('The project as contracted, and the scope of work everything else is calculated from.') ?>
       <?php endif; ?>
     </p>
   </div>
@@ -151,14 +151,17 @@ $strike   = (bool) $job['strike_live'];
       <tbody>
         <tr><td><?= te('Client') ?></td>
             <td class="right"><strong><?= e($job['client_name'] ?? '') ?></strong></td></tr>
+        <?php $chief = array_values(array_filter($projectContacts, static fn($x) => (int) $x['in_charge'] === 1))[0] ?? null; ?>
+        <tr data-in-charge><td><?= te('In charge at the client') ?></td>
+            <td class="right"><?= $chief ? e($chief['name']) . ($chief['phone'] ? ' · ' . e($chief['phone']) : '') : '<a href="#project-contacts">' . te('Choose') . '</a>' ?></td></tr>
         <tr><td><?= te('Site') ?></td>
             <td class="right"><?= e(trim(($job['site_name'] ?? '') . ' ' . ($job['site_city'] ?? '') . ' ' . ($job['site_state'] ?? ''))) ?: '&mdash;' ?></td></tr>
         <tr><td><?= te('Runs') ?></td>
             <td class="right">
               <?= $job['starts_on'] ? e(d($job['starts_on'])) : '&mdash;' ?>
-              &rarr; <?= $job['ends_on'] ? e(d($job['ends_on'])) : '&mdash;' ?>
+              &rarr; <?= $job['ends_on'] ? e(d($job['ends_on'])) : te('ongoing, no end date') ?>
             </td></tr>
-        <tr><td><?= te('The agreement also covers') ?></td>
+        <tr><td><?= te('The contract also covers') ?></td>
             <td class="right small">
               <?php
               $covered = array_values(array_filter(scope_provisions($job), fn ($p) => $p['on']));
@@ -247,7 +250,7 @@ $strike   = (bool) $job['strike_live'];
 
   <?php if (! $scope): ?>
     <div class="empty">
-      <?= te('No scope written yet. Nothing can be recruited until the agreement says how many of each trade it covers.') ?>
+      <?= te('No scope written yet. Nothing can be recruited until the project says how many of each trade the contract covers.') ?>
     </div>
   <?php else: ?>
   <div class="scroll">
@@ -355,11 +358,18 @@ $strike   = (bool) $job['strike_live'];
       <div>
         <label for="l-disc"><?= te('Discipline') ?></label>
         <select id="l-disc" name="discipline">
+          <?php $pickDisc = (string) ($editLine['discipline'] ?? ($_GET['discipline'] ?? '')); ?>
           <?php foreach (disciplines() as $key => $label): ?>
             <option value="<?= e($key) ?>"
-              <?= ($editLine['discipline'] ?? '') === $key ? 'selected' : '' ?>><?= te($label) ?></option>
+              <?= $pickDisc === $key ? 'selected' : '' ?>><?= te($label) ?></option>
           <?php endforeach; ?>
         </select>
+        <?php // P5-M71: a discipline not on the list is added here, and chosen at once. ?>
+        <details class="mt-xs small" id="add-discipline-box"><summary><?= te('+ Add a discipline') ?></summary>
+          <input name="discipline_label" form="add-discipline" maxlength="90" placeholder="<?= te('e.g. Millwright') ?>" aria-label="<?= te('New discipline') ?>">
+          <button class="btn ghost sm" form="add-discipline" data-add-discipline><?= te('Add') ?></button>
+          <span class="small" data-add-discipline-status></span>
+        </details>
       </div>
       <div class="in-s">
         <label for="l-qty"><?= te('How many') ?></label>
@@ -443,6 +453,27 @@ $strike   = (bool) $job['strike_live'];
   </form>
 </section>
 
+<!-- P5-M71: who from the client is on this project, and the one in charge -->
+<section class="card" id="project-contacts">
+  <h2><?= te('Client contacts on this project') ?></h2>
+  <p class="small muted"><?= te('Choose, from :client\'s contacts, the people relevant to this project, and the one in charge of it.', ['client' => $job['client_name'] ?? '']) ?></p>
+  <?php if (! $clientContacts): ?>
+  <p class="muted"><?= te('This client has no contact yet.') ?> <a href="/clients?id=<?= (int) $job['client_id'] ?>#contacts"><?= te('Add their contacts') ?></a></p>
+  <?php else: ?>
+  <form method="post" action="/job#project-contacts"><?= csrf_field() ?><input type="hidden" name="do" value="project_contacts">
+    <table><thead><tr><th><?= te('On this project') ?></th><th><?= te('In charge') ?></th><th><?= te('Name') ?></th><th><?= te('Title or role') ?></th><th><?= te('Email') ?></th><th><?= te('Phone') ?></th></tr></thead><tbody>
+    <?php foreach ($clientContacts as $x): $on = isset($projectContacts[$x['id']]); ?>
+      <tr data-project-contact="<?= (int) $x['id'] ?>"><td><input type="checkbox" name="contacts[]" value="<?= (int) $x['id'] ?>"<?= $on ? ' checked' : '' ?> aria-label="<?= te('On this project') ?>: <?= e($x['name']) ?>"></td>
+        <td><input type="radio" name="in_charge" value="<?= (int) $x['id'] ?>"<?= $on && $projectContacts[$x['id']]['in_charge'] ? ' checked' : '' ?> aria-label="<?= te('In charge') ?>: <?= e($x['name']) ?>"></td>
+        <td><strong><?= e($x['name']) ?></strong><?= $x['is_main'] ? ' <span class="tag green">' . te('Main contact') . '</span>' : '' ?><?= $x['receives_invoices'] ? ' <span class="tag blue">' . te('Receives the invoices') . '</span>' : '' ?></td>
+        <td><?= e($x['title'] ?? '') ?: '—' ?></td><td><?= e($x['email'] ?? '') ?: '—' ?></td><td><?= e($x['phone'] ?? '') ?: '—' ?></td></tr>
+    <?php endforeach; ?>
+    </tbody></table>
+    <p class="mt-s"><button class="btn"><?= te('Save the project contacts') ?></button> <a class="btn ghost" href="/clients?id=<?= (int) $job['client_id'] ?>#contacts"><?= te('Add or change contacts') ?></a></p>
+  </form>
+  <?php endif; ?>
+</section>
+
 <!-- P5-M70: what the client is billed, beyond the hours at the bill rate -->
 <section class="card" id="billing-terms">
   <h2><?= te('What the client is billed') ?></h2>
@@ -478,7 +509,7 @@ $strike   = (bool) $job['strike_live'];
   </div>
 
   <div class="card">
-    <h2><?= te('The agreement') ?></h2>
+    <h2><?= te('The project') ?></h2>
 
     <div class="row">
       <div class="f2">
@@ -513,10 +544,16 @@ $strike   = (bool) $job['strike_live'];
       <label for="j-desc"><?= te('Description of the work') ?></label>
       <textarea id="j-desc" name="description" rows="4" maxlength="8000"
                 placeholder="<?= te('e.g. Provide skilled labour support to the client plant for the duration of the work stoppage, in accordance with the scope of work below.') ?>"><?= e($job['description'] ?? '') ?></textarea>
-      <span class="hint"><?= te('What this agreement commits the agency to, in the words the client would recognise. It is what applicants read and what the contract quotes.') ?></span>
+      <span class="hint"><?= te('The work as the contract describes it, in the words the client would recognise. It is what applicants read.') ?></span>
     </div>
 
-    <div class="row mt">
+  <?php // P5-M71: the site address finds the position, city, state and ZIP (app/geocode.php). ?>
+  <div class="row mt" data-geo data-lat="#j-lat" data-lng="#j-lng" data-city="#j-city" data-state="#j-state" data-zip="#j-zip">
+    <div class="f2"><label for="j-address"><?= te('Site address') ?></label><input id="j-address" name="site_address" maxlength="190" autocomplete="off" data-geo-address value="<?= e($job['site_address'] ?? '') ?>" placeholder="<?= te('e.g. 1 N Broadway, Gary, IN') ?>">
+      <span class="hint" data-geo-status data-searching="<?= te('Finding the address...') ?>" data-found="<?= te('Found: :address - position :lat, :lng filled in. Check it before saving.') ?>"><?= te('Type the street address: the city, state, ZIP and the position for the clock-in fill in by themselves.') ?></span></div>
+    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" data-geo-find><?= te('Find the address') ?></button></div>
+  </div>
+    <div class="row mt-s">
       <div class="f2">
         <label for="j-site"><?= te('Site') ?></label>
         <input id="j-site" name="site_name" maxlength="190" value="<?= e($job['site_name'] ?? '') ?>">
@@ -552,11 +589,12 @@ $strike   = (bool) $job['strike_live'];
       </div>
       <div>
         <label for="j-end"><?= te('Ends') ?></label>
-        <input id="j-end" type="date" name="ends_on" value="<?= e($job['ends_on'] ?? '') ?>">
+        <input id="j-end" type="date" name="ends_on" value="<?= e($job['ends_on'] ?? '') ?>"<?= $job['ends_on'] ? '' : ' disabled' ?>>
+        <label class="d-block small"><input type="checkbox" name="ends_unknown" value="1"<?= $job['ends_on'] ? '' : ' checked' ?> onchange="var d=document.getElementById('j-end');d.disabled=this.checked;if(this.checked)d.value=''"> <?= te('End date unknown (ongoing)') ?></label>
       </div>
     </div>
 
-    <h3 class="mt-l"><?= te('What the agreement covers') ?></h3>
+    <h3 class="mt-l"><?= te('What the contract covers') ?></h3>
     <p class="hint m0 pull-up mb">
       <?= te('Beyond the rates on the lines. These are what the crew is told and what the client is invoiced for, so they are recorded here rather than remembered.') ?>
     </p>
@@ -593,7 +631,10 @@ $strike   = (bool) $job['strike_live'];
     </p>
   </div>
 
-  <button class="btn" type="submit"><?= te('Save the agreement') ?></button>
+  <button class="btn" type="submit"><?= te('Save the project') ?></button>
 </form>
 
 <?php endif; ?>
+<script src="/assets/site-address.js"></script>
+<form method="post" action="/job#scope" id="add-discipline"><?= csrf_field() ?><input type="hidden" name="do" value="add_discipline"><?php if (! empty($editLine['id'])): ?><input type="hidden" name="line_id" value="<?= (int) $editLine['id'] ?>"><?php endif; ?></form>
+<script src="/assets/add-discipline.js"></script>

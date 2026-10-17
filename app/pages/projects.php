@@ -36,13 +36,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $startsOn = (string) ($_POST['starts_on'] ?? '');
-    $endsOn   = (string) ($_POST['ends_on'] ?? '');
+    $endsOn   = ! empty($_POST['ends_unknown']) ? '' : (string) ($_POST['ends_on'] ?? '');
 
     if ($startsOn !== '' && ! valid_date($startsOn)) { $startsOn = ''; }
     if ($endsOn   !== '' && ! valid_date($endsOn))   { $endsOn   = ''; }
 
     if ($startsOn !== '' && $endsOn !== '' && $endsOn < $startsOn) {
-        flash(t('The agreement cannot end before it starts.'), 'err');
+        flash(t('The project cannot end before it starts.'), 'err');
         redirect('/projects');
     }
 
@@ -79,6 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $_SESSION['job_id'] = (int) db()->lastInsertId();
     // P5-M70: the site's position and clock-in radius, when given at once.
+    // P5-M71: the street address of the site.
+    q('UPDATE jobs SET site_address = ? WHERE id = ?', [mb_substr(trim((string) ($_POST['site_address'] ?? '')), 0, 190) ?: null, $_SESSION['job_id']]);
     $lat = trim((string) ($_POST['site_lat'] ?? ''));
     $lng = trim((string) ($_POST['site_lng'] ?? ''));
     if (is_numeric($lat) && is_numeric($lng) && abs((float) $lat) <= 90 && abs((float) $lng) <= 180) {
