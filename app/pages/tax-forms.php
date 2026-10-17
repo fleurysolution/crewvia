@@ -212,15 +212,22 @@ if (isset($_GET['id'])) {
 // The worker fills one in.
 $form = (string) ($_GET['fill'] ?? '');
 if (! $isWorker || ! isset(tf_forms()[$form])) {
-    redirect($isWorker ? '/portal#onboarding' : '/change-requests#tax-forms');
+    redirect($isWorker ? '/portal#onboarding' : '/change-requests#to-sign');
 }
 $c = row('SELECT full_name, email, phone, city, state FROM candidates WHERE id = ?', [$cid]);
 $parts = preg_split('/\s+/', trim((string) $c['full_name'])) ?: [''];
 $prefill = ['first_name' => $parts[0], 'last_name' => count($parts) > 1 ? end($parts) : '', 'city' => (string) $c['city'],
             'state' => strlen((string) $c['state']) === 2 ? strtoupper((string) $c['state']) : '', 'email' => (string) $c['email'], 'phone' => (string) $c['phone']];
 require_once __DIR__ . '/../travel-details.php';
-if (($tp = tp_profile($cid)) && $tp['address'] !== '') {
-    $prefill['address'] = $tp['address'];
+// P5-M65b: the travel profile keeps the address on one line ("12 Main St, Gary, IN 46402"): it is split into the
+// form's street, city, state and ZIP, or not used (it filled the street field with the whole address).
+if (($tp = tp_profile($cid)) && preg_match('/^(.+?),\s*([^,]+?),\s*([A-Za-z]{2})\s+(\d{5}(?:-?\d{4})?)$/', trim((string) $tp['address']), $m)) {
+    $prefill = ['address' => trim($m[1]), 'city' => trim($m[2]), 'state' => strtoupper($m[3]), 'zip' => $m[4]] + $prefill;
+}
+// The second form starts from the first: the same name and address, so the W-4 and the I-9 agree.
+$other = row("SELECT * FROM worker_tax_forms WHERE candidate_id = ? AND form <> ? ORDER BY id DESC LIMIT 1", [$cid, $form]);
+if ($other && ($od = tf_payload($other))) {
+    $prefill = array_filter(array_intersect_key($od, array_flip(['first_name', 'middle_initial', 'last_name', 'address', 'apartment', 'city', 'state', 'zip'])), 'is_string') + $prefill;
 }
 // P5-M65: a draft comes back as it was saved, less the numbers (kept unless typed again).
 $draft = row("SELECT * FROM worker_tax_forms WHERE candidate_id = ? AND form = ? AND status = 'draft' ORDER BY id DESC LIMIT 1", [$cid, $form]);

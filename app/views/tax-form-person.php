@@ -30,6 +30,22 @@ $docs = tf_i9_documents(); ?>
 <?php endforeach; ?>
 </div>
 
+<?php
+// P5-M65b: the two forms must say the same thing: a difference is shown before the signature, to correct it with them.
+$differ = [];
+if ($forms['w4'] && $forms['i9']) {
+    foreach (['first_name' => t('First name'), 'middle_initial' => t('Middle initial'), 'last_name' => t('Last name'), 'address' => t('Address'), 'apartment' => t('Apartment'), 'city' => t('City'), 'state' => t('State'), 'zip' => t('ZIP code'), 'ssn' => t('Social Security number')] as $k => $label) {
+        $a = mb_strtolower(trim((string) ($forms['w4']['data'][$k] ?? ''))); $b = mb_strtolower(trim((string) ($forms['i9']['data'][$k] ?? '')));
+        if ($a !== $b && ! ($k === 'ssn' && ($a === '' || $b === ''))) {
+            $differ[] = $label;
+        }
+    }
+}
+$wholeAddress = array_filter($forms, static fn($f) => $f && preg_match('/\b\d{5}(-\d{4})?\b/', (string) ($f['data']['address'] ?? '')));
+if ($differ || $wholeAddress): ?><div class="card" id="forms-differ">
+  <?php if ($differ): ?><p class="t-red"><strong><?= te('The W-4 and the I-9 differ: :fields. Correct it with them before they sign ("Something is wrong? Correct it first" on their phone).', ['fields' => implode(', ', $differ)]) ?></strong></p><?php endif; ?>
+  <?php if ($wholeAddress): ?><p class="t-red" data-whole-address="1"><strong><?= te('The street field holds a ZIP code: the whole address was typed in it. Correct it with them: street in Address, then city, state and ZIP code.') ?></strong></p><?php endif; ?>
+</div><?php endif; ?>
 <div class="card" id="sign-code"><h2><?= te('Signature, in person') ?></h2>
 <?php if ($signCode): ?>
   <p><?= te(':name scans this code with their own phone, or opens their portal and enters it. It works once, until :time.', ['name' => $person['full_name'], 'time' => date('g:i a', strtotime($signCode['expires']))]) ?></p>

@@ -13,7 +13,7 @@ results = []
 
 DAILY = {
     'admin':  ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings'],
-    'rec':    ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/contracts', '/client-orders', '/approvals'],
+    'rec':    ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/tax-forms', '/contracts', '/client-orders', '/approvals'],
     'hotels': ['/home', '/activity', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
     'pay':    ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
     'sup':    ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],

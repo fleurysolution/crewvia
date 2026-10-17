@@ -4979,3 +4979,19 @@ Nothing to sign: no form filled in and waiting.	Rien à signer : aucun formulair
 Copies of their documents	Copies de ses documents	Copias de sus documentos
 RSS keeps a copy of the documents of everyone. The person chooses which documents to present (List A, or List B and List C); never ask for a particular one.	RSS garde une copie des documents de tout le monde. La personne choisit les documents qu'elle présente (liste A, ou listes B et C) ; ne demandez jamais un document précis.	RSS guarda una copia de los documentos de todos. La persona elige qué documentos presentar (Lista A, o Listas B y C); nunca pida uno en particular.
 restricted	restreint	restringido
+Other tax credits you expect for the year, for instance education credits or the foreign tax credit: less tax is then withheld. Most people leave it empty.	Les autres crédits d'impôt que vous prévoyez pour l'année, par exemple les crédits pour études ou le crédit pour impôt étranger : on retient alors moins d'impôt. La plupart des gens le laissent vide.	Otros créditos fiscales que espera para el año, por ejemplo créditos por educación o el crédito por impuestos extranjeros: entonces se retiene menos impuesto. La mayoría lo deja vacío.
+Apartment	Appartement	Apartamento
+The W-4 and the I-9 differ: :fields. Correct it with them before they sign ("Something is wrong? Correct it first" on their phone).	Le W-4 et l'I-9 diffèrent : :fields. Corrigez avec la personne avant qu'elle signe (« Something is wrong? Correct it first » sur son téléphone).	El W-4 y el I-9 no coinciden: :fields. Corríjalo con la persona antes de que firme («Something is wrong? Correct it first» en su teléfono).
+The street field holds a ZIP code: the whole address was typed in it. Correct it with them: street in Address, then city, state and ZIP code.	Le champ de la rue contient un code postal : toute l'adresse y a été tapée. Corrigez avec la personne : la rue dans Address, puis la ville, l'État et le code postal.	El campo de la calle contiene un código postal: se escribió ahí toda la dirección. Corríjalo con la persona: la calle en Address, luego la ciudad, el estado y el código postal.
+Find a screen	Trouver un écran	Buscar una pantalla
+Type a few letters, then Enter	Tapez quelques lettres, puis Entrée	Escriba unas letras y luego Intro
+W-4 and I-9	W-4 et I-9	W-4 e I-9
+signed in person on :date, in front of :name	signé en personne le :date, devant :name	firmado en persona el :date, ante :name
+signed on :date	signé le :date	firmado el :date
+accepted on :date by :name	accepté le :date par :name	aceptado el :date por :name
+Open it, and the official PDF	L'ouvrir, et le PDF officiel	Abrirlo, y el PDF oficial
+Copies of the I-9 documents	Copies des documents de l'I-9	Copias de los documentos del I-9
+none yet	aucune pour l'instant	ninguna por ahora
+Forms to sign, documents and signature	Formulaires à signer, documents et signature	Formularios para firmar, documentos y firma
+Employment: Section 2 and E-Verify	Emploi : section 2 et E-Verify	Empleo: sección 2 y E-Verify
+Signed forms, to check	Formulaires signés, à vérifier	Formularios firmados, para revisar

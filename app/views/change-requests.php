@@ -11,7 +11,7 @@
 </div>
 <?php endif; ?>
 <div class="card" id="tax-forms">
-  <h2><?= te('Forms signed in the portal') ?></h2>
+  <h2><?= te('Signed forms, to check') ?></h2>
   <p class="muted"><?= can('payroll') && can('recruiter') ? te('W-4s for payroll to enter in ADP; I-9s for the office to check before Section 2. Opening a form shows the full numbers, and is recorded.') : (can('payroll') ? te('W-4s to enter in ADP, then accept. Opening a form shows the full numbers, and is recorded.') : te('Section 1 of the I-9, to check before you complete Section 2 with the person and their original documents. Opening a form shows the full numbers, and is recorded.')) ?></p>
   <?php if (! $taxForms): ?><p class="muted"><?= te('No form waiting.') ?></p><?php endif; ?>
   <?php foreach ($taxForms as $r): ?>

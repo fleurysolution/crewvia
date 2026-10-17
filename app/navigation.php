@@ -42,6 +42,7 @@ function workspace_nav(?array $u): array
         ['/organization',       'Organization',                       ['recruiter','hotels','payroll']],
         ['/employees',          'Employee folders',                   ['recruiter','payroll']],
         ['/change-requests',    'Change requests',                    ['recruiter','payroll']],
+        ['/tax-forms',          'Forms to sign',                      'recruiter'],
         ['/timeoff',            'Time off',                           'recruiter'],
         ['/appraisals',         'Performance reviews',                'recruiter'],
         ['/performance',        'Goals and development',              'recruiter'],
@@ -236,7 +237,7 @@ function workspace_daily(?array $u): array
 {
     return match ($u['role'] ?? '') {
         'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings'],
-        'recruiter'  => ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/contracts', '/client-orders', '/approvals'],
+        'recruiter'  => ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/tax-forms', '/contracts', '/client-orders', '/approvals'],
         'hotels'     => ['/home', '/activity', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
         'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
         'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
@@ -300,7 +301,7 @@ function workspace_sections(?array $u = null): array
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',
-                     '/agreements', '/employee-folder', '/change-requests'],
+                     '/agreements', '/employee-folder', '/change-requests', '/tax-forms'],
         'Deployment' => ['/structure', '/roster', '/manning', '/hotels', '/folios', '/procurement', '/vendors', '/travel', '/operations', '/assets', '/asset-valuation'],
         'Running the job' => ['/attendance', '/lateness', '/attendance-week', '/timeoff', '/hr-requests', '/appraisals', '/performance', '/learning', '/training', '/my-training', '/recognition', '/feedback', '/surveys', '/devices', '/safety-plan',
                               '/comms', '/inbox', '/notifications'],

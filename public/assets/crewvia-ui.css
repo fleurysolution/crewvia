@@ -366,3 +366,8 @@ input.secret.shown{-webkit-text-security:none;text-security:none}
 .sign-image{display:block;max-width:300px;max-height:90px;border-bottom:1px solid var(--ui-line,#c9d2dd)}
 .t-amber{color:#8a5600}
 main .card.official > table,main .card[data-person-form] > table{min-width:0}
+/* P5-M65b: find a screen in the menu. */
+.nav-find{padding:6px 10px 8px}
+.nav-find input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid #c9d2dd;background:#fff;color:#16202b;font-size:13px}
+.nav-find input::placeholder{color:#657387}
+#workspace-nav a[hidden],#workspace-nav details[hidden]{display:none!important}

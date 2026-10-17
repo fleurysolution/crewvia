@@ -172,4 +172,10 @@ $ownBank=$own?worker_bank_summary($cid):null;
 $payItems=can('payroll')?employee_pay_items($cid):[];
 $payItemChoices=can('payroll')?array_values(array_filter(pay_items(),fn($i)=>$i['method']!=='advance_repayment')):[];
 
-render('employee-folder',compact('c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank','employment','progress','comp'));
+// P5-M65c: the W-4 and the I-9 in the employee's folder - where they are, who signed in front of whom, the copies kept.
+require_once __DIR__.'/../tax-forms.php';
+$taxForms=[];
+foreach(['w4','i9'] as $tfk){$taxForms[$tfk]=row('SELECT id,form,status,signed_at,signer_name,witness_id,reviewed_at,reviewed_by,everify_case,everify_result,ssn_last_four FROM worker_tax_forms WHERE candidate_id=? AND form=? ORDER BY id DESC LIMIT 1',[$cid,$tfk]);}
+$taxCopies=tf_copies($cid);
+$taxNames=array_column(rows('SELECT id,name FROM users WHERE id IN ('.implode(',',array_map('intval',array_filter(array_merge(array_column(array_filter($taxForms),'witness_id'),array_column(array_filter($taxForms),'reviewed_by'))))?:[0]).')'),'name','id');
+render('employee-folder',compact('taxForms','taxCopies','taxNames','c','cid','own','profile','placements','applications','events','credentials','docs','history','signatures','applicationHistory','bank','bankFull','classifications','payItems','payItemChoices','selfService','ownBank','employment','progress','comp'));

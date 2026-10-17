@@ -161,8 +161,11 @@ function tf_ssn(array $in, array &$p, bool $optional): ?string
 /** The typed signature: the worker's own first and last name, as typed in the form, and the box ticked. */
 function tf_signature(array $in, array $p): ?string
 {
-    $signed = mb_strtolower(tf_text($in, 'signer_name'));
-    if ($signed === '' || ! str_contains($signed, mb_strtolower($p['first_name'])) || ! str_contains($signed, mb_strtolower($p['last_name']))) {
+    // P5-M65c: whole words - "Leon Noonan" does not sign for "Leo Noonan".
+    $words = static fn(string $v): array => preg_split('/[^\p{L}\p{N}\']+/u', mb_strtolower($v), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $signed = $words(tf_text($in, 'signer_name'));
+    $needed = [...$words((string) $p['first_name']), ...$words((string) $p['last_name'])];
+    if (! $signed || ! $needed || array_diff($needed, $signed)) {
         return t('Sign by typing your first and last name, as written in the form.');
     }
     if (empty($in['attest'])) {

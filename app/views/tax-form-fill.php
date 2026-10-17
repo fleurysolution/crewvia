@@ -95,7 +95,7 @@ if ($form === 'w4'): ?>
   <div class="grid g3">
     <div><label for="tf-children">(a) Multiply the number of qualifying children under age 17 by $<?= number_format(TF_W4_CHILD) ?></label><input id="tf-children" name="children" type="number" min="0" max="20" value="<?= $v('children') ?: '0' ?>"><p class="small muted m0">3(a) <strong data-times="children:<?= TF_W4_CHILD ?>">$0</strong></p></div>
     <div><label for="tf-otherdep">(b) Multiply the number of other dependents by $<?= number_format(TF_W4_OTHER) ?></label><input id="tf-otherdep" name="other_dependents" type="number" min="0" max="20" value="<?= $v('other_dependents') ?: '0' ?>"><p class="small muted m0">3(b) <strong data-times="other_dependents:<?= TF_W4_OTHER ?>">$0</strong></p></div>
-    <div><label for="tf-credits">Plus the amount for other credits</label><input id="tf-credits" name="other_credits" inputmode="decimal" maxlength="12" value="<?= $v('other_credits') ?>"></div>
+    <div><label for="tf-credits">Plus the amount for other credits</label><p class="small muted m0"><?= te('Other tax credits you expect for the year, for instance education credits or the foreign tax credit: less tax is then withheld. Most people leave it empty.') ?></p><input id="tf-credits" name="other_credits" inputmode="decimal" maxlength="12" value="<?= $v('other_credits') ?>"></div>
   </div>
   <p>Add the amounts from Steps 3(a) and 3(b), plus the amount for other credits. Enter the total here: <strong>3 <span data-step3-total data-child="<?= TF_W4_CHILD ?>" data-other="<?= TF_W4_OTHER ?>">$0</span></strong></p>
 </div>

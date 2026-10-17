@@ -171,6 +171,8 @@ check('With the person in front of them, the coordinator sees the W-4 filled in 
       code is not None and '•••••1234' in body and SSN not in body and 'qrcode.min.js' in body, body[body.find('<main'):][:1500])
 status, body = sign(worker, code, ['w4'], name='Somebody Else')
 check('A signature that is not the worker\'s name is refused', 'Sign by typing your first and last name' in body and probe()['forms'][0]['status'] == 'draft')
+status, body = sign(worker, code, ['w4'], name='Walko onsite')
+check('A name that only contains the first name ("Walko" for "Walk") is refused', 'Sign by typing your first and last name' in body and probe()['forms'][0]['status'] == 'draft')
 status, body = sign(worker, code, ['w4'], signature='')
 check('Without a drawn signature, nothing is signed', 'Sign with your finger' in body and probe()['forms'][0]['status'] == 'draft')
 status, body = worker.get('/tax-forms?sign=' + code)
@@ -228,6 +230,7 @@ I9 = {'do': 'save', 'form': 'i9', 'first_name': 'Walk', 'last_name': 'onsite', '
       'birth_date': '1990-05-04', 'ssn': SSN, 'ssn_confirm': SSN, 'status': 'authorized', 'doc_type': 'i94', 'doc_number': I94, 'doc_number_confirm': I94,
       'work_until_na': '1', 'signer_name': 'Walk onsite', 'attest': '1'}
 status, body = worker.get('/tax-forms?fill=i9')
+check('The I-9 starts from the W-4: the same name and address (P5-M65b)', 'value="12B Test Street"' in body and 'value="onsite"' in body)
 check('The I-9: the SSN and the document number masked and typed twice', re.search(r'name="doc_number" type="text" class="secret"', body) and re.search(r'name="doc_number_confirm" type="text" class="secret"', body)
       and 'I attest, under penalty of perjury' in body)
 status, body = worker.post('/tax-forms', {**I9, 'doc_number_confirm': '12345678902'}, '/tax-forms?fill=i9')
@@ -239,6 +242,13 @@ status, body = worker.post_files('/tax-forms', {**I9, 'copy_list[]': 'B', 'copy_
 p = probe()
 check('The I-9 is saved with the photo of a document the worker chose; the copy is encrypted and restricted',
       p['forms'][-1]['status'] == 'draft' and [(c['list'], c['restricted'], c['by_office']) for c in p['copies']] == [('B', 1, 0)] and not p['copies'][0]['plain_on_disk'], p['copies'])
+check('The W-4 and the I-9 agree: no difference shown', 'id="forms-differ"' not in rec.get('/tax-forms?person=%d' % p['cid'])[1])
+worker.post('/tax-forms', {**I9, 'zip': '46403'}, '/tax-forms?fill=i9')
+status, body = rec.get('/tax-forms?person=%d' % p['cid'])
+check('A ZIP code that differs between the W-4 and the I-9 is shown to the coordinator before the signature', 'id="forms-differ"' in body and 'ZIP code' in body[body.find('id="forms-differ"'):][:600])
+worker.post('/tax-forms', {**I9, 'address': '12B Test Street, Gary, IN 46402'}, '/tax-forms?fill=i9')
+check('A whole address typed in the street field is shown too', 'data-whole-address' in rec.get('/tax-forms?person=%d' % p['cid'])[1])
+worker.post('/tax-forms', I9, '/tax-forms?fill=i9')
 code, body = open_signature(rec, p['cid'])
 check('The coordinator sees the photo the worker sent', 'sent by the person' in body and ('/tax-forms?copy=%d' % p['copies'][0]['document_id']) in body)
 status, raw = rec.open(base + '/tax-forms?copy=%d' % p['copies'][0]['document_id'])
@@ -297,6 +307,11 @@ check('The official 2026 W-4 is filled from the record: name, address, SSN, Step
 mp, filled = official(worker, w4b, 'w4-own')
 check('The worker\'s own copy of the official W-4 shows the SSN by its last four only', filled['values'][P + 'f1_05[0]'] == 'XXX-XX-1234' and SSN not in json.dumps(mp))
 
+status, body = rec.get('/employee-folder?id=%d' % p['cid'])
+check('The employee folder shows the W-4 and the I-9: signed in person, in front of whom, accepted, the copies (P5-M65c)',
+      'id="tax-forms-folder"' in body and 'data-folder-form="w4"' in body and 'in front of Walk rec' in body and 'List C: U.S. Social Security account number card' in body)
+status, body = worker.get('/employee-folder')
+check('and the employee sees them in their own folder', 'id="tax-forms-folder"' in body and SSN not in body)
 # ── P5-M65: E-Verify ──────────────────────────────────────────────────────
 admin = Client(); admin.login('wk-admin@test.invalid')
 status, body = rec.get('/employment?candidate_id=%d' % p['cid'])

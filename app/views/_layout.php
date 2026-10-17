@@ -615,7 +615,7 @@ input,select,textarea{border-color:#8a96a6}
 <header class="top">
   <div><a class="brand" href="<?= e($u ? home_for((string) $u['role']) : '/login') ?>"><?= e($appName) ?></a><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
   <?php if ($u): ?><button type="button" class="btn ghost sm nav-toggle" aria-controls="workspace-nav" aria-expanded="false"><?= te('Menu') ?></button><?php endif; ?>
-  <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div>
+  <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div><div class="nav-find"><label class="sr-only" for="nav-find"><?= te('Find a screen') ?></label><input id="nav-find" type="search" autocomplete="off" placeholder="<?= te('Find a screen' ) ?>" title="<?= te('Type a few letters, then Enter' ) ?>"></div>
     <?php
     // Everything the sidebar needs is local to this call, so nothing it
     // uses can still be set when the view runs below.
@@ -675,6 +675,14 @@ input,select,textarea{border-color:#8a96a6}
                $holdsAny ? ' open' : '', te('More'), $sections);
     })($nav, $navSections, $here, $u ? workspace_daily($u) : []);
     ?>  </nav>
+  <script>/* P5-M65b: find a screen in the menu - type a few letters, Enter opens the first one. */
+  (function(){var f=document.getElementById('nav-find');if(!f)return;var nav=document.getElementById('workspace-nav');
+   var norm=function(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();};
+   var run=function(){var q=norm(f.value.trim());nav.querySelectorAll('a').forEach(function(a){a.hidden=q!==''&&norm(a.textContent).indexOf(q)===-1;});
+    nav.querySelectorAll('details').forEach(function(g){if(q===''){g.hidden=false;return;}var any=[].some.call(g.querySelectorAll('a'),function(a){return !a.hidden;});g.hidden=!any;if(any)g.open=true;});};
+   f.addEventListener('input',run);run();
+   f.addEventListener('keydown',function(e){if(e.key==='Enter'){var a=[].filter.call(nav.querySelectorAll('a'),function(a){return !a.hidden;})[0];if(a){e.preventDefault();location.href=a.href;}}if(e.key==='Escape'){f.value='';run();}});
+  })();</script>
   <?php if($u && !in_array($u['role'] ?? '',['worker','client'],true)): ?><form action="/search" method="get" class="workspace-search"><label class="sr-only" for="directory-search"><?= te('Search employee folders') ?></label><input id="directory-search" name="q" placeholder="<?= te('Search everything') ?>" aria-label="<?= te('Search everything') ?>"><button class="btn ghost sm"><?= te('Search') ?></button></form><?php endif; ?>
   <?php
   // One place for who is signed in: the notifications bell and the account

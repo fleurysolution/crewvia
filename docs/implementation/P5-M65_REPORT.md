@@ -136,3 +136,39 @@ Other:
 
 **Unchanged**: the official PDFs, payroll's W-4 in ADP, the office's I-9,
 direct deposit.
+
+## P5-M65b/c — after the first signature in production (17 Oct 2026)
+
+Leo signed his W-4 and I-9 in front of the owner. The test showed:
+- **The typed name matched on pieces of words.** "Leon Noonan" signed for "Leo
+  Noonan". The first and last names now have to be whole words.
+- **The address was typed twice.** The travel profile's one-line address went
+  whole into the street field. It is now split into street, city, state and
+  ZIP, or left out. The second form starts from the first (same name and
+  address).
+- **The two forms can disagree.** The coordinator screen now shows in red any
+  difference between the W-4 and the I-9 (name, address, ZIP, SSN), and a
+  whole address typed in the street field, before the signature.
+- **The forms were not in the employee folder.** A "W-4 and I-9" card now
+  shows, for staff and for the employee:
+  - each form's status;
+  - "signed in person on … in front of …";
+  - "accepted on … by …";
+  - the E-Verify case;
+  - the copies kept;
+  - a link to the form and its official PDF.
+
+  For the office, two shortcuts: to the forms to sign, and to Section 2 and
+  E-Verify.
+- **No way there without a link.** "Forms to sign" is now in the menu (the
+  recruiter's daily screens; More → Hiring for the others), and every role
+  has a **search bar at the top of the menu**: type a few letters, and Enter
+  opens the first screen that matches.
+- **Help on "Plus the amount for other credits".** It is explained:
+  education credits and the foreign tax credit; most people leave it empty.
+
+When the owner steps in for a coordinator, the record says so: the owner
+is the witness on the form, and the opening of the signature is in the
+activity log.
+
+Full suite: 3,880 PASS, 0 failures (browser screenshots skipped).

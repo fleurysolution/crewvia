@@ -1,6 +1,26 @@
 <div class="page-head"><div><h1><?= te('Employee folder') ?> · <?= e($c['full_name']) ?></h1><p class="sub"><?= te('Persistent identity, applications, assignments, credentials and audit history across projects.') ?></p>
   <div class="meta"><?= te('Employee number') ?>: <?= e($profile['employee_number']??'') ?></div></div>
   <div class="actions"><a class="btn ghost" href="/contracts"><?= te('Contracts & signatures') ?></a></div></div><div class="grid g2"><div class="card"><h2><?= te('Employee profile') ?></h2><p><?= e($c['email'].' · '.$c['phone']) ?></p><p><?= e((employment_types()[$profile['employment_type']] ?? $profile['employment_type']).' · '.(flsa_statuses()[$profile['flsa_status'] ?? 'not_determined'] ?? '')) ?></p><p><?= e($profile['availability'].' · '.t('Rehire').' '.$profile['rehire_status']) ?></p><?php if(can('recruiter')): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="profile"><input type="hidden" name="candidate_id" value="<?= $cid ?>"><label><?= te('Availability') ?></label><select name="availability"><?php foreach(['available','unavailable','on_assignment'] as $x): ?><option <?= $x===$profile['availability']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><label><?= te('Rehire assessment') ?></label><select name="rehire_status"><?php foreach(['review','eligible','ineligible'] as $x): ?><option <?= $x===$profile['rehire_status']?'selected':'' ?>><?= e($x) ?></option><?php endforeach; ?></select><button class="btn"><?= te('Save profile') ?></button></form><?php endif; ?></div>
+<?php // P5-M65c: the W-4 and the I-9, in the employee's folder.
+$tfWord = ['draft' => t('Filled in, to sign at the office'), 'submitted' => t('Signed, being checked'), 'accepted' => t('Accepted'), 'returned' => t('Sent back to them'), 'replaced' => t('Replaced by a newer one')];
+if ($own || can('recruiter') || can('payroll')): ?>
+<div class="card" id="tax-forms-folder"><h2><?= te('W-4 and I-9') ?></h2>
+  <table>
+  <?php foreach (['w4' => 'W-4', 'i9' => 'I-9'] as $k => $label): $x = $taxForms[$k]; ?>
+    <tr data-folder-form="<?= e($k) ?>"><td class="muted"><?= e($label) ?></td><td>
+    <?php if (! $x): ?><?= te('not filled in yet') ?>
+    <?php else: ?><span class="tag <?= $x['status'] === 'accepted' ? 'green' : ($x['status'] === 'returned' ? 'red' : 'amber') ?>"><?= e($tfWord[$x['status']] ?? $x['status']) ?></span>
+      <?php if ($x['signed_at']): ?> · <?= $x['witness_id'] ? te('signed in person on :date, in front of :name', ['date' => d(substr((string) $x['signed_at'], 0, 10)), 'name' => $taxNames[$x['witness_id']] ?? '']) : te('signed on :date', ['date' => d(substr((string) $x['signed_at'], 0, 10))]) ?><?php endif; ?>
+      <?php if ($x['reviewed_at'] && $x['status'] === 'accepted'): ?> · <?= te('accepted on :date by :name', ['date' => d(substr((string) $x['reviewed_at'], 0, 10)), 'name' => $taxNames[$x['reviewed_by']] ?? '']) ?><?php endif; ?>
+      <?php if ($k === 'i9' && $x['everify_case']): ?> · E-Verify <?= e($x['everify_case'] . ' · ' . $x['everify_result']) ?><?php endif; ?>
+      <?php if ($x['status'] !== 'draft' && ($own || tf_staff_can_open($x))): ?> · <a href="/tax-forms?id=<?= (int) $x['id'] ?>"><?= te('Open it, and the official PDF') ?></a><?php endif; ?>
+    <?php endif; ?></td></tr>
+  <?php endforeach; ?>
+    <tr><td class="muted"><?= te('Copies of the I-9 documents') ?></td><td><?= $taxCopies ? e(implode(' · ', array_map(static fn($k) => 'List ' . $k['list'] . ': ' . $k['title'], $taxCopies))) : te('none yet') ?></td></tr>
+  </table>
+  <?php if (! $own && can('recruiter')): ?><p class="small mt-s"><a class="btn ghost sm" href="/tax-forms?person=<?= (int) $cid ?>"><?= te('Forms to sign, documents and signature') ?></a> <a class="btn ghost sm" href="/employment?candidate_id=<?= (int) $cid ?>"><?= te('Employment: Section 2 and E-Verify') ?></a></p><?php endif; ?>
+</div>
+<?php endif; ?>
 <?php if($own): $fields = self_service_fields(); $states = ['pending' => t('Waiting to be checked'), 'approved' => t('Accepted'), 'rejected' => t('Refused')]; ?>
 <div class="card" id="my-details">
   <h2><?= te('My details') ?></h2>
