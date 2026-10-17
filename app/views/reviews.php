@@ -76,6 +76,8 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
     <label class="own-room"><input type="radio" name="decision" value="interview"> <strong><?= te('Another interview') ?></strong> <span class="small muted"><?= te('schedule it below, or leave it to the recruiter') ?></span></label>
     <label class="own-room"><input type="radio" name="decision" value="declined"> <strong><?= te('Decline') ?></strong> <span class="small muted"><?= te('the recruiter closes it with the candidate') ?></span></label>
   </div>
+  <?php // P5-M85: approved, the person goes to HR first (background check, drug test), then to the project coordinator for travel - unless it is urgent. ?>
+  <label class="d-block mt-s" id="expedite"><input type="checkbox" name="expedite" value="1"> <strong><?= te('Expedited') ?></strong> <span class="small muted"><?= te('book the flight and hotel now, while HR does the background check and drug test') ?></span></label>
   <div class="field mt-l"><label for="rv-note"><?= te('Your note') ?></label><textarea id="rv-note" name="note" rows="3" maxlength="4000" placeholder="<?= te('Needed for another interview or a decline: what to ask, or why not.') ?>"></textarea></div>
   <details class="mt-s" id="decide-interview"><summary class="small"><?= te('Schedule the interview now') ?></summary>
     <div class="row mt-s">

@@ -40,6 +40,11 @@
               <p class="small"><a href="/apply?id=<?= (int) $requisition['id'] ?>" target="_blank" rel="noopener"><?= te('Open the public application page') ?></a><br>
                 <a href="/poster?id=<?= (int) $requisition['id'] ?>" target="_blank" rel="noopener" data-poster="<?= (int) $requisition['id'] ?>"><?= te('Print the job poster with its QR code') ?></a>
                 <?php if (! empty($requisition['line_role'])): ?><br><a href="/job#scope"><?= te('See the scope') ?></a><?php endif; ?></p>
+              <form method="post" class="mt-s" data-managers-form><?= csrf_field() ?><input type="hidden" name="do" value="managers"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
+                <p class="small m0"><strong><?= te('Hiring managers') ?></strong></p>
+                <?php foreach ($managerChoices as $mc): ?><label class="d-block small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= in_array((int) $mc['id'], $vacancyManagers[(int) $requisition['id']] ?? [], true) ? ' checked' : '' ?>> <?= e($mc['name']) ?></label><?php endforeach; ?>
+                <button class="btn ghost sm"><?= te('Save') ?></button>
+              </form>
               <?php if (can('admin')): ?>
               <div class="requisition-actions">
                 <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
@@ -205,6 +210,11 @@
       <span class="hint"><?= te('This is what somebody reads after scanning the QR. Write it for them, not for the file.') ?></span>
     </div>
 
+    <?php // P5-M85: the hiring managers - the review goes to them, and only they are told. ?>
+    <fieldset class="mt"><legend><?= te('Hiring managers') ?></legend>
+      <?php foreach ($managerChoices as $mc): ?><label class="d-block small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= (int) $mc['id'] === uid() && $mc['role'] !== 'recruiter' ? ' checked' : '' ?>> <?= e($mc['name']) ?> <span class="muted">· <?= te(roles()[$mc['role']] ?? $mc['role']) ?></span></label><?php endforeach; ?>
+      <span class="hint"><?= te('They review the applicants sent for review; any of them decides.') ?></span>
+    </fieldset>
     <?php if (! empty($job['id']) && $scope
               && ! array_filter($scope, static fn ($l) => (int) $l['remaining'] > 0)): ?>
       <button class="btn" type="submit" disabled><?= te('Create the requisition') ?></button>

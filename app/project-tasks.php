@@ -419,6 +419,11 @@ function pt_update(int $taskId, array $in, int $by): ?string
     if ($newAssignee) {
         pt_notify($newAssignee, $by, t('Task for you: :title', ['title' => $title]), '/my-tasks?task=' . $taskId);
     }
+    // P5-M85: an onboarding task done hands travel to the project coordinator.
+    if (isset($set['status']) && $set['status'] === 'done') {
+        require_once __DIR__ . '/reviews.php';
+        review_hr_task_done($taskId, $by);
+    }
     if (isset($set['status']) && in_array($set['status'], ['blocked', 'done'], true)) {
         pt_notify((int) $t['created_by'], $by, ($set['status'] === 'done' ? t('Task done: :title', ['title' => $title]) : t('Task blocked: :title', ['title' => $title])),
                   '/project-tasks?task=' . $taskId);

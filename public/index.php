@@ -259,6 +259,7 @@ $routes = [
     '/geocode' => 'geocode',
     '/nav-mark' => 'nav-mark',
     '/adp' => 'adp',
+    '/arrivals' => 'arrivals',
     '/pay-grades' => 'pay-grades',
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',

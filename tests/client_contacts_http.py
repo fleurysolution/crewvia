@@ -260,10 +260,10 @@ status, body = rec.get('/candidates/%s' % pool['id'])
 check('The person\'s page offers Send for review, the contact card compact', 'id="send-review"' in body and 'id="text-panel-fold"' in body and 'id="contact-preferences-fold"' in body)
 rec.post('/candidates/%s' % pool['id'], {'do': 'send_review', 'application_id': '0', 'vacancy_id': vac_id, 'reviewer_id': owner_id, 'rating': '4', 'recommendation': 'Eight years on refinery turnarounds.'}, '/candidates/%s' % pool['id'])
 rv = one("SELECT r.status, r.reviewer_id FROM application_reviews r JOIN applications a ON a.id = r.application_id WHERE a.candidate_id = %s" % pool['id'])
-check('Sent for review: the owner has it waiting on their decision, the person is In review', rv and rv['status'] == 'pending' and int(rv['reviewer_id']) == int(owner_id)
+check('Sent for review: it goes to the managers, the person is In review', rv and rv['status'] == 'pending' and one('SELECT role FROM users WHERE id = %s' % rv['reviewer_id'])['role'] == 'admin'
       and one('SELECT stage FROM candidates WHERE id = %s' % pool['id'])['stage'] == 'screening', rv)
-status, body = admin.get('/reviews')
-check('...and it is on the owner\'s Waiting on your decision', 'Pool Match' in body)
+status, body = admin.get('/reviews?all=1')
+check('...and it is on Waiting on your decision', 'Pool Match' in body)
 status, body = rec.get('/candidates')
 check('A recruiter opens Candidates on the people still to contact', re.search(r'class="on" data-tab="new"', body) is not None)
 
@@ -298,3 +298,35 @@ daily = re.findall(r'<a href="(/[^"]*)"', re.search(r'<div class="nav-daily">(.*
 check('HR\'s menu starts with its own day: onboarding, then tax forms', daily[:3] == ['/activity', '/onboarding', '/tax-forms'], daily)
 status, body = admin.get('/people')
 check('Team offers HR (onboarding) and Project coordinator', 'HR (onboarding)' in body and 'Project coordinator' in body)
+
+# P5-M85: HR first, then travel to the project coordinator; an expedited approval starts both. Flight arrivals.
+hrtask = one("SELECT id FROM project_tasks WHERE title LIKE 'Onboard Pool Match%'")
+check('Not expedited: no travel task while HR works', one("SELECT COUNT(*) n FROM project_tasks WHERE title LIKE 'Book the flight and hotel for Pool Match%'")['n'] in (0, '0'))
+rec.post('/my-tasks', {'task_id': hrtask['id'], 'status': 'done', 'note': 'Background check and drug test clear.'}, '/my-tasks?task=%s' % hrtask['id'])
+tt = one("SELECT assignee_id FROM project_tasks WHERE title LIKE 'Book the flight and hotel for Pool Match%'")
+check('HR done: the project coordinator gets the flight and hotel to book', tt is not None and (tt['assignee_id'] is None or one('SELECT role FROM users WHERE id = %s' % tt['assignee_id'])['role'] in ('hotels', 'admin')), tt)
+php_q("INSERT INTO candidates (full_name, email, phone, discipline, stage) VALUES ('Fast Track', 'fast@test.invalid', '555-070-7004', 'mechanical', 'new')")
+php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source) SELECT id, %d, 'screening', 'Referral' FROM candidates WHERE email = 'fast@test.invalid'" % vac_id)
+fast_app = one("SELECT a.id FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE c.email = 'fast@test.invalid'")['id']
+php_q("INSERT INTO application_reviews (application_id, requested_by, reviewer_id, rating, recommendation) VALUES (%s, %s, %s, 5, 'Needed on Monday.')" % (fast_app, rec_id, owner_id))
+frid = one('SELECT id FROM application_reviews WHERE application_id = %s' % fast_app)['id']
+admin.post('/reviews', {'do': 'decide', 'review_id': frid, 'decision': 'validated', 'note': '', 'expedite': '1'}, '/reviews?id=%s' % frid)
+check('Expedited: HR and travel start together', one("SELECT COUNT(*) n FROM project_tasks WHERE title LIKE 'Onboard Fast Track%'")['n'] in (1, '1')
+      and one("SELECT COUNT(*) n FROM project_tasks WHERE title LIKE 'Book the flight and hotel for Fast Track%'")['n'] in (1, '1'))
+php_q("INSERT INTO travel (placement_id, direction, mode, carrier, reference, depart_from, arrive_at, depart_time, arrive_time, pickup_needed, status) VALUES (%s, 'inbound', 'flight', 'United', 'UA123', 'IAH', 'ORD', DATE_ADD(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 2 DAY), 1, 'booked')" % plc)
+status, body = admin.get('/arrivals?all=1')
+check('Flight arrivals lists who lands when and where, with the pickup to arrange', status == 200 and 'Pool Match' in body and 'UA123' in body and 'ORD' in body and 'to arrange' in body)
+
+# P5-M85: the requisition names its hiring managers; a review goes to them only.
+admin.post('/requisitions', {'do': 'managers', 'vacancy_id': vac_id, 'managers[]': [owner_id]}, '/requisitions')
+check('A requisition names its hiring managers', [int(x['user_id']) for x in sql('SELECT user_id FROM vacancy_managers WHERE vacancy_id = %d' % vac_id)] == [int(owner_id)])
+php_q("INSERT INTO candidates (full_name, email, phone, discipline, stage) VALUES ('Managed Applicant', 'managed@test.invalid', '555-070-7005', 'mechanical', 'contacted')")
+php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source) SELECT id, %d, 'new', 'LinkedIn' FROM candidates WHERE email = 'managed@test.invalid'" % vac_id)
+ma = one("SELECT c.id AS cid, a.id AS aid FROM candidates c JOIN applications a ON a.candidate_id = c.id WHERE c.email = 'managed@test.invalid'")
+last = int(one('SELECT COALESCE(MAX(id), 0) n FROM notifications')['n'])
+rec.post('/candidates/%s' % ma['cid'], {'do': 'send_review', 'application_id': ma['aid'], 'rating': '4', 'recommendation': 'Good fit.'}, '/candidates/%s' % ma['cid'])
+mr = one('SELECT reviewer_id FROM application_reviews WHERE application_id = %s' % ma['aid'])
+told = [int(x['user_id']) for x in sql('SELECT user_id FROM notifications WHERE id > %d' % last)]
+check("The review goes to the requisition's hiring manager, and only they are told", mr and int(mr['reviewer_id']) == int(owner_id) and told and set(told) == {int(owner_id)}, (mr, told))
+status, body = admin.get('/reviews')
+check('Their Waiting on your decision has it', 'Managed Applicant' in body)

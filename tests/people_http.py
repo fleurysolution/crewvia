@@ -51,7 +51,7 @@ status, body = admin.get('/people')
 form = re.search(r'<details class="card" id="add-person" open>(.*?)</details>', body, re.S)
 check('The form to add somebody is on top, open, before any list', form and body.index('id="add-person"') < body.index('<table'))
 desks = re.findall(r'<option value="([a-z]+)"', form[1]) if form else []
-check('and offers only the staff desks', set(desks) == {'admin', 'recruiter', 'hotels', 'payroll', 'supervisor'}, desks)
+check('and offers only the staff desks', set(desks) == {'admin', 'recruiter', 'hr', 'hotels', 'payroll', 'supervisor'}, desks)
 counts = dict(re.findall(r'data-tab="([a-z]+)">[^<]*· (\d+)</a>', body))
 check('Staff, client portals and worker portals are three counted tabs, the staff first',
       set(counts) == {'staff', 'clients', 'workers'} and 'class="on" data-tab="staff"' in body and int(counts['workers']) > 0, counts)

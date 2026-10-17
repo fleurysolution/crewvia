@@ -128,7 +128,7 @@ function review_decide(int $reviewId, string $decision, string $note, int $by, a
     $r = row("SELECT * FROM application_reviews WHERE id = ? AND status = 'pending'", [$reviewId]);
     $note = trim($note);
     if (! $r) { return t('That review is no longer waiting.'); }
-    if ((int) $r['reviewer_id'] !== $by && ! can('admin')) { return t('Only the person it was passed to decides.'); }
+    if ((int) $r['reviewer_id'] !== $by && ! can('admin') && ! in_array($by, vacancy_managers((int) val('SELECT vacancy_id FROM applications WHERE id = ?', [(int) $r['application_id']])), true)) { return t('Only the person it was passed to decides.'); }
     if (! in_array($decision, ['validated', 'interview', 'declined'], true)) { return t('Choose a decision.'); }
     if ($decision !== 'validated' && $note === '') { return t('Say why, so the recruiter knows what to do next.'); }
     $applicationId = (int) $r['application_id'];
@@ -144,7 +144,7 @@ function review_decide(int $reviewId, string $decision, string $note, int $by, a
       [$applicationId, $by, (string) val('SELECT stage FROM applications WHERE id = ?', [$applicationId]), $words . $who . '.' . ($note !== '' ? ' ' . $note : '')]);
     $a = review_application($applicationId);
     // P5-M84: approved, the applicant goes to HR; the recruiter's part is done.
-    $hr = $decision === 'validated' ? review_hand_to_hr($applicationId, $by) : null;
+    $hr = $decision === 'validated' ? review_hand_to_hr($applicationId, $by, ! empty($GLOBALS['review_expedite'])) : null;
     review_notify((int) $r['requested_by'], $hr
                       ? t(':name approved by :who and handed to HR (:hr). Nothing more for you.', ['name' => (string) ($a['full_name'] ?? ''), 'who' => $who, 'hr' => $hr])
                       : t(':name: :decision', ['name' => (string) ($a['full_name'] ?? ''), 'decision' => review_statuses()[$decision]]),
@@ -243,7 +243,7 @@ function review_dossier(int $applicationId): ?array
  * (paperwork in the portal, drug test and background if needed, group and supervisor) and the portal invitation,
  * so the person can fill in their forms. Returns who has it.
  */
-function review_hand_to_hr(int $applicationId, int $by): ?string
+function review_hand_to_hr(int $applicationId, int $by, bool $expedite = false): ?string
 {
     $a = row('SELECT a.id, a.candidate_id, c.full_name, v.title, v.job_id, j.coordinator_id FROM applications a JOIN candidates c ON c.id = a.candidate_id
               JOIN vacancies v ON v.id = a.vacancy_id JOIN jobs j ON j.id = v.job_id WHERE a.id = ?', [$applicationId]);
@@ -269,6 +269,16 @@ function review_hand_to_hr(int $applicationId, int $by): ?string
         if ($hr) {
             pt_notify($hr, $by, t('To onboard: :name, approved for :role', ['name' => $a['full_name'], 'role' => $a['title']]), '/my-tasks?task=' . $task);
         }
+        // P5-M85: travel follows HR's clearance - at once when the manager expedites.
+        try {
+            q('INSERT IGNORE INTO hiring_handoffs (application_id, candidate_id, job_id, expedited, hr_task_id, created_by) VALUES (?,?,?,?,?,?)',
+              [$applicationId, (int) $a['candidate_id'], (int) $a['job_id'], $expedite ? 1 : 0, $task, $by]);
+            if ($expedite) {
+                review_travel_task((int) val('SELECT id FROM hiring_handoffs WHERE application_id = ?', [$applicationId]), $by);
+            }
+        } catch (Throwable $e) {
+            // Before the upgrade has run, the HR task still goes.
+        }
     }
     try {
         require_once __DIR__ . '/invitations.php';
@@ -279,4 +289,71 @@ function review_hand_to_hr(int $applicationId, int $by): ?string
     log_activity('handed an approved applicant to HR', 'application', $applicationId, $name);
 
     return $name !== '' ? $name : t('Onboarding');
+}
+
+/**
+ * P5-M85: the project coordinator's task - flight, hotel, pickup - once HR has cleared the person, or at once when
+ * expedited. Made once per hand-over.
+ */
+function review_travel_task(int $handoffId, int $by): ?int
+{
+    $h = row('SELECT h.*, c.full_name, j.title AS job FROM hiring_handoffs h JOIN candidates c ON c.id = h.candidate_id JOIN jobs j ON j.id = h.job_id WHERE h.id = ?', [$handoffId]);
+    if (! $h || $h['travel_task_id']) {
+        return $h ? (int) $h['travel_task_id'] : null;
+    }
+    require_once __DIR__ . '/stage-tasks.php';
+    $who = stage_task_assignee(row('SELECT * FROM jobs WHERE id = ?', [(int) $h['job_id']]) ?: [], 'hotels');
+    $title = t('Book the flight and hotel for :name', ['name' => $h['full_name']]);
+    q("INSERT INTO project_tasks (job_id, title, description, assignee_id, priority, due_on, created_by) VALUES (?,?,?,?, 'high', ?, ?)",
+      [(int) $h['job_id'], $title, $h['expedited'] ? t('Expedited by the manager: book now, while HR finishes the background check and drug test. The arrival shows on Flight arrivals once the flight is entered.')
+                                                     : t('HR has cleared them. Book the flight and the hotel; the arrival shows on Flight arrivals once the flight is entered.'),
+       $who, date('Y-m-d', strtotime('+1 day')), $by]);
+    $task = (int) db()->lastInsertId();
+    pt_event($task, $by, 'created', null, $title);
+    if ($who) {
+        pt_notify($who, $by, t('Travel to book: :name for :job', ['name' => $h['full_name'], 'job' => $h['job']]), '/my-tasks?task=' . $task);
+    }
+    q('UPDATE hiring_handoffs SET travel_task_id = ? WHERE id = ?', [$task, $handoffId]);
+
+    return $task;
+}
+
+/** P5-M85: HR's task done - the person is cleared, and travel goes to the project coordinator. */
+function review_hr_task_done(int $taskId, int $by): void
+{
+    try {
+        $h = row('SELECT id FROM hiring_handoffs WHERE hr_task_id = ? AND hr_done_at IS NULL', [$taskId]);
+    } catch (Throwable $e) {
+        return;
+    }
+    if ($h) {
+        q('UPDATE hiring_handoffs SET hr_done_at = NOW() WHERE id = ?', [(int) $h['id']]);
+        review_travel_task((int) $h['id'], $by);
+    }
+}
+
+/** P5-M85: the hiring managers of a requisition (ids), active ones only. */
+function vacancy_managers(int $vacancyId): array
+{
+    try {
+        return array_map('intval', array_column(rows('SELECT m.user_id FROM vacancy_managers m JOIN users u ON u.id = m.user_id AND u.is_active = 1 WHERE m.vacancy_id = ?', [$vacancyId]), 'user_id'));
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+function vacancy_managers_save(int $vacancyId, array $ids): void
+{
+    q('DELETE FROM vacancy_managers WHERE vacancy_id = ?', [$vacancyId]);
+    foreach (array_unique(array_map('intval', $ids)) as $id) {
+        if ($id && review_person_ok($id)) {
+            q('INSERT IGNORE INTO vacancy_managers (vacancy_id, user_id) VALUES (?, ?)', [$vacancyId, $id]);
+        }
+    }
+}
+
+/** The SQL that says a review (alias r, its application a) is this person's to decide: theirs, or their requisition's. */
+function review_mine_sql(int $userId): string
+{
+    return '(r.reviewer_id = ' . $userId . ' OR EXISTS (SELECT 1 FROM vacancy_managers vm WHERE vm.vacancy_id = a.vacancy_id AND vm.user_id = ' . $userId . '))';
 }

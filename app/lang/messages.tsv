@@ -5467,3 +5467,37 @@ Approved	Approuvé	Aprobado
 Approved by :name on :date and handed to HR for onboarding.	Approuvé par :name le :date et transmis à HR pour l'intégration.	Aprobado por :name el :date y entregado a RR. HH. para la incorporación.
 HR (onboarding)	HR (intégration)	RR. HH. (incorporación)
 Project coordinator	Coordinateur de projet	Coordinador de proyecto
+Book the flight and hotel for :name	Réserver le vol et l'hôtel de :name	Reservar el vuelo y el hotel de :name
+Expedited by the manager: book now, while HR finishes the background check and drug test. The arrival shows on Flight arrivals once the flight is entered.	Accéléré par le manager : réservez maintenant, pendant que HR termine la vérification d'antécédents et le test de dépistage. L'arrivée apparaît dans Arrivées des vols dès que le vol est saisi.	Acelerado por el responsable: reserve ahora, mientras RR. HH. termina la verificación de antecedentes y la prueba de drogas. La llegada aparece en Llegadas de vuelos en cuanto se registra el vuelo.
+HR has cleared them. Book the flight and the hotel; the arrival shows on Flight arrivals once the flight is entered.	HR a validé la personne. Réservez le vol et l'hôtel ; l'arrivée apparaît dans Arrivées des vols dès que le vol est saisi.	RR. HH. ha dado el visto bueno. Reserve el vuelo y el hotel; la llegada aparece en Llegadas de vuelos en cuanto se registra el vuelo.
+Travel to book: :name for :job	Voyage à réserver : :name pour :job	Viaje por reservar: :name para :job
+Expedited	Accéléré	Acelerado
+book the flight and hotel now, while HR does the background check and drug test	réserver le vol et l'hôtel maintenant, pendant que HR fait la vérification d'antécédents et le test de dépistage	reservar el vuelo y el hotel ahora, mientras RR. HH. hace la verificación de antecedentes y la prueba de drogas
+Flight arrivals	Arrivées des vols	Llegadas de vuelos
+Who arrives, when and where, for the airport pickups.	Qui arrive, quand et où, pour les prises en charge à l'aéroport.	Quién llega, cuándo y dónde, para las recogidas en el aeropuerto.
+This project only	Ce projet seulement	Solo este proyecto
+No arrival in this period.	Aucune arrivée sur cette période.	Ninguna llegada en este periodo.
+Time	Heure	Hora
+Arrives at	Arrive à	Llega a
+Pickup	Prise en charge	Recogida
+to arrange	à organiser	por organizar
+not needed	pas nécessaire	no hace falta
+no hotel	pas d'hôtel	sin hotel
+Arrived	Arrivé	Llegó
+signed :time	signé le :time	firmó el :time
+Landed, not signed in yet	Atterri, pas encore présenté	Aterrizó, aún sin presentarse
+Expected	Attendu	Esperado
+:n arrival	:n arrivée	:n llegada
+:n arrivals	:n arrivées	:n llegadas
+No manager to send it to: ask an administrator.	Aucun manager à qui l'envoyer : demandez à un administrateur.	No hay ningún responsable a quien enviarlo: pregunte a un administrador.
+:name to review	:name à examiner	:name por revisar
+Sent to the managers for review. Any of them decides, in Waiting on your decision.	Envoyé aux managers pour revue. N'importe lequel décide, dans « En attente de votre décision ».	Enviado a los responsables para revisión. Cualquiera de ellos decide, en «Esperando su decisión».
+With the managers since :date. Fit :n/5.	Chez les managers depuis le :date. Adéquation :n/5.	Con los responsables desde el :date. Encaje :n/5.
+The managers: any of them reviews and approves.	Les managers : n'importe lequel examine et approuve.	Los responsables: cualquiera de ellos revisa y aprueba.
+Sent to the hiring managers of this requisition. Any of them decides.	Envoyé aux responsables du recrutement de cette réquisition. N'importe lequel décide.	Enviado a los responsables de contratación de esta requisición. Cualquiera decide.
+Sent for review to :name.	Envoyé pour revue à :name.	Enviado a revisión a :name.
+The hiring managers of the requisition: any of them reviews and approves.	Les responsables du recrutement de la réquisition : n'importe lequel examine et approuve.	Los responsables de contratación de la requisición: cualquiera revisa y aprueba.
+In review since :date. Fit :n/5.	En revue depuis le :date. Adéquation :n/5.	En revisión desde el :date. Encaje :n/5.
+Hiring managers	Responsables du recrutement	Responsables de contratación
+They review the applicants sent for review; any of them decides.	Ils examinent les candidats envoyés en revue ; n'importe lequel décide.	Revisan a los candidatos enviados a revisión; cualquiera decide.
+Saved: the hiring managers.	Enregistré : les responsables du recrutement.	Guardado: los responsables de contratación.

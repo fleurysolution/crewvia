@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = (string) ($_POST['do'] ?? '');
     if ($do === 'decide') {
         $id = (int) ($_POST['review_id'] ?? 0);
+        $GLOBALS['review_expedite'] = ! empty($_POST['expedite']);
         $why = review_decide($id, (string) ($_POST['decision'] ?? ''), (string) ($_POST['note'] ?? ''), $me, [
             'when' => (string) ($_POST['interview_at'] ?? ''), 'duration' => (int) ($_POST['duration'] ?? 30), 'mode' => (string) ($_POST['mode'] ?? 'video'),
             'place' => (string) ($_POST['place'] ?? ''), 'interviewer' => (int) ($_POST['interviewer_id'] ?? $me)]);
@@ -43,7 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     refuse(422, t('Unknown action.'), '/reviews');
 }
 
-$mine = $admin ? '1' : 'r.reviewer_id = ' . $me;
+// P5-M85: a manager sees what is theirs to decide - passed to them, or on a requisition they manage; "all" shows everything.
+$showAll = $admin && ! empty($_GET['all']);
+$mine = $showAll ? '1' : review_mine_sql($me);
 $waiting = rows("SELECT r.*, c.full_name, v.title, a.screening_score, u.name AS requester, m.name AS reviewer FROM application_reviews r
                  JOIN applications a ON a.id = r.application_id JOIN candidates c ON c.id = a.candidate_id JOIN vacancies v ON v.id = a.vacancy_id
                  JOIN users u ON u.id = r.requested_by JOIN users m ON m.id = r.reviewer_id
@@ -61,7 +64,7 @@ $interview = null;
 $dossier = null;
 if (isset($_GET['id'])) {
     $review = row('SELECT r.*, u.name AS requester FROM application_reviews r JOIN users u ON u.id = r.requested_by WHERE r.id = ?', [(int) $_GET['id']]);
-    if (! $review || (! $admin && (int) $review['reviewer_id'] !== $me)) { refuse(404, t('That review is not yours to see.'), '/reviews'); }
+    if (! $review || (! $admin && (int) $review['reviewer_id'] !== $me && ! in_array($me, vacancy_managers((int) val('SELECT vacancy_id FROM applications WHERE id = ?', [(int) $review['application_id']])), true))) { refuse(404, t('That review is not yours to see.'), '/reviews'); }
     $dossier = review_dossier((int) $review['application_id']);
 } elseif (isset($_GET['interview'])) {
     $interview = row('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.id = ?', [(int) $_GET['interview']]);

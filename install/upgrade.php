@@ -2956,4 +2956,35 @@ if (! str_contains((string) val("SELECT COLUMN_TYPE FROM information_schema.colu
     echo 'Roles: HR (onboarding) added; Hotels & Travel is now called Project coordinator. Move the onboarding team to HR on Team.' . PHP_EOL;
 }
 
+// ── P5-M85: HR first, then the project coordinator - or both at once when the manager expedites ──
+// Reversed by install/rollback/p5-m85.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='hiring_handoffs'")) {
+    q("CREATE TABLE hiring_handoffs (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        application_id INT UNSIGNED NOT NULL,
+        candidate_id INT UNSIGNED NOT NULL,
+        job_id INT UNSIGNED NOT NULL,
+        expedited TINYINT(1) NOT NULL DEFAULT 0,
+        hr_task_id INT UNSIGNED NULL,
+        travel_task_id INT UNSIGNED NULL,
+        hr_done_at DATETIME NULL,
+        created_by INT UNSIGNED NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY (application_id),
+        KEY (hr_task_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    echo 'Hiring flow: HR clears the background check and drug test, then the project coordinator books the flight and hotel - both at once when the manager expedites. Flight arrivals lists who lands when.' . PHP_EOL;
+}
+
+// P5-M85: the hiring managers of each requisition - the ones a review goes to, and the only ones told.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='vacancy_managers'")) {
+    q("CREATE TABLE vacancy_managers (
+        vacancy_id INT UNSIGNED NOT NULL,
+        user_id INT UNSIGNED NOT NULL,
+        PRIMARY KEY (vacancy_id, user_id),
+        KEY (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    echo 'Requisitions: each one names its hiring managers; a review goes to them only, and any of them decides.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

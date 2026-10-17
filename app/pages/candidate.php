@@ -204,12 +204,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (! val('SELECT id FROM applications WHERE id = ? AND candidate_id = ?', [$appId, $id])) {
             refuse(422, t('Choose the requisition this person is for.'), '/candidates/' . $id . '#send-review');
         }
-        if ($why = review_request($appId, (int) ($_POST['reviewer_id'] ?? 0), (int) ($_POST['rating'] ?? 0), (string) ($_POST['recommendation'] ?? ''), uid())) {
+        // P5-M85: it goes to the managers, not to a person the recruiter picks; any of them decides.
+        // P5-M85: the requisition's hiring managers; without any, the least busy manager (Full access) - one person, not everybody.
+        $vacancyOf = (int) val('SELECT vacancy_id FROM applications WHERE id = ?', [$appId]);
+        $pool = array_values(array_diff(vacancy_managers($vacancyOf), [uid()]));
+        $managers = array_map('intval', array_column(rows('SELECT u.id FROM users u WHERE u.is_active = 1 AND u.id <> ? AND ' . ($pool ? 'u.id IN (' . implode(',', $pool) . ')' : "u.role = 'admin'") . '
+                                                           ORDER BY (SELECT COUNT(*) FROM application_reviews r WHERE r.reviewer_id = u.id AND r.status = \'pending\'), u.id', [uid()]), 'id'));
+        if (! $pool) {
+            $managers = array_slice($managers, 0, 1);
+        }
+        if (! $managers) {
+            refuse(422, t('No manager to send it to: ask an administrator.'), '/candidates/' . $id . '#send-review');
+        }
+        if ($why = review_request($appId, $managers[0], (int) ($_POST['rating'] ?? 0), (string) ($_POST['recommendation'] ?? ''), uid())) {
             refuse(422, $why, '/candidates/' . $id . '#send-review');
+        }
+        require_once __DIR__ . '/../notices.php';
+        foreach (array_slice($managers, 1) as $m) {
+            notify_user($m, t(':name to review', ['name' => $c['full_name']]), '/reviews');
         }
         q("UPDATE applications SET stage = 'screening' WHERE id = ? AND stage = 'new'", [$appId]);
         q("UPDATE candidates SET stage = 'screening', owner_id = COALESCE(owner_id, ?) WHERE id = ? AND stage IN ('new','contacted')", [uid(), $id]);
-        flash(t('Sent for review to :name. They see it in Waiting on your decision.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [(int) $_POST['reviewer_id']])]));
+        flash($pool ? t('Sent to the hiring managers of this requisition. Any of them decides.') : t('Sent for review to :name.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [$managers[0]])]));
         redirect('/candidates/' . $id);
     }
 
