@@ -117,7 +117,7 @@ function activity_items(): array
 
         $add($count("SELECT COUNT(*) FROM screening_cases s
                      JOIN placements p ON p.id = s.placement_id
-                     WHERE p.job_id = ? AND s.status IN ('pending','scheduled','completed')", [$job]),
+                     WHERE p.job_id = ? AND s.status IN ('pending','sent','scheduled','completed','needs_review')", [$job]),
              'Background or drug check open', '/checks', 'amber',
              'Screening cases not yet cleared or cancelled');
 

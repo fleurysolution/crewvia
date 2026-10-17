@@ -76,6 +76,8 @@ function hw_jobs(string $status, int $jobId): array
                         COALESCE(SUM(" . hw_approved_sql() . "), 0) AS total,
                         COALESCE(SUM(" . hw_approved_sql() . " AND a.stage NOT IN ('accepted','rejected','withdrawn')), 0) AS to_onboard,
                         COALESCE(SUM(a.stage = 'accepted'), 0) AS hired,
+                        (SELECT COUNT(*) FROM hiring_handoffs hh JOIN project_tasks ht ON ht.id = hh.hr_task_id JOIN applications ha ON ha.id = hh.application_id
+                          WHERE ha.vacancy_id = v.id AND ht.status NOT IN ('done','cancelled') AND ht.due_on < CURDATE()) AS late,
                         MAX(a.created_at) AS last_applied
                  FROM vacancies v JOIN jobs j ON j.id = v.job_id LEFT JOIN applications a ON a.vacancy_id = v.id
                  WHERE " . implode(' AND ', $where) . '
@@ -521,14 +523,24 @@ function hw_progress(array $a, int $jobId): array
     $steps[] = ['key' => 'portal', 'label' => t('Portal'), 'state' => $portal ? t('Signed in') : t('Invited, not signed in yet'),
                 'tone' => $portal ? 'green' : 'amber', 'owner' => null, 'go' => $portal ? null : 'onboarding'];
 
+    // P5-M96: sent to the provider (HireRight, Quest Diagnostics), then the result received: pass, fail or needs review.
+    require_once __DIR__ . '/screening-orders.php';
+    $providers = screening_providers();
     foreach (['drug' => t('Drug test'), 'background' => t('Background check')] as $kind => $label) {
-        $case = $placement ? row('SELECT status, scheduled_at, location FROM screening_cases WHERE placement_id = ? AND kind = ? ORDER BY id DESC LIMIT 1', [(int) $placement['id'], $kind]) : null;
-        $words = ['pending' => t('Authorization sent'), 'scheduled' => t('Scheduled'), 'completed' => t('Done, waiting for the result'),
-                  'cleared' => t('Cleared'), 'not_cleared' => t('Not cleared'), 'cancelled' => t('Cancelled')];
-        $state = $case ? ($words[$case['status']] ?? $case['status']) . ($case['status'] === 'scheduled' && $case['scheduled_at'] ? ' · ' . d(substr((string) $case['scheduled_at'], 0, 10)) . ' ' . date('g:i a', strtotime((string) $case['scheduled_at'])) : '')
-                       : t('To schedule');
-        $tone = $case ? (['cleared' => 'green', 'not_cleared' => 'red', 'cancelled' => 'grey'][$case['status']] ?? 'blue') : 'amber';
-        $steps[] = ['key' => $kind, 'label' => $label, 'state' => $state, 'tone' => $tone, 'owner' => $hr['assignee'] ?? null, 'go' => 'checks'];
+        $case = null;
+        try {
+            $case = $placement ? row("SELECT status, scheduled_at, sent_at, reviewed_at FROM screening_cases WHERE placement_id = ? AND kind = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [(int) $placement['id'], $kind]) : null;
+        } catch (Throwable $e) {
+            $case = $placement ? row("SELECT status, scheduled_at, NULL AS sent_at, reviewed_at FROM screening_cases WHERE placement_id = ? AND kind = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [(int) $placement['id'], $kind]) : null;
+        }
+        $when = static fn(?string $at): string => $at ? ' · ' . d(substr($at, 0, 10)) : '';
+        $words = ['pending' => t('Authorization sent to the candidate'), 'sent' => t('Sent to :provider', ['provider' => $providers[$kind]]) . $when($case['sent_at'] ?? null),
+                  'scheduled' => t('Scheduled'), 'completed' => t('Done, waiting for the result'), 'needs_review' => t('Needs review'),
+                  'cleared' => t('Passed') . $when($case['reviewed_at'] ?? null), 'not_cleared' => t('Failed') . $when($case['reviewed_at'] ?? null)];
+        $state = $case ? ($words[$case['status']] ?? $case['status']) : t('Not sent yet');
+        $tone = $case ? (['cleared' => 'green', 'not_cleared' => 'red', 'needs_review' => 'amber'][$case['status']] ?? 'blue') : 'amber';
+        $steps[] = ['key' => $kind, 'label' => $label . ' · ' . $providers[$kind], 'state' => $state, 'tone' => $tone, 'owner' => $hr['assignee'] ?? null, 'go' => null,
+                    'screening' => $placement ? ['kind' => $kind, 'status' => $case['status'] ?? null, 'provider' => $providers[$kind]] : null];
     }
 
     foreach (['w4' => 'W-4', 'i9' => 'I-9'] as $form => $label) {

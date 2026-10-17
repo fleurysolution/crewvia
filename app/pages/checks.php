@@ -16,7 +16,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   $id=(int)($_POST['case_id'] ?? 0);$status=$_POST['status'] ?? '';
   $case=row('SELECT s.*,a.status consent FROM screening_cases s JOIN placements p ON p.id=s.placement_id LEFT JOIN signed_acknowledgements a ON a.id=s.authorization_id WHERE s.id=? AND p.job_id=?',[$id,$jobId]);
   if($case && in_array($status,['scheduled','completed','cleared','not_cleared','cancelled'],true)) {
-   if($status!=='cancelled' && $case['consent']!=='signed') { flash(t('Candidate authorization must be signed before screening proceeds.'),'err');redirect('/checks'); }
+   if($status!=='cancelled' && $case['authorization_id'] && $case['consent']!=='signed') { flash(t('Candidate authorization must be signed before screening proceeds.'),'err');redirect('/checks'); }
    q('UPDATE screening_cases SET status=?,reviewed_by=?,reviewed_at=NOW() WHERE id=?',[$status,uid(),$id]);log_activity('screening status','case',$id,$status);
    // P5-M66: a cleared screening may be the last condition: the office is told the person is ready.
    if($status==='cleared'){require_once __DIR__.'/../deployment.php';deployment_ready_notice((int)val('SELECT p.candidate_id FROM screening_cases s JOIN placements p ON p.id=s.placement_id WHERE s.id=?',[$id]));}

@@ -436,3 +436,31 @@ check('and none of the recruiting: no review, interviews, screener questions or 
       and 'id="manager-review"' not in body and 'id="interviews"' not in body and 'id="screener"' not in body and 'id="move-form"' not in body)
 status, body = admin.get('/hiring?v=%d&app=%s&go=checks' % (vac_id, op['aid']))
 check('A step opens its screen on the requisition\'s project', status == 200 and admin.url.endswith('/checks'), admin.url)
+# P5-M95: To onboard stands out on the requisition list - amber while waiting, red once an HR task is late.
+status, body = admin.get('/hiring')
+check('Hiring marks the requisitions with people to onboard', re.search(r'data-to-onboard="[1-9]\d*" class="count-(due|late)"', body) is not None)
+php_q("UPDATE project_tasks t JOIN hiring_handoffs h ON h.hr_task_id = t.id SET t.due_on = DATE_SUB(CURDATE(), INTERVAL 3 DAY), t.status = 'todo' WHERE h.application_id = %s" % op['aid'])
+status, body = admin.get('/hiring')
+check('and in red once an HR task is past its date', 'class="count-late"' in body and 'past due' in body)
+
+# P5-M96: the background check (HireRight) and the drug test (Quest Diagnostics), sent then received, from Hiring.
+H96 = '/hiring?v=%d&app=%s' % (vac_id, op['aid'])
+status, body = admin.get(H96)
+check('Hiring offers to send the background check to HireRight and the drug test to Quest Diagnostics',
+      'data-screening-send="background"' in body and 'Send to HireRight' in body and 'data-screening-send="drug"' in body and 'Send to Quest Diagnostics' in body)
+admin.post('/hiring', {'do': 'screening_receive', 'application_id': op['aid'], 'kind': 'background', 'result': 'pass', 'back': H96}, H96)
+check('No result before it is sent', not sql("SELECT id FROM screening_cases WHERE kind = 'background' AND status = 'cleared' AND placement_id IN (SELECT id FROM placements WHERE candidate_id = %s)" % op['cid']))
+admin.post('/hiring', {'do': 'screening_send', 'application_id': op['aid'], 'kind': 'background', 'back': H96}, H96)
+bg = one("SELECT status, provider_name, sent_by FROM screening_cases WHERE kind = 'background' AND placement_id IN (SELECT id FROM placements WHERE candidate_id = %s) ORDER BY id DESC LIMIT 1" % op['cid'])
+check('Sent: the case is with HireRight, with who sent it', bg and bg['status'] == 'sent' and bg['provider_name'] == 'HireRight' and bg['sent_by'], bg)
+status, body = admin.get(H96)
+check('and the line reads Sent to HireRight, with Pass, Fail and Needs review', 'Sent to HireRight' in body and 'data-screening-receive="background"' in body and 'value="review"' in body)
+admin.post('/hiring', {'do': 'screening_receive', 'application_id': op['aid'], 'kind': 'background', 'result': 'review', 'back': H96}, H96)
+check('Needs review is kept', one("SELECT status FROM screening_cases WHERE kind = 'background' AND placement_id IN (SELECT id FROM placements WHERE candidate_id = %s) ORDER BY id DESC LIMIT 1" % op['cid'])['status'] == 'needs_review')
+admin.post('/hiring', {'do': 'screening_receive', 'application_id': op['aid'], 'kind': 'background', 'result': 'pass', 'back': H96}, H96)
+status, body = admin.get(H96)
+check('Received: Passed', one("SELECT status FROM screening_cases WHERE kind = 'background' AND placement_id IN (SELECT id FROM placements WHERE candidate_id = %s) ORDER BY id DESC LIMIT 1" % op['cid'])['status'] == 'cleared'
+      and 'Passed' in body and 'data-screening-receive="background"' not in body)
+admin.post('/hiring', {'do': 'screening_send', 'application_id': op['aid'], 'kind': 'drug', 'back': H96}, H96)
+admin.post('/hiring', {'do': 'screening_receive', 'application_id': op['aid'], 'kind': 'drug', 'result': 'fail', 'back': H96}, H96)
+check('A failed drug test reads Failed', 'Failed' in admin.get(H96)[1])

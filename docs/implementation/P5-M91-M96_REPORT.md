@@ -1,4 +1,4 @@
-# P5-M91 to M94 — applicants a click away; the flow checked by role; Candidates for recruiters, Hiring for HR; the steps to the first day
+# P5-M91 to M96 — the recruiting flow by role; Hiring for HR, with the steps to the first day; background and drug sent and received
 
 ## P5-M91 — from a requisition to its applicants
 
@@ -193,3 +193,74 @@ screening-score sort.
 
 Nothing is deleted: the screening answers, the interviews and the reviews
 stay on the person's page (Candidates) and on Candidate reviews.
+
+## P5-M95 — To onboard stands out
+
+"I want them to right away be able to see that these need to get done."
+
+On the **Hiring** requisition list, the **To onboard** count is:
+
+- **amber** while somebody waits to be onboarded;
+- **red**, reading "N past due", once an HR onboarding task is past its due
+  date.
+
+The CSS moves to `?v=15`.
+
+Tests (`client_contacts_http`): the count turns amber, then red once the HR
+task's date has passed.
+
+## P5-M96 — background check and drug test: sent, then received
+
+"Two buttons. The first one: background check sent. The second one: receive
+- pass, fail, or review... For the background check it's HireRight, and for
+the drug test it's Quest Diagnostics."
+
+In Hiring, on an approved person's progress, each line works in two steps.
+
+| Line | Sent | Received |
+| --- | --- | --- |
+| Background check · HireRight | **Send to HireRight**: kept with who and when | **Pass**, **Fail** or **Needs review** |
+| Drug test · Quest Diagnostics | **Send to Quest Diagnostics**: kept with who and when | **Pass**, **Fail** or **Needs review** |
+
+- **The line's state.** It reads in turn: Not sent yet, then "Sent to
+  HireRight · date", then Passed, Failed or Needs review.
+- **Needs review stays open.** The final result is still recorded later.
+- **A pass counts toward readiness.** It is the case's "cleared" status, so
+  the deployment checks count it, and the office is told when it was the last
+  condition.
+- **Two guards.** A result cannot be recorded before the check is sent, and a
+  check goes with the person's assignment: assign them to the job first.
+- **Consent.** The provider collects the candidate's consent itself, by its
+  own email and sign-in. A check sent from Hiring therefore needs no portal
+  authorization. Background & drug keeps its portal authorization for the
+  checks it issues itself.
+
+### The APIs
+
+HireRight (Connect API) and Quest Diagnostics both offer APIs. Nothing here
+calls them yet: that waits for RSS's credentials and their documentation.
+Once connected:
+
+- **Send** places the order through the API;
+- the provider emails the candidate for consent;
+- the result comes back by itself onto the same line.
+
+The keys will go in the server's configuration, never in the repository.
+
+## Migration
+
+`screening_cases` gains:
+
+- the statuses `sent` and `needs_review`;
+- `sent_at`, `sent_by`, `provider_ref` (the provider's order number, for the
+  API).
+
+Rollback: `install/rollback/p5-m96.sql`.
+
+## Tests (`client_contacts_http`)
+
+- both Send buttons are offered;
+- no result before the check is sent;
+- sent: the case is with HireRight, with who sent it;
+- Needs review, then Pass;
+- a failed drug test reads Failed.

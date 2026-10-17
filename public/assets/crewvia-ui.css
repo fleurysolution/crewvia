@@ -407,3 +407,9 @@ details.fold[open] .fold-note { display: none; }
 
 /* P5-M92: a section reached by its link stays clear of the sticky header. */
 main [id] { scroll-margin-top: 72px; }
+
+/* P5-M95: Hiring - people waiting to be onboarded stand out; red once an HR task is late. */
+.counts a.count-due { background: #FDF6E7; border: 1px solid #EEDCB0; border-radius: 8px; padding: 4px 10px; color: #8a5600; font-weight: 600; }
+.counts a.count-due b { color: #8a5600; }
+.counts a.count-late { background: #FDEEED; border: 1px solid #F0C4C1; border-radius: 8px; padding: 4px 10px; color: #b42318; font-weight: 600; }
+.counts a.count-late b { color: #b42318; }

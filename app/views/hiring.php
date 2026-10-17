@@ -37,7 +37,8 @@ $hwScore = static function (?string $s): string {
     <td><a href="/hiring?v=<?= (int) $j['id'] ?>"><strong><?= e($j['title']) ?></strong></a><div class="small muted"><?= e($j['project']) ?><?= isset($hwDisc[$j['discipline'] ?? '']) ? ' · ' . e($hwDisc[$j['discipline']]) : '' ?><?= $j['starts_on'] ? ' · ' . e(starts_words((string) $j['starts_on'])) : '' ?></div></td>
     <td><div class="counts">
       <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=all"><b><?= (int) $j['total'] ?></b><?= te('Approved') ?></a>
-      <a href="/hiring?v=<?= (int) $j['id'] ?>" data-to-onboard="<?= (int) $j['to_onboard'] ?>"><b><?= (int) $j['to_onboard'] ?></b><?= te('To onboard') ?></a>
+      <?php // P5-M95: to onboard stands out - amber while somebody waits, red once an HR task is past its date. ?>
+      <a href="/hiring?v=<?= (int) $j['id'] ?>" data-to-onboard="<?= (int) $j['to_onboard'] ?>" class="<?= (int) $j['late'] > 0 ? 'count-late' : ((int) $j['to_onboard'] > 0 ? 'count-due' : '') ?>"<?= (int) $j['late'] > 0 ? ' title="' . te(':n past due', ['n' => (int) $j['late']]) . '"' : '' ?>><b><?= (int) $j['to_onboard'] ?></b><?= (int) $j['late'] > 0 ? te(':n past due', ['n' => (int) $j['late']]) : te('To onboard') ?></a>
       <a href="/hiring?v=<?= (int) $j['id'] ?>&amp;stage=accepted"><b><?= (int) $j['hired'] ?></b><?= te('Hired') ?></a>
       <a href="/candidates?vacancy=<?= (int) $j['id'] ?>" class="muted" data-applicants="<?= (int) $j['applicants'] ?>"><b><?= (int) $j['applicants'] ?></b><?= te('Applicants') ?></a></div></td>
     <td class="num"><?= (int) $j['openings'] ?></td>
@@ -158,7 +159,21 @@ $hwScore = static function (?string $s): string {
         <td><strong><?= e($st['label']) ?></strong></td>
         <td><span class="tag <?= e($st['tone']) ?>"><?= e($st['state']) ?></span></td>
         <td class="small muted"><?= $st['owner'] ? e($st['owner']) : '' ?></td>
-        <td class="right"><?php if ($st['go']): ?><a class="btn ghost sm" href="<?= e($goBase . $st['go']) ?>" data-step-open="<?= e($st['key']) ?>"><?= te('Open') ?></a><?php endif; ?></td>
+        <td class="right">
+          <?php if (! empty($st['screening'])): $sc = $st['screening']; $scBack = $hwSelf . '&app=' . (int) $a['id']; ?>
+            <?php // P5-M96: sent, then received. ?>
+            <?php if ($sc['status'] === null || $sc['status'] === 'pending'): ?>
+              <form method="post" action="/hiring" class="inline" data-screening-send="<?= e($sc['kind']) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="screening_send"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="kind" value="<?= e($sc['kind']) ?>"><input type="hidden" name="back" value="<?= e($scBack) ?>"><button class="btn sm"><?= te('Send to :provider', ['provider' => $sc['provider']]) ?></button></form>
+            <?php elseif (in_array($sc['status'], ['sent', 'scheduled', 'completed', 'needs_review'], true)): ?>
+              <form method="post" action="/hiring" class="inline" data-screening-receive="<?= e($sc['kind']) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="screening_receive"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="kind" value="<?= e($sc['kind']) ?>"><input type="hidden" name="back" value="<?= e($scBack) ?>">
+                <span class="small muted"><?= te('Received:') ?></span>
+                <button class="btn sm" name="result" value="pass"><?= te('Pass') ?></button>
+                <button class="btn ghost sm" name="result" value="fail"><?= te('Fail') ?></button>
+                <?php if ($sc['status'] !== 'needs_review'): ?><button class="btn ghost sm" name="result" value="review"><?= te('Needs review') ?></button><?php endif; ?>
+              </form>
+            <?php endif; ?>
+          <?php elseif ($st['go']): ?><a class="btn ghost sm" href="<?= e($goBase . $st['go']) ?>" data-step-open="<?= e($st['key']) ?>"><?= te('Open') ?></a><?php endif; ?>
+        </td>
       </tr><?php endforeach; ?></tbody></table>
     </div>
     <?php endif; ?>

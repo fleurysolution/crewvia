@@ -81,6 +81,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'bulk') {
     redirect(hw_back());
 }
 
+// P5-M96: the background check and the drug test - sent to the provider, then the result received.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['do'] ?? '', ['screening_send', 'screening_receive'], true)) {
+    require_once __DIR__ . '/../screening-orders.php';
+    $scApp = row('SELECT a.candidate_id, v.job_id FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ?', [(int) ($_POST['application_id'] ?? 0)]);
+    $scPlacement = $scApp ? (int) val("SELECT id FROM placements WHERE candidate_id = ? AND job_id = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [(int) $scApp['candidate_id'], (int) $scApp['job_id']]) : 0;
+    if (! $scPlacement) {
+        refuse(422, t('Assign them to the job first: the screening goes with their assignment.'), hw_back());
+    }
+    $kind = (string) ($_POST['kind'] ?? '');
+    $why = $_POST['do'] === 'screening_send' ? screening_send($scPlacement, $kind, uid()) : screening_receive($scPlacement, $kind, (string) ($_POST['result'] ?? ''), uid());
+    if ($why !== null) {
+        refuse(422, $why, hw_back());
+    }
+    flash($_POST['do'] === 'screening_send' ? t('Sent to :provider.', ['provider' => screening_providers()[$kind] ?? '']) : t('Result recorded.'));
+    redirect(hw_back());
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $do = (string) ($_POST['do'] ?? '');
     $id = (int) ($_POST['application_id'] ?? 0);

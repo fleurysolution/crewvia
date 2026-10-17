@@ -3076,4 +3076,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Tasks: the onboarding and travel tasks open the screen where they are done.' . PHP_EOL;
 }
 
+// P5-M96: the background check (HireRight) and the drug test (Quest Diagnostics), sent and received from Hiring.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='screening_cases' AND column_name='sent_at'")) {
+    q("ALTER TABLE screening_cases MODIFY status ENUM('pending','sent','scheduled','completed','needs_review','cleared','not_cleared','cancelled') NOT NULL DEFAULT 'pending',
+       ADD COLUMN sent_at DATETIME NULL, ADD COLUMN sent_by INT UNSIGNED NULL, ADD COLUMN provider_ref VARCHAR(120) NULL");
+    echo 'Screening: the background check and the drug test are sent and their result recorded (pass, fail, needs review) from Hiring.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
