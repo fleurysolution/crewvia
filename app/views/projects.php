@@ -7,7 +7,7 @@
   </div>
 </div>
 
-<form class="card" method="post">
+<form class="card" method="post" id="new-project">
   <?= csrf_field() ?>
   <span class="eyebrow"><?= te('NEW AGREEMENT') ?></span>
   <h2><?= te('Take on a project') ?></h2>
@@ -15,8 +15,12 @@
   <div class="row">
     <div class="f2">
       <label for="p-client"><?= te('Client') ?></label>
-      <input id="p-client" name="client" required maxlength="190"
-             placeholder="<?= te('Company the crew works for') ?>">
+      <?php // P5-M69: the client is created first, on Clients, and chosen here. ?>
+      <select id="p-client" name="client_id" required>
+        <option value=""><?= $clientChoices ? te('Choose the client…') : te('No client yet: add one first') ?></option>
+        <?php foreach ($clientChoices as $cc): ?><option value="<?= (int) $cc['id'] ?>" <?= (int) $cc['id'] === $chosenClient ? 'selected' : '' ?>><?= e($cc['name']) ?></option><?php endforeach; ?>
+      </select>
+      <p class="small m0"><a href="/clients#new"><?= te('Add a client') ?></a></p>
     </div>
     <div class="f2">
       <label for="p-title"><?= te('Project name') ?></label>

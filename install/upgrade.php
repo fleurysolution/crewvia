@@ -2752,4 +2752,12 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Clock-in on the site: the supervisor shows a code on their phone that changes every 30 seconds; the crew scans it to clock in and out; the phone position is compared with the site (set its position and radius in the project) and anything unusual is flagged to the supervisor; hours shown for hourly workers.' . PHP_EOL;
 }
 
+// ── P5-M69: clients created first, with their address, billing email and notes, then chosen for each project ──
+// Reversed by install/rollback/p5-m69.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='clients' AND column_name='billing_email'")) {
+    q('ALTER TABLE clients ADD COLUMN address VARCHAR(190) NULL, ADD COLUMN city VARCHAR(120) NULL, ADD COLUMN state CHAR(2) NULL, ADD COLUMN zip VARCHAR(10) NULL,
+       ADD COLUMN billing_email VARCHAR(190) NULL, ADD COLUMN notes TEXT NULL, ADD COLUMN created_by INT UNSIGNED NULL');
+    echo 'Clients: a Clients page to add a client first (address, contact, billing email, payment terms), then take on its projects; Projects chooses the client from the list.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -19,7 +19,9 @@ require_once __DIR__ . '/../scope.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title  = trim((string) ($_POST['title'] ?? ''));
-    $client = trim((string) ($_POST['client'] ?? ''));
+    // P5-M69: the client chosen from Clients; a name typed (older forms, imports) still finds or makes one.
+    $clientId = (int) ($_POST['client_id'] ?? 0);
+    $client = $clientId ? (string) val('SELECT name FROM clients WHERE id = ?', [$clientId]) : trim((string) ($_POST['client'] ?? ''));
 
     if ($title === '' || $client === '') {
         flash(t('An agreement needs a client and a name for the work.'), 'err');
@@ -104,4 +106,6 @@ $pageTitle = t('Projects') . ' · ' . $config['app_name'];
 require_once __DIR__ . '/../project-tasks.php';
 $taskProgress = pt_progress_all();
 
-render('projects', compact('projects', 'taskProgress'));
+$clientChoices = rows('SELECT id, name FROM clients ORDER BY name LIMIT 1000');
+$chosenClient = (int) ($_GET['client_id'] ?? 0);
+render('projects', compact('projects', 'taskProgress', 'clientChoices', 'chosenClient'));

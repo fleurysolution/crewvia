@@ -255,6 +255,7 @@ $routes = [
     '/clock' => 'clock',
     '/clock-qr' => 'clock-qr',
     '/forms-register' => 'forms-register',
+    '/clients' => 'clients',
     '/pay-grades' => 'pay-grades',
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',

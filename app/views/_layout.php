@@ -735,6 +735,7 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
     <?php if ($onProject): ?>
       <form method="post" action="/select-project" class="workbar-project">
         <?= csrf_field() ?>
+        <?php /* P5-M69: switching project keeps you on the screen you are on. */ ?><input type="hidden" name="then" value="<?= e((string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/')) ?>">
         <label for="working-project"><?= te('Working project') ?></label>
         <select id="working-project" name="job_id" required>
           <?php if (! $working): ?>

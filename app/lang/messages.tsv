@@ -5079,3 +5079,29 @@ Section 2 overdue	Section 2 en souffrance	Sección 2 vencida
 Who did what with this form	Qui a fait quoi avec ce formulaire	Quién hizo qué con este formulario
 the system	le système	el sistema
 Form	Formulaire	Formulario
+Give the client's name.	Indiquez le nom du client.	Indique el nombre del cliente.
+A client already has this name: open it instead of making a second one.	Un client porte déjà ce nom : ouvrez-le plutôt que d'en créer un second.	Ya hay un cliente con este nombre: ábralo en lugar de crear otro.
+Check the email address.	Vérifiez l'adresse courriel.	Verifique el correo electrónico.
+:name added. Take on their first project now.	:name ajouté. Prenez maintenant son premier projet.	:name agregado. Tome ahora su primer proyecto.
+That client does not exist.	Ce client n'existe pas.	Ese cliente no existe.
+Clients	Clients	Clientes
+Client (company)	Client (entreprise)	Cliente (empresa)
+Contact person	Personne-ressource	Persona de contacto
+Contact email	Courriel du contact	Correo del contacto
+Contact phone	Téléphone du contact	Teléfono del contacto
+Email for invoices	Courriel pour les factures	Correo para facturas
+Payment terms (days)	Délai de paiement (jours)	Plazo de pago (días)
+Notes	Notes	Notas
+The companies the crews work for. Add a client first, then take on their projects; invoices use their terms and billing email.	Les entreprises pour lesquelles les équipes travaillent. Ajoutez d'abord un client, puis prenez ses projets ; les factures utilisent son délai et son courriel de facturation.	Las empresas para las que trabajan los equipos. Agregue primero un cliente y luego tome sus proyectos; las facturas usan su plazo y su correo de facturación.
+Projects	Projets	Proyectos
+No project yet.	Aucun projet pour l'instant.	Todavía no hay proyectos.
+Take on a project for this client	Prendre un projet pour ce client	Tomar un proyecto para este cliente
+Add a client	Ajouter un client	Agregar un cliente
+Add the client	Ajouter le client	Agregar el cliente
+:n client	:n client	:n cliente
+:n clients	:n clients	:n clientes
+Contact	Contact	Contacto
+Portal accounts	Comptes du portail	Cuentas del portal
+:n live	:n actifs	:n activos
+Choose the client…	Choisissez le client…	Elija el cliente…
+No client yet: add one first	Aucun client : ajoutez-en un d'abord	Todavía no hay clientes: agregue uno primero
