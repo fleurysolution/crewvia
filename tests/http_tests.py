@@ -203,7 +203,7 @@ check('The gate names the unpriced lines','have no agreed pay rate' in scopeBody
 # Correcting a line, through the same form that wrote it.
 scopeLines=re.findall(r'/job\?line=(\d+)',scopeBody)
 check('Every line can be opened for correction',len(scopeLines)==3)
-admin.post('/job',{'do':'save_line','line_id':scopeLines[0],'role_title':'Plant engineer','discipline':'mechanical','quantity':'10','pay_rate':'65','bill_rate':'95','per_diem_rate':'40','guarantee_hours':'50','strike_guarantee_hours':'60'})
+admin.post('/job',{'do':'save_line','change_reason':'Client asked for 10','line_id':scopeLines[0],'role_title':'Plant engineer','discipline':'mechanical','quantity':'10','pay_rate':'65','bill_rate':'95','per_diem_rate':'40','guarantee_hours':'50','strike_guarantee_hours':'60'})
 check('A corrected quantity reprices the agreement','$144,300.00' in admin.get('/job')[1])
 
 # A negative rate is refused, and the refusal names the term it belongs to.

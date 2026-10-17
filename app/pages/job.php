@@ -136,6 +136,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
                 redirect('/job#scope');
             }
 
+            // P5-M90: an edit is kept - what changed, from what to what, why, by whom and when (RSS: "for accountability").
+            $why = mb_substr(trim((string) ($_POST['change_reason'] ?? '')), 0, 500);
+            $new = ['role_title' => $role, 'discipline' => $discipline, 'quantity' => $quantity, 'shift' => $shift, 'notes' => $notes] + $terms;
+            $diffs = [];
+            foreach ($new as $field => $value) {
+                $old = $editing[$field] ?? null;
+                $same = is_numeric($old) && is_numeric($value) ? (float) $old == (float) $value : (string) $old === (string) $value;
+                if (! $same) { $diffs[] = $field . ': ' . (($old === null || $old === '') ? '-' : $old) . ' -> ' . (($value === null || $value === '') ? '-' : $value); }
+            }
+            if ($diffs && $why === '') {
+                flash(t('Say why the line changes: it is kept in its history.'), 'err');
+                redirect('/job?line=' . (int) $editing['id'] . '#scope');
+            }
+
             q('UPDATE job_order_lines
                   SET role_title = ?, discipline = ?, quantity = ?, shift = ?,
                       pay_rate = ?, bill_rate = ?, per_diem_rate = ?,
@@ -148,6 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
                $terms['overtime_after'], $terms['overtime_multiplier'], $notes,
                (int) $editing['id'], $jobId]);
 
+            if ($diffs) {
+                q('INSERT INTO scope_change_orders (job_id, line_id, quantity_before, quantity_after, note, changes, created_by) VALUES (?,?,?,?,?,?,?)',
+                  [$jobId, (int) $editing['id'], (int) $editing['quantity'], $quantity, $why, implode('; ', $diffs), uid()]);
+            }
             $retotal($jobId);
 
             log_activity('changed a line of the scope of work', 'job', $jobId,
@@ -478,6 +496,12 @@ $editLine = null;
 if ($job && isset($_GET['line'])) {
     $editLine = scope_line((int) $_GET['line'], (int) $job['id']);
 }
+// P5-M90: the history of the scope's edits.
+try {
+    $changeOrders = $job ? rows('SELECT co.*, l.role_title, u.name AS by_name FROM scope_change_orders co JOIN job_order_lines l ON l.id = co.line_id LEFT JOIN users u ON u.id = co.created_by WHERE co.job_id = ? ORDER BY co.id DESC LIMIT 50', [(int) $job['id']]) : [];
+} catch (Throwable $e) {
+    $changeOrders = [];
+}
 
 $pageTitle = ($job['title'] ?? t('Project setup')) . ' · ' . $config['app_name'];
 
@@ -489,4 +513,4 @@ $clientContacts = cc_contacts((int) $job['client_id']);
 $projectContacts = array_column(cc_job_contacts((int) $job['id']), null, 'id');
 $staff = rows("SELECT id, name, role FROM users WHERE is_active = 1 AND role NOT IN ('worker','client') ORDER BY name");
 render('job', compact('job', 'stage', 'signals', 'next', 'figures',
-                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff', 'billing', 'clientContacts', 'projectContacts'));
+                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff', 'billing', 'clientContacts', 'projectContacts', 'changeOrders'));

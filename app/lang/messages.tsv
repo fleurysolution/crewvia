@@ -5554,3 +5554,25 @@ Hiring managers are offered on requisitions and review the applicants.	Les respo
 Hiring manager	Responsable du recrutement	Responsable de contratación
 Hiring manager ✓	Responsable du recrutement ✓	Responsable de contratación ✓
 Mark hiring managers on Team	Désigner les responsables du recrutement dans Team	Designar a los responsables de contratación en Team
+A change order is recorded by the owner or a manager.	Un ordre de modification est enregistré par le propriétaire ou un manager.	Una orden de cambio la registra el propietario o un responsable.
+How many more people does the client ask for?	Combien de personnes en plus le client demande-t-il ?	¿Cuántas personas más pide el cliente?
+Change order recorded: :role goes from :a to :b. Raise the requisition for the :n more.	Ordre de modification enregistré : :role passe de :a à :b. Créez la réquisition pour les :n en plus.	Orden de cambio registrada: :role pasa de :a a :b. Cree la requisición para los :n adicionales.
+Change order	Ordre de modification	Orden de cambio
+Change order: :role (now :n)	Ordre de modification : :role (actuellement :n)	Orden de cambio: :role (ahora :n)
+People to add	Personnes à ajouter	Personas que añadir
+Client reference	Référence client	Referencia del cliente
+PO, email or call	Bon de commande, e-mail ou appel	Orden de compra, correo o llamada
+Record the change order	Enregistrer l'ordre de modification	Registrar la orden de cambio
+:n change order	:n ordre de modification	:n orden de cambio
+:n change orders	:n ordres de modification	:n órdenes de cambio
+Every trade is already on requisitions. When the client asks for more people, record a change order on the scope.	Tous les métiers sont déjà en réquisition. Quand le client demande plus de monde, enregistrez un ordre de modification sur le périmètre.	Todos los oficios ya están en requisiciones. Cuando el cliente pida más personas, registre una orden de cambio en el alcance.
+Say why the line changes: it is kept in its history.	Dites pourquoi la ligne change : c'est gardé dans son historique.	Diga por qué cambia la línea: se guarda en su historial.
+Why it changes	Pourquoi elle change	Por qué cambia
+e.g. Client asked for 20 more, email of 17 Oct	ex. Le client en demande 20 de plus, e-mail du 17 oct.	p. ej. El cliente pidió 20 más, correo del 17 oct.
+Kept in the history with who and when.	Gardé dans l'historique, avec qui et quand.	Se guarda en el historial con quién y cuándo.
+:n change to the scope	:n modification du périmètre	:n cambio del alcance
+:n changes to the scope	:n modifications du périmètre	:n cambios del alcance
+Every trade is already on requisitions. When the client asks for more people, edit the line on the scope of work: the change is kept in its history.	Tous les métiers sont déjà en réquisition. Quand le client demande plus de monde, modifiez la ligne du périmètre : le changement est gardé dans son historique.	Todos los oficios ya están en requisiciones. Cuando el cliente pida más personas, edite la línea del alcance: el cambio se guarda en su historial.
+Welcome aboard: your onboarding is complete	Bienvenue : votre intégration est terminée	Bienvenido: su incorporación está completa
+Congratulations: your onboarding for :project is complete. Your portal shows your assignment, your start date (:start), your hotel and travel, your schedule and your pay statements.	Félicitations : votre intégration pour :project est terminée. Votre portail affiche votre affectation, votre date de début (:start), votre hôtel et votre voyage, votre horaire et vos relevés de paie.	Felicidades: su incorporación para :project está completa. Su portal muestra su asignación, su fecha de inicio (:start), su hotel y su viaje, su horario y sus recibos de pago.
+to be confirmed	à confirmer	por confirmar

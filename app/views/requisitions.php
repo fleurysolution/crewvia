@@ -226,7 +226,7 @@
               && ! array_filter($scope, static fn ($l) => (int) $l['remaining'] > 0)): ?>
       <button class="btn" type="submit" disabled><?= te('Create the requisition') ?></button>
       <span class="hint inline-block ml">
-        <?= te('Nothing left to order on this agreement.') ?>
+        <?= te('Every trade is already on requisitions. When the client asks for more people, edit the line on the scope of work: the change is kept in its history.') ?> <a href="/job#scope"><?= te('Scope of work') ?></a>
       </span>
     <?php else: ?>
       <button class="btn" type="submit"><?= te('Create the requisition') ?></button>

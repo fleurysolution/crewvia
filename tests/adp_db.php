@@ -84,3 +84,9 @@ $check('The hire sent carries the legal name, SSN, hire date and rate', ($hire['
        && ($hire['events'][0]['data']['transform']['worker']['workAssignment']['baseRemuneration']['hourlyRateAmount']['amountValue'] ?? 0) == 38, $hire);
 $check('ADP\'s reference is kept', val("SELECT adp_reference FROM adp_sends WHERE candidate_id = ? AND kind = 'hire' AND status = 'sent'", [$ready]) === 'G3TEST01');
 @unlink($dir . '/cert.pem'); @unlink($dir . '/key.pem'); @rmdir($dir);
+
+// P5-M89: onboarding complete - W-4 and I-9 accepted - the person is congratulated once.
+require_once __DIR__ . '/test-app/app/deployment.php';
+$check('The congratulations go once the W-4 and the I-9 are accepted', deployment_welcome($ready) === true && val('SELECT welcome_sent_at FROM placements WHERE candidate_id = ?', [$ready]) !== null);
+$check('...and only once', deployment_welcome($ready) === false);
+$check('Somebody whose forms are not accepted is not congratulated', deployment_welcome($waiting) === false);

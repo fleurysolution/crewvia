@@ -385,3 +385,16 @@ check('Team marks who is a hiring manager, whatever their role', 'data-hiring-ma
 status, body = admin.get('/requisitions')
 offered = set(re.findall(r'name="managers\[\]" value="(\d+)"', body))
 check('A requisition offers only the hiring managers, side by side', offered and offered <= {str(owner_id), str(sup['id'] if sup else owner_id)} and 'class="pick-grid"' in body, offered)
+
+# P5-M90: an edit of a scope line is kept - what changed, why, who and when.
+pline = one("SELECT * FROM job_order_lines WHERE job_id = %d AND role_title = 'Pipefitter'" % int(job['id']))
+edit = {'do': 'save_line', 'line_id': pline['id'], 'role_title': 'Pipefitter', 'discipline': pline['discipline'], 'quantity': str(int(pline['quantity']) + 20),
+        'pay_rate': pline['pay_rate'] or '', 'bill_rate': pline['bill_rate'] or '', 'overtime_after': pline['overtime_after'] or '', 'overtime_multiplier': pline['overtime_multiplier'] or ''}
+admin.post('/job', edit, '/job?line=%s' % pline['id'])
+check('A changed line needs a reason', int(one('SELECT quantity FROM job_order_lines WHERE id = %s' % pline['id'])['quantity']) == int(pline['quantity']))
+admin.post('/job', {**edit, 'change_reason': 'Client asked for 20 more, PO 4471'}, '/job?line=%s' % pline['id'])
+h = one('SELECT quantity_before, quantity_after, note, changes, created_by FROM scope_change_orders WHERE line_id = %s' % pline['id'])
+check('The edit is kept: from what to what, why and who', h and int(h['quantity_after']) == int(pline['quantity']) + 20 and 'quantity: %s -> %s' % (pline['quantity'], int(pline['quantity']) + 20) in h['changes']
+      and h['note'] == 'Client asked for 20 more, PO 4471' and int(h['created_by']) == int(owner_id), h)
+status, body = admin.get('/job')
+check('The scope lists its changes', 'id="change-orders"' in body and 'PO 4471' in body)

@@ -141,3 +141,34 @@ function deployment_confirmed_notice(int $placementId): void
                  . ($hasTravel ? '' : ' ' . t('Their travel details are not in yet: they are asked in their portal.')), '/travel');
     notify_candidate((int) $p['candidate_id'], t('Your assignment on :project is confirmed, starting :start. Your hotel and travel are being booked; you are told here. On arrival, come to the office with your original documents to sign your W-4 and I-9.', ['project' => $p['title'], 'start' => $start]), '/portal');
 }
+
+/**
+ * P5-M89: onboarding done - the W-4 and the I-9 (its employer section too) accepted - the person is congratulated,
+ * by email and in their portal, once per assignment (RSS: "when onboarding is done, they receive a congratulations
+ * email, and everything is in their portal").
+ */
+function deployment_welcome(int $candidateId): bool
+{
+    require_once __DIR__ . '/notices.php';
+    $w4 = (int) val("SELECT COUNT(*) FROM worker_tax_forms WHERE candidate_id = ? AND form = 'w4' AND status = 'accepted'", [$candidateId]);
+    $i9 = (int) val("SELECT COUNT(*) FROM worker_tax_forms WHERE candidate_id = ? AND form = 'i9' AND status = 'accepted'", [$candidateId]);
+    if (! $w4 || ! $i9) {
+        return false;
+    }
+    try {
+        $p = row("SELECT p.id, p.start_date, j.title FROM placements p JOIN jobs j ON j.id = p.job_id
+                  WHERE p.candidate_id = ? AND p.status IN ('offered','confirmed','travelling','on_site') AND p.welcome_sent_at IS NULL ORDER BY p.id DESC LIMIT 1", [$candidateId]);
+    } catch (Throwable $e) {
+        return false;
+    }
+    if (! $p) {
+        return false;
+    }
+    q('UPDATE placements SET welcome_sent_at = NOW() WHERE id = ? AND welcome_sent_at IS NULL', [(int) $p['id']]);
+    candidate_tell($candidateId, t('Welcome aboard: your onboarding is complete'),
+        t('Congratulations: your onboarding for :project is complete. Your portal shows your assignment, your start date (:start), your hotel and travel, your schedule and your pay statements.',
+          ['project' => $p['title'], 'start' => $p['start_date'] ? d((string) $p['start_date']) : t('to be confirmed')]), '/portal');
+    log_activity('congratulated on a completed onboarding', 'placement', (int) $p['id']);
+
+    return true;
+}

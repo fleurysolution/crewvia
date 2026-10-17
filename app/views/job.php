@@ -347,6 +347,12 @@ $strike   = (bool) $job['strike_live'];
 
   <!-- writing or correcting a line -->
   <?php // P5-M72: folded behind "Add a trade" once the scope has a line (RSS: "too much information in my face"); open to write the first one or to change one. ?>
+  <?php // P5-M90: every edit of a line, kept: what changed, why, who and when. ?>
+  <?php if ($changeOrders): ?>
+  <details class="card-foot" id="change-orders"><summary class="small"><?= tn(count($changeOrders), ':n change to the scope', ':n changes to the scope') ?></summary>
+    <table class="mt-s"><tbody><?php foreach ($changeOrders as $co): ?><tr data-change="<?= (int) $co['id'] ?>"><td class="small"><?= e(d(substr((string) $co['created_at'], 0, 10))) ?></td><td><strong><?= e($co['role_title']) ?></strong><div class="small"><?= e((string) ($co['changes'] ?? '')) ?></div></td><td class="small"><?= te('Why:') ?> <?= e((string) ($co['note'] ?? '')) ?></td><td class="small muted"><?= e((string) ($co['by_name'] ?? '')) ?></td></tr><?php endforeach; ?></tbody></table>
+  </details>
+  <?php endif; ?>
   <details class="card-foot" id="add-trade"<?= $editLine || ! $scope || isset($_GET['discipline']) ? ' open' : '' ?>>
   <summary class="btn<?= $scope ? ' ghost' : '' ?>" data-add-trade><?= $editLine ? te('Change :role', ['role' => $editLine['role_title']]) : te('+ Add a trade') ?></summary>
   <form method="post" action="/job" class="mt">
@@ -455,6 +461,7 @@ $strike   = (bool) $job['strike_live'];
              placeholder="<?= te('e.g. Client provides tools; two-week minimum; CDL required') ?>">
     </div>
 
+    <?php if ($editLine): ?><div class="field mt"><label for="l-why"><?= te('Why it changes') ?></label><input id="l-why" name="change_reason" maxlength="500" placeholder="<?= te('e.g. Client asked for 20 more, email of 17 Oct') ?>"><span class="hint"><?= te('Kept in the history with who and when.') ?></span></div><?php endif; ?>
     <button class="btn mt-l" type="submit">
       <?= $editLine ? te('Save the line') : te('Add to the order') ?>
     </button>

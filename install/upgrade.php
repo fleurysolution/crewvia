@@ -3038,4 +3038,30 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Team: mark the hiring managers (Hiring manager); a requisition offers only them.' . PHP_EOL;
 }
 
+// P5-M89: the congratulations sent once the onboarding is complete.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='placements' AND column_name='welcome_sent_at'")) {
+    q('ALTER TABLE placements ADD COLUMN welcome_sent_at DATETIME NULL');
+    q("UPDATE placements SET welcome_sent_at = NOW() WHERE status IN ('on_site','completed')");
+    echo 'Onboarding: each person is congratulated by email and in their portal once their W-4 and I-9 are accepted.' . PHP_EOL;
+}
+
+// ── P5-M90: every edit of a scope line is kept - what changed, why, who and when ──
+// Reversed by install/rollback/p5-m90.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='scope_change_orders'")) {
+    q("CREATE TABLE scope_change_orders (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        job_id INT UNSIGNED NOT NULL,
+        line_id INT UNSIGNED NOT NULL,
+        quantity_before SMALLINT UNSIGNED NOT NULL,
+        quantity_after SMALLINT UNSIGNED NOT NULL,
+        reference VARCHAR(120) NULL,
+        note VARCHAR(500) NULL,
+        changes TEXT NULL,
+        created_by INT UNSIGNED NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY (job_id), KEY (line_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    echo 'Scope history: each edit of a line of the scope of work is kept with what changed, why, who and when (the plant).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";
