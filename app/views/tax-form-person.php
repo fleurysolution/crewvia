@@ -73,12 +73,18 @@ if ($differ || $wholeAddress): ?><div class="card" id="forms-differ">
     <button class="btn ghost"><?= te('Keep the copy') ?></button>
   </form>
 </div>
-<?php // P5-M66: the next steps, so nobody has to guess what comes after the signature.
+<?php // P5-M66/M66b: the next steps, in the order they happen: from home, then travel, then on arrival.
 foreach ($remaining as $pl): ?>
 <div class="card" data-remaining="<?= (int) $pl['id'] ?>"><h2><?= te('Next steps · :project', ['project' => $pl['title']]) ?></h2>
-  <?php if ($pl['status'] !== 'offered'): ?><p><span class="tag green"><?= te('Confirmed') ?></span> <?= te('Hotel and travel were told; start :date.', ['date' => $pl['start_date'] ? d((string) $pl['start_date']) : '—']) ?></p>
-  <?php elseif (! $pl['blockers']): ?><p><span class="tag green"><?= te('Cleared') ?></span> <?= te('Every condition is met: confirm them on the roster, and hotel and travel are told.') ?> <a class="btn sm" href="/roster"><?= te('Roster') ?></a></p>
-  <?php else: ?><ul><?php foreach ($pl['blockers'] as $b): ?><li><a href="<?= e($b['where']) ?>"><?= te($b['label'], $b['vars']) ?></a></li><?php endforeach; ?></ul>
-  <p class="small muted"><?= te('When the last one clears, the office is told to confirm them on the roster, and they are told their onboarding is done.') ?></p><?php endif; ?>
+  <?php if ($pl['status'] === 'offered'): ?>
+    <?php if (! $pl['blockers']): ?><p><span class="tag green"><?= te('Ready to travel') ?></span> <?= te('Everything done from home is done: confirm them on the roster, and hotel and travel book.') ?> <a class="btn sm" href="/roster"><?= te('Roster') ?></a></p>
+    <?php else: ?><p class="small muted"><?= te('Before travelling (from home):') ?></p><ul><?php foreach ($pl['blockers'] as $b): ?><li><a href="<?= e($b['where']) ?>"><?= te($b['label'], $b['vars']) ?></a></li><?php endforeach; ?></ul>
+    <p class="small muted"><?= te('When the last one clears, the office is told to confirm them on the roster, so hotel and travel book.') ?></p><?php endif; ?>
+  <?php else: ?>
+    <p><span class="tag green"><?= te('Confirmed') ?></span> <?= te('Hotel and travel were told; start :date.', ['date' => $pl['start_date'] ? d((string) $pl['start_date']) : '—']) ?></p>
+    <?php if ($pl['blockers']): ?><p class="small muted"><?= te('On arrival, before starting:') ?></p><ul><?php foreach ($pl['blockers'] as $b): ?><li><a href="<?= e($b['where']) ?>"><?= te($b['label'], $b['vars']) ?></a></li><?php endforeach; ?></ul>
+    <?php else: ?><p><span class="tag green"><?= te('Ready to start') ?></span></p><?php endif; ?>
+    <?php if ($pl['s2_due']): ?><p class="<?= $pl['s2_due'] < date('Y-m-d') ? 't-red' : '' ?>" data-s2-due="1"><?= te('Section 2 of the I-9: with their original documents, no later than :date (three business days after the first day).', ['date' => d($pl['s2_due'])]) ?></p><?php endif; ?>
+  <?php endif; ?>
 </div>
 <?php endforeach; ?>

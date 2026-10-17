@@ -58,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'status') 
             // The same conditions as before, read from the list the
             // roster itself displays, so a refusal can never name
             // something the screen was not already showing.
-            $blockers = deployment_blockers($pid, (int) $p['candidate_id'], $jobId);
+            // P5-M66b: confirmed and travelling need what is done from home; on site, the forms signed in person too.
+            $blockers = deployment_blockers($pid, (int) $p['candidate_id'], $jobId, $st === 'on_site' ? 'on_site' : 'travel');
 
             if ($blockers) {
                 flash(t($blockers[0]['label'], $blockers[0]['vars']), 'err');
@@ -132,9 +133,10 @@ deployment_ready_notice(null, $jobId);
 $blockers = [];
 
 foreach ($crew as $member) {
-    if ($member['status'] === 'offered') {
+    // P5-M66b: before travelling, what is done from home; once confirmed, what is done on arrival.
+    if (in_array($member['status'], ['offered', 'confirmed', 'travelling'], true)) {
         $blockers[(int) $member['id']] = deployment_blockers(
-            (int) $member['id'], (int) $member['candidate_id'], $jobId);
+            (int) $member['id'], (int) $member['candidate_id'], $jobId, $member['status'] === 'offered' ? 'travel' : 'on_site');
     }
 }
 

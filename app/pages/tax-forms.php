@@ -165,7 +165,10 @@ if (isset($_GET['person'])) {
     deployment_ready_notice((int) $person['id']);
     $remaining = [];
     foreach (rows("SELECT p.id, p.job_id, p.status, p.start_date, j.title FROM placements p JOIN jobs j ON j.id = p.job_id WHERE p.candidate_id = ? AND p.status IN ('offered','confirmed','travelling') ORDER BY p.id DESC", [(int) $person['id']]) as $pl) {
-        $remaining[] = $pl + ['blockers' => $pl['status'] === 'offered' ? deployment_blockers((int) $pl['id'], (int) $person['id'], (int) $pl['job_id']) : []];
+        // P5-M66b: before travelling, what is done from home; once confirmed, what is done on arrival; Section 2's deadline.
+        $s2 = (string) val('SELECT i9_status FROM employment_clearance WHERE candidate_id = ?', [(int) $person['id']]);
+        $remaining[] = $pl + ['blockers' => deployment_blockers((int) $pl['id'], (int) $person['id'], (int) $pl['job_id'], $pl['status'] === 'offered' ? 'travel' : 'on_site'),
+                              's2_due' => $pl['status'] !== 'offered' && $pl['start_date'] && $s2 !== 'employer_completed' ? tf_business_days_after((string) $pl['start_date'], 3) : null];
     }
     $signCode = null;
     if (isset($_SESSION['tf_code']) && (int) $_SESSION['tf_code']['candidate_id'] === (int) $person['id'] && $_SESSION['tf_code']['expires'] > date('Y-m-d H:i:s')) {

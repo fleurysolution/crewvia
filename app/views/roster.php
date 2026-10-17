@@ -146,7 +146,7 @@ $notClear  = array_filter($blockers ?? [], fn ($b) => $b !== []);
           <?php if ($stops === null): ?>
             <span class="muted">&mdash;</span>
           <?php elseif (! $stops): ?>
-            <span class="tag green"><?= te('Clear') ?></span>
+            <span class="tag green"><?= $p['status'] === 'offered' ? te('Ready to travel') : te('Ready to start') ?></span>
           <?php else: ?>
             <ul class="blocker-list">
             <?php foreach ($stops as $stop): ?>

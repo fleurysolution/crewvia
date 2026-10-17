@@ -69,3 +69,41 @@ On the coordinator screen of a person, a **"Next steps"** card per assignment:
   travel details are not in yet.
 
 Full suite: 3,885 PASS, 0 failures (browser screenshots skipped).
+
+## P5-M66b — two stages: travel first, sign on arrival (17 Oct 2026)
+
+The owner: "When the person comes to the office, they have already flown in,
+and they need a hotel to sleep in. Did you think of that?"
+
+P5-M66 kept the gate as it was: the I-9 and the W-4 had to be completed before
+"confirmed". So hotel and travel would only have been told after a signature
+that can only happen on arrival. In production, Leo's screen asked for the
+"employment paperwork review" before travelling, and counted the W-4 and the
+I-9 among his tasks.
+
+`deployment_blockers()` now takes the stage:
+
+- **travel** (to confirm, so hotel and travel book): everything done from home,
+  meaning the contract, the qualifications, the screening, the tasks, and the
+  W-4 and the I-9 **filled in**. The W-4 and I-9 tasks are no longer counted
+  among the tasks, because they close with forms signed on arrival.
+- **on_site**: also the W-4 and Section 1 of the I-9 **signed in person**.
+  Section 2 is due within three business days of the first day. It does not
+  block: the coordinator screen shows its deadline, in red once passed.
+
+Paperwork recorded the earlier way (employment_clearance) still counts.
+
+Other changes:
+- **Roster**: it shows "Ready to travel" for an offered person and "Ready to
+  start" for a confirmed one, and lists what each stage still needs.
+- **Notices**: the office is told ":name is ready to travel… confirm them so hotel and
+  travel book; on arrival they sign the W-4 and the I-9 at the office". The
+  person is told to bring their original documents on arrival.
+
+Tests (deployment_ready_db.php):
+- forms not filled in: they cannot travel;
+- filled in: ready to travel;
+- not signed: not ready to start;
+- signed in person: ready to start.
+
+Full suite: 3,889 PASS, 0 failures.
