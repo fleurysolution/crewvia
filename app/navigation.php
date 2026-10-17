@@ -243,12 +243,13 @@ function workspace_can_open(string $path, ?array $u = null): bool
 function workspace_daily(?array $u): array
 {
     return match ($u['role'] ?? '') {
-        'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings', '/careers'],
+        // P5-M99: the owner's and managers' day in eight screens; the rest under More (or bookmarked).
+        'admin'      => ['/overview', '/activity', '/approvals', '/projects', '/hiring', '/reviews', '/people', '/careers'],
         'recruiter'  => ['/home', '/activity', '/candidates', '/reviews', '/careers', '/requisitions', '/recruitment', '/onboarding', '/tax-forms', '/contracts', '/client-orders', '/approvals'],
         'hr'         => ['/activity', '/hiring', '/onboarding', '/tax-forms', '/candidates', '/contracts', '/manning', '/my-tasks', '/approvals'],
         'hotels'     => ['/home', '/activity', '/arrivals', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
         'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
-        'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],
+        'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks'],
         'worker'     => worker_is_candidate($u) ? ['/portal', '/my-jobs', '/notifications', '/activity'] : ['/portal', '/my-jobs', '/attendance', '/timeoff', '/my-payslips', '/notifications', '/activity'],
         default      => [],
     };

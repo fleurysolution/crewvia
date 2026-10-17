@@ -413,3 +413,7 @@ main [id] { scroll-margin-top: 72px; }
 .counts a.count-due b { color: #8a5600; }
 .counts a.count-late { background: #FDEEED; border: 1px solid #F0C4C1; border-radius: 8px; padding: 4px 10px; color: #b42318; font-weight: 600; }
 .counts a.count-late b { color: #b42318; }
+
+/* P5-M97: the Send home button - an action that ends something. */
+.btn.btn-danger { background: #b42318; border-color: #b42318; color: #fff; }
+.btn.btn-danger:hover { background: #912018; }

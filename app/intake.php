@@ -36,6 +36,8 @@ function intake_receive(?int $vacancyId=null): void
     try {
         if(is_worker_account()&&mb_strtolower((string)user()['email'])===mb_strtolower($email))$cid=(int)val('SELECT candidate_id FROM worker_accounts WHERE user_id=?',[uid()]);
         else {q('INSERT INTO candidates(full_name,email,phone,city,state,zip,source) VALUES (?,?,?,?,?,?,?)',[$name,$email,$phone,$city?:null,$state?:null,$zip,$vacancyId?'Platform application':'Talent pool application']);$cid=(int)db()->lastInsertId();geo_refresh_candidate($cid);}
+        // P5-M98: the airport they fly from, kept on their record.
+        $airport=mb_substr(trim((string)($_POST['home_airport']??'')),0,120);if($airport!==''){try{q('UPDATE candidates SET home_airport=? WHERE id=?',[$airport,$cid]);}catch(Throwable $e){}}
         q('INSERT INTO candidate_events(candidate_id,event_type,detail) VALUES (?,?,?)',[$cid,'application received',$vacancyId?'Platform vacancy '.$vacancyId:'Public talent pool; applicant consent recorded']);
         // P4-M06: the consent itself, against the privacy notice version shown.
         require_once __DIR__.'/privacy.php';privacy_record_consent($cid,'review and contact about work',$vacancyId?'application form':'talent pool form');

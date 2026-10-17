@@ -4,7 +4,7 @@
   - the plant chooses its client contacts and the one in charge, shown on the plant and on the client;
   - the site address is kept, and looking an address up is for the staff who set up projects.
 """
-import http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
+import http.cookiejar, json, os, re, subprocess, time, urllib.error, urllib.parse, urllib.request
 
 base = 'http://127.0.0.1:8097'
 php = os.environ.get('PHP_BIN', 'php')
@@ -464,3 +464,30 @@ check('Received: Passed', one("SELECT status FROM screening_cases WHERE kind = '
 admin.post('/hiring', {'do': 'screening_send', 'application_id': op['aid'], 'kind': 'drug', 'back': H96}, H96)
 admin.post('/hiring', {'do': 'screening_receive', 'application_id': op['aid'], 'kind': 'drug', 'result': 'fail', 'back': H96}, H96)
 check('A failed drug test reads Failed', 'Failed' in admin.get(H96)[1])
+
+# P5-M97: Send home - the assignment ends with everything that goes with it, and the flight home is asked for.
+pl = one("SELECT id FROM placements WHERE candidate_id = %s ORDER BY id DESC LIMIT 1" % op['cid'])
+php_q("UPDATE placements SET status = 'on_site' WHERE id = %s" % pl['id'])
+php_q("UPDATE candidates SET home_airport = 'MSY - New Orleans' WHERE id = %s" % op['cid'])
+PL = '/placements/%s' % pl['id']
+status, body = admin.get(PL)
+check('The assignment offers Send home', 'id="send-home"' in body and 'data-send-home="%s"' % pl['id'] in body)
+status, body = admin.get(H96)
+check('and so does the person in Hiring', 'id="send-home"' in body)
+admin.post(PL, {'do': 'send_home', 'placement_id': pl['id'], 'reason': 'resigned', 'last_day': time.strftime('%Y-%m-%d'), 'rehire': 'eligible', 'detail': '', 'back': PL}, PL)
+check('A reason other than the end of the job needs what happened', one('SELECT status FROM placements WHERE id = %s' % pl['id'])['status'] == 'on_site')
+admin.post(PL, {'do': 'send_home', 'placement_id': pl['id'], 'reason': 'resigned', 'last_day': time.strftime('%Y-%m-%d'), 'rehire': 'review', 'detail': 'Family emergency, left the site.', 'return_flight': '1', 'back': PL}, PL)
+done = one('SELECT status, end_date FROM placements WHERE id = %s' % pl['id'])
+check('Sent home: the assignment is completed, ended on the last day', done['status'] == 'completed' and str(done['end_date']) == time.strftime('%Y-%m-%d'), done)
+leg = one("SELECT status, arrive_at FROM travel WHERE placement_id = %s AND direction = 'outbound' ORDER BY id DESC LIMIT 1" % pl['id'])
+check('A flight home is waiting to be booked, to the airport they gave', leg and leg['status'] == 'planned' and leg['arrive_at'] == 'MSY - New Orleans', leg)
+names = one('SELECT full_name FROM candidates WHERE id = %s' % op['cid'])['full_name']
+check('The project coordinator is asked for the return flight, payroll for the ADP termination',
+      one("SELECT COUNT(*) n FROM project_tasks WHERE title = 'Book the return flight for %s'" % names.replace("'", "''"))['n'] in (1, '1')
+      and one("SELECT COUNT(*) n FROM project_tasks WHERE title = 'End %s''s employment in ADP'" % names.replace("'", "''"))['n'] in (1, '1'))
+check('The separation is recorded, with the rehire decision', one('SELECT reason, rehire FROM separations WHERE placement_id = %s' % pl['id']) == {'reason': 'resigned', 'rehire': 'review'})
+check('The open screenings are cancelled', not sql("SELECT id FROM screening_cases WHERE placement_id = %s AND status IN ('sent','scheduled','completed','needs_review','pending')" % pl['id']))
+status, body = admin.get('/travel')
+check('Travel lists the flight home to book', 'id="needs-home"' in body and 'data-home="%s"' % pl['id'] in body and 'MSY - New Orleans' in body)
+status, body = admin.post(PL, {'do': 'send_home', 'placement_id': pl['id'], 'reason': 'resigned', 'last_day': time.strftime('%Y-%m-%d'), 'rehire': 'eligible', 'detail': 'Again, twice over.', 'back': PL}, PL)
+check('Sending home again is refused', 'That assignment is already closed.' in body and one('SELECT COUNT(*) n FROM separations WHERE placement_id = %s' % pl['id'])['n'] in (1, '1'))

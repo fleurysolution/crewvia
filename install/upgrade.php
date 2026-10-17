@@ -3083,4 +3083,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Screening: the background check and the drug test are sent and their result recorded (pass, fail, needs review) from Hiring.' . PHP_EOL;
 }
 
+// P5-M97/M98: the airport an applicant flies from, given when they apply - for the flight in and the flight home.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='candidates' AND column_name='home_airport'")) {
+    q('ALTER TABLE candidates ADD COLUMN home_airport VARCHAR(120) NULL');
+    q('UPDATE candidates c JOIN travel_profiles tp ON tp.candidate_id = c.id SET c.home_airport = tp.airport WHERE c.home_airport IS NULL');
+    echo 'Applicants give the airport they fly from; Send home ends an assignment and asks for the flight home.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -69,10 +69,12 @@ visitor = Client()
 status, body = visitor.get('/apply?id=%d' % wk['vA'])
 check('The page a job poster\'s QR code opens shows the facts first, then asks when they can start',
       'id="job-facts"' in body and 'an hour' in body and 'name="availability"' in body and 'name="available_from"' in body and 'id="apply-form"' in body, body[:300])
+check('and the airport they fly from (P5-M98)', 'name="home_airport"' in body)
 
 start = (datetime.date.today() + datetime.timedelta(days=10)).isoformat()
-status, body, url = visitor.apply(wk['vA'], {'name': 'Quinn Poster', 'email': 'av-quinn@test.invalid', 'phone': '+1 555 010 0077', 'availability': 'from', 'available_from': start, 'consent': '1'})
+status, body, url = visitor.apply(wk['vA'], {'name': 'Quinn Poster', 'email': 'av-quinn@test.invalid', 'phone': '+1 555 010 0077', 'availability': 'from', 'available_from': start, 'home_airport': 'IAH - Houston Bush, Houston TX', 'consent': '1'})
 quinn = probe('candidate', 'av-quinn@test.invalid')
+check('The airport given on applying is kept on their record', quinn and quinn['home_airport'] == 'IAH - Houston Bush, Houston TX', quinn)
 check('Applying records when they can start, in their own words', quinn and quinn['availability'] == 'from' and quinn['available_from'] == start and quinn['application'] > 0, quinn)
 link = (re.findall(r'href="(/activate\?token=[a-f0-9]+)"', body) or [''])[0]
 check('Right after applying, they are offered to create their portal on the spot', 'id="portal-offer"' in body and 'Create my portal' in body and link, body[:400])

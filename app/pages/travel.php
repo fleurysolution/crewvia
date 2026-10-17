@@ -129,6 +129,13 @@ $needTravel = rows(
      WHERE p.job_id = ? AND p.status IN ('confirmed','travelling') AND t.id IS NULL
      ORDER BY p.start_date IS NULL, p.start_date, c.full_name", [$jobId]);
 
+// P5-M97: sent home - the flights home still to book.
+$needHome = rows(
+    "SELECT t.id AS leg_id, t.depart_from, t.arrive_at, p.id, p.candidate_id, p.end_date, c.full_name
+     FROM travel t JOIN placements p ON p.id = t.placement_id JOIN candidates c ON c.id = p.candidate_id
+     WHERE p.job_id = ? AND t.direction = 'outbound' AND t.status = 'planned'
+     ORDER BY p.end_date, c.full_name", [$jobId]);
+
 $booked = rows(
     "SELECT t.*, c.full_name, c.discipline
      FROM travel t
@@ -143,10 +150,12 @@ $runs = rows('SELECT * FROM shuttle_runs WHERE job_id = ? AND runs_on >= CURDATE
 // P5-M30: what each worker entered for the booking.
 foreach ($needTravel as &$n) {
     $n['profile'] = tp_profile((int) $n['candidate_id']);
+    // P5-M98: the airport they gave when applying, until they fill their travel details.
+    $n['home_airport'] = (string) (val('SELECT home_airport FROM candidates WHERE id = ?', [(int) $n['candidate_id']]) ?? '');
 }
 unset($n);
 $advice = tp_advisories($jobId);
 $adviceIsOwn = $advice && $advice[0]['job_id'] !== null;
 
 $pageTitle = t('Travel').' · '.$config['app_name'];
-render('travel', compact('job','needTravel','booked','runs','advice','adviceIsOwn'));
+render('travel', compact('job','needTravel','booked','runs','advice','adviceIsOwn', 'needHome'));

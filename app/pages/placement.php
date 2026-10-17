@@ -23,6 +23,19 @@ if (! $p) {
 // existed, and one made at acceptance had none. Arrivals, roll call and pay
 // all read them. Recruiting and Logistics set them; each change is logged.
 // P5-M84: HR puts the person in a group, under its supervisor - or marks them the one who leads it.
+// P5-M97: Send home - the assignment ends, with everything that goes with it.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'send_home') {
+    require_once __DIR__ . '/../send-home.php';
+    $shBack = (string) ($_POST['back'] ?? '/');
+    $shBack = str_starts_with($shBack, '/') && ! str_starts_with($shBack, '//') && ! preg_match('/[\r\n]/', $shBack) ? $shBack : '/';
+    $why = send_home((int) ($_POST['placement_id'] ?? 0), $_POST, uid());
+    if ($why !== null) {
+        refuse(422, $why, $shBack);
+    }
+    flash(t('Sent home. The flight home, the ADP termination and anything still out are with the people who finish them.'));
+    redirect($shBack);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'group') {
     require_role('recruiter', 'hotels');
     $group = mb_substr(trim((string) ($_POST['crew_group'] ?? '')), 0, 60);

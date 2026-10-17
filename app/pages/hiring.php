@@ -81,6 +81,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'bulk') {
     redirect(hw_back());
 }
 
+// P5-M97: Send home - the assignment ends, with everything that goes with it.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'send_home') {
+    require_once __DIR__ . '/../send-home.php';
+    $shBack = (string) ($_POST['back'] ?? '/');
+    $shBack = str_starts_with($shBack, '/') && ! str_starts_with($shBack, '//') && ! preg_match('/[\r\n]/', $shBack) ? $shBack : '/';
+    $why = send_home((int) ($_POST['placement_id'] ?? 0), $_POST, uid());
+    if ($why !== null) {
+        refuse(422, $why, $shBack);
+    }
+    flash(t('Sent home. The flight home, the ADP termination and anything still out are with the people who finish them.'));
+    redirect($shBack);
+}
+
 // P5-M96: the background check and the drug test - sent to the provider, then the result received.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['do'] ?? '', ['screening_send', 'screening_receive'], true)) {
     require_once __DIR__ . '/../screening-orders.php';
@@ -213,6 +226,10 @@ if (isset($_GET['app'])) {
     $hwApp['approved'] = in_array($hwApp['stage'], ['offered', 'accepted'], true)
         || (bool) val("SELECT COUNT(*) FROM application_reviews WHERE application_id = ? AND status = 'validated'", [(int) $hwApp['id']]);
     $hwApp['progress'] = $hwApp['approved'] ? hw_progress($hwApp, (int) $hwVacancy['job_id']) : [];
+    // P5-M97: an approved person still on the assignment can be sent home from here.
+    $shP = $hwApp['approved'] ? row("SELECT id, status FROM placements WHERE candidate_id = ? AND job_id = ? AND status IN ('offered','confirmed','travelling','on_site') ORDER BY id DESC LIMIT 1", [(int) $hwApp['candidate_id'], (int) $hwVacancy['job_id']]) : null;
+    $hwApp['send_home'] = $shP ? ['placement' => (int) $shP['id'], 'action' => '/hiring', 'back' => '/hiring?v=' . (int) $hwVacancy['id'] . '&app=' . (int) $hwApp['id'],
+                                 'worked' => in_array($shP['status'], ['travelling', 'on_site'], true), 'name' => (string) $hwApp['full_name']] : null;
     require_once __DIR__ . '/../messaging.php';
     $textPanel = msg_panel((int) $hwApp['candidate_id']);
 }

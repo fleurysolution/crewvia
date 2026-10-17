@@ -13,7 +13,7 @@ require __DIR__ . '/test-app/app/bootstrap.php';
 if (val('SELECT DATABASE()') !== 'rss_ops_test') { fwrite(STDERR, "Refusing: test database only.\n"); exit(2); }
 [$cmd, $arg] = [$argv[1] ?? '', $argv[2] ?? ''];
 if ($cmd === 'candidate') {
-    $c = row('SELECT id, availability, available_from FROM candidates WHERE email = ? ORDER BY id DESC LIMIT 1', [$arg]);
+    $c = row('SELECT id, availability, available_from, home_airport FROM candidates WHERE email = ? ORDER BY id DESC LIMIT 1', [$arg]);
     if ($c) { $c['application'] = (int) val('SELECT id FROM applications WHERE candidate_id = ? ORDER BY id DESC LIMIT 1', [(int) $c['id']]); }
     echo json_encode($c ?: null);
 } elseif ($cmd === 'outbox') {

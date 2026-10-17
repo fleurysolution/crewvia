@@ -179,6 +179,7 @@ $hwScore = static function (?string $s): string {
     <?php endif; ?>
     <?php if (! empty($a['approved'])): ?>
     <?php if ($textPanel): require __DIR__ . '/_text-panel.php'; endif; ?>
+    <?php if (! empty($a['send_home']) && can('recruiter')): $sendHome = $a['send_home']; require __DIR__ . '/_send-home.php'; endif; ?>
     <?php elseif ($hwDetail === 'application'): ?>
     <?php $rvStat = review_statuses(); $rvPending = null; foreach ($a['reviews'] as $rr) { if ($rr['status'] === 'pending') { $rvPending = $rr; } } ?>
     <div class="grid g2">

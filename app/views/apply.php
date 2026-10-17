@@ -30,6 +30,8 @@ $starts = $vacancy['starts_on'] ?? null;
   </div>
   <div class="row mt-s"><div class="f2"><label for="ap-city"><?= te('City') ?></label><input id="ap-city" name="city" maxlength="120" autocomplete="address-level2"></div><div><label for="ap-state"><?= te('State') ?></label><input id="ap-state" class="in-s" name="state" maxlength="60" autocomplete="address-level1"></div><div><label for="ap-zip"><?= te('ZIP code') ?></label><input id="ap-zip" class="in-s" name="zip" maxlength="10" inputmode="numeric" autocomplete="postal-code"></div></div>
   <p class="hint m0"><?= te('Where you live, so we can tell you about work near you. Optional.') ?></p>
+  <?php // P5-M98: the airport they fly from - for their flight in, and home. ?>
+  <div class="field mt-s"><label for="ap-airport"><?= te('The airport you fly from') ?></label><input id="ap-airport" name="home_airport" maxlength="120" placeholder="<?= te('e.g. IAH - Houston Bush Intercontinental, Houston TX') ?>"><span class="hint"><?= te('Airport code, name and city.') ?></span></div>
 
   <h3 class="mt-l"><?= te('Your CV') ?></h3>
   <label><?= te('Resume · PDF or DOCX, maximum 5 MB') ?><input name="resume" type="file" accept=".pdf,.docx"></label>

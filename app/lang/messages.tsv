@@ -5634,3 +5634,32 @@ Already sent: record the result when it comes back.	Déjà envoyé : enregistrez
 Already passed.	Déjà réussi.	Ya aprobado.
 Choose Pass, Fail or Needs review.	Choisissez Réussi, Échoué ou À revoir.	Elija Aprobado, No aprobado o Por revisar.
 Send it first: the result is recorded once it has been sent.	Envoyez-le d'abord : le résultat s'enregistre une fois l'envoi fait.	Envíelo primero: el resultado se registra una vez enviado.
+END OF ASSIGNMENT	FIN DE MISSION	FIN DE LA ASIGNACIÓN
+Send home	Renvoyer à la maison	Enviar a casa
+Ends the assignment, the hotel and what is open; asks for the flight home and the ADP termination	Termine la mission, l'hôtel et ce qui est ouvert ; demande le vol retour et la sortie ADP	Termina la asignación, el hotel y lo pendiente; pide el vuelo de regreso y la baja en ADP
+Send :name home? This ends the assignment.	Renvoyer :name à la maison ? La mission prend fin.	¿Enviar a :name a casa? La asignación termina.
+Last day	Dernier jour	Último día
+Hire again?	Réembaucher ?	¿Volver a contratar?
+Required unless the assignment simply ended.	Obligatoire sauf si la mission est simplement terminée.	Obligatorio salvo si la asignación simplemente terminó.
+Book their flight home (the project coordinator gets the task)	Réserver son vol retour (la tâche va à la coordinatrice du projet)	Reservar su vuelo de regreso (la tarea va a la coordinadora del proyecto)
+Payroll gets a task to end the employment in ADP. Their supervisor is told.	La paie reçoit une tâche pour la sortie ADP. Son superviseur est prévenu.	Nómina recibe una tarea para la baja en ADP. Se avisa a su supervisor.
+Sent home. The flight home, the ADP termination and anything still out are with the people who finish them.	Renvoyé à la maison. Le vol retour, la sortie ADP et ce qui reste à récupérer sont confiés aux personnes concernées.	Enviado a casa. El vuelo de regreso, la baja en ADP y lo pendiente quedan con las personas que lo terminan.
+Only the office sends somebody home.	Seul le bureau renvoie quelqu'un à la maison.	Solo la oficina envía a alguien a casa.
+That assignment is already closed.	Cette mission est déjà terminée.	Esa asignación ya está cerrada.
+Say why the assignment ends.	Indiquez pourquoi la mission se termine.	Indique por qué termina la asignación.
+Say whether they can be hired again.	Indiquez si la personne peut être réembauchée.	Indique si se puede volver a contratar.
+Give their last day: today, an earlier day, or within the next 30 days.	Indiquez le dernier jour : aujourd'hui, avant, ou dans les 30 prochains jours.	Indique el último día: hoy, antes o en los próximos 30 días.
+A termination is decided by HR or a manager.	Un licenciement est décidé par les RH ou un responsable.	Un despido lo decide RR. HH. o un responsable.
+Book the return flight for :name	Réserver le vol retour de :name	Reservar el vuelo de regreso de :name
+Sent home, last day :date. Book the flight home:airport, then the hotel checkout is already set.	Renvoyé à la maison, dernier jour le :date. Réservez le vol retour:airport ; le départ de l'hôtel est déjà enregistré.	Enviado a casa, último día :date. Reserve el vuelo de regreso:airport; la salida del hotel ya está registrada.
+to :airport	vers :airport	a :airport
+End :name's employment in ADP	Sortie ADP de :name	Baja en ADP de :name
+Last day :date. Reason: :reason.	Dernier jour le :date. Motif : :reason.	Último día :date. Motivo: :reason.
+Get back the equipment and vehicle of :name	Récupérer l'équipement et le véhicule de :name	Recuperar el equipo y el vehículo de :name
+Sent home, last day :date. :n item still out.	Renvoyé à la maison, dernier jour le :date. :n élément encore dehors.	Enviado a casa, último día :date. :n elemento aún fuera.
+:name leaves your crew: last day :date.	:name quitte votre équipe : dernier jour le :date.	:name deja su equipo: último día :date.
+e.g. IAH - Houston Bush Intercontinental, Houston TX	ex. IAH - Houston Bush Intercontinental, Houston TX	p. ej. IAH - Houston Bush Intercontinental, Houston TX
+Airport code, name and city.	Code, nom et ville de l'aéroport.	Código, nombre y ciudad del aeropuerto.
+Needs a flight home	Vol retour à réserver	Necesita vuelo de regreso
+flies to :airport	vole vers :airport	vuela a :airport
+Home airport not given	Aéroport de retour non indiqué	Aeropuerto de regreso no indicado

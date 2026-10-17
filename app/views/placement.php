@@ -179,3 +179,5 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
   </div>
   <button class="btn mt-s"><?= te('Save') ?></button>
 </form>
+<?php // P5-M97: Send home, while the assignment runs. ?>
+<?php if (can('recruiter') && in_array($p['status'], ['offered', 'confirmed', 'travelling', 'on_site'], true)): $sendHome = ['placement' => (int) $p['id'], 'action' => '/placements/' . (int) $p['id'], 'back' => '/placements/' . (int) $p['id'], 'worked' => in_array($p['status'], ['travelling', 'on_site'], true), 'name' => (string) $p['full_name']]; require __DIR__ . '/_send-home.php'; endif; ?>

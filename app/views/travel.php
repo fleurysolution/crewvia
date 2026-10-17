@@ -23,7 +23,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
         <td class="small muted"><?= $n['start_date'] ? e(date('j M', strtotime($n['start_date']))) : '—' ?></td>
         <td>
           <?php $tp = $n['profile']; ?>
-          <div class="small" data-travel-details="<?= $tp ? 'entered' : 'missing' ?>"><?php if ($tp): ?><strong><?= e($tp['legal_name']) ?></strong> · <?= te('flies from :airport', ['airport' => $tp['airport']]) ?><div class="muted pre-wrap"><?= e($tp['address']) ?></div><?php if ($tp['notes']): ?><div class="muted"><?= e($tp['notes']) ?></div><?php endif; ?><?php else: ?><span class="tag amber"><?= te('Travel details not entered yet') ?></span><?php endif; ?></div>
+          <div class="small" data-travel-details="<?= $tp ? 'entered' : 'missing' ?>"><?php if ($tp): ?><strong><?= e($tp['legal_name']) ?></strong> · <?= te('flies from :airport', ['airport' => $tp['airport']]) ?><div class="muted pre-wrap"><?= e($tp['address']) ?></div><?php if ($tp['notes']): ?><div class="muted"><?= e($tp['notes']) ?></div><?php endif; ?><?php else: ?><span class="tag amber"><?= te('Travel details not entered yet') ?></span><?php if (($n['home_airport'] ?? '') !== ''): ?> <?= te('flies from :airport', ['airport' => $n['home_airport']]) ?><?php endif; ?><?php endif; ?></div>
           <details class="mt-xs"><summary class="btn sm ghost"><?= te('Book it') ?></summary>
           <form method="post" action="/travel" class="mt-s" data-book="<?= (int) $n['id'] ?>">
             <?= csrf_field() ?>
@@ -38,7 +38,7 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
               <div><label><?= te('Cost') ?></label><input name="cost" type="number" step="0.01" min="0" placeholder="$"></div>
             </div>
             <div class="row">
-              <div><label><?= te('From') ?></label><input name="depart_from" value="<?= e($tp['airport'] ?? '') ?>"></div>
+              <div><label><?= te('From') ?></label><input name="depart_from" value="<?= e($tp['airport'] ?? ($n['home_airport'] ?? '')) ?>"></div>
               <div><label><?= te('Leaves') ?></label><input type="datetime-local" name="depart_time"></div>
               <div><label><?= te('To') ?></label><input name="arrive_at" placeholder="<?= te('Airport') ?>"></div>
               <div><label><?= te('Arrives') ?></label><input type="datetime-local" name="arrive_time"></div>
@@ -57,6 +57,37 @@ $purposes = ['site'=>'Job site','food'=>'Food','walmart'=>'Walmart','laundry'=>'
     </tbody>
   </table>
   </div>
+</div>
+<?php endif; ?>
+
+<?php // P5-M97: sent home - the flight home to book. ?>
+<?php if ($needHome): ?>
+<div class="card tight" id="needs-home">
+  <div class="card-bar"><h2 class="m0"><?= te('Needs a flight home') ?></h2></div>
+  <div class="scroll"><table>
+    <thead><tr><th><?= te('Person') ?></th><th><?= te('Last day') ?></th><th class="right w-half"><?= te('Book it') ?></th></tr></thead>
+    <tbody><?php foreach ($needHome as $h): ?><tr data-home="<?= (int) $h['id'] ?>">
+      <td><strong><?= e($h['full_name']) ?></strong><div class="small muted"><?= $h['arrive_at'] ? te('flies to :airport', ['airport' => $h['arrive_at']]) : te('Home airport not given') ?></div></td>
+      <td class="small"><?= $h['end_date'] ? e(d((string) $h['end_date'])) : '—' ?></td>
+      <td><details><summary class="btn sm"><?= te('Book it') ?></summary>
+        <form method="post" action="/travel" class="mt-s" data-book-home="<?= (int) $h['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="book_travel"><input type="hidden" name="direction" value="outbound"><input type="hidden" name="placement_id" value="<?= (int) $h['id'] ?>">
+          <div class="row">
+            <div><label><?= te('How they travel') ?></label><select name="mode"><?php foreach (TRAVEL_MODES as $key => $label): ?><option value="<?= e($key) ?>"><?= te($label) ?></option><?php endforeach; ?></select></div>
+            <div><label><?= te('Airline') ?></label><input name="carrier"></div>
+            <div><label><?= te('Confirmation') ?></label><input name="reference" maxlength="60"></div>
+            <div><label><?= te('Cost') ?></label><input name="cost" type="number" step="0.01" min="0" placeholder="$"></div>
+          </div>
+          <div class="row">
+            <div><label><?= te('From') ?></label><input name="depart_from" value="<?= e((string) ($h['depart_from'] ?? '')) ?>"></div>
+            <div><label><?= te('Leaves') ?></label><input type="datetime-local" name="depart_time"></div>
+            <div><label><?= te('To') ?></label><input name="arrive_at" value="<?= e((string) ($h['arrive_at'] ?? '')) ?>"></div>
+            <div><label><?= te('Arrives') ?></label><input type="datetime-local" name="arrive_time"></div>
+          </div>
+          <label><?= te('The ticket, pasted') ?></label><textarea name="ticket_details" rows="3" maxlength="5000"></textarea>
+          <div class="row tight gap mt-s"><label class="inline-check"><input class="w-auto" type="checkbox" name="send_itinerary" value="1" checked> <?= te('Email the itinerary to them') ?></label><button class="btn sm" type="submit"><?= te('Save') ?></button></div>
+        </form></details></td>
+    </tr><?php endforeach; ?></tbody>
+  </table></div>
 </div>
 <?php endif; ?>
 
