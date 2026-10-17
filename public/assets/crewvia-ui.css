@@ -371,3 +371,6 @@ main .card.official > table,main .card[data-person-form] > table{min-width:0}
 .nav-find input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid #c9d2dd;background:#fff;color:#16202b;font-size:13px}
 .nav-find input::placeholder{color:#657387}
 #workspace-nav a[hidden],#workspace-nav details[hidden]{display:none!important}
+/* P5-M68: the forms register. */
+.register td{vertical-align:top}
+.register tr.has-issue td{background:#fff4f2}

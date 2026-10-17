@@ -94,6 +94,11 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
   </form>
 </div>
 <?php endif; ?>
+<?php if ($accessLog): ?>
+<div class="card no-print" id="access-log"><h2><?= te('Who did what with this form') ?></h2>
+  <table><?php foreach ($accessLog as $a): ?><tr><td class="muted"><?= e(date('m/d/Y g:i a', strtotime((string) $a['created_at']))) ?></td><td><?= e((string) ($a['name'] ?? t('the system'))) ?></td><td><?= e($a['action']) ?></td></tr><?php endforeach; ?></table>
+</div>
+<?php endif; ?>
 <?php if ($canDecide): $o = $decideOld; $ov = static fn($k, $def = '') => e((string) ($o[$k] ?? $def));
     $findings = [];
     if ($tf['form'] === 'i9' && $o) { [$fwhy, $fe] = tf_check_i9_section2($o); $findings = $fwhy === null ? tf_s2_findings($d, $fe, $copies) : []; } ?>

@@ -254,6 +254,7 @@ $routes = [
     '/tax-forms' => 'tax-forms',
     '/clock' => 'clock',
     '/clock-qr' => 'clock-qr',
+    '/forms-register' => 'forms-register',
     '/pay-grades' => 'pay-grades',
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',

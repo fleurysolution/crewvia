@@ -5058,3 +5058,24 @@ Position unavailable	Position indisponible	Posición no disponible
 My position here	Ma position ici	Mi posición aquí
 The photo is larger than the server accepts (:max). Take it again, or send a PDF.	La photo est plus grande que ce que le serveur accepte (:max). Reprenez-la, ou envoyez un PDF.	La foto es más grande de lo que acepta el servidor (:max). Tómela de nuevo, o envíe un PDF.
 Your pay statement for the week ending :date is ready.	Votre relevé de paie pour la semaine se terminant le :date est prêt.	Su recibo de pago de la semana que termina el :date está listo.
+Forms register	Registre des formulaires	Registro de formularios
+Every W-4 and I-9 signed: who signed, when, in front of whom, who accepted it, Section 2, E-Verify, the copies kept, how often it was opened. For an audit or an inspection: export it, and open each official form from its row.	Chaque W-4 et I-9 signé : qui a signé, quand, devant qui, qui l'a accepté, la section 2, E-Verify, les copies gardées, combien de fois il a été ouvert. Pour un audit ou une inspection : exportez-le, et ouvrez chaque formulaire officiel depuis sa ligne.	Cada W-4 e I-9 firmado: quién firmó, cuándo, ante quién, quién lo aceptó, la sección 2, E-Verify, las copias guardadas, cuántas veces se abrió. Para una auditoría o inspección: expórtelo y abra cada formulario oficial desde su fila.
+Export (CSV)	Exporter (CSV)	Exportar (CSV)
+Any status	Tout statut	Cualquier estado
+Signed from	Signé du	Firmado desde
+to	au	hasta
+No Social Security number is shown or exported here.	Aucun numéro de sécurité sociale n'est affiché ni exporté ici.	Aquí no se muestra ni se exporta ningún número de Seguro Social.
+Signed	Signé	Firmado
+Accepted	Accepté	Aceptado
+Section 2	Section 2	Sección 2
+Copies	Copies	Copias
+in person, in front of :name	en personne, devant :name	en persona, ante :name
+without a witness	sans témoin	sin testigo
+Open, and the official PDF	Ouvrir, et le PDF officiel	Abrir, y el PDF oficial
+Does not match what was signed	Ne correspond plus à ce qui a été signé	No coincide con lo firmado
+Signed without a witness	Signé sans témoin	Firmado sin testigo
+Section 2 late	Section 2 en retard	Sección 2 tardía
+Section 2 overdue	Section 2 en souffrance	Sección 2 vencida
+Who did what with this form	Qui a fait quoi avec ce formulaire	Quién hizo qué con este formulario
+the system	le système	el sistema
+Form	Formulaire	Formulario

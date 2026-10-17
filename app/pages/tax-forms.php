@@ -214,8 +214,10 @@ if (isset($_GET['id'])) {
     unset($_SESSION['tf_decide_old'][(int) $tf['id']]);
     // P5-M65: the copies kept, and what Crewvia compares, for Section 2.
     $copies = $tf['form'] === 'i9' && ! $own ? tf_copies((int) $tf['candidate_id']) : [];
+    // P5-M68: who opened, signed, accepted or sent it back, and when - for the owner and the readers they authorize.
+    $accessLog = ! $own && (can('admin') || id_is_reader(uid())) ? rows('SELECT a.action, a.created_at, u.name FROM worker_tax_form_access a LEFT JOIN users u ON u.id = a.user_id WHERE a.form_id = ? ORDER BY a.id', [(int) $tf['id']]) : [];
     $pageTitle = tf_forms()[$tf['form']]['short'] . ' · ' . $tf['full_name'];
-    render('tax-form-show', compact('tf', 'own', 'reviewer', 'witness', 'firstDay', 'canDecide', 'pdf', 'empDefaults', 'decideOld', 'copies'));
+    render('tax-form-show', compact('tf', 'own', 'reviewer', 'witness', 'firstDay', 'canDecide', 'pdf', 'empDefaults', 'decideOld', 'copies', 'accessLog'));
     exit;
 }
 
