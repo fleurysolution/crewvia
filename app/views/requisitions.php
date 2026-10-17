@@ -43,6 +43,8 @@
               <form method="post" class="mt-s" data-managers-form><?= csrf_field() ?><input type="hidden" name="do" value="managers"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
                 <p class="small m0"><strong><?= te('Hiring managers') ?></strong></p>
                 <?php foreach ($managerChoices as $mc): ?><label class="d-block small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= in_array((int) $mc['id'], $vacancyManagers[(int) $requisition['id']] ?? [], true) ? ' checked' : '' ?>> <?= e($mc['name']) ?></label><?php endforeach; ?>
+                <p class="small m0 mt-xs"><strong><?= te('Recruiting checklist') ?></strong></p>
+                <?php foreach ($checklistChoices as $cc): ?><label class="d-block small"><input type="checkbox" name="checklists[]" value="<?= (int) $cc['id'] ?>"<?= in_array((int) $cc['id'], $vacancyChecklists[(int) $requisition['id']] ?? [], true) ? ' checked' : '' ?>> <?= e($cc['name']) ?></label><?php endforeach; ?>
                 <button class="btn ghost sm"><?= te('Save') ?></button>
               </form>
               <?php if (can('admin')): ?>
@@ -214,6 +216,11 @@
     <fieldset class="mt"><legend><?= te('Hiring managers') ?></legend>
       <?php foreach ($managerChoices as $mc): ?><label class="d-block small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= (int) $mc['id'] === uid() && $mc['role'] !== 'recruiter' ? ' checked' : '' ?>> <?= e($mc['name']) ?> <span class="muted">· <?= te(roles()[$mc['role']] ?? $mc['role']) ?></span></label><?php endforeach; ?>
       <span class="hint"><?= te('They review the applicants sent for review; any of them decides.') ?></span>
+    </fieldset>
+    <fieldset class="mt"><legend><?= te('Recruiting checklist') ?></legend>
+      <?php if (! $checklistChoices): ?><span class="hint"><a href="/checklists#new-template"><?= te('Write a checklist template first') ?></a></span><?php endif; ?>
+      <?php foreach ($checklistChoices as $cc): ?><label class="d-block small"><input type="checkbox" name="checklists[]" value="<?= (int) $cc['id'] ?>"> <?= e($cc['name']) ?> <span class="muted">· <?= tn((int) $cc['items'], ':n question', ':n questions') ?></span></label><?php endforeach; ?>
+      <span class="hint"><?= te('The questions the recruiter asks before sending an applicant for review.') ?> <a href="/checklists"><?= te('Templates') ?></a></span>
     </fieldset>
     <?php if (! empty($job['id']) && $scope
               && ! array_filter($scope, static fn ($l) => (int) $l['remaining'] > 0)): ?>

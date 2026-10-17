@@ -2988,4 +2988,47 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Requisitions: each one names its hiring managers; a review goes to them only, and any of them decides.' . PHP_EOL;
 }
 
+// ── P5-M86: the recruiter's checklists - templates of questions, linked to requisitions, answered per application ──
+// Reversed by install/rollback/p5-m86.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='checklist_templates'")) {
+    q("CREATE TABLE checklist_templates (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(120) NOT NULL,
+        is_active TINYINT(1) NOT NULL DEFAULT 1,
+        created_by INT UNSIGNED NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    q("CREATE TABLE checklist_items (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        template_id INT UNSIGNED NOT NULL,
+        position SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+        question VARCHAR(255) NOT NULL,
+        is_active TINYINT(1) NOT NULL DEFAULT 1,
+        KEY (template_id),
+        FOREIGN KEY (template_id) REFERENCES checklist_templates(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    q("CREATE TABLE vacancy_checklists (
+        vacancy_id INT UNSIGNED NOT NULL,
+        template_id INT UNSIGNED NOT NULL,
+        PRIMARY KEY (vacancy_id, template_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    q("CREATE TABLE checklist_answers (
+        application_id INT UNSIGNED NOT NULL,
+        item_id INT UNSIGNED NOT NULL,
+        answer ENUM('met','not_met') NOT NULL,
+        note VARCHAR(255) NULL,
+        answered_by INT UNSIGNED NULL,
+        answered_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (application_id, item_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    // A first template to start from; RSS writes its own.
+    q("INSERT INTO checklist_templates (name) VALUES ('Basic questions')");
+    $basic = (int) db()->lastInsertId();
+    foreach (['Authorised to work in the United States', 'Can travel and stay away from home for the length of the job', 'Available on the start date',
+              'Can pass a drug test', 'Can pass a background check', 'Has a valid photo ID'] as $i => $question) {
+        q('INSERT INTO checklist_items (template_id, position, question) VALUES (?,?,?)', [$basic, $i, $question]);
+    }
+    echo 'Checklists: the recruiter asks a requisition\'s checklist questions (templates such as Forklift or CDL, Recruiting > Checklists) and marks each met or not; an applicant goes for review once all are met.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

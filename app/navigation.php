@@ -89,6 +89,7 @@ function workspace_nav(?array $u): array
         ['/payroll-export',     'Payroll export',                     'payroll'],
         ['/adp',                'ADP',                                'payroll'],
         ['/arrivals',           'Flight arrivals',                    ['hotels','recruiter','payroll']],
+        ['/checklists',         'Checklists',                         'recruiter'],
         ['/client-invoices',    'Client invoices',                    'payroll'],
         ['/imports',            'Import spreadsheets',                'admin'],
         ['/settings',           'Settings',                           'admin'],
@@ -302,7 +303,7 @@ function workspace_sections(?array $u = null): array
     return [
         'Overview' => ['/home', '/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
-        'Recruiting' => ['/hiring', '/reviews', '/campaigns', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
+        'Recruiting' => ['/hiring', '/reviews', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
         'Hiring' => ['/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',

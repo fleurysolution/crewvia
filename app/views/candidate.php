@@ -151,27 +151,19 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <?php endif; ?>
 </section>
 
-<?php // P5-M83: from the recruiter to the person who decides. ?>
-<?php if ($pendingReview): ?>
-<div class="card" id="send-review"><p class="m0"><?php if ($pendingReview['status'] === 'validated'): ?><span class="tag green"><?= te('Approved') ?></span> <?= te('Approved by :name on :date and handed to HR for onboarding.', ['name' => $pendingReview['reviewer'], 'date' => d(substr((string) ($pendingReview['decided_at'] ?? $pendingReview['created_at']), 0, 10))]) ?><?php else: ?><span class="tag blue"><?= te('In review') ?></span> <?= te('In review since :date. Fit :n/5.', ['name' => $pendingReview['reviewer'], 'date' => d(substr((string) $pendingReview['created_at'], 0, 10)), 'n' => (int) $pendingReview['rating']]) ?><?php endif; ?></p></div>
-<?php elseif (! in_array($c['stage'], ['accepted', 'placed', 'rejected', 'declined'], true)): ?>
-<details class="card fold" id="send-review"<?= in_array($c['stage'], ['new', 'contacted'], true) && $c['last_contact_at'] ? ' open' : '' ?>>
-  <summary><span><span class="eyebrow"><?= te('NEXT STEP') ?></span><h2><?= te('Send for review') ?></h2></span><span class="fold-note"><?= te('The person who approves decides') ?></span></summary>
-  <form method="post" class="grid g2"><?= csrf_field() ?><input type="hidden" name="do" value="send_review">
-    <div><label for="sr-for"><?= te('For') ?></label>
-      <select id="sr-for" name="application_id" onchange="document.getElementById('sr-vac').hidden=this.value!=='0'">
-        <?php foreach ($applications as $ap): if (in_array($ap['stage'], ['offered', 'accepted', 'rejected', 'withdrawn'], true)) { continue; } ?><option value="<?= (int) $ap['id'] ?>"><?= e($ap['role'] . ' · ' . $ap['project']) ?></option><?php endforeach; ?>
-        <option value="0"<?= $applications ? '' : ' selected' ?>><?= te('Another requisition...') ?></option>
-      </select>
-      <select id="sr-vac" name="vacancy_id" class="mt-xs"<?= $applications ? ' hidden' : '' ?> aria-label="<?= te('Requisition') ?>"><option value=""><?= te('Choose') ?></option>
-        <?php foreach ($openVacancies as $ov): ?><option value="<?= (int) $ov['id'] ?>"><?= e($ov['title'] . ' · ' . $ov['job']) ?></option><?php endforeach; ?></select></div>
-    <div><label><?= te('Who decides') ?></label><p class="small m0"><?= te('The hiring managers of the requisition: any of them reviews and approves.') ?></p></div>
-    <div><label for="sr-fit"><?= te('Fit') ?></label><select id="sr-fit" name="rating" required><?php foreach ([5, 4, 3, 2, 1] as $r): ?><option value="<?= $r ?>"<?= $r === 4 ? ' selected' : '' ?>><?= $r ?>/5</option><?php endforeach; ?></select></div>
-    <div><label for="sr-why"><?= te('Your recommendation') ?></label><input id="sr-why" name="recommendation" required maxlength="4000" placeholder="<?= te('Why this person, and anything to watch') ?>"></div>
-    <div><button class="btn"><?= te('Send for review') ?></button></div>
-  </form>
-</details>
-<?php endif; ?>
+<?php // P5-M86: what they applied for and their assignment, at a glance (the details are further down). ?>
+<div class="grid g2" id="person-summary">
+  <div class="card"><span class="eyebrow"><?= te('APPLIED FOR') ?></span>
+    <?php $openApps = array_values(array_filter($applications, static fn($ap) => ! in_array($ap['stage'], ['rejected', 'withdrawn'], true))); ?>
+    <?php if (! $openApps): ?><p class="muted m0 mt-xs"><?= te('Nothing open.') ?></p><?php endif; ?>
+    <?php foreach ($openApps as $ap): ?><p class="m0 mt-xs" data-applied-for="<?= (int) $ap['id'] ?>"><strong><?= e($ap['role']) ?></strong> <span class="muted">&middot; <?= e($ap['project']) ?> &middot; <?= te(ucfirst((string) $ap['stage'])) ?></span></p><?php endforeach; ?>
+  </div>
+  <div class="card"><span class="eyebrow"><?= te('ASSIGNMENT') ?></span>
+    <?php $liveP = array_values(array_filter($placements, static fn($pl) => ! in_array($pl['status'], ['completed', 'cancelled'], true))); ?>
+    <?php if (! $liveP): ?><p class="muted m0 mt-xs" data-assignment-none><?= te('None for now.') ?></p><?php endif; ?>
+    <?php foreach ($liveP as $pl): ?><p class="m0 mt-xs"><a href="/placements/<?= (int) $pl['id'] ?>"><strong><?= e($pl['project']) ?></strong></a> <span class="muted">&middot; <?= te(placement_word((string) $pl['status'])) ?><?= $pl['start_date'] ? ' &middot; ' . e(d($pl['start_date'])) : '' ?></span></p><?php endforeach; ?>
+  </div>
+</div>
 
 <!-- ── reaching them ───────────────────────────────────────────────── -->
 <section class="card contact-card" id="contact">
@@ -243,6 +235,48 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   </details>
   <p class="small m0 mt-xs" id="driver-records-link"><a href="/driver-checks?candidate=<?= (int) $c['id'] ?>"><?= te('Driving records: MVR, Clearinghouse, PSP') ?></a></p>
 </section>
+
+<?php // P5-M86: the recruiter's checklist - the questions of the requisition's templates, each met or not. ?>
+<span id="checklist"></span>
+<?php foreach ($checklists as $appId => $cl): ?>
+<form method="post" class="card" id="checklist-<?= (int) $appId ?>" data-checklist="<?= (int) $appId ?>"><?= csrf_field() ?><input type="hidden" name="do" value="checklist"><input type="hidden" name="application_id" value="<?= (int) $appId ?>">
+  <div class="flex gap-s items-center"><div><span class="eyebrow"><?= te('RECRUITING CHECKLIST') ?></span><h2 class="m0 mt-xs"><?= e($cl['role']) ?> <span class="muted small">&middot; <?= e($cl['project']) ?></span></h2></div>
+    <span class="ml-auto tag <?= $cl['passes'] ? 'green' : ($cl['complete'] ? 'red' : 'amber') ?>" data-checklist-state><?= $cl['passes'] ? te('All met') : ($cl['complete'] ? te('Not all met') : te(':a of :t answered', ['a' => $cl['answered'], 't' => $cl['total']])) ?></span></div>
+  <table class="mt-s"><tbody>
+  <?php foreach ($cl['items'] as $it): ?>
+    <tr><td><?= e($it['question']) ?></td>
+      <td class="nowrap"><label class="small"><input type="radio" name="answer[<?= (int) $it['id'] ?>]" value="met"<?= $it['answer'] === 'met' ? ' checked' : '' ?>> <?= te('Met') ?></label>
+        <label class="small ml-s"><input type="radio" name="answer[<?= (int) $it['id'] ?>]" value="not_met"<?= $it['answer'] === 'not_met' ? ' checked' : '' ?>> <?= te('Not met') ?></label></td>
+      <td><input name="note[<?= (int) $it['id'] ?>]" maxlength="255" class="in-l" value="<?= e((string) ($it['note'] ?? '')) ?>" placeholder="<?= te('Note') ?>" aria-label="<?= te('Note') ?>"></td></tr>
+  <?php endforeach; ?>
+  </tbody></table>
+  <button class="btn mt-s"><?= te('Save the checklist') ?></button>
+</form>
+<?php endforeach; ?>
+
+<?php // P5-M83: from the recruiter to the person who decides. ?>
+<?php if ($pendingReview): ?>
+<div class="card" id="send-review"><p class="m0"><?php if ($pendingReview['status'] === 'validated'): ?><span class="tag green"><?= te('Approved') ?></span> <?= te('Approved by :name on :date and handed to HR for onboarding.', ['name' => $pendingReview['reviewer'], 'date' => d(substr((string) ($pendingReview['decided_at'] ?? $pendingReview['created_at']), 0, 10))]) ?><?php else: ?><span class="tag blue"><?= te('In review') ?></span> <?= te('In review since :date. Fit :n/5.', ['name' => $pendingReview['reviewer'], 'date' => d(substr((string) $pendingReview['created_at'], 0, 10)), 'n' => (int) $pendingReview['rating']]) ?><?php endif; ?></p></div>
+<?php elseif (! in_array($c['stage'], ['accepted', 'placed', 'rejected', 'declined'], true)): ?>
+<details class="card fold" id="send-review"<?= in_array($c['stage'], ['new', 'contacted'], true) && $c['last_contact_at'] ? ' open' : '' ?>>
+  <summary><span><span class="eyebrow"><?= te('NEXT STEP') ?></span><h2><?= te('Send for review') ?></h2></span><span class="fold-note"><?= te('The person who approves decides') ?></span></summary>
+  <form method="post" class="grid g2"><?= csrf_field() ?><input type="hidden" name="do" value="send_review">
+    <div><label for="sr-for"><?= te('For') ?></label>
+      <select id="sr-for" name="application_id" onchange="document.getElementById('sr-vac').hidden=this.value!=='0'">
+        <?php foreach ($applications as $ap): if (in_array($ap['stage'], ['offered', 'accepted', 'rejected', 'withdrawn'], true)) { continue; } ?><option value="<?= (int) $ap['id'] ?>"><?= e($ap['role'] . ' · ' . $ap['project']) ?></option><?php endforeach; ?>
+        <option value="0"<?= $applications ? '' : ' selected' ?>><?= te('Another requisition...') ?></option>
+      </select>
+      <select id="sr-vac" name="vacancy_id" class="mt-xs"<?= $applications ? ' hidden' : '' ?> aria-label="<?= te('Requisition') ?>"><option value=""><?= te('Choose') ?></option>
+        <?php foreach ($openVacancies as $ov): ?><option value="<?= (int) $ov['id'] ?>"><?= e($ov['title'] . ' · ' . $ov['job']) ?></option><?php endforeach; ?></select></div>
+    <div><label><?= te('Who decides') ?></label><p class="small m0"><?= te('The hiring managers of the requisition: any of them reviews and approves.') ?></p></div>
+    <div><label for="sr-fit"><?= te('Fit') ?></label><select id="sr-fit" name="rating" required><?php foreach ([5, 4, 3, 2, 1] as $r): ?><option value="<?= $r ?>"<?= $r === 4 ? ' selected' : '' ?>><?= $r ?>/5</option><?php endforeach; ?></select></div>
+    <div><label for="sr-why"><?= te('Your recommendation') ?></label><input id="sr-why" name="recommendation" required maxlength="4000" placeholder="<?= te('Why this person, and anything to watch') ?>"></div>
+    <div><button class="btn"><?= te('Send for review') ?></button></div>
+  </form>
+</details>
+<?php endif; ?>
+
+
 
 <div class="grid g2">
   <!-- ── their applications and screening ─────────────────────────── -->

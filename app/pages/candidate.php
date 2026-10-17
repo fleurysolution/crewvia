@@ -188,6 +188,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Moving an application along, from the person rather than from the board.
     // The same rules as the screening screen, because they are the rules.
+    // ── P5-M86: the recruiter's checklist for an application ──
+    if ($do === 'checklist') {
+        require_once __DIR__ . '/../checklists.php';
+        $appId = (int) ($_POST['application_id'] ?? 0);
+        if (! val('SELECT id FROM applications WHERE id = ? AND candidate_id = ?', [$appId, $id])) {
+            refuse(404, t('That application is not this person\'s.'), '/candidates/' . $id);
+        }
+        cl_answer($appId, (array) ($_POST['answer'] ?? []), (array) ($_POST['note'] ?? []), uid());
+        $cl = cl_for_application($appId);
+        log_activity('answered the recruiting checklist', 'application', $appId, $cl['met'] . '/' . $cl['total']);
+        flash($cl['passes'] ? t('Checklist complete: every question met. Send them for review.') : t('Checklist saved: :met of :total met.', ['met' => $cl['met'], 'total' => $cl['total']]));
+        redirect('/candidates/' . $id . '#checklist');
+    }
+
     // ── P5-M83: the recruiter sends the applicant to the person who decides (the owner, a manager) ──
     if ($do === 'send_review') {
         require_once __DIR__ . '/../reviews.php';
@@ -203,6 +217,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         if (! val('SELECT id FROM applications WHERE id = ? AND candidate_id = ?', [$appId, $id])) {
             refuse(422, t('Choose the requisition this person is for.'), '/candidates/' . $id . '#send-review');
+        }
+        // P5-M86: the recruiter's filter - every checklist question answered and met.
+        require_once __DIR__ . '/../checklists.php';
+        $cl = cl_for_application($appId);
+        if (! can('admin') && $cl['total'] && ! $cl['passes']) {
+            refuse(422, $cl['complete'] ? t('Not every checklist question is met: this applicant does not go for review.') : t('Finish the checklist first: :n question(s) not answered.', ['n' => $cl['total'] - $cl['answered']]), '/candidates/' . $id . '#checklist');
         }
         // P5-M85: it goes to the managers, not to a person the recruiter picks; any of them decides.
         // P5-M85: the requisition's hiring managers; without any, the least busy manager (Full access) - one person, not everybody.
@@ -545,6 +565,17 @@ require_once __DIR__ . '/../messaging.php';
 $textPanel = msg_panel($id);
 $contactPref = $textPanel['preferences'];
 
+// P5-M86: what they applied for, their assignment, and the checklist of each open application.
+require_once __DIR__ . '/../checklists.php';
+$checklists = [];
+foreach ($applications as $ap) {
+    if (! in_array($ap['stage'], ['rejected', 'withdrawn'], true)) {
+        $cl = cl_for_application((int) $ap['id']);
+        if ($cl['total']) {
+            $checklists[(int) $ap['id']] = $cl + ['role' => $ap['role'], 'project' => $ap['project']];
+        }
+    }
+}
 // P5-M83: who can decide, the open requisitions, and a review already under way.
 require_once __DIR__ . '/../reviews.php';
 $reviewPeople = review_people();
@@ -552,7 +583,7 @@ $reviewDefault = (int) (val("SELECT id FROM users WHERE is_active = 1 AND role =
 $openVacancies = rows('SELECT v.id, v.title, j.title AS job FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.is_open = 1 ORDER BY j.title, v.title LIMIT 300');
 $pendingReview = row("SELECT r.*, u.name AS reviewer FROM application_reviews r JOIN applications a ON a.id = r.application_id JOIN users u ON u.id = r.reviewer_id
                       WHERE a.candidate_id = ? AND r.status IN ('pending','validated') ORDER BY r.status = 'pending' DESC, r.id DESC LIMIT 1", [$id]);
-render('candidate', compact('textPanel', 'reviewPeople', 'reviewDefault', 'openVacancies', 'pendingReview', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
+render('candidate', compact('textPanel', 'reviewPeople', 'reviewDefault', 'openVacancies', 'pendingReview', 'checklists', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
                             'qualifications', 'contracts', 'clearance', 'account',
                             'invitation', 'job', 'jobId', 'standing', 'theirSkills',
                             'workHistory', 'owedToUs'));

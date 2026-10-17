@@ -5501,3 +5501,41 @@ In review since :date. Fit :n/5.	En revue depuis le :date. Adéquation :n/5.	En 
 Hiring managers	Responsables du recrutement	Responsables de contratación
 They review the applicants sent for review; any of them decides.	Ils examinent les candidats envoyés en revue ; n'importe lequel décide.	Revisan a los candidatos enviados a revisión; cualquiera decide.
 Saved: the hiring managers.	Enregistré : les responsables du recrutement.	Guardado: los responsables de contratación.
+Name the template (for example: Forklift driver).	Nommez le modèle (par exemple : Cariste).	Nombre la plantilla (por ejemplo: Operador de montacargas).
+Write the questions, one per line (up to 40).	Écrivez les questions, une par ligne (40 au plus).	Escriba las preguntas, una por línea (hasta 40).
+A template already has this name.	Un modèle porte déjà ce nom.	Ya hay una plantilla con este nombre.
+Template removed. Answers already given stay on the applicants.	Modèle retiré. Les réponses déjà données restent sur les candidats.	Plantilla retirada. Las respuestas ya dadas se quedan en los candidatos.
+Checklists	Listes de contrôle	Listas de control
+The questions the recruiter asks, by type of job. Link them to a requisition.	Les questions que pose le recruteur, par type de poste. Liez-les à une réquisition.	Las preguntas que hace el reclutador, por tipo de puesto. Vincúlelas a una requisición.
++ New template	+ Nouveau modèle	+ Nueva plantilla
+No template yet.	Aucun modèle pour l'instant.	Aún no hay plantillas.
+Remove this template? Requisitions stop using it.	Retirer ce modèle ? Les réquisitions cessent de l'utiliser.	¿Retirar esta plantilla? Las requisiciones dejan de usarla.
+e.g. Forklift driver, CDL driver	ex. Cariste, Chauffeur CDL	p. ej. Operador de montacargas, Conductor CDL
+Questions, one per line	Questions, une par ligne	Preguntas, una por línea
+e.g. Has a current forklift certification	ex. A une certification de cariste en cours de validité	p. ej. Tiene una certificación de montacargas vigente
+Save the template	Enregistrer le modèle	Guardar la plantilla
+Edit :name	Modifier :name	Editar :name
+:n template	:n modèle	:n plantilla
+:n templates	:n modèles	:n plantillas
+:n question	:n question	:n pregunta
+:n questions	:n questions	:n preguntas
+Checklist complete: every question met. Send them for review.	Liste complète : toutes les questions sont remplies. Envoyez la personne en revue.	Lista completa: se cumplen todas las preguntas. Envíela a revisión.
+Checklist saved: :met of :total met.	Liste enregistrée : :met sur :total remplies.	Lista guardada: :met de :total cumplidas.
+Not every checklist question is met: this applicant does not go for review.	Toutes les questions de la liste ne sont pas remplies : ce candidat ne part pas en revue.	No se cumplen todas las preguntas de la lista: este candidato no pasa a revisión.
+Finish the checklist first: :n question(s) not answered.	Terminez d'abord la liste : :n question(s) sans réponse.	Termine primero la lista: :n pregunta(s) sin responder.
+APPLIED FOR	CANDIDATURE	SOLICITUD
+ASSIGNMENT	AFFECTATION	ASIGNACIÓN
+None for now.	Aucune pour l'instant.	Ninguna por ahora.
+RECRUITING CHECKLIST	LISTE DU RECRUTEUR	LISTA DEL RECLUTADOR
+All met	Tout est rempli	Todo cumplido
+Not all met	Pas tout rempli	No todo cumplido
+:a of :t answered	:a sur :t répondues	:a de :t respondidas
+Met	Rempli	Cumple
+Not met	Non rempli	No cumple
+Note	Note	Nota
+Save the checklist	Enregistrer la liste	Guardar la lista
+Recruiting checklist	Liste du recruteur	Lista del reclutador
+Write a checklist template first	Écrivez d'abord un modèle de liste	Escriba primero una plantilla de lista
+The questions the recruiter asks before sending an applicant for review.	Les questions que pose le recruteur avant d'envoyer un candidat en revue.	Las preguntas que hace el reclutador antes de enviar a un candidato a revisión.
+Templates	Modèles	Plantillas
+Saved: the hiring managers and checklists.	Enregistré : les responsables du recrutement et les listes.	Guardado: los responsables de contratación y las listas.

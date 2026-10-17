@@ -334,3 +334,25 @@ check('Their Waiting on your decision has it', 'Managed Applicant' in body)
 # P5-M84 fix: running the upgrade again keeps an HR person's role.
 subprocess.run([php, 'work/test-app/install/upgrade.php'], check=True, capture_output=True)
 check('Upgrading again keeps the HR role', one("SELECT role FROM users WHERE email = 'wk-hr@test.invalid'")['role'] == 'hr')
+
+# P5-M86: the recruiter's checklist - a template linked to the requisition, answered before the review.
+rec.post('/checklists', {'do': 'save', 'name': 'Forklift driver', 'questions': 'Has a current forklift certification\nCan lift 50 lb'}, '/checklists')
+tpl = one("SELECT id FROM checklist_templates WHERE name = 'Forklift driver'")
+check('A checklist template is written once, its questions one per line', tpl and int(one('SELECT COUNT(*) n FROM checklist_items WHERE template_id = %s' % tpl['id'])['n']) == 2)
+admin.post('/requisitions', {'do': 'managers', 'vacancy_id': vac_id, 'managers[]': [owner_id], 'checklists[]': [tpl['id']]}, '/requisitions')
+check('The requisition links the template', [int(x['template_id']) for x in sql('SELECT template_id FROM vacancy_checklists WHERE vacancy_id = %d' % vac_id)] == [int(tpl['id'])])
+php_q("INSERT INTO candidates (full_name, email, phone, discipline, stage) VALUES ('Checked Applicant', 'checked@test.invalid', '555-070-7006', 'mechanical', 'contacted')")
+php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source) SELECT id, %d, 'new', 'QR code' FROM candidates WHERE email = 'checked@test.invalid'" % vac_id)
+ck = one("SELECT c.id AS cid, a.id AS aid FROM candidates c JOIN applications a ON a.candidate_id = c.id WHERE c.email = 'checked@test.invalid'")
+status, body = rec.get('/candidates/%s' % ck['cid'])
+check('The person\'s page: applied for and assignment first, then contact, then the checklist, then the review',
+      'data-applied-for="%s"' % ck['aid'] in body and 'data-assignment-none' in body and body.index('id="person-summary"') < body.index('id="contact"') < body.index('id="checklist"') < body.index('id="send-review"'))
+rec.post('/candidates/%s' % ck['cid'], {'do': 'send_review', 'application_id': ck['aid'], 'rating': '4', 'recommendation': 'Good.'}, '/candidates/%s' % ck['cid'])
+check('No review before the checklist is done', not sql('SELECT id FROM application_reviews WHERE application_id = %s' % ck['aid']))
+items = [x['id'] for x in sql('SELECT id FROM checklist_items WHERE template_id = %s ORDER BY position' % tpl['id'])]
+rec.post('/candidates/%s' % ck['cid'], {'do': 'checklist', 'application_id': ck['aid'], 'answer[%s]' % items[0]: 'met', 'answer[%s]' % items[1]: 'not_met'}, '/candidates/%s' % ck['cid'])
+rec.post('/candidates/%s' % ck['cid'], {'do': 'send_review', 'application_id': ck['aid'], 'rating': '4', 'recommendation': 'Good.'}, '/candidates/%s' % ck['cid'])
+check('A question not met keeps them from the review', not sql('SELECT id FROM application_reviews WHERE application_id = %s' % ck['aid']))
+rec.post('/candidates/%s' % ck['cid'], {'do': 'checklist', 'application_id': ck['aid'], 'answer[%s]' % items[0]: 'met', 'answer[%s]' % items[1]: 'met', 'note[%s]' % items[1]: 'Lifts 60 lb'}, '/candidates/%s' % ck['cid'])
+rec.post('/candidates/%s' % ck['cid'], {'do': 'send_review', 'application_id': ck['aid'], 'rating': '4', 'recommendation': 'Good.'}, '/candidates/%s' % ck['cid'])
+check('All met: they go for review', bool(sql('SELECT id FROM application_reviews WHERE application_id = %s' % ck['aid'])) and one('SELECT note FROM checklist_answers WHERE item_id = %s AND application_id = %s' % (items[1], ck['aid']))['note'] == 'Lifts 60 lb')

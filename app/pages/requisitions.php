@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($do === 'managers') {
         require_once __DIR__ . '/../reviews.php';
         $vid = (int) val('SELECT id FROM vacancies WHERE id = ?', [(int) ($_POST['vacancy_id'] ?? 0)]);
-        if ($vid) { vacancy_managers_save($vid, (array) ($_POST['managers'] ?? [])); log_activity('set the hiring managers', 'vacancy', $vid); flash(t('Saved: the hiring managers.')); }
+        if ($vid) { vacancy_managers_save($vid, (array) ($_POST['managers'] ?? [])); require_once __DIR__ . '/../checklists.php'; cl_vacancy_save($vid, (array) ($_POST['checklists'] ?? [])); log_activity('set the hiring managers and checklists', 'vacancy', $vid); flash(t('Saved: the hiring managers and checklists.')); }
         redirect('/requisitions');
     }
 
@@ -207,6 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // P5-M85: who decides on this requisition's applicants.
     require_once __DIR__ . '/../reviews.php';
     vacancy_managers_save($vacancyId, (array) ($_POST['managers'] ?? []));
+    // P5-M86: the checklists the recruiter asks for this requisition.
+    require_once __DIR__ . '/../checklists.php';
+    cl_vacancy_save($vacancyId, (array) ($_POST['checklists'] ?? []));
 
     q('INSERT INTO requisition_publication (vacancy_id, published_on, expires_on)
        VALUES (?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))', [$vacancyId]);
@@ -270,7 +273,7 @@ foreach ($scope as $i => $line) {
 }
 
 require_once __DIR__ . '/../reviews.php';
-$managerChoices = review_people();
+$managerChoices = review_people(); require_once __DIR__ . '/../checklists.php'; $checklistChoices = cl_templates(); $vacancyChecklists = [];
 $vacancyManagers = [];
-foreach ($requisitions as $rq) { $vacancyManagers[(int) $rq['id']] = vacancy_managers((int) $rq['id']); }
-render('requisitions', compact('managerChoices', 'vacancyManagers', 'requisitions', 'job', 'scope'));
+foreach ($requisitions as $rq) { $vacancyManagers[(int) $rq['id']] = vacancy_managers((int) $rq['id']); $vacancyChecklists[(int) $rq['id']] = cl_vacancy_templates((int) $rq['id']); }
+render('requisitions', compact('managerChoices', 'vacancyManagers', 'checklistChoices', 'vacancyChecklists', 'requisitions', 'job', 'scope'));

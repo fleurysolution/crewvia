@@ -260,6 +260,7 @@ $routes = [
     '/nav-mark' => 'nav-mark',
     '/adp' => 'adp',
     '/arrivals' => 'arrivals',
+    '/checklists' => 'checklists',
     '/pay-grades' => 'pay-grades',
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',
