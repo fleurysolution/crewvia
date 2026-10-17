@@ -69,7 +69,7 @@ if ($differ || $wholeAddress): ?><div class="card" id="forms-differ">
   <form method="post" action="/tax-forms" enctype="multipart/form-data" class="grid g3 mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="add_copy"><input type="hidden" name="candidate_id" value="<?= (int) $person['id'] ?>"><input type="hidden" name="back" value="/tax-forms?person=<?= (int) $person['id'] ?>">
     <div><label for="pc-l"><?= te('List') ?></label><select id="pc-l" name="list" onchange="document.getElementById('pc-t').setAttribute('list','pdocs-'+this.value)"><option>A</option><option>B</option><option>C</option></select></div>
     <div><label for="pc-t"><?= te('Document') ?></label><input id="pc-t" name="title" list="pdocs-A" maxlength="150" required></div>
-    <div><label for="pc-f"><?= te('Photograph the original') ?></label><input id="pc-f" name="copy" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment" required></div>
+    <div><label for="pc-f"><?= te('Photograph the original') ?></label><input id="pc-f" name="copy" type="file" data-shrink accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment" required></div>
     <button class="btn ghost"><?= te('Keep the copy') ?></button>
   </form>
 </div>
@@ -88,3 +88,4 @@ foreach ($remaining as $pl): ?>
   <?php endif; ?>
 </div>
 <?php endforeach; ?>
+<script src="/assets/shrink-photo.js"></script>

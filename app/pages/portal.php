@@ -32,13 +32,14 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   flash(t('You declined the offer. The office is told.'));redirect('/portal#applications');
  }
  // P5-M32: the room number, then the clock-in, on the worker's own assignment.
- if(in_array($_POST['do'] ?? '',['room_number','clock_in'],true)) {
+ if(in_array($_POST['do'] ?? '',['room_number','clock_in','clock_out'],true)) {
   require_once __DIR__.'/../clock-in.php';
   $pid=(int)val("SELECT id FROM placements WHERE id=? AND candidate_id=? AND status IN ('confirmed','travelling','on_site')",[(int)($_POST['placement_id']??0),$worker['id']]);
   if(!$pid){refuse(404,t('There is no assignment to clock in to.'),'/portal');}
-  $why=$_POST['do']==='room_number'?ci_room_save($pid,(string)($_POST['room_number']??'')):ci_clock_in($pid,uid());
+  // P5-M67: from the portal (without the site code) it is kept, and flagged to the supervisor.
+  $why=$_POST['do']==='room_number'?ci_room_save($pid,(string)($_POST['room_number']??'')):($_POST['do']==='clock_out'?ci_clock_out($pid,uid(),$_POST+['method'=>'portal']):ci_clock_in($pid,uid(),$_POST+['method'=>'portal']));
   if($why!==null){refuse(422,$why,'/portal#clock');}
-  flash($_POST['do']==='room_number'?t('Room number saved. You can clock in.'):t('Clocked in. Your supervisor validates it.'));redirect('/portal#clock');
+  flash($_POST['do']==='room_number'?t('Room number saved. You can clock in.'):($_POST['do']==='clock_out'?t('Clocked out. Your supervisor is told.'):t('Clocked in. Your supervisor validates it.')));redirect('/portal#clock');
  }
  // P5-M31: the worker says they registered with ADP.
  if(($_POST['do'] ?? '')==='adp_registered') {
@@ -55,7 +56,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  // P5-M64: the Direct deposit task holds the bank form itself (typed twice, with the proof).
  if(($_POST['do'] ?? '')==='task_bank') {
   require_once __DIR__.'/../self-service.php';
-  if(($why=self_bank_submit((int)$worker['id'],$_POST,uid(),false,$_FILES['bank_proof']??null))!==null){refuse(422,$why,'/portal#onboarding');}
+  if(($why=self_bank_submit((int)$worker['id'],$_POST,uid(),false,$_FILES['bank_proof']??null))!==null){log_activity('was refused bank details','candidate',(int)$worker['id'],$why.' (upload error '.(int)($_FILES['bank_proof']['error']??-1).', '.(int)($_FILES['bank_proof']['size']??0).' bytes)');refuse(422,$why,'/portal#onboarding');}
   flash(t('Thank you. Payroll compares your bank details with the proof, and you are told here.'));redirect('/portal#onboarding');
  }
  $response=trim((string)($_POST['response'] ?? ''));

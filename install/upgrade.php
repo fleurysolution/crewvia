@@ -2738,4 +2738,18 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Deployment: when the last condition clears (forms, Section 2, screening, tasks, contract), the office is told to confirm the person on the roster and the person that their onboarding is done; a confirmation tells hotel and travel who, where and when.' . PHP_EOL;
 }
 
+// ── P5-M67: clocking in and out on the site: the supervisor's code, the site's position, clock-out ──
+// Reversed by install/rollback/p5-m67.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name='site_lat'")) {
+    q('ALTER TABLE jobs ADD COLUMN site_lat DECIMAL(9,6) NULL, ADD COLUMN site_lng DECIMAL(9,6) NULL, ADD COLUMN site_radius_m INT NOT NULL DEFAULT 300');
+}
+// The clock-in's own columns, separately: the P5-M32 rollback drops clock_ins and the upgrade makes it again.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='clock_ins' AND column_name='clocked_out_at'")) {
+    q("ALTER TABLE clock_ins ADD COLUMN in_method VARCHAR(10) NOT NULL DEFAULT 'portal', ADD COLUMN in_lat DECIMAL(9,6) NULL, ADD COLUMN in_lng DECIMAL(9,6) NULL,
+       ADD COLUMN in_accuracy_m INT NULL, ADD COLUMN in_distance_m INT NULL, ADD COLUMN in_flag VARCHAR(255) NULL, ADD COLUMN qr_supervisor_id INT UNSIGNED NULL,
+       ADD COLUMN clocked_out_at DATETIME NULL, ADD COLUMN out_method VARCHAR(10) NULL, ADD COLUMN out_lat DECIMAL(9,6) NULL, ADD COLUMN out_lng DECIMAL(9,6) NULL,
+       ADD COLUMN out_accuracy_m INT NULL, ADD COLUMN out_distance_m INT NULL, ADD COLUMN out_flag VARCHAR(255) NULL, ADD COLUMN out_by INT UNSIGNED NULL");
+    echo 'Clock-in on the site: the supervisor shows a code on their phone that changes every 30 seconds; the crew scans it to clock in and out; the phone position is compared with the site (set its position and radius in the project) and anything unusual is flagged to the supervisor; hours shown for hourly workers.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

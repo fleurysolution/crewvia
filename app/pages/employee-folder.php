@@ -34,7 +34,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? '';
  // ── the worker's own: proposed, then validated by staff (R22-R24) ──
  if($own && $do==='self_bank') {
-  if(($why=self_bank_submit($cid,$_POST,uid(),false,$_FILES['bank_proof']??null))!==null) refuse(422,$why);
+  if(($why=self_bank_submit($cid,$_POST,uid(),false,$_FILES['bank_proof']??null))!==null){log_activity('was refused bank details','candidate',$cid,$why.' (upload error '.(int)($_FILES['bank_proof']['error']??-1).', '.(int)($_FILES['bank_proof']['size']??0).' bytes)');refuse(422,$why);}
   flash(t('Thank you. Payroll checks your bank details before they are used; until then your pay goes where it went before.'));
  }
  if($own && $do==='self_detail') {

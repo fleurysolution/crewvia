@@ -36,9 +36,13 @@
     <p<?= $k['room']['overdue'] ? ' class="t-red"' : '' ?>><?= $k['room']['overdue'] ? te('Your room number at :hotel was due by :time. Enter it now: you cannot clock in without it.', ['hotel' => $k['room']['hotel'], 'time' => date('D j M, g:i a', strtotime($k['room']['deadline']))]) : te('Enter your room number at :hotel by :time. You cannot clock in without it.', ['hotel' => $k['room']['hotel'], 'time' => date('D j M, g:i a', strtotime($k['room']['deadline']))]) ?></p>
     <form method="post" action="/portal" class="row tight gap-s"><?= csrf_field() ?><input type="hidden" name="do" value="room_number"><input type="hidden" name="placement_id" value="<?= (int) $k['placement_id'] ?>"><label class="sr-only" for="room-<?= (int) $k['placement_id'] ?>"><?= te('Room number') ?></label><input id="room-<?= (int) $k['placement_id'] ?>" name="room_number" maxlength="12" required class="fw-s" placeholder="<?= te('Room') ?>"><button class="btn"><?= te('Save my room number') ?></button></form>
   <?php elseif (! $ci): ?>
-    <form method="post" action="/portal"><?= csrf_field() ?><input type="hidden" name="do" value="clock_in"><input type="hidden" name="placement_id" value="<?= (int) $k['placement_id'] ?>"><button class="btn"><?= te('Clock in') ?></button></form>
+    <p><strong><?= te('Scan the code on your supervisor’s phone to clock in.') ?></strong></p>
+    <form method="post" action="/portal" data-geo data-wait="<?= te('Finding where you are…') ?>"><?= csrf_field() ?><input type="hidden" name="do" value="clock_in"><input type="hidden" name="placement_id" value="<?= (int) $k['placement_id'] ?>"><input type="hidden" name="lat"><input type="hidden" name="lng"><input type="hidden" name="accuracy"><button class="btn ghost sm"><?= te('Clock in without the code (your supervisor is told)') ?></button></form><script src="/assets/clock.js"></script>
   <?php else: ?>
     <p><?= te('Clocked in at :time.', ['time' => date('g:i a', strtotime($ci['clocked_in_at']))]) ?> <?php if ($ci['status'] === 'waiting'): ?><span class="tag amber"><?= te('Waiting for your supervisor') ?></span><?php elseif ($ci['status'] === 'validated'): ?><span class="tag green"><?= te('Validated') ?></span><?php else: ?><span class="tag red"><?= te('Not seen on site: call your supervisor') ?></span><?php endif; ?></p>
+    <?php if (empty($ci['clocked_out_at'])): ?><p class="small"><?= te('To clock out, scan your supervisor’s code again.') ?></p>
+    <form method="post" action="/portal" data-geo data-wait="<?= te('Finding where you are…') ?>"><?= csrf_field() ?><input type="hidden" name="do" value="clock_out"><input type="hidden" name="placement_id" value="<?= (int) $k['placement_id'] ?>"><input type="hidden" name="lat"><input type="hidden" name="lng"><input type="hidden" name="accuracy"><button class="btn ghost sm"><?= te('Clock out without the code (your supervisor is told)') ?></button></form><script src="/assets/clock.js"></script>
+    <?php else: ?><p data-clocked-out="1"><?= te('Clocked out at :time.', ['time' => date('g:i a', strtotime($ci['clocked_out_at']))]) ?><?= ci_is_hourly((int) $worker['id']) ? ' ' . te(':h hours.', ['h' => ci_hours($ci)]) : '' ?></p><?php endif; ?>
   <?php endif; ?>
 </div>
 <?php endforeach; ?>
@@ -96,7 +100,7 @@ foreach($tasks as $t): $kind=(string)($t['form_kind']??'');$open=in_array($t['st
       <div></div>
       <div><label for="tb-acct-<?= $tid ?>"><?= te('Account number') ?></label><div class="row no-wrap"><input id="tb-acct-<?= $tid ?>" name="account_number" type="text" class="secret" data-lpignore="true" data-1p-ignore required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"><button type="button" class="btn ghost sm" data-reveal="tb-acct-<?= $tid ?>" data-show="<?= te('Show') ?>" data-hide="<?= te('Hide') ?>" aria-pressed="false"><?= te('Show') ?></button></div></div>
       <div><label for="tb-acct2-<?= $tid ?>"><?= te('Account number, again') ?></label><input id="tb-acct2-<?= $tid ?>" name="account_number_confirm" type="text" class="secret" data-lpignore="true" data-1p-ignore required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off" data-secret-pair="tb-acct-<?= $tid ?>"><p id="tb-acct2-<?= $tid ?>-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p></div>
-      <div><label for="tb-proof-<?= $tid ?>"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="tb-proof-<?= $tid ?>" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
+      <div><label for="tb-proof-<?= $tid ?>"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="tb-proof-<?= $tid ?>" name="bank_proof" type="file" data-shrink required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
     </div>
     <p class="small muted"><?= te('A photo or a PDF where the routing and account numbers can be read. Payroll compares them with what you typed before your pay goes there, so a wrong digit never sends your pay to another account. Everything is encrypted as soon as it is sent; only the last four digits are ever shown.') ?></p>
     <button class="btn"><?= te('Send my bank details') ?></button></form>
@@ -104,7 +108,7 @@ foreach($tasks as $t): $kind=(string)($t['form_kind']??'');$open=in_array($t['st
 <?php elseif($open): ?>
   <form method="post"><?= csrf_field() ?><input type="hidden" name="task_id" value="<?= $tid ?>"><label for="tn-<?= $tid ?>"><?= te('Completion note') ?></label><textarea id="tn-<?= $tid ?>" name="response" maxlength="2000" required></textarea><button class="btn"><?= te('Submit for review') ?></button></form>
 <?php endif; ?>
-</div><?php endforeach; ?><script src="/assets/masked-fields.js"></script></div>
+</div><?php endforeach; ?><script src="/assets/masked-fields.js"></script><script src="/assets/shrink-photo.js"></script></div>
 <?php endif; ?>
 
 <?php if ($applications): ?>

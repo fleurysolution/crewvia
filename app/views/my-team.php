@@ -23,13 +23,17 @@
   <a class="card home-tile<?= $today['tasks_late'] ? ' red' : '' ?>" href="/my-tasks" data-tile="tasks"><div class="n"><?= (int) $today['tasks'] ?></div><div class="l"><?= $today['tasks_late'] ? te(':n of your tasks, :late late', ['n' => $today['tasks'], 'late' => $today['tasks_late']]) : te('open tasks of yours') ?></div></a>
 </div>
 <p class="small m0 pull-up mb"><a href="/lateness"><?= ten($today['late_week'], ':n late arrival recorded this week', ':n late arrivals recorded this week') ?></a> · <a href="/project-tasks"><?= te('Project tasks') ?></a> · <a href="/procurement"><?= te('Ask for something the crew needs') ?></a></p>
+<?php if (! $clockDay['clock_ins'] && ! $clockDay['rooms']): ?><p><a class="btn" href="/clock-qr"><?= te('Show the clock-in code') ?></a></p><?php endif; ?>
 <?php if ($clockDay['clock_ins'] || $clockDay['rooms']): $waitingN = count(array_filter($clockDay['clock_ins'], static fn($c) => $c['status'] === 'waiting')); ?>
 <section class="card" id="clock-ins" data-waiting="<?= $waitingN ?>">
   <h2 class="m0 mb-xs"><?= $waitingN ? ten($waitingN, ':n clock-in to validate', ':n clock-ins to validate') : te('Clock-ins') ?></h2>
   <p class="small muted"><?= te('Validate each one by 30 minutes after the shift starts. A validation after that is kept, and marked late.') ?></p>
+  <p><a class="btn" href="/clock-qr"><?= te('Show the clock-in code') ?></a></p>
   <?php foreach ($clockDay['clock_ins'] as $c): $over = $c['status'] === 'waiting' && time() > strtotime($c['validate_by']); ?>
   <div class="row items-center gap-s mb-xs" data-clock-in="<?= (int) $c['id'] ?>" data-status="<?= e($c['status']) ?>"<?= $over ? ' data-overdue="1"' : '' ?>>
     <strong><?= e($c['full_name']) ?></strong>
+    <?php if (! empty($c['in_flag'])): ?><span class="small t-red" data-clock-flag="in"><?= e($c['in_flag']) ?></span><?php endif; ?>
+    <?php if (! empty($c['clocked_out_at'])): ?><span class="small" data-clocked-out="1"><?= te('out at :time (:h h)', ['time' => date('g:i a', strtotime($c['clocked_out_at'])), 'h' => ci_hours($c)]) ?></span><?php if (! empty($c['out_flag'])): ?><span class="small t-red" data-clock-flag="out"><?= e($c['out_flag']) ?></span><?php endif; ?><?php endif; ?>
     <span class="small"><?= te('in at :time', ['time' => date('g:i a', strtotime($c['clocked_in_at']))]) ?><?php if ($c['shift_start'] && $c['clocked_in_at'] > $c['shift_start']): ?> <span class="tag amber"><?= te(':n min late', ['n' => (int) round((strtotime($c['clocked_in_at']) - strtotime($c['shift_start'])) / 60)]) ?></span><?php endif; ?></span>
     <?php if ($c['status'] === 'waiting'): ?>
       <span class="small<?= $over ? ' t-red' : ' muted' ?>"><?= $over ? te('was due by :time', ['time' => date('g:i a', strtotime($c['validate_by']))]) : te('validate by :time', ['time' => date('g:i a', strtotime($c['validate_by']))]) ?></span>

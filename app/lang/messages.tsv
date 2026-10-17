@@ -5019,3 +5019,42 @@ Before travelling (from home):	Avant le voyage (à distance) :	Antes del viaje (
 When the last one clears, the office is told to confirm them on the roster, so hotel and travel book.	Quand la dernière est levée, le bureau est prévenu de confirmer la personne sur le roster, pour que l'hôtel et le transport réservent.	Cuando se resuelva la última, la oficina recibe aviso para confirmarlo en el roster, para que hotel y viajes reserven.
 On arrival, before starting:	À l'arrivée, avant de commencer :	Al llegar, antes de empezar:
 Section 2 of the I-9: with their original documents, no later than :date (three business days after the first day).	Section 2 de l'I-9 : avec ses documents originaux, au plus tard le :date (trois jours ouvrables après le premier jour).	Sección 2 del I-9: con sus documentos originales, a más tardar el :date (tres días hábiles después del primer día).
+Clocked in without the site QR.	Pointage d'entrée sans le code du site.	Entrada registrada sin el código del sitio.
+Clocked out without the site QR.	Pointage de sortie sans le code du site.	Salida registrada sin el código del sitio.
+No position from the phone (location refused or unavailable).	Aucune position du téléphone (localisation refusée ou indisponible).	Sin posición del teléfono (ubicación rechazada o no disponible).
+Away from the site: :d m from it (allowed :r m, phone accuracy :a m).	Hors du site : à :d m (permis :r m, précision du téléphone :a m).	Fuera del sitio: a :d m (permitido :r m, precisión del teléfono :a m).
+You are not clocked in.	Vous n'êtes pas pointé.	No ha registrado su entrada.
+:name clocked out at :time (:h h).	:name a pointé sa sortie à :time (:h h).	:name registró su salida a las :time (:h h).
+This code has expired. Scan the code on your supervisor’s phone again: it changes every 30 seconds.	Ce code a expiré. Scannez à nouveau le code sur le téléphone de votre superviseur : il change toutes les 30 secondes.	Este código venció. Escanee otra vez el código en el teléfono de su supervisor: cambia cada 30 segundos.
+You have no assignment on this project. Ask your supervisor.	Vous n'avez pas d'affectation sur ce projet. Demandez à votre superviseur.	No tiene asignación en este proyecto. Pregunte a su supervisor.
+Clock-in code	Code de pointage	Código de registro
+out at :time (:h h)	sortie à :time (:h h)	salida a las :time (:h h)
+Your crew scans it with their own phone to clock in, and again to clock out. It changes every 30 seconds: a photo sent to someone else no longer works.	Votre équipe le scanne avec son propre téléphone pour pointer l'entrée, puis la sortie. Il change toutes les 30 secondes : une photo envoyée à quelqu'un d'autre ne fonctionne plus.	Su equipo lo escanea con su propio teléfono para registrar la entrada, y otra vez la salida. Cambia cada 30 segundos: una foto enviada a otra persona ya no sirve.
+My team	Mon équipe	Mi equipo
+You supervise no active project.	Vous ne supervisez aucun projet actif.	No supervisa ningún proyecto activo.
+New code in	Nouveau code dans	Nuevo código en
+The site position is not set: positions are recorded but not compared. Set it in the project, from the site.	La position du site n'est pas définie : les positions sont enregistrées mais pas comparées. Définissez-la dans le projet, depuis le site.	La posición del sitio no está definida: las posiciones se registran pero no se comparan. Defínala en el proyecto, desde el sitio.
+Scanned today	Scannés aujourd'hui	Escaneados hoy
+Clock in from your own worker account.	Pointez depuis votre propre compte de travailleur.	Registre su entrada desde su propia cuenta de trabajador.
+Clocked out. Your supervisor is told.	Sortie pointée. Votre superviseur est prévenu.	Salida registrada. Su supervisor recibe aviso.
+Clock out	Pointer la sortie	Registrar salida
+Finding where you are…	Recherche de votre position…	Buscando su ubicación…
+Clock out now	Pointer la sortie maintenant	Registrar salida ahora
+Clock in now	Pointer l'entrée maintenant	Registrar entrada ahora
+Your phone tells where you are: if it is away from the site, your supervisor sees it.	Votre téléphone indique où vous êtes : si c'est hors du site, votre superviseur le voit.	Su teléfono indica dónde está: si está fuera del sitio, su supervisor lo ve.
+Scan the code on your supervisor’s phone to clock in.	Scannez le code sur le téléphone de votre superviseur pour pointer l'entrée.	Escanee el código en el teléfono de su supervisor para registrar la entrada.
+Clock in without the code (your supervisor is told)	Pointer sans le code (votre superviseur est prévenu)	Registrar sin el código (su supervisor recibe aviso)
+To clock out, scan your supervisor’s code again.	Pour pointer la sortie, scannez à nouveau le code de votre superviseur.	Para registrar la salida, escanee otra vez el código de su supervisor.
+Clock out without the code (your supervisor is told)	Pointer la sortie sans le code (votre superviseur est prévenu)	Registrar la salida sin el código (su supervisor recibe aviso)
+Clocked out at :time.	Sortie pointée à :time.	Salida registrada a las :time.
+:h hours.	:h heures.	:h horas.
+Show the clock-in code	Afficher le code de pointage	Mostrar el código de registro
+The site position is two numbers, latitude and longitude, for example 41.593 and -87.346. Use "My position here" on the site.	La position du site est deux nombres, latitude et longitude, par exemple 41.593 et -87.346. Utilisez « My position here » sur le site.	La posición del sitio son dos números, latitud y longitud, por ejemplo 41.593 y -87.346. Use «My position here» en el sitio.
+Site latitude	Latitude du site	Latitud del sitio
+Site longitude	Longitude du site	Longitud del sitio
+Clock-in radius (m)	Rayon de pointage (m)	Radio de registro (m)
+Position taken: save	Position prise : enregistrez	Posición tomada: guarde
+Position unavailable	Position indisponible	Posición no disponible
+My position here	Ma position ici	Mi posición aquí
+The photo is larger than the server accepts (:max). Take it again, or send a PDF.	La photo est plus grande que ce que le serveur accepte (:max). Reprenez-la, ou envoyez un PDF.	La foto es más grande de lo que acepta el servidor (:max). Tómela de nuevo, o envíe un PDF.
+Your pay statement for the week ending :date is ready.	Votre relevé de paie pour la semaine se terminant le :date est prêt.	Su recibo de pago de la semana que termina el :date está listo.

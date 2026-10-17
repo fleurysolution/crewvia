@@ -46,7 +46,7 @@ if ($own || can('recruiter') || can('payroll')): ?>
       <div><label for="bank-routing"><?= te('Routing number') ?></label><input id="bank-routing" name="routing_number" required inputmode="numeric" pattern="[0-9 ]{9,11}" autocomplete="off"></div>
       <div><label for="bank-account"><?= te('Account number') ?></label><input id="bank-account" name="account_number" type="text" class="secret" data-lpignore="true" data-1p-ignore required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off"></div>
       <div><label for="bank-account2"><?= te('Account number, again') ?></label><input id="bank-account2" name="account_number_confirm" type="text" class="secret" data-lpignore="true" data-1p-ignore required inputmode="numeric" pattern="[0-9 ]{4,24}" autocomplete="off" data-secret-pair="bank-account"><p id="bank-account2-match" class="small" aria-live="polite" data-ok="<?= te('The two numbers match.') ?>" data-no="<?= te('The two numbers differ.') ?>"></p></div>
-      <div><label for="bank-proof"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="bank-proof" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
+      <div><label for="bank-proof"><?= te('Proof: a voided cheque, or the direct deposit form or letter from your bank') ?></label><input id="bank-proof" name="bank_proof" type="file" data-shrink required accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
     </div>
     <p class="small muted"><?= te('A photo or a PDF where the routing and account numbers can be read. Payroll compares them with what you typed before your pay goes there, so a wrong digit never sends your pay to another account. Everything is encrypted as soon as it is sent; only the last four digits are ever shown.') ?></p>
     <button class="btn"><?= te('Send my bank details') ?></button></form><script src="/assets/masked-fields.js"></script>
@@ -203,7 +203,7 @@ if ($own || can('recruiter') || can('payroll')): ?>
       </div>
       <div class="f2">
         <label for="b-proof"><?= te('Proof: voided cheque or bank letter') ?></label>
-        <input id="b-proof" name="bank_proof" type="file" required accept=".pdf,.jpg,.jpeg,.png">
+        <input id="b-proof" name="bank_proof" type="file" data-shrink required accept=".pdf,.jpg,.jpeg,.png">
         <span class="hint"><?= te('Another payroll person compares it with the numbers before they are used.') ?></span>
       </div>
       <div class="row tight"><button class="btn" type="submit"><?= te('Save') ?></button></div>
@@ -211,3 +211,4 @@ if ($own || can('recruiter') || can('payroll')): ?>
   </form><script src="/assets/masked-fields.js"></script>
 </section>
 <?php endif; ?>
+<script src="/assets/shrink-photo.js"></script>

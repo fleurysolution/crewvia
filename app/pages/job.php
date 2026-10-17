@@ -303,6 +303,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         trim((string) ($_POST['notes'] ?? '')) ?: null,
         $jobId,
     ]);
+    // P5-M67: the site's exact position and radius, against which clock-ins are compared.
+    $lat = trim((string) ($_POST['site_lat'] ?? ''));
+    $lng = trim((string) ($_POST['site_lng'] ?? ''));
+    $radius = max(50, min(5000, (int) ($_POST['site_radius_m'] ?? 300) ?: 300));
+    if ($lat === '' && $lng === '') {
+        q('UPDATE jobs SET site_lat = NULL, site_lng = NULL, site_radius_m = ? WHERE id = ?', [$radius, $jobId]);
+    } elseif (is_numeric($lat) && is_numeric($lng) && abs((float) $lat) <= 90 && abs((float) $lng) <= 180) {
+        q('UPDATE jobs SET site_lat = ?, site_lng = ?, site_radius_m = ? WHERE id = ?', [round((float) $lat, 6), round((float) $lng, 6), $radius, $jobId]);
+    } else {
+        flash(t('The site position is two numbers, latitude and longitude, for example 41.593 and -87.346. Use "My position here" on the site.'), 'err');
+    }
 
     db()->commit();
 

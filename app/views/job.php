@@ -512,6 +512,19 @@ $strike   = (bool) $job['strike_live'];
         <input id="j-state" name="site_state" maxlength="2" value="<?= e($job['site_state'] ?? '') ?>">
       </div>
       <div class="in-s">
+        <label for="j-lat"><?= te('Site latitude') ?></label>
+        <input id="j-lat" name="site_lat" inputmode="decimal" maxlength="12" value="<?= e((string) ($job['site_lat'] ?? '')) ?>">
+      </div>
+      <div class="in-s">
+        <label for="j-lng"><?= te('Site longitude') ?></label>
+        <input id="j-lng" name="site_lng" inputmode="decimal" maxlength="12" value="<?= e((string) ($job['site_lng'] ?? '')) ?>">
+      </div>
+      <div class="in-s">
+        <label for="j-radius"><?= te('Clock-in radius (m)') ?></label>
+        <input id="j-radius" name="site_radius_m" type="number" min="50" max="5000" value="<?= (int) ($job['site_radius_m'] ?? 300) ?>">
+      </div>
+      <div class="in-s"><label>&nbsp;</label><button type="button" class="btn ghost sm" onclick="var b=this;navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(p){document.getElementById('j-lat').value=p.coords.latitude.toFixed(6);document.getElementById('j-lng').value=p.coords.longitude.toFixed(6);b.textContent=b.dataset.done;},function(){b.textContent=b.dataset.fail;},{enableHighAccuracy:true,timeout:15000})" data-done="<?= te('Position taken: save') ?>" data-fail="<?= te('Position unavailable') ?>"><?= te('My position here') ?></button></div>
+      <div class="in-s">
         <label for="j-zip"><?= te('ZIP code') ?></label>
         <input id="j-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?" value="<?= e($job['site_zip'] ?? '') ?>">
       </div>

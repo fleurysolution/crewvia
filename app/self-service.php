@@ -74,6 +74,10 @@ function bank_proof_store(?array $file): array
     if (! $file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
         return [t('Attach a voided cheque or the direct deposit form or letter from your bank (photo or PDF), so payroll can check the numbers.'), null];
     }
+    // P5-M67: a photo larger than the server accepts is said so, with the server's own limit.
+    if (in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        return [t('The photo is larger than the server accepts (:max). Take it again, or send a PDF.', ['max' => (string) ini_get('upload_max_filesize')]), null];
+    }
     if ($file['error'] !== UPLOAD_ERR_OK || $file['size'] > 10 * 1024 * 1024) {
         return [t('The proof must be a photo or a PDF of up to 10 MB.'), null];
     }

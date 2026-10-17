@@ -94,6 +94,12 @@ function payroll_run_move(array $run, string $action, int $userId, string $reaso
                 return t('The person who submitted a period does not approve it. Another administrator does.');
             }
             q("UPDATE payroll_runs SET status='approved', approved_by=?, approved_at=NOW() WHERE id=? AND status='submitted'", [$userId, $id]);
+            // P5-M67: each person paid in this period is told their pay statement is ready, in their portal.
+            require_once __DIR__ . '/notices.php';
+            foreach (rows("SELECT DISTINCT p.candidate_id FROM timesheets t JOIN placements p ON p.id = t.placement_id WHERE t.week_ending = ? AND t.status IN ('approved','paid')
+                           UNION SELECT DISTINCT candidate_id FROM payroll_adjustments WHERE run_id = ?", [$run['week_ending'], $id]) as $paid) {
+                notify_candidate((int) $paid['candidate_id'], t('Your pay statement for the week ending :date is ready.', ['date' => d((string) $run['week_ending'])]), '/my-payslips');
+            }
             break;
 
         case 'lock':

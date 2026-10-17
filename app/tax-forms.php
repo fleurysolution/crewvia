@@ -490,6 +490,9 @@ function tf_copy_add(int $candidateId, string $list, string $title, ?array $file
     if (! in_array($list, ['A', 'B', 'C'], true) || $title === '') {
         return t('Say which document it is: its list (A, B or C) and its title.');
     }
+    if ($file && in_array($file['error'] ?? 0, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        return t('The photo is larger than the server accepts (:max). Take it again, or send a PDF.', ['max' => (string) ini_get('upload_max_filesize')]);
+    }
     if (! $file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || $file['size'] > 10 * 1024 * 1024) {
         return t('Take a photo of the document, or choose a photo or a PDF of up to 10 MB.');
     }

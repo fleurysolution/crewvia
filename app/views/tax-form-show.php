@@ -89,7 +89,7 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
   <form method="post" action="/tax-forms" enctype="multipart/form-data" class="grid g3 mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="add_copy"><input type="hidden" name="candidate_id" value="<?= (int) $tf['candidate_id'] ?>"><input type="hidden" name="back" value="/tax-forms?id=<?= (int) $tf['id'] ?>">
     <div><label for="cc-l"><?= te('List') ?></label><select id="cc-l" name="list" onchange="document.getElementById('cc-t').setAttribute('list','cdocs-'+this.value)"><option>A</option><option>B</option><option>C</option></select></div>
     <div><label for="cc-t"><?= te('Document') ?></label><input id="cc-t" name="title" list="cdocs-A" maxlength="150" required></div>
-    <div><label for="cc-f"><?= te('Photograph the original') ?></label><input id="cc-f" name="copy" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment" required></div>
+    <div><label for="cc-f"><?= te('Photograph the original') ?></label><input id="cc-f" name="copy" type="file" data-shrink accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment" required></div>
     <button class="btn ghost"><?= te('Keep the copy') ?></button>
   </form>
 </div>
@@ -143,3 +143,4 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
   <div class="row mt-s"><button class="btn" name="decision" value="accept"><?= te('Accept') ?></button><button class="btn ghost" name="decision" value="return"><?= te('Send back to the worker') ?></button></div>
 </form>
 <?php endif; ?>
+<script src="/assets/shrink-photo.js"></script>

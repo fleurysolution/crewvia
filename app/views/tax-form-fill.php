@@ -165,7 +165,7 @@ if ($form === 'w4'): ?>
   <div class="grid g3">
     <div><label for="cp-l<?= $i ?>"><?= te('List') ?></label><select id="cp-l<?= $i ?>" name="copy_list[]" onchange="this.closest('.grid').querySelector('input[list]').setAttribute('list','mydocs-'+this.value)"><option value="A">List A</option><option value="B">List B</option><option value="C">List C</option></select></div>
     <div><label for="cp-t<?= $i ?>"><?= te('Document') ?></label><input id="cp-t<?= $i ?>" name="copy_title[]" list="mydocs-A" maxlength="150"></div>
-    <div><label for="cp-f<?= $i ?>"><?= te('Photo or PDF') ?></label><input id="cp-f<?= $i ?>" name="copy_file[]" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
+    <div><label for="cp-f<?= $i ?>"><?= te('Photo or PDF') ?></label><input id="cp-f<?= $i ?>" name="copy_file[]" type="file" data-shrink accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
   </div>
   <?php endfor; ?>
 </div>
@@ -190,5 +190,5 @@ if ($form === 'w4'): ?>
 </div>
 <?php endif; ?>
 </form>
-<script src="/assets/masked-fields.js"></script>
+<script src="/assets/masked-fields.js"></script><script src="/assets/shrink-photo.js"></script>
 <?php endif; ?>
