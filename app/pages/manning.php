@@ -41,6 +41,12 @@ $crew=rows("SELECT p.*,c.full_name,c.phone,j.title job_title,j.site_city,j.site_
  (SELECT l.check_in FROM lodging l WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) hotel_in,
  (SELECT l.check_out FROM lodging l WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) hotel_out
  FROM placements p JOIN candidates c ON c.id=p.candidate_id JOIN jobs j ON j.id=p.job_id LEFT JOIN assignment_details d ON d.placement_id=p.id LEFT JOIN users u ON u.id=d.supervisor_id WHERE p.job_id=?".($include?'':" AND p.status NOT IN ('completed','cancelled')").' ORDER BY c.full_name',[$jobId]);
+// P5-M81: a supervisor on the crew drives it - their vehicle is reserved with them (RSS: "add the vehicle if that person is a supervisor").
+$withVehicle=array_map('intval',array_column(rows('SELECT DISTINCT a.placement_id FROM vehicle_assignments a JOIN placements p ON p.id=a.placement_id WHERE p.job_id=? AND a.checked_in_at IS NULL',[$jobId]),'placement_id'));
+$leaders=array_map('intval',array_column(rows('SELECT DISTINCT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id JOIN assignment_details d2 ON d2.supervisor_id=w.user_id JOIN placements p2 ON p2.id=d2.placement_id AND p2.job_id=p.job_id WHERE p.job_id=?',[$jobId]),'id'));
+foreach($crew as $i=>$c){$crew[$i]['leads']=in_array((int)$c['id'],$leaders,true)||preg_match('/supervis|foreman|lead\b|superintendent/i',(string)$c['trade']);$crew[$i]['has_vehicle']=in_array((int)$c['id'],$withVehicle,true);}
+$needVehicle=array_values(array_filter($crew,static fn($c)=>$c['leads']&&!$c['has_vehicle']&&!in_array($c['status'],['completed','cancelled'],true)));
+$reserveFor=(int)($_GET['reserve'] ?? 0);
 $vans=rows('SELECT a.*,v.name,v.plate,c.full_name FROM vehicle_assignments a JOIN vehicles v ON v.id=a.vehicle_id JOIN placements p ON p.id=a.placement_id JOIN candidates c ON c.id=p.candidate_id WHERE p.job_id=? ORDER BY a.id DESC',[$jobId]);
 $vehicles=rows("SELECT * FROM vehicles WHERE status='available' ORDER BY name");
 $hotelCount=(int)val("SELECT COUNT(DISTINCT l.hotel_id) FROM lodging l JOIN placements p ON p.id=l.placement_id WHERE p.job_id=? AND l.status IN ('held','booked','checked_in')",[$jobId]);
@@ -54,4 +60,4 @@ if(isset($_GET['export'])) {
   $line=[];foreach(['full_name','job_title','trade','status','site_city','site_state','supervisor','shift_label','hotel','room_number','hotel_in','hotel_out','start_date','end_date'] as $key) { $value=(string)($c[$key] ?? '');$line[]=preg_match('/^[=+@\-\t\r]/',$value)?"'".$value:$value; }fputcsv($out,$line);
  }fclose($out);exit;
 }
-render('manning',compact('crew','vans','vehicles','hotelCount','roomCount','flights','onSite','include'));
+render('manning',compact('crew','vans','vehicles','hotelCount','roomCount','flights','onSite','include','needVehicle','reserveFor'));

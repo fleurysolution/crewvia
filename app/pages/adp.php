@@ -57,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $hires = adp_new_hires();
+$notStarted = (int) ($GLOBALS['adp_not_started'] ?? 0);
 $apiMissing = adp_api_missing();
 $history = rows('SELECT s.*, c.full_name, u.name AS by_name FROM adp_sends s LEFT JOIN candidates c ON c.id = s.candidate_id LEFT JOIN users u ON u.id = s.created_by ORDER BY s.id DESC LIMIT 50');
 $pageTitle = t('ADP') . ' · ' . $config['app_name'];
-render('adp', compact('hires', 'apiMissing', 'history'));
+render('adp', compact('hires', 'apiMissing', 'history', 'notStarted'));

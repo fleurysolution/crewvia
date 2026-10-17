@@ -58,9 +58,9 @@ $actionRow = static function (array $a, bool $closable): void { ?>
 </div>
 
 <?php if ($person['record']): ?>
-<div class="card scroll" id="progress-record"><h2><?= te('Progress record') ?></h2>
+<details class="card fold scroll" id="progress-record"><summary><span><h2><?= te('Progress record') ?></h2></span></summary>
   <?php foreach ($person['record'] as $ev): ?><div class="small" data-record="1"><?= e(d(substr($ev['at'], 0, 10))) ?> · <strong><?= e($ev['what']) ?></strong> · <?= e($ev['detail']) ?></div><?php endforeach; ?>
-</div>
+</details>
 <?php endif; ?>
 <?php endif; ?>
 
@@ -83,7 +83,7 @@ $actionRow = static function (array $a, bool $closable): void { ?>
 </div>
 <?php endif; ?>
 
-<div class="card scroll" id="cycles"><h2><?= te('Review cycles') ?></h2>
+<details class="card fold scroll" id="cycles"><summary><span><h2><?= te('Review cycles') ?></h2></span></summary>
   <?php if ($cycles): ?><table><tr><th><?= te('Cycle') ?></th><th><?= te('Template') ?></th><th><?= te('Scope') ?></th><th><?= te('Due') ?></th><th class="num"><?= te('Reviews') ?></th><th><?= te('State') ?></th><th></th></tr>
   <?php foreach ($cycles as $c): ?>
     <tr data-cycle="<?= e($c['name']) ?>" data-cycle-status="<?= e($c['status']) ?>" data-reviews="<?= (int) $c['reviews'] ?>">
@@ -104,6 +104,7 @@ $actionRow = static function (array $a, bool $closable): void { ?>
       <div><label><?= te('To') ?></label><input type="date" name="period_to" required></div>
     </div>
     <button class="btn"><?= te('Create the cycle') ?></button></form>
-</div>
+</details>
 <?php endif; ?>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

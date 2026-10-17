@@ -72,6 +72,8 @@ function cm_filters(array $in): array
         'skill'      => array_key_exists((string) ($in['skill'] ?? ''), skills_list(true)) ? (string) $in['skill'] : '',
         'available'  => ! empty($in['available']),
         'worked'     => ! empty($in['worked']),
+        // P5-M82: exactly the people ticked on Candidates (their ids), instead of a filter.
+        'ids'        => implode(',', array_slice(array_values(array_unique(array_filter(array_map('intval', explode(',', (string) ($in['ids'] ?? '')))))), 0, 2000)),
     ];
 }
 
@@ -86,6 +88,12 @@ function cm_audience(array $vacancy, array $f, string $channel = 'email'): array
               'NOT EXISTS (SELECT 1 FROM worker_accounts w2 JOIN users u2 ON u2.id = w2.user_id WHERE w2.candidate_id = c.id AND u2.is_active = 0)',
               'NOT EXISTS (SELECT 1 FROM applications a WHERE a.candidate_id = c.id AND a.vacancy_id = ?)');
     $args = [(int) $vacancy['id']];
+    if (($f['ids'] ?? '') !== '') {
+        // People chosen by hand may be this requisition's own applicants: they are written to, not left out.
+        array_pop($where);
+        $args = [];
+        $where[] = 'c.id IN (' . $f['ids'] . ')';
+    }
     if ($f['discipline'] !== '') { $where[] = 'c.discipline = ?'; $args[] = $f['discipline']; }
     if ($f['state'] !== '') { $where[] = 'c.geo_state = ?'; $args[] = $f['state']; }
     if ($f['skill'] !== '') { $where[] = 'EXISTS (SELECT 1 FROM candidate_skills cs WHERE cs.candidate_id = c.id AND cs.skill_slug = ?)'; $args[] = $f['skill']; }

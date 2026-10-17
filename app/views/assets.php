@@ -73,7 +73,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
     </details><?php endif; ?>
   </div>
   <?php endif; ?>
-  <div class="card" id="asset-lifecycle"><h2><?= te('Lifecycle') ?></h2>
+  <details class="card fold" id="asset-lifecycle"><summary><span><h2><?= te('Lifecycle') ?></h2></span></summary>
     <?php if (! $lifecycle): ?><p class="muted"><?= te('Nothing dated yet.') ?></p><?php else: ?>
     <table><?php foreach ($lifecycle as [$when, $what, $detail]): ?><tr data-stage="<?= e($what) ?>"><td class="small"><?= e(d((string) $when)) ?></td><td><?= e($what) ?></td><td class="small"><?= e($detail) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
     <?php if (can('hotels') && in_array($item['state'], ['retired', 'lost'], true)): ?>
@@ -85,7 +85,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
       <label><?= te('Note') ?><input name="note" maxlength="400"></label>
       <div><button class="btn"><?= te('Dispose of it, for good') ?></button></div></form>
     <?php endif; ?>
-  </div>
+  </details>
 </div>
 <div class="grid g2">
   <div class="card scroll" id="asset-inspections" data-count="<?= count($inspections) ?>"><h2><?= te('Inspections') ?></h2>
@@ -149,13 +149,13 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
       <td><?= e(($i['issue_condition'] ? asset_conditions()[$i['issue_condition']] : '—') . ' → ' . ($i['return_condition'] ? asset_conditions()[$i['return_condition']] : '—')) ?><?= $i['return_note'] ? ' · ' . e($i['return_note']) : '' ?></td></tr>
   <?php endforeach; ?></table><?php endif; ?>
 </div>
-<div class="card scroll" id="asset-history"><h2><?= te('History') ?></h2>
+<details class="card fold scroll" id="asset-history"><summary><span><h2><?= te('History') ?></h2></span></summary>
   <table><tr><th><?= te('When') ?></th><th><?= te('What') ?></th><th><?= te('Detail') ?></th><th class="num"><?= te('Cost') ?></th><th><?= te('By') ?></th></tr>
   <?php foreach ($events as $ev): ?>
     <tr data-event="<?= e($ev['event']) ?>"><td><?= e(d(substr((string) $ev['created_at'], 0, 10))) ?></td><td><?= e(asset_event_labels()[$ev['event']] ?? $ev['event']) ?></td><td><?= e($ev['detail'] ?? '') ?></td>
       <td class="num mono"><?= $ev['cost'] !== null ? e(money($ev['cost'])) : '' ?></td><td><?= e($ev['by_name'] ?? '') ?></td></tr>
   <?php endforeach; ?></table>
-</div>
+</details>
 <?php else: ?>
 <div class="page-head"><div><h1><?= te('Assets') ?></h1>
 <p class="sub"><?= te('Every item the agency issues: where it is, its state and its next inspection. Items are issued and taken back on Operations.') ?>
@@ -188,7 +188,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
   <?php foreach ($due['plans'] as $dp): ?><tr data-due-plan="<?= (int) $dp['id'] ?>"><td class="small<?= $overdue($dp['next_due']) ? ' err' : '' ?>"><?= e(d((string) $dp['next_due'])) ?></td><td><a href="/assets?id=<?= (int) $dp['equipment_id'] ?>"><?= e($dp['asset_tag'] . ' · ' . $dp['name']) ?></a></td><td><?= e($dp['task']) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
 </div>
 <?php if (can('hotels')): ?>
-<div class="card scroll" id="asset-categories"><h2><?= te('Categories') ?></h2>
+<details class="card fold scroll" id="asset-categories"><summary><span><h2><?= te('Categories') ?></h2></span></summary>
   <table><tr><th><?= te('Code') ?></th><th><?= te('Name') ?></th><th><?= te('Class') ?></th><th><?= te('Inspection every (days)') ?></th><th><?= te('Useful life (months)') ?></th><th><?= te('Residual %') ?></th><th><?= te('In use') ?></th><th></th></tr>
   <?php foreach ($categories as $c): ?><tr data-category="<?= e($c['code']) ?>"><td colspan="8">
     <form method="post" class="row gap-s"><?= csrf_field() ?><input type="hidden" name="do" value="category_save"><input type="hidden" name="category_id" value="<?= (int) $c['id'] ?>">
@@ -206,7 +206,7 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
     <input type="number" name="useful_life_months" min="1" max="600" placeholder="<?= te('Useful life (months)') ?>" class="fw-xs" aria-label="<?= te('Useful life (months)') ?>">
     <input type="number" name="residual_percent" min="0" max="90" step="0.5" placeholder="<?= te('Residual %') ?>" class="fw-xs" aria-label="<?= te('Residual %') ?>">
     <input type="hidden" name="is_active" value="1"><button class="btn sm"><?= te('Add the category') ?></button></form>
-</div>
+</details>
 <div class="grid g2">
   <form class="card" method="post" id="asset-register"><?= csrf_field() ?><input type="hidden" name="do" value="register">
     <h2><?= te('Register an item') ?></h2>
@@ -238,3 +238,4 @@ $overdue = static fn(?string $due): bool => $due !== null && $due !== '' && $due
 </div>
 <?php endif; ?>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

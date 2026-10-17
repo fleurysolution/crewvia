@@ -98,18 +98,19 @@ $roleNames = ['recruiter' => t('Recruiting'), 'payroll' => t('Payroll'), 'hotels
 </div>
 
 <?php if (can('admin')): ?>
-<div class="card scroll" id="policy"><h2><?= te('Who may export') ?></h2>
+<details class="card fold scroll" id="policy"><summary><span><h2><?= te('Who may export') ?></h2></span></summary>
   <p class="muted"><?= te('By default whoever may read a report may export it. Narrow it here; administrators may always export.') ?></p>
   <table><?php foreach ($policy as $k => $p): ?><tr data-policy="<?= e($k) ?>" data-exporters="<?= e(implode(',', $p['exporters'])) ?>"><td><?= te($catalog[$k]['title']) ?></td>
     <td><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="policy"><input type="hidden" name="source" value="<?= e($k) ?>">
       <label><input type="checkbox" name="readers" value="1"<?= $p['set'] ? '' : ' checked' ?>> <?= te('Every reader') ?></label>
       <?php foreach ($p['readers'] as $r): ?><label><input type="checkbox" name="roles[]" value="<?= e($r) ?>"<?= in_array($r, $p['exporters'], true) ? ' checked' : '' ?>> <?= e($roleNames[$r] ?? $r) ?></label><?php endforeach; ?>
       <button class="btn sm ghost"><?= te('Save') ?></button></form></td></tr><?php endforeach; ?></table>
-</div>
-<div class="card scroll" id="all-schedules"><h2><?= te('Every schedule') ?></h2>
+</details>
+<details class="card fold scroll" id="all-schedules"><summary><span><h2><?= te('Every schedule') ?></h2></span></summary>
   <form method="post" id="run-due"><?= csrf_field() ?><input type="hidden" name="do" value="run_due"><button class="btn"><?= te('Run what is due now') ?></button></form>
   <p class="small muted"><?= te('On the server, install/run-report-schedules.php runs what is due; a cron entry every hour keeps it on time.') ?></p>
   <?php if ($allSchedules): ?><table><?php foreach ($allSchedules as $s): ?><tr data-schedule="<?= (int) $s['id'] ?>"><td><?= e($s['name']) ?></td><td><?= te(ucfirst((string) $s['frequency'])) ?></td><td><?= (int) $s['active'] ? e($s['next_run_at']) : te('stopped') ?></td><td><?= e((string) ($s['last_run_at'] ?? '')) ?></td></tr><?php endforeach; ?></table><?php endif; ?>
-</div>
+</details>
 <?php endif; ?>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

@@ -16,6 +16,16 @@ $stages = candidate_stages();
       <label for="q"><?= te('Search') ?></label>
       <input id="q" name="q" value="<?= e($search) ?>" placeholder="<?= te('Name, phone, email or city') ?>">
     </div>
+    <?php // P5-M82: the applicants of one requisition, in the order they applied. ?>
+    <div class="f2">
+      <label for="vacancy"><?= te('Applied to') ?></label>
+      <select id="vacancy" name="vacancy">
+        <option value=""><?= te('Any requisition, or none') ?></option>
+        <?php foreach ($vacancyChoices as $vc): ?><option value="<?= (int) $vc['id'] ?>"<?= (int) $vc['id'] === $vacancyFilter ? ' selected' : '' ?>><?= e($vc['title'] . ' · ' . $vc['job']) ?> (<?= (int) $vc['applied'] ?>)</option><?php endforeach; ?>
+      </select>
+      <?php if ($vacancyFilter): ?><span class="hint d-block" data-pool-tabs><?php foreach (['applied' => t('Applicants'), 'match' => t('Matching in the database')] as $pk => $pl): ?><?= $vacancyPool === $pk ? '<strong>' . e($pl) . '</strong>' : '<a href="?' . e(http_build_query(['pool' => $pk === 'match' ? 'match' : '', 'page' => ''] + $_GET)) . '">' . e($pl) . '</a>' ?> &middot; <?php endforeach; ?></span><?php endif; ?>
+      <?php if ($vacancyFilter && $vacancyPool === 'applied'): ?><span class="hint"><?= ($_GET['order'] ?? '') === 'newest' ? te('Newest application first.') : te('First applied, first listed.') ?> <a href="?<?= e(http_build_query(['order' => ($_GET['order'] ?? '') === 'newest' ? '' : 'newest'] + $_GET)) ?>"><?= ($_GET['order'] ?? '') === 'newest' ? te('Oldest first') : te('Newest first') ?></a></span><?php endif; ?>
+    </div>
     <div>
       <label for="stage"><?= te('Stage') ?></label>
       <select id="stage" name="stage">
@@ -159,18 +169,21 @@ $stages = candidate_stages();
   <div class="scroll">
   <table class="wide">
     <thead><tr>
+      <th><input type="checkbox" aria-label="<?= te('Select all') ?>" data-pick-all></th>
       <th><?= te('Name') ?></th><th><?= te('Field') ?></th><th><?= te('Telephone') ?></th><th><?= te('Where') ?></th>
       <th><?= te('Stage') ?></th><th><?= te('Last call') ?></th><th><?= te('Recruiter') ?></th><th class="right"><?= te('Log a call') ?></th><th class="right"><?= te('Move to') ?></th>
     </tr></thead>
     <tbody>
     <?php foreach ($list as $c): ?>
       <tr>
+        <td><input type="checkbox" value="<?= (int) $c['id'] ?>" data-pick aria-label="<?= e($c['full_name']) ?>"></td>
         <td>
           <a href="/candidates/<?= (int) $c['id'] ?>"
              class="<?= in_array($c['rehire_status'] ?? '', rehire_blocked(), true) ? 'barred' : '' ?>">
             <?= e($c['full_name']) ?>
           </a>
           <?= rehire_tag($c['rehire_status'] ?? null) ?>
+          <?php if (! empty($c['applied_at'])): ?><div class="small muted" data-applied><?= te('Applied :date', ['date' => d(substr((string) $c['applied_at'], 0, 10))]) ?><?= $c['applied_via'] ? ' &middot; ' . e((string) $c['applied_via']) : '' ?></div><?php endif; ?>
           <?php if ((int) $c['calls'] > 0): ?>
             <span class="small muted">&middot; <?= (int) $c['calls'] ?> call<?= (int) $c['calls'] === 1 ? '' : 's' ?></span>
           <?php endif; ?>
@@ -266,3 +279,9 @@ $stages = candidate_stages();
   <?php endif; ?>
 </div>
 <div class="card row pager"><span></span><?php if($page>1): ?><a href="/candidates?<?= e(http_build_query(array_merge($_GET,['page'=>$page-1]))) ?>"><?= te('Previous') ?></a><?php endif; ?><?php if($page*100<$listTotal): ?><a href="/candidates?<?= e(http_build_query(array_merge($_GET,['page'=>$page+1]))) ?>"><?= te('Next') ?></a><?php endif; ?></div>
+<?php // P5-M82: the people ticked get one message - email or text - through a campaign (unsubscribe, approval above 50). ?>
+<form method="get" action="/campaigns" class="pick-bar card" id="message-selected" hidden>
+  <input type="hidden" name="ids" value=""><input type="hidden" name="vacancy_id" value="<?= (int) ($vacancyFilter ?? 0) ?>"><input type="hidden" name="preview" value="1">
+  <strong data-pick-count></strong> <button class="btn sm" name="channel" value="email"><?= te('Email them') ?></button> <button class="btn ghost sm" name="channel" value="text"><?= te('Text them') ?></button>
+</form>
+<script>(function(){var bar=document.getElementById('message-selected');if(!bar)return;var boxes=function(){return [].slice.call(document.querySelectorAll('[data-pick]'));};var sync=function(){var ids=boxes().filter(function(b){return b.checked;}).map(function(b){return b.value;});bar.hidden=!ids.length;bar.querySelector('[name=ids]').value=ids.join(',');bar.querySelector('[data-pick-count]').textContent=ids.length+' <?= te('selected') ?>';};document.addEventListener('change',function(e){if(e.target.matches('[data-pick-all]')){boxes().forEach(function(b){b.checked=e.target.checked;});}if(e.target.matches('[data-pick],[data-pick-all]'))sync();});})();</script>

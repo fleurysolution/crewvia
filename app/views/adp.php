@@ -28,6 +28,7 @@
     </tbody></table></div>
   <p class="small muted m0 mt-s"><?= te('The file holds Social Security and bank numbers. Import it in ADP, then delete it.') ?></p>
   <?php endif; ?>
+  <?php if ($notStarted): ?><p class="small muted m0 mt-s" data-adp-not-started><?= te(':n more on an assignment have not started their tax forms yet.', ['n' => $notStarted]) ?> <a href="/onboarding"><?= te('Onboarding') ?></a></p><?php endif; ?>
 </form>
 <?php foreach ($hires as $h): ?><form method="post" action="/adp" id="adp-id-<?= (int) $h['candidate_id'] ?>" hidden><?= csrf_field() ?><input type="hidden" name="do" value="employee_id"><input type="hidden" name="candidate_id" value="<?= (int) $h['candidate_id'] ?>"></form><?php endforeach; ?>
 

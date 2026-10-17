@@ -150,7 +150,7 @@ check('Once the scope has lines, adding a trade is a button that opens the form'
 # P5-M73: the plant folded into sections; the strike switch at the top; bookmarks and recent screens in the menu.
 status, body = admin.get('/job')
 folds = re.findall(r'<details class="card fold[^"]*" id="([^"]+)"( open)?', body)
-check('The plant is folded into sections, the scope open', dict(folds).get('scope') == ' open' and all(dict(folds).get(k) == '' for k in ('shifts', 'project-contacts', 'billing-terms', 'project-form', 'internal-notes')), folds)
+check('The plant starts with every section folded, the scope too', dict(folds).get('scope') == '' and all(dict(folds).get(k) == '' for k in ('shifts', 'project-contacts', 'billing-terms', 'project-form', 'internal-notes')), folds)
 check('The strike switch is at the top of the plant', body.find('id="strike-switch"') != -1 and body.find('id="strike-switch"') < body.find('id="scope"'))
 admin.post('/job', {'do': 'strike', 'strike_live': '1'}, '/job')
 check('The strike is declared live from the top', int(one('SELECT strike_live FROM jobs WHERE id = %d' % int(job['id']))['strike_live']) == 1)
@@ -227,3 +227,26 @@ check('Advance keeps the project as written', before['description'] == 'Pipefitt
 check('...and moves it to Mobilising once its signals are met', after['lifecycle_stage'] == 'mobilising' and 'Moved to Mobilising' in body, (after, re.findall(r'class="flash[^"]*"[^>]*>([^<]*)', body)))
 status, body = admin.post('/job', {'do': 'something-else', 'description': ''}, '/job')
 check('An unknown action is refused, never saved as the project', 'Unknown action.' in body and one('SELECT description FROM jobs WHERE id = %d' % int(job['id']))['description'] == 'Pipefitting support for the plant.')
+tasks = sql('SELECT title, assignee_id, due_on FROM project_tasks WHERE job_id = %d ORDER BY id' % int(job['id']))
+check('Reaching Mobilising sends the team its tasks: requisitions and recruiting, hotels, travel, payroll, the site',
+      len(tasks) >= 6 and any('requisitions' in x['title'] for x in tasks) and any('hotel' in x['title'] for x in tasks) and all(x['due_on'] for x in tasks), tasks)
+check('...each to someone on that desk', sum(1 for x in tasks if x['assignee_id']) >= 5, tasks)
+
+# P5-M82: Candidates by requisition - its applicants first come first served, or the database matching it; a message to the people ticked.
+def php_q(query):
+    subprocess.run([php, '-r', "require 'work/test-app/app/bootstrap.php'; q($argv[1]);", query], check=True)
+vac_id = int(vac['id'])
+php_q("INSERT INTO candidates (full_name, email, phone, discipline, stage) VALUES ('Early Applicant', 'early@test.invalid', '555-070-7001', 'mechanical', 'new'), ('Late Applicant', 'late@test.invalid', '555-070-7002', 'mechanical', 'new'), ('Pool Match', 'pool@test.invalid', '555-070-7003', 'mechanical', 'new')")
+php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source, created_at) SELECT id, %d, 'new', 'LinkedIn', '2026-10-01 08:00:00' FROM candidates WHERE email = 'late@test.invalid'" % vac_id)
+php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source, created_at) SELECT id, %d, 'new', 'QR code', '2026-09-30 08:00:00' FROM candidates WHERE email = 'early@test.invalid'" % vac_id)
+status, body = admin.get('/candidates?vacancy=%d' % vac_id)
+check('Candidates shows the applicants of a requisition, first applied first, with where they came from',
+      body.find('Early Applicant') != -1 and body.find('Early Applicant') < body.find('Late Applicant') and 'Pool Match' not in body and 'QR code' in body and 'data-pick-all' in body)
+status, body = admin.get('/candidates?vacancy=%d&order=newest' % vac_id)
+check('...or the newest first', body.find('Late Applicant') < body.find('Early Applicant'))
+status, body = admin.get('/candidates?vacancy=%d&pool=match&q=Pool+Match' % vac_id)
+status2, body2 = admin.get('/candidates?vacancy=%d&pool=match&q=Applicant' % vac_id)
+check('The database matching it: same trade, not already applied', 'Pool Match' in body and 'Early Applicant' not in body2 and 'Late Applicant' not in body2)
+ids = ','.join(str(x['id']) for x in sql("SELECT id FROM candidates WHERE email IN ('early@test.invalid','late@test.invalid')"))
+status, body = admin.get('/campaigns?ids=%s&vacancy_id=%d&preview=1&channel=email' % (ids, vac_id))
+check('The people ticked get one message: the campaign is for exactly them, applicants included', 'data-chosen-people' in body and 'data-count="2"' in body and ('name="ids" value="%s"' % ids) in body)

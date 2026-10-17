@@ -34,8 +34,7 @@
 </div>
 
 <?php if ($grand['bill'] > 0): ?>
-<div class="card bg-soft">
-  <h2><?= te('Where the money lands') ?></h2>
+<details class="card fold bg-soft" id="money-lands"><summary><span><h2><?= te('Where the money lands') ?></h2></span></summary>
   <table class="in-xl">
     <tr><td><?= te('Billed to client') ?></td><td class="num mono"><?= money($grand['bill']) ?></td></tr>
     <tr><td><?= te('Wages and per diem') ?></td><td class="num mono">(<?= money($grand['pay']) ?>)</td></tr>
@@ -54,7 +53,7 @@
       <strong><?= money($grand['short'] * (float) ($job['pay_rate'] ?? 50)) ?></strong> <?= te('RSS carried.') ?>
     </p>
   <?php endif; ?>
-</div>
+</details>
 <?php endif; ?>
 
 <?php if (! $weeks): ?>
@@ -100,3 +99,4 @@
   </div>
 </div>
 <?php endforeach; ?>
+<script src="/assets/fold.js"></script>

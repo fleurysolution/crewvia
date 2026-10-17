@@ -73,12 +73,12 @@ $tone = static fn(string $s): string => ['self_review' => 'blue', 'supervisor_re
 
 <?php if ($role !== 'worker'): ?>
 <p><a href="/performance?candidate=<?= (int) $a['candidate_id'] ?>&amp;appraisal=<?= (int) $a['id'] ?>"><?= te('Goals and development plan for :name', ['name' => $a['full_name']]) ?></a></p>
-<div class="card scroll" id="appraisal-history"><h2><?= te('History') ?></h2>
+<details class="card fold scroll" id="appraisal-history"><summary><span><h2><?= te('History') ?></h2></span></summary>
   <table><tr><th><?= te('When') ?></th><th><?= te('What') ?></th><th><?= te('Detail') ?></th><th><?= te('By') ?></th></tr>
   <?php foreach ($events as $ev): ?>
     <tr data-event="<?= e($ev['event']) ?>"><td><?= e(d(substr((string) $ev['created_at'], 0, 10))) ?></td><td><?= e(appraisal_event_labels()[$ev['event']] ?? $ev['event']) ?></td><td><?= e($ev['detail'] ?? '') ?></td><td><?= e($ev['by_name'] ?? '') ?></td></tr>
   <?php endforeach; ?></table>
-</div>
+</details>
 <?php endif; ?>
 
 <?php else: ?>
@@ -111,3 +111,4 @@ $tone = static fn(string $s): string => ['self_review' => 'blue', 'supervisor_re
 </form>
 <?php endif; ?>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

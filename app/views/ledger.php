@@ -65,7 +65,7 @@ $linesTable = static function (array $ls) use ($acctName, $amount): string {
 </div>
 <?php endif; ?>
 
-<div class="card scroll" id="ledger-vs-export"><h2><?= te('Ledger and QuickBooks') ?></h2>
+<details class="card fold scroll" id="ledger-vs-export"><summary><span><h2><?= te('Ledger and QuickBooks') ?></h2></span></summary>
   <p class="muted"><?= te('Each account in the ledger beside what was exported to QuickBooks, to date. A difference is waiting to be exported, or payroll left to ADP.') ?></p>
   <table><tr><th><?= te('Account') ?></th><th class="num"><?= te('Ledger') ?></th><th class="num"><?= te('Exported') ?></th><th class="num"><?= te('Difference') ?></th></tr>
   <?php foreach ($compare as $c): ?>
@@ -74,7 +74,7 @@ $linesTable = static function (array $ls) use ($acctName, $amount): string {
       <td class="num mono"><?= abs($c['difference']) < 0.005 ? '<span class="muted">-</span>' : e(money($c['difference'])) ?></td></tr>
   <?php endforeach; ?></table>
   <p><a href="/accounting"><?= te('QuickBooks export') ?></a></p>
-</div>
+</details>
 
 <div class="card scroll" id="ledger-drafts"><h2><?= te('Journals waiting to be posted') ?></h2>
   <?php if (! $drafts): ?><p class="muted"><?= te('No draft journal.') ?></p><?php endif; ?>
@@ -124,7 +124,7 @@ $linesTable = static function (array $ls) use ($acctName, $amount): string {
   <?php endforeach; ?></table><?php endif; ?>
 </div>
 
-<div class="card scroll" id="chart"><h2><?= te('Chart of accounts') ?></h2>
+<details class="card fold scroll" id="chart"><summary><span><h2><?= te('Chart of accounts') ?></h2></span></summary>
   <table><tr><th><?= te('Number') ?></th><th><?= te('Account') ?></th><th><?= te('Kind') ?></th><th><?= te('QuickBooks account') ?></th><th><?= te('State') ?></th></tr>
   <?php foreach ($accounts as $k => $a): ?>
     <tr data-account="<?= e($k) ?>" data-active="<?= (int) $a['is_active'] ?>"><td class="mono"><?= e((string) $a['number']) ?></td><td><a href="/ledger?account=<?= e(rawurlencode($k)) ?>#account-ledger"><?= te($a['label']) ?></a></td>
@@ -141,4 +141,5 @@ $linesTable = static function (array $ls) use ($acctName, $amount): string {
     <button class="btn"><?= te('Add the account') ?></button></form>
   <p class="small muted"><?= te('A new account is mapped to QuickBooks on the QuickBooks export page before a journal using it can be exported.') ?></p>
   <?php endif; ?>
-</div>
+</details>
+<script src="/assets/fold.js"></script>

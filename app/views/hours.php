@@ -106,15 +106,14 @@ $guarantee = (int) (($job['strike_live'] ?? 0) ? ($job['strike_hours'] ?? 60) : 
 </form>
 <?php endif; ?>
 
-<div class="grid g2"><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="import_attendance"><h2><?= te('Import approved attendance') ?></h2><label><?= te('Week ending') ?><input name="week_ending" type="date" required value="<?= e($week) ?>"></label><p><?= te('Approved weeks remain frozen. Per diem and expenses require separate review.') ?></p><button class="btn"><?= te('Import approved attendance') ?></button></form><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="policy"><h2><?= te('Gross payroll policy') ?></h2><p><?= te('Configure reviewed weekly overtime rules. Taxes, daily overtime and deductions remain with the payroll provider.') ?></p><label><?= te('Weekly overtime after hours') ?><input name="weekly_overtime_after" type="number" min="0" max="168" step="0.25" value="<?= e($job['weekly_overtime_after']??'') ?>"></label><label><?= te('Overtime multiplier') ?><input name="overtime_multiplier" type="number" min="1" max="5" step="0.01" value="<?= e($job['overtime_multiplier']??1.5) ?>"></label><?php require_once __DIR__ . '/../guarantee-policy.php'; ?><label class="tick"><input type="checkbox" name="guarantee_overtime" value="1"<?= !empty($job['guarantee_overtime']) ? ' checked' : '' ?>> <?= te('Pay guaranteed hours above the threshold as overtime (50 = 40 regular + 10 overtime)') ?></label><label><?= te('An unexcused absence') ?><select name="guarantee_absence_rule"><?php foreach (GUARANTEE_ABSENCE_RULES as $k => $label): ?><option value="<?= e($k) ?>"<?= ($job['guarantee_absence_rule'] ?? 'keep') === $k ? ' selected' : '' ?>><?= te($label) ?></option><?php endforeach; ?></select></label><label><?= te('Hours in a day of the guarantee') ?><input name="guarantee_day_hours" type="number" min="0" max="24" step="0.25" value="<?= e($job['guarantee_day_hours'] ?? 10) ?>"></label><p class="small muted"><?= te('An absence is a day marked absent at roll call, or clocked in and not seen on site, that no approved time off covers.') ?></p><button class="btn ghost"><?= te('Save policy') ?></button></form></div>
+<details class="card fold" id="import-and-policy"><summary><span><h2><?= te('Import attendance and payroll policy') ?></h2></span></summary><div class="grid g2"><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="import_attendance"><h2><?= te('Import approved attendance') ?></h2><label><?= te('Week ending') ?><input name="week_ending" type="date" required value="<?= e($week) ?>"></label><p><?= te('Approved weeks remain frozen. Per diem and expenses require separate review.') ?></p><button class="btn"><?= te('Import approved attendance') ?></button></form><form class="card" method="post"><?= csrf_field() ?><input type="hidden" name="do" value="policy"><h2><?= te('Gross payroll policy') ?></h2><p><?= te('Configure reviewed weekly overtime rules. Taxes, daily overtime and deductions remain with the payroll provider.') ?></p><label><?= te('Weekly overtime after hours') ?><input name="weekly_overtime_after" type="number" min="0" max="168" step="0.25" value="<?= e($job['weekly_overtime_after']??'') ?>"></label><label><?= te('Overtime multiplier') ?><input name="overtime_multiplier" type="number" min="1" max="5" step="0.01" value="<?= e($job['overtime_multiplier']??1.5) ?>"></label><?php require_once __DIR__ . '/../guarantee-policy.php'; ?><label class="tick"><input type="checkbox" name="guarantee_overtime" value="1"<?= !empty($job['guarantee_overtime']) ? ' checked' : '' ?>> <?= te('Pay guaranteed hours above the threshold as overtime (50 = 40 regular + 10 overtime)') ?></label><label><?= te('An unexcused absence') ?><select name="guarantee_absence_rule"><?php foreach (GUARANTEE_ABSENCE_RULES as $k => $label): ?><option value="<?= e($k) ?>"<?= ($job['guarantee_absence_rule'] ?? 'keep') === $k ? ' selected' : '' ?>><?= te($label) ?></option><?php endforeach; ?></select></label><label><?= te('Hours in a day of the guarantee') ?><input name="guarantee_day_hours" type="number" min="0" max="24" step="0.25" value="<?= e($job['guarantee_day_hours'] ?? 10) ?>"></label><p class="small muted"><?= te('An absence is a day marked absent at roll call, or clocked in and not seen on site, that no approved time off covers.') ?></p><button class="btn ghost"><?= te('Save policy') ?></button></form></div></details>
 
 <?php
 // Under a pay rule set: who earns more than regular time this week, and why
 // a week needs the provider. Only lines with something to say are listed.
 $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules' && ($l['hours_worked'] ?? null) !== null);
 ?>
-<div class="card" id="pay-rules-week">
-  <h2><?= te('Pay rules this week') ?></h2>
+<details class="card fold" id="pay-rules-week"><summary><span><h2><?= te('Pay rules this week') ?></h2></span></summary>
   <?php if (! $ruleSet): ?>
     <p class="muted"><?= te('This project has no pay rule set. Overtime follows the weekly line in the policy above. Choose a confirmed rule set on the Pay rules page to apply daily overtime, double time, holidays and shift premiums.') ?></p>
   <?php else: ?>
@@ -139,12 +138,11 @@ $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules
     </table></div>
     <?php endif; ?>
   <?php endif; ?>
-</div>
+</details>
 
 <?php $onLeave = array_filter($lines, fn($l) => (float) ($l['m']['paid_leave_hours'] ?? 0) > 0); ?>
 <?php if ($onLeave): ?>
-<div class="card" id="paid-leave-week">
-  <h2><?= te('Paid leave this week') ?></h2>
+<details class="card fold" id="paid-leave-week"><summary><span><h2><?= te('Paid leave this week') ?></h2></span></summary>
   <p class="muted"><?= te('From approved leave of a paid kind, imported with the attendance. Paid at the base rate; counts toward the guarantee, never toward overtime.') ?></p>
   <div class="scroll"><table>
     <tr><th><?= te('Worker') ?></th><th class="num"><?= te('Leave hours') ?></th><th class="num"><?= te('Leave pay') ?></th></tr>
@@ -152,13 +150,12 @@ $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules
     <tr data-leave="<?= (int) $l['id'] ?>"><td><?= e($l['full_name']) ?></td><td class="num mono"><?= e((string) (float) $l['m']['paid_leave_hours']) ?></td><td class="num mono"><?= e(money($l['m']['leave_pay'])) ?></td></tr>
     <?php endforeach; ?>
   </table></div>
-</div>
+</details>
 <?php endif; ?>
 
 <?php $withNet = array_filter($lines, fn($l) => ! empty($l['gtn'])); ?>
 <?php if ($withNet): ?>
-<div class="card" id="gross-to-net">
-  <h2><?= te('Gross to net, before taxes') ?></h2>
+<details class="card fold" id="gross-to-net"><summary><span><h2><?= te('Gross to net, before taxes') ?></h2></span></summary>
   <p class="muted"><?= te('Deductions agreed with each person and what the employer pays on top. Taxes are withheld by the payroll provider, not here. A week is frozen when it is approved; until then this is a preview.') ?></p>
   <div class="scroll"><table>
     <tr><th><?= te('Worker') ?></th><th class="num"><?= te('Gross wages') ?></th><th><?= te('Deductions') ?></th><th class="num"><?= te('Per diem and expenses') ?></th><th class="num"><?= te('Net before taxes') ?></th><th class="num"><?= te('Employer contributions') ?></th><th></th></tr>
@@ -176,5 +173,6 @@ $ruled = array_filter($lines, fn($l) => ($l['m']['method'] ?? '') === 'pay_rules
     </tr>
     <?php endforeach; ?>
   </table></div>
-</div>
+</details>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

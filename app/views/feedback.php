@@ -71,6 +71,7 @@ $fbList = static function (array $list, string $id, bool $showAbout) use ($fbKin
 </div>
 <?php if ($myRequests): ?><div class="card" id="my-requests"><h2><?= te('What I asked for') ?></h2><table>
   <?php foreach ($myRequests as $r): ?><tr data-my-request="<?= (int) $r['id'] ?>"><td><a href="/feedback?request=<?= (int) $r['id'] ?>"><?= e($r['about_name']) ?></a><div class="small"><?= e($r['question']) ?></div></td><td class="small"><?= te(':a of :n answered', ['a' => (int) $r['answered'], 'n' => (int) $r['asked']]) ?></td></tr><?php endforeach; ?></table></div><?php endif; ?>
-<?php if ($subjects): ?><div class="card" id="read-about"><h2><?= te('Read feedback about someone') ?></h2>
-  <form method="get" class="row"><select name="about" aria-label="<?= te('About') ?>"><?php foreach ($subjects as $sid => $sname): ?><option value="<?= (int) $sid ?>"><?= e($sname) ?></option><?php endforeach; ?></select><button class="btn sm"><?= te('Open') ?></button></form></div><?php endif; ?>
+<?php if ($subjects): ?><details class="card fold" id="read-about"><summary><span><h2><?= te('Read feedback about someone') ?></h2></span></summary>
+  <form method="get" class="row"><select name="about" aria-label="<?= te('About') ?>"><?php foreach ($subjects as $sid => $sname): ?><option value="<?= (int) $sid ?>"><?= e($sname) ?></option><?php endforeach; ?></select><button class="btn sm"><?= te('Open') ?></button></form></details><?php endif; ?>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

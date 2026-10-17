@@ -611,7 +611,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=10">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=12">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -750,6 +750,9 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
 <?php $onProject = $atADesk && workspace_project_page($here); ?>
 <?php if ($u && ($onProject || $unread)): ?>
   <div class="workbar">
+    <?php // P5-M81: Back to the screen this one was opened from, on the page itself (RSS: "you need a back button"). ?>
+    <button type="button" class="btn ghost sm back-link" data-back hidden onclick="history.back()">&larr; <?= te('Back') ?></button>
+    <script>(function(){var b=document.querySelector('[data-back]');try{var r=document.referrer?new URL(document.referrer):null;if(b&&r&&r.host===location.host&&(r.pathname+r.search)!==(location.pathname+location.search)&&history.length>1){b.hidden=false;}}catch(e){}})();</script>
     <?php if ($onProject): ?>
       <form method="post" action="/select-project" class="workbar-project">
         <?= csrf_field() ?>

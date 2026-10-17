@@ -5381,3 +5381,51 @@ API	API	API
 :n new hire	:n nouvelle embauche	:n nueva contratación
 :n new hires	:n nouvelles embauches	:n nuevas contrataciones
 :n entry	:n entrée	:n entrada
+:n more on an assignment have not started their tax forms yet.	:n autres en mission n'ont pas encore commencé leurs formulaires fiscaux.	:n más en una asignación aún no han empezado sus formularios fiscales.
+:n task sent to the team.	:n tâche envoyée à l'équipe.	:n tarea enviada al equipo.
+:n tasks sent to the team.	:n tâches envoyées à l'équipe.	:n tareas enviadas al equipo.
+Check the job descriptions and open the requisitions	Vérifier les descriptions de poste et ouvrir les réquisitions	Revisar las descripciones de puesto y abrir las requisiciones
+Each trade on the scope has a requisition open to applicants, with its description, pay and dates.	Chaque métier du périmètre a une réquisition ouverte aux candidats, avec sa description, sa paie et ses dates.	Cada oficio del alcance tiene una requisición abierta, con su descripción, su pago y sus fechas.
+Recruit and send the offers	Recruter et envoyer les offres	Reclutar y enviar las ofertas
+Screen the applicants, interview, and send the offers for every trade on the scope.	Trier les candidats, faire les entretiens et envoyer les offres pour chaque métier du périmètre.	Evaluar a los candidatos, entrevistar y enviar las ofertas para cada oficio del alcance.
+Book the hotel rooms for the crew	Réserver les chambres d'hôtel de l'équipe	Reservar las habitaciones de hotel del equipo
+Hold the rooms on the project's hotels and book each person as they are confirmed.	Bloquer les chambres dans les hôtels du projet et réserver chaque personne dès sa confirmation.	Bloquear las habitaciones en los hoteles del proyecto y reservar a cada persona al confirmarse.
+Book the travel to the site	Réserver le voyage vers le site	Reservar el viaje al sitio
+Flights or drives for each confirmed person, arriving before their first shift.	Vols ou trajets pour chaque personne confirmée, avec arrivée avant son premier shift.	Vuelos o trayectos para cada persona confirmada, llegando antes de su primer turno.
+Check the tax forms, the direct deposit and ADP	Vérifier les formulaires fiscaux, le dépôt direct et ADP	Revisar los formularios fiscales, el depósito directo y ADP
+W-4, I-9 and direct deposit accepted for each new hire, and each one created in ADP.	W-4, I-9 et dépôt direct acceptés pour chaque embauche, et chacune créée dans ADP.	W-4, I-9 y depósito directo aceptados para cada contratación, y cada una creada en ADP.
+Prepare the site: shifts, buses and clock-in	Préparer le site : shifts, bus et pointage	Preparar el sitio: turnos, autobuses y fichaje
+Shift times, bus departures, the site position for the clock-in, and the supervisors of each crew.	Horaires des shifts, départs des bus, position du site pour le pointage et superviseurs de chaque équipe.	Horarios de turnos, salidas de autobús, posición del sitio para el fichaje y supervisores de cada equipo.
+Approve the first week's hours	Approuver les heures de la première semaine	Aprobar las horas de la primera semana
+Check the timesheets of the first week against the roll calls and approve them.	Comparer les feuilles de temps de la première semaine aux appels et les approuver.	Comparar las hojas de horas de la primera semana con los pases de lista y aprobarlas.
+Invoice the client for the first week	Facturer la première semaine au client	Facturar al cliente la primera semana
+Generate the first invoice once the week is approved.	Générer la première facture une fois la semaine approuvée.	Generar la primera factura una vez aprobada la semana.
+Book the travel home	Réserver le voyage de retour	Reservar el viaje de vuelta
+Return travel for each person leaving the site.	Voyage de retour pour chaque personne qui quitte le site.	Viaje de vuelta para cada persona que deja el sitio.
+Check out of the hotels	Libérer les hôtels	Dejar los hoteles
+Close every booking and check the hotel charges.	Clôturer chaque réservation et vérifier les frais d'hôtel.	Cerrar cada reserva y revisar los cargos del hotel.
+Get the equipment and vehicles back	Récupérer l'équipement et les véhicules	Recuperar el equipo y los vehículos
+Everything issued is returned or recorded.	Tout ce qui a été remis est rendu ou consigné.	Todo lo entregado se devuelve o se registra.
+Pay the last week and close the timesheets	Payer la dernière semaine et clôturer les feuilles de temps	Pagar la última semana y cerrar las hojas de horas
+Last hours approved, final pay run, per diem settled.	Dernières heures approuvées, dernière paie, per diem réglé.	Últimas horas aprobadas, última nómina, viáticos liquidados.
+Back	Retour	Volver
+:n supervisor without a vehicle	:n superviseur sans véhicule	:n supervisor sin vehículo
+:n supervisors without a vehicle	:n superviseurs sans véhicule	:n supervisores sin vehículo
+Reserve a vehicle for :name	Réserver un véhicule pour :name	Reservar un vehículo para :name
+Needs a vehicle	Véhicule à réserver	Necesita un vehículo
+Reserve	Réserver	Reservar
+Vehicle reserved	Véhicule réservé	Vehículo reservado
+supervisor	superviseur	supervisor
+Import attendance and payroll policy	Import des présences et politique de paie	Importar asistencia y política de nómina
+Applied to	Candidature pour	Postuló a
+Any requisition, or none	Toute réquisition, ou aucune	Cualquier requisición, o ninguna
+Matching in the database	Correspondants dans la base	Coincidencias en la base
+Newest application first.	Candidature la plus récente d'abord.	Solicitud más reciente primero.
+First applied, first listed.	Premier arrivé, premier listé.	El primero en postular, primero en la lista.
+Select all	Tout sélectionner	Seleccionar todo
+Applied :date	Candidature le :date	Postuló el :date
+Email them	Leur écrire par e-mail	Enviarles un correo
+Text them	Leur envoyer un SMS	Enviarles un SMS
+Use filters instead	Utiliser plutôt des filtres	Usar filtros en su lugar
+The person chosen on Candidates.	La personne choisie dans Candidats.	La persona elegida en Candidatos.
+The :n people chosen on Candidates.	Les :n personnes choisies dans Candidats.	Las :n personas elegidas en Candidatos.

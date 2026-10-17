@@ -397,3 +397,8 @@ details.fold[open] .fold-note { display: none; }
 .req-more > summary::-webkit-details-marker { display: none; }
 .req-pop { position: fixed; z-index: 30; width: 250px; background: #fff; border: 1px solid var(--line, #e9ecef); border-radius: 10px; padding: 12px; box-shadow: 0 8px 24px rgba(13,33,55,.15); text-align: left; white-space: normal; }
 .req-pop .application-qr img, .req-pop .application-qr canvas { width: 160px !important; height: 160px !important; }
+/* P5-M81: a folded card without padding (tight) keeps its title in the padded band, like its table below. */
+.card.fold.tight > summary { padding: 14px 18px; }
+.card.fold.tight[open] > summary { margin-bottom: 0; }
+.card.fold.tight > summary + .card-bar { padding: 0 18px 14px; }
+.req-pop.wide { width: 320px; }

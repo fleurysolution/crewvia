@@ -42,7 +42,7 @@
         <td class="num small"><?= $ph['client_night_rate'] !== null ? e(money((float) $ph['client_night_rate'])) : '&mdash;' ?></td>
         <td class="right nowrap">
           <details class="req-more inline-block"><summary class="btn ghost sm"><?= te('Edit') ?></summary>
-            <div class="req-pop" style="width:320px">
+            <div class="req-pop wide">
               <form method="post" action="/hotels"><?= csrf_field() ?><input type="hidden" name="do" value="update_link"><input type="hidden" name="hotel_id" value="<?= (int) $ph['hotel_id'] ?>">
                 <div class="grid g2">
       <div class="in-s"><label><?= te('Rooms held') ?></label><input name="rooms_held" type="number" min="0" max="2000" value="<?= $ph['rooms_held'] === null ? '' : (int) $ph['rooms_held'] ?>" placeholder="20"></div>

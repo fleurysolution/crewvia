@@ -300,6 +300,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
     // form over the project (description, site, dates, notes) and left it in Planning.
     if (($_POST['do'] ?? '') === 'advance') {
         $moved = lifecycle_advance($jobId);
+        // P5-M81: the stage reached hands out its tasks to the team.
+        if ($moved['ok']) {
+            require_once __DIR__ . '/../stage-tasks.php';
+            $made = stage_tasks_create($jobId, (string) val('SELECT lifecycle_stage FROM jobs WHERE id = ?', [$jobId]), uid());
+            if ($made) {
+                $moved['message'] .= ' ' . tn($made, ':n task sent to the team.', ':n tasks sent to the team.');
+            }
+        }
         flash($moved['message'], $moved['ok'] ? 'ok' : 'err');
         redirect('/job');
     }

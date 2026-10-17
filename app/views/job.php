@@ -254,7 +254,7 @@ $strike   = (bool) $job['strike_live'];
 </div>
 
 <!-- ── the scope of work ────────────────────────────────────────────── -->
-<details class="card fold tight" id="scope" open>
+<details class="card fold tight" id="scope">
   <summary><span><span class="eyebrow"><?= te('THE SCOPE OF WORK') ?></span><h2><?= te('What the client ordered, and what each trade is paid') ?></h2></span><span class="fold-note"><?= tn((int) $totals['lines'], ':n trade', ':n trades') ?> · <?= tn((int) $totals['people'], ':n person', ':n people') ?></span>
   <div class="card-bar"></summary>
     <p class="small muted m0">

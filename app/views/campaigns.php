@@ -25,6 +25,7 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
     <div class="in-l"><label for="cm-l"><?= te('Language') ?></label><select id="cm-l" name="language"><option value="en"<?= $cmForm['language'] === 'en' ? ' selected' : '' ?>>English</option><option value="es"<?= $cmForm['language'] === 'es' ? ' selected' : '' ?>>Español</option></select></div>
   </div>
   <h3 class="small m0 mt mb-xs"><?= te('Who it goes to') ?></h3>
+  <?php if (($cmForm['ids'] ?? '') !== ''): ?><input type="hidden" name="ids" value="<?= e($cmForm['ids']) ?>"><p class="small m0 mb-s" data-chosen-people><?= tn(count(explode(',', $cmForm['ids'])), 'The person chosen on Candidates.', 'The :n people chosen on Candidates.') ?> <a href="/campaigns"><?= te('Use filters instead') ?></a></p><?php endif; ?>
   <div class="row">
     <div><label for="cm-d"><?= te('Trade') ?></label><select id="cm-d" name="discipline"><option value=""><?= te('Any trade') ?></option><?php foreach (disciplines() as $k => $label): ?><option value="<?= e($k) ?>"<?= $cmForm['discipline'] === $k ? ' selected' : '' ?>><?= te($label) ?></option><?php endforeach; ?></select></div>
     <div><label for="cm-sk"><?= te('Skill') ?></label><select id="cm-sk" name="skill"><option value=""><?= te('Any skill') ?></option><?php foreach (skills_list() as $k => $label): ?><option value="<?= e($k) ?>"<?= $cmForm['skill'] === $k ? ' selected' : '' ?>><?= te($label) ?></option><?php endforeach; ?></select></div>
@@ -56,7 +57,7 @@ $cmOne = ['queued' => t('Waiting'), 'sent' => t('Sent'), 'failed' => t('Failed')
 <?php if ($cmPreview !== null && $cmPreview['count']): ?>
 <!-- A separate POST form: the preview above is a GET, and a form token must never travel in an address. -->
 <form method="post" action="/campaigns" id="campaign-create-form"><?= csrf_field() ?><input type="hidden" name="do" value="create">
-  <?php foreach (['vacancy_id', 'channel', 'language', 'subject', 'body', 'discipline', 'skill', 'state', 'miles'] as $k): ?><input type="hidden" name="<?= $k ?>" value="<?= e((string) $cmForm[$k]) ?>"><?php endforeach; ?>
+  <?php foreach (['vacancy_id', 'channel', 'language', 'subject', 'body', 'discipline', 'skill', 'state', 'miles', 'ids'] as $k): ?><input type="hidden" name="<?= $k ?>" value="<?= e((string) $cmForm[$k]) ?>"><?php endforeach; ?>
   <?php if ($cmForm['available']): ?><input type="hidden" name="available" value="1"><?php endif; ?><?php if ($cmForm['worked']): ?><input type="hidden" name="worked" value="1"><?php endif; ?>
   <button class="btn m0 pull-up mb" id="campaign-create"><?= te('Create the draft for these :n people', ['n' => $cmPreview['count']]) ?></button>
 </form>

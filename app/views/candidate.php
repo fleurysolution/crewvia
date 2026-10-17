@@ -225,9 +225,8 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
 
 <div class="grid g2">
   <!-- ── their applications and screening ─────────────────────────── -->
-  <section class="card" id="applications">
-    <span class="eyebrow"><?= te('APPLICATIONS') ?></span>
-    <h2><?= te('What they applied for') ?></h2>
+  <details class="card fold" id="applications"><summary><span><span class="eyebrow"><?= te('APPLICATIONS') ?></span>
+    <h2><?= te('What they applied for') ?></h2></span></summary>
 
     <?php if (! $applications): ?>
       <div class="empty">
@@ -334,12 +333,11 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?php endif; ?>
       </article>
     <?php endforeach; ?>
-  </section>
+  </details>
 
   <!-- ── the assignment, and what it pays ─────────────────────────── -->
-  <section class="card" id="assignment">
-    <span class="eyebrow"><?= te('ASSIGNMENT') ?></span>
-    <h2><?= te('On the job') ?></h2>
+  <details class="card fold" id="assignment"><summary><span><span class="eyebrow"><?= te('ASSIGNMENT') ?></span>
+    <h2><?= te('On the job') ?></h2></span></summary>
 
     <?php if (! $placements): ?>
       <div class="empty"><?= te('Not on any roster yet.') ?></div>
@@ -478,14 +476,13 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?php endif; ?>
       </article>
     <?php endforeach; ?>
-  </section>
+  </details>
 </div>
 
 <div class="grid g2">
   <!-- ── paperwork ─────────────────────────────────────────────────── -->
-  <section class="card">
-    <span class="eyebrow"><?= te('PAPERWORK') ?></span>
-    <h2><?= te('What is on file') ?></h2>
+  <details class="card fold" id="paperwork"><summary><span><span class="eyebrow"><?= te('PAPERWORK') ?></span>
+    <h2><?= te('What is on file') ?></h2></span></summary>
 
     <h4><?= te('Contracts') ?></h4>
     <?php if (! $contracts): ?>
@@ -573,11 +570,10 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <?php else: ?>
       <p class="hint"><?= te('No account and no invitation. Moving their application to screening sends one.') ?></p>
     <?php endif; ?>
-  </section>
+  </details>
 
   <!-- ── their record with the agency ──────────────────────────────── -->
-  <section class="card" id="record">
-    <span class="eyebrow"><?= te('THEIR RECORD') ?></span>
+  <details class="card fold" id="record"><summary><span><span class="eyebrow"><?= te('THEIR RECORD') ?></span>
     <h2>
       <?php if ($workHistory['assignments'] === 0): ?>
         <?= te('Never been out with us') ?>
@@ -585,7 +581,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?= te(':n jobs, :done finished', [
             'n' => $workHistory['assignments'], 'done' => $workHistory['completed']]) ?>
       <?php endif; ?>
-    </h2>
+    </h2></span></summary>
 
     <?php if ($workHistory['assignments'] > 0): ?>
       <p class="small muted m0 pull-up mb">
@@ -666,12 +662,11 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <a href="/advances"><?= te('See the advance') ?></a>
       </p>
     <?php endif; ?>
-  </section>
+  </details>
 
   <!-- ── what they can do ──────────────────────────────────────────── -->
-  <section class="card" id="skills">
-    <span class="eyebrow"><?= te('SKILLS') ?></span>
-    <h2><?= te('What they can actually do') ?></h2>
+  <details class="card fold" id="skills"><summary><span><span class="eyebrow"><?= te('SKILLS') ?></span>
+    <h2><?= te('What they can actually do') ?></h2></span></summary>
     <p class="small muted m0 pull-up mb">
       <?= te('Their discipline says which department they belong to. This says whether they can weld. A recruiter searching for a trade searches these.') ?>
     </p>
@@ -720,7 +715,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
       </div>
       <div class="row tight"><button class="btn" type="submit"><?= te('Add') ?></button></div>
     </form>
-  </section>
+  </details>
 
   <!-- ── the register ──────────────────────────────────────────────── -->
   <section class="card" id="rehire">
@@ -755,9 +750,8 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   </section>
 
   <!-- ── calls ─────────────────────────────────────────────────────── -->
-  <section class="card" id="calls">
-    <span class="eyebrow"><?= te('HISTORY') ?></span>
-    <h2><?= te('Every contact') ?></h2>
+  <details class="card fold" id="calls"><summary><span><span class="eyebrow"><?= te('HISTORY') ?></span>
+    <h2><?= te('Every contact') ?></h2></span></summary>
     <p class="small muted m0 pull-up mb">
       <?= te('Recorded at the top of this page. Newest first.') ?>
     </p>
@@ -780,15 +774,13 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
         <?php endforeach; ?>
       </ul>
     <?php endif; ?>
-  </section>
+  </details>
 </div>
 
 <!-- ── the details themselves ──────────────────────────────────────── -->
-<form class="card" method="post">
-  <?= csrf_field() ?>
+<details class="card fold" id="details"><summary><span><span class="eyebrow"><?= te('DETAILS') ?></span><h2><?= te('What we know about them') ?></h2></span></summary>
+<form method="post">  <?= csrf_field() ?>
   <input type="hidden" name="do" value="save">
-  <span class="eyebrow"><?= te('DETAILS') ?></span>
-  <h2><?= te('What we know about them') ?></h2>
 
   <div class="row">
     <div>
@@ -843,3 +835,5 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <button class="btn" type="submit"><?= te('Save') ?></button>
   <a class="btn ghost" href="/employee-folder?id=<?= (int) $c['id'] ?>"><?= te('Open employee folder') ?></a>
 </form>
+</details>
+<script src="/assets/fold.js"></script>

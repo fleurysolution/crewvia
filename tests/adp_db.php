@@ -39,10 +39,15 @@ $form($ready, 'i9', $base + ['birth_date' => '1995-01-15', 'email' => 'avery.rea
 q("INSERT INTO worker_bank_details (candidate_id, encrypted_details, last_four, bank_label, status, submitted_by, reviewed_by, reviewed_at) VALUES (?,?,?,?, 'verified', ?, ?, NOW())",
   [$ready, token_encrypt(['account_number' => '000123456789', 'routing_number' => '021000021', 'bank_name' => 'Test Bank', 'account_holder' => 'Avery Ready']), '6789', 'Test Bank', $admin, $admin]);
 $waiting = $person('Blake Waiting');
+$wjson = json_encode(['first_name' => 'Blake']);
+q("INSERT INTO worker_tax_forms (candidate_id, form, encrypted_payload, payload_hash, signer_name, signed_at, signed_by, status) VALUES (?, 'w4', ?, ?, 'Blake Waiting', NOW(), ?, 'submitted')",
+  [$waiting, base64_encode(crypto_seal($wjson)), hash('sha256', $wjson), $admin]);
+$idle = $person('Casey Idle');
 
 $hires = array_column(adp_new_hires(), null, 'candidate_id');
 $check('Somebody with W-4, I-9 and direct deposit accepted is ready for ADP', ! empty($hires[$ready]['ready']), $hires[$ready] ?? null);
 $check('Somebody without them is listed with what is missing', isset($hires[$waiting]) && ! $hires[$waiting]['ready'] && count($hires[$waiting]['missing']) === 3, $hires[$waiting] ?? null);
+$check('Somebody who has not started a form is counted, not listed', ! isset($hires[$idle]) && ($GLOBALS['adp_not_started'] ?? 0) >= 1);
 $r = adp_hire_record($ready);
 $check('The record comes from what was signed: name, SSN, birth date, hire date, rate, W-4 and deposit', $r && $r['last_name'] === 'Ready' && $r['ssn'] === '212551234' && $r['birth_date'] === '1995-01-15'
        && $r['hire_date'] === '2026-11-02' && $r['rate'] == 38.0 && $r['dependents_amount'] == 2000.0 && $r['extra_withholding'] == 25.0 && $r['routing_number'] === '021000021' && $r['work_state'] === 'IN', $r);

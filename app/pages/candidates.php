@@ -113,6 +113,19 @@ if ($geoCenter && $geoMiles) {
 if ($discipline !== '')                { $where[] = 'c.discipline = ?'; $args[] = $discipline; }
 if ($hasPhone)                         { $where[] = "c.phone IS NOT NULL AND c.phone <> ''"; }
 if ($mine)                             { $where[] = 'c.owner_id = ?';   $args[] = uid(); }
+// P5-M82: the people who applied to one requisition (its link, its QR code, a job board), first come first served.
+$vacancyFilter = (int) ($_GET['vacancy'] ?? 0);
+$vacancyPool = ($_GET['pool'] ?? '') === 'match' ? 'match' : 'applied';
+$vacancyRow = $vacancyFilter ? row('SELECT v.id, v.discipline, j.site_state FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.id = ?', [$vacancyFilter]) : null;
+if ($vacancyRow && $vacancyPool === 'applied') { $where[] = 'EXISTS(SELECT 1 FROM applications va WHERE va.candidate_id = c.id AND va.vacancy_id = ?)'; $args[] = $vacancyFilter; }
+// ...or the people already in the database who match it: same trade, in the site's state, not on it yet, not on the register.
+if ($vacancyRow && $vacancyPool === 'match') {
+    $where[] = 'NOT EXISTS(SELECT 1 FROM applications va WHERE va.candidate_id = c.id AND va.vacancy_id = ?)';
+    $args[] = $vacancyFilter;
+    $where[] = "NOT EXISTS(SELECT 1 FROM employee_profiles vb WHERE vb.candidate_id = c.id AND vb.rehire_status IN ('ineligible','do_not_use'))";
+    if ((string) $vacancyRow['discipline'] !== '' && $vacancyRow['discipline'] !== 'other') { $where[] = 'c.discipline = ?'; $args[] = $vacancyRow['discipline']; }
+    if ((string) $vacancyRow['site_state'] !== '' && $geoState === '') { $where[] = 'c.geo_state = ?'; $args[] = strtoupper((string) $vacancyRow['site_state']); }
+}
 
 // Find the welders. Discipline says which department somebody belongs to
 // and could never answer this.
@@ -142,6 +155,8 @@ $sql = 'SELECT c.*, u.name AS owner_name, ep.rehire_status,
                  ORDER BY k.id DESC LIMIT 1) AS last_outcome,
                (SELECT GROUP_CONCAT(cs.skill_slug ORDER BY cs.confirmed DESC SEPARATOR ",")
                   FROM candidate_skills cs WHERE cs.candidate_id = c.id) AS skill_slugs,
+               (SELECT MIN(aa.created_at) FROM applications aa WHERE aa.candidate_id = c.id' . ($vacancyFilter ? ' AND aa.vacancy_id = ' . $vacancyFilter : '') . ') AS applied_at,
+               (SELECT aa.source FROM applications aa WHERE aa.candidate_id = c.id' . ($vacancyFilter ? ' AND aa.vacancy_id = ' . $vacancyFilter : '') . ' ORDER BY aa.id LIMIT 1) AS applied_via,
                ' . $distanceSql . ' AS miles_away
         FROM candidates c
         LEFT JOIN users u ON u.id = c.owner_id
@@ -155,7 +170,7 @@ if ($where) {
 // next person to ring.
 $page=max(1,(int)($_GET['page'] ?? 1));$offset=($page-1)*100;
 $listTotal=(int)val('SELECT COUNT(*) FROM candidates c'.($where?' WHERE '.implode(' AND ',$where):''),$args);
-$sql .= " ORDER BY " . ($geoCenter ? 'miles_away IS NULL, miles_away, ' : '') . "FIELD(c.stage,'new','contacted','screening','offered','accepted','placed','declined','rejected'),
+$sql .= " ORDER BY " . ($vacancyRow && $vacancyPool === 'applied' ? (($_GET['order'] ?? '') === 'newest' ? 'applied_at DESC, ' : 'applied_at ASC, ') : '') . ($geoCenter ? 'miles_away IS NULL, miles_away, ' : '') . "FIELD(c.stage,'new','contacted','screening','offered','accepted','placed','declined','rejected'),
                    c.last_contact_at IS NOT NULL, c.last_contact_at ASC, c.full_name ASC
           LIMIT 100 OFFSET ".$offset;
 
@@ -165,5 +180,6 @@ $total  = (int) val('SELECT COUNT(*) FROM candidates');
 $qs     = http_build_query(array_filter($_GET, static fn ($v) => $v !== '' && $v !== null));
 
 $pageTitle = t('Candidates').' · '.$config['app_name'];
-render('candidates', compact('list','counts','total','search','stage','discipline','hasPhone','mine','skill','blocked','qs','page','listTotal',
+$vacancyChoices = rows("SELECT v.id, v.title, j.title AS job, (SELECT COUNT(*) FROM applications a WHERE a.vacancy_id = v.id) AS applied FROM vacancies v JOIN jobs j ON j.id = v.job_id ORDER BY v.is_open DESC, v.id DESC LIMIT 300");
+render('candidates', compact('list','counts','total','search','stage','discipline','hasPhone','mine','skill','blocked','qs','page','listTotal','vacancyFilter','vacancyChoices','vacancyPool',
                              'geoState','geoCity','geoMiles','geoNear','geoZip','geoCenter','geoMissing','geoProjects'));

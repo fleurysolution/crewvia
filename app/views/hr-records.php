@@ -104,14 +104,15 @@ $cstat = ['open' => t('Open'), 'decided' => t('Outcome recorded'), 'closed' => t
 <?php if (! $hr && $role === 'recruiter'): ?><p class="muted"><?= te('Open a person from their employee folder to record recognition. Cases and separations need HR access, granted by an administrator.') ?></p><?php endif; ?>
 <?php if (can('admin')): ?>
 <div class="grid g2">
-  <div class="card scroll" id="grants"><h2><?= te('HR access') ?></h2>
+  <details class="card fold scroll" id="grants"><summary><span><h2><?= te('HR access') ?></h2></span></summary>
     <p class="muted"><?= te('Administrators always have it. Anyone else sees cases and separations only once granted here.') ?></p>
     <?php foreach ($overview['grants'] as $g): ?><form method="post" class="row" data-grant="<?= (int) $g['user_id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="revoke"><input type="hidden" name="user_id" value="<?= (int) $g['user_id'] ?>"><span><?= e($g['name']) ?> · <?= e($g['role']) ?> · <?= e($g['reason']) ?></span><input name="reason" required minlength="3" placeholder="<?= te('Why it ends') ?>" class="in-s"><button class="btn ghost sm"><?= te('Revoke') ?></button></form><?php endforeach; ?>
     <?php if ($overview['grantable']): ?><form method="post" class="row" id="grant-form"><?= csrf_field() ?><input type="hidden" name="do" value="grant"><select name="user_id"><?php foreach ($overview['grantable'] as $u): ?><option value="<?= (int) $u['id'] ?>"><?= e($u['name'] . ' · ' . $u['role']) ?></option><?php endforeach; ?></select><input name="reason" required minlength="3" placeholder="<?= te('Why they need it') ?>"><button class="btn sm"><?= te('Grant') ?></button></form><?php endif; ?>
-  </div>
-  <div class="card scroll" id="access-log"><h2><?= te('Who opened what') ?></h2>
+  </details>
+  <details class="card fold scroll" id="access-log"><summary><span><h2><?= te('Who opened what') ?></h2></span></summary>
     <?php foreach ($overview['log'] as $l): ?><div class="small" data-log="<?= e($l['action']) ?>"><?= e(substr((string) $l['created_at'], 0, 16)) ?> · <?= e($l['by_name'] ?? '') ?> · <?= e($l['action']) ?><?= $l['full_name'] ? ' · ' . e($l['full_name']) : '' ?><?= $l['subject'] ? ' · ' . e($l['subject']) : '' ?><?= $l['detail'] ? ' · ' . e($l['detail']) : '' ?></div><?php endforeach; ?>
-  </div>
+  </details>
 </div>
 <?php endif; ?>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

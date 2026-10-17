@@ -94,7 +94,7 @@ $trStatus = tr_statuses();
       <button class="btn sm"><?= te('Create') ?></button></form>
   </div>
 </div>
-<div class="card scroll" id="requirements"><h2><?= te('Required training') ?></h2>
+<details class="card fold scroll" id="requirements"><summary><span><h2><?= te('Required training') ?></h2></span></summary>
   <?php if (! $requirements): ?><p class="muted"><?= te('Nothing is required yet.') ?></p><?php else: ?>
   <table><tr><th><?= te('Course') ?></th><th><?= te('Required of') ?></th><th><?= te('Due within') ?></th><th></th></tr>
   <?php foreach ($requirements as $rq): ?><tr data-requirement="<?= (int) $rq['id'] ?>"><td><?= e($rq['title']) ?></td>
@@ -109,7 +109,7 @@ $trStatus = tr_statuses();
     <label><?= te('Project') ?><select name="job_id"><option value="0">—</option><?php foreach ($jobs as $jb): ?><option value="<?= (int) $jb['id'] ?>"><?= e($jb['title']) ?></option><?php endforeach; ?></select></label>
     <label><?= te('Due within (days)') ?><input type="number" name="due_days" min="1" max="365" value="30" required></label>
     <button class="btn sm"><?= te('Require it') ?></button></form>
-</div>
+</details>
 <div class="card scroll" id="compliance" data-rows="<?= count($compliance) ?>"><h2><?= te('Compliance') ?></h2>
   <form method="get" class="row"><label><?= te('Required of') ?><select name="scope"><option value=""><?= te('Anyone') ?></option><?php foreach (tr_scopes() as $k => $label): ?><option value="<?= e($k) ?>"<?= $filter['scope'] === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
     <label><?= te('State') ?><select name="status"><option value=""><?= te('Any') ?></option><?php foreach ($trStatus as $k => $label): ?><option value="<?= e($k) ?>"<?= $filter['status'] === $k ? ' selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
@@ -122,3 +122,4 @@ $trStatus = tr_statuses();
     <td class="small"><?= $as && $as['completed_at'] === null ? e(d((string) $as['due_on'])) : '' ?></td><td class="small"><?= $as && $as['expires_on'] ? e(d((string) $as['expires_on'])) : '' ?></td></tr><?php endforeach; ?></table><?php endif; ?>
 </div>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

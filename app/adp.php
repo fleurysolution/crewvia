@@ -53,11 +53,16 @@ function adp_new_hires(): array
                    FROM placements p JOIN candidates c ON c.id = p.candidate_id JOIN jobs j ON j.id = p.job_id
                    LEFT JOIN employee_profiles ep ON ep.candidate_id = c.id
                    WHERE p.status IN ('confirmed','travelling','on_site') AND (ep.adp_employee_id IS NULL OR ep.adp_employee_id = '')
-                   GROUP BY c.id, c.full_name, ep.adp_employee_id, ep.payment_method ORDER BY MIN(p.start_date) IS NULL, MIN(p.start_date), c.full_name LIMIT 500") as $r) {
+                   GROUP BY c.id, c.full_name, ep.adp_employee_id, ep.payment_method ORDER BY MIN(p.start_date) IS NULL, MIN(p.start_date), c.full_name LIMIT 2000") as $r) {
         $missing = [];
         if (! (int) $r['w4']) { $missing[] = t('W-4 accepted'); }
         if (! (int) $r['i9']) { $missing[] = t('I-9 accepted'); }
         if (! (int) $r['bank'] && ($r['payment_method'] ?? '') !== 'paper_check') { $missing[] = t('Direct deposit accepted'); }
+        // Somebody who has not started a single form is counted, not listed: the list is who payroll can act on.
+        if (! (int) $r['w4'] && ! (int) $r['i9'] && ! (int) $r['bank'] && ! (int) val('SELECT COUNT(*) FROM worker_tax_forms WHERE candidate_id = ?', [(int) $r['id']])) {
+            $GLOBALS['adp_not_started'] = ($GLOBALS['adp_not_started'] ?? 0) + 1;
+            continue;
+        }
         $sent = row("SELECT mode, status, adp_reference, created_at FROM adp_sends WHERE candidate_id = ? AND kind = 'hire' ORDER BY id DESC LIMIT 1", [(int) $r['id']]);
         $out[] = ['candidate_id' => (int) $r['id'], 'name' => (string) $r['full_name'], 'job' => (string) $r['job'], 'start' => $r['start'],
                   'missing' => $missing, 'ready' => ! $missing, 'sent' => $sent ?: null];
