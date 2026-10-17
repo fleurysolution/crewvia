@@ -476,3 +476,86 @@ function hiring_offer_settled(int $applicationId, string $state, array $request)
         notify_user($recruiter, t('The offer for :name was not validated:', ['name' => $a['full_name']]) . ' ' . ($comments !== '' ? $comments : t('no reason given.')), $back);
     }
 }
+
+/**
+ * P5-M94: after a hiring manager approves somebody, every step to their first day, who has it and where it
+ * stands - so the manager (or anybody on the hiring side) sees the progress and can step in.
+ *
+ * @return list<array{key:string,label:string,state:string,tone:string,owner:?string,go:?string}>
+ */
+function hw_progress(array $a, int $jobId): array
+{
+    $steps = [];
+    $review = row("SELECT r.decided_at, u.name FROM application_reviews r LEFT JOIN users u ON u.id = r.reviewer_id
+                   WHERE r.application_id = ? AND r.status = 'validated' ORDER BY r.id DESC LIMIT 1", [(int) $a['id']]);
+    try {
+        $handoff = row('SELECT * FROM hiring_handoffs WHERE application_id = ?', [(int) $a['id']]);
+    } catch (Throwable $e) {
+        $handoff = null;
+    }
+    $task = static function (?int $id): ?array {
+        return $id ? row('SELECT t.status, t.due_on, u.name AS assignee FROM project_tasks t LEFT JOIN users u ON u.id = t.assignee_id WHERE t.id = ?', [$id]) : null;
+    };
+    $taskState = static function (?array $t): array {
+        if (! $t) { return [t('Not started'), 'grey']; }
+        $label = pt_statuses()[$t['status']] ?? $t['status'];
+        return [$label, ['done' => 'green', 'in_progress' => 'blue', 'blocked' => 'red', 'cancelled' => 'grey'][$t['status']] ?? 'amber'];
+    };
+    require_once __DIR__ . '/project-tasks.php';
+
+    $steps[] = ['key' => 'approved', 'label' => t('Approved'),
+                'state' => $review ? t(':who, :date', ['who' => (string) ($review['name'] ?? ''), 'date' => d(substr((string) $review['decided_at'], 0, 10))]) . ($handoff && (int) $handoff['expedited'] ? ' · ' . t('Expedited') : '') : t('Offer made'),
+                'tone' => 'green', 'owner' => null, 'go' => null];
+
+    $placement = row("SELECT id, status, start_date FROM placements WHERE candidate_id = ? AND job_id = ? AND status NOT IN ('cancelled') ORDER BY id DESC LIMIT 1", [(int) $a['candidate_id'], $jobId]);
+    $steps[] = ['key' => 'assigned', 'label' => t('Assigned to the job'),
+                'state' => $placement ? ($placement['start_date'] ? t('Starts :date', ['date' => d((string) $placement['start_date'])]) : t('Start date to set')) : t('Not assigned yet'),
+                'tone' => $placement ? 'green' : 'amber', 'owner' => null, 'go' => $placement ? null : 'roster'];
+
+    $hr = $task($handoff ? (int) $handoff['hr_task_id'] : null);
+    [$hrState, $hrTone] = $taskState($hr);
+    $steps[] = ['key' => 'hr', 'label' => t('HR onboarding'), 'state' => $hrState . ($hr && $hr['due_on'] && $hr['status'] !== 'done' ? ' · ' . t('due :date', ['date' => d((string) $hr['due_on'])]) : ''),
+                'tone' => $hrTone, 'owner' => $hr['assignee'] ?? null, 'go' => 'onboarding'];
+
+    $portal = (bool) val('SELECT COUNT(*) FROM worker_accounts WHERE candidate_id = ?', [(int) $a['candidate_id']]);
+    $steps[] = ['key' => 'portal', 'label' => t('Portal'), 'state' => $portal ? t('Signed in') : t('Invited, not signed in yet'),
+                'tone' => $portal ? 'green' : 'amber', 'owner' => null, 'go' => $portal ? null : 'onboarding'];
+
+    foreach (['drug' => t('Drug test'), 'background' => t('Background check')] as $kind => $label) {
+        $case = $placement ? row('SELECT status, scheduled_at, location FROM screening_cases WHERE placement_id = ? AND kind = ? ORDER BY id DESC LIMIT 1', [(int) $placement['id'], $kind]) : null;
+        $words = ['pending' => t('Authorization sent'), 'scheduled' => t('Scheduled'), 'completed' => t('Done, waiting for the result'),
+                  'cleared' => t('Cleared'), 'not_cleared' => t('Not cleared'), 'cancelled' => t('Cancelled')];
+        $state = $case ? ($words[$case['status']] ?? $case['status']) . ($case['status'] === 'scheduled' && $case['scheduled_at'] ? ' · ' . d(substr((string) $case['scheduled_at'], 0, 10)) . ' ' . date('g:i a', strtotime((string) $case['scheduled_at'])) : '')
+                       : t('To schedule');
+        $tone = $case ? (['cleared' => 'green', 'not_cleared' => 'red', 'cancelled' => 'grey'][$case['status']] ?? 'blue') : 'amber';
+        $steps[] = ['key' => $kind, 'label' => $label, 'state' => $state, 'tone' => $tone, 'owner' => $hr['assignee'] ?? null, 'go' => 'checks'];
+    }
+
+    foreach (['w4' => 'W-4', 'i9' => 'I-9'] as $form => $label) {
+        $f = row('SELECT status FROM worker_tax_forms WHERE candidate_id = ? AND form = ? ORDER BY id DESC LIMIT 1', [(int) $a['candidate_id'], $form]);
+        $words = ['submitted' => t('Filled in, to sign in person'), 'accepted' => t('Signed and accepted'), 'returned' => t('Sent back to correct'), 'replaced' => t('Replaced')];
+        $steps[] = ['key' => $form, 'label' => $label, 'state' => $f ? ($words[$f['status']] ?? $f['status']) : t('Not filled in yet'),
+                    'tone' => $f ? (['accepted' => 'green', 'returned' => 'red'][$f['status']] ?? 'blue') : 'amber', 'owner' => $hr['assignee'] ?? null, 'go' => 'forms'];
+    }
+
+    $travelTask = $task($handoff && $handoff['travel_task_id'] ? (int) $handoff['travel_task_id'] : null);
+    $flight = $placement ? row("SELECT arrive_time, status FROM travel WHERE placement_id = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [(int) $placement['id']]) : null;
+    $bed = $placement ? (bool) val("SELECT COUNT(*) FROM lodging WHERE placement_id = ? AND status NOT IN ('cancelled','checked_out')", [(int) $placement['id']]) : false;
+    [$trState, $trTone] = $taskState($travelTask);
+    $steps[] = ['key' => 'travel', 'label' => t('Flight and hotel'),
+                'state' => ($flight ? t('Flight booked') . ($flight['arrive_time'] ? ' · ' . t('lands :when', ['when' => d(substr((string) $flight['arrive_time'], 0, 10)) . ' ' . date('g:i a', strtotime((string) $flight['arrive_time']))]) : '') : t('No flight yet'))
+                           . ' · ' . ($bed ? t('Hotel booked') : t('No hotel yet'))
+                           . (! $travelTask ? ' · ' . ($handoff && ! (int) $handoff['expedited'] && ! $handoff['hr_done_at'] ? t('after HR') : '') : ''),
+                'tone' => $flight && $bed ? 'green' : ($travelTask ? $trTone : 'grey'), 'owner' => $travelTask['assignee'] ?? null, 'go' => can('hotels') ? 'travel' : null];
+
+    $steps[] = ['key' => 'arrived', 'label' => t('On site'), 'state' => $placement && $placement['status'] === 'on_site' ? t('Arrived') : t('Not yet'),
+                'tone' => $placement && $placement['status'] === 'on_site' ? 'green' : 'grey', 'owner' => null, 'go' => null];
+
+    return $steps;
+}
+
+/** P5-M94: the screens a progress step opens, on the requisition's project. */
+function hw_progress_targets(int $candidateId): array
+{
+    return ['onboarding' => '/onboarding', 'checks' => '/checks', 'forms' => '/tax-forms?person=' . $candidateId, 'travel' => '/travel', 'roster' => '/roster'];
+}

@@ -114,6 +114,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect(hw_back());
 }
 
+// P5-M94: a step of the progress opens its screen on the requisition's own project.
+if (isset($_GET['go'], $_GET['v'], $_GET['app'])) {
+    $goApp = row('SELECT a.candidate_id, v.job_id FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ? AND a.vacancy_id = ?', [(int) $_GET['app'], (int) $_GET['v']]);
+    $goTo = $goApp ? (hw_progress_targets((int) $goApp['candidate_id'])[(string) $_GET['go']] ?? null) : null;
+    if (! $goTo) {
+        refuse(404, t('Application unavailable in this project.'), '/hiring');
+    }
+    $_SESSION['job_id'] = (int) $goApp['job_id'];
+    redirect($goTo);
+}
+
 $hwStatus = in_array($_GET['status'] ?? 'open', ['open', 'closed', 'all'], true) ? (string) ($_GET['status'] ?? 'open') : 'open';
 
 if (! isset($_GET['v'])) {
@@ -181,6 +192,10 @@ if (isset($_GET['app'])) {
     $hwApp['reviews'] = rows('SELECT r.*, m.name AS reviewer FROM application_reviews r JOIN users m ON m.id = r.reviewer_id WHERE r.application_id = ? ORDER BY r.id DESC', [(int) $hwApp['id']]);
     $hwApp['interviews'] = rows('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.application_id = ? ORDER BY i.scheduled_at DESC', [(int) $hwApp['id']]);
     $hwApp['skills'] = rows('SELECT skill_slug, years, confirmed FROM candidate_skills WHERE candidate_id = ? ORDER BY confirmed DESC, years DESC', [(int) $hwApp['candidate_id']]);
+    // P5-M94: approved by a hiring manager (or offered, or hired): the steps to the first day replace the recruiter's tools.
+    $hwApp['approved'] = in_array($hwApp['stage'], ['offered', 'accepted'], true)
+        || (bool) val("SELECT COUNT(*) FROM application_reviews WHERE application_id = ? AND status = 'validated'", [(int) $hwApp['id']]);
+    $hwApp['progress'] = $hwApp['approved'] ? hw_progress($hwApp, (int) $hwVacancy['job_id']) : [];
     require_once __DIR__ . '/../messaging.php';
     $textPanel = msg_panel((int) $hwApp['candidate_id']);
 }

@@ -427,3 +427,12 @@ rv = one('SELECT id FROM application_reviews WHERE application_id = %s ORDER BY 
 status, body = admin.get('/reviews?id=%s' % rv['id'])
 check('The person who decides sees the recruiter\'s checklist answers', 'id="dossier-checklist"' in body and 'Lifts 60 lb' in body and '2 of 2 met' in body)
 check('and how to reach them: phone and email', 'id="dossier-contact"' in body and 'checked@test.invalid' in body and '555-070-7006' in body)
+
+# P5-M94: in Hiring, an approved person shows every step to the first day, who has it, and where it stands.
+status, body = admin.get('/hiring?v=%d&app=%s' % (vac_id, op['aid']))
+check('Hiring shows an approved person\'s steps to the first day', status == 200 and 'id="onboarding-progress"' in body
+      and all('data-step="%s"' % k in body for k in ('approved', 'assigned', 'hr', 'portal', 'drug', 'background', 'w4', 'i9', 'travel', 'arrived')))
+check('and none of the recruiting: no review, interviews, screener questions or stage moves', 'id="pass-to-manager"' not in body and 'id="schedule-interview"' not in body
+      and 'id="manager-review"' not in body and 'id="interviews"' not in body and 'id="screener"' not in body and 'id="move-form"' not in body)
+status, body = admin.get('/hiring?v=%d&app=%s&go=checks' % (vac_id, op['aid']))
+check('A step opens its screen on the requisition\'s project', status == 200 and admin.url.endswith('/checks'), admin.url)

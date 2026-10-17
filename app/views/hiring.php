@@ -64,8 +64,7 @@ $hwScore = static function (?string $s): string {
   <?php foreach (hw_tabs() as $k => $l): ?><a href="<?= e($hwUrl(['stage' => $k === 'active' ? null : $k, 'q' => $hwFilter['q'], 'interest' => $hwFilter['interest'], 'sort' => $hwFilter['sort'], 'miles' => $hwFilter['miles'] ?: null])) ?>" class="<?= $hwTab === $k ? 'on' : '' ?>" data-stage-tab="<?= e($k) ?>"><?= e($l) ?><b><?= (int) $hwCounts[$k] ?></b></a><?php endforeach; ?>
 </div>
 <form method="get" class="filterbar" id="applicant-filter"><input type="hidden" name="v" value="<?= (int) $v['id'] ?>"><?php if ($hwTab !== 'active'): ?><input type="hidden" name="stage" value="<?= e($hwTab) ?>"><?php endif; ?>
-  <select name="sort" aria-label="<?= te('Sort') ?>"><?php foreach (['' => t('Newest first'), 'oldest' => t('Oldest first'), 'score' => t('Best screening score'), 'name' => t('Name')] + ($hwSite ? ['near' => t('Nearest the site')] : []) as $k => $l): ?><option value="<?= e($k) ?>"<?= $hwFilter['sort'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
-  <select name="interest" aria-label="<?= te('Interest') ?>"><?php foreach (['' => t('Any interest'), 'yes' => t('Interested'), 'maybe' => t('Maybe'), 'no' => t('Not interested'), 'unset' => t('Not marked yet')] as $k => $l): ?><option value="<?= e($k) ?>"<?= $hwFilter['interest'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
+  <select name="sort" aria-label="<?= te('Sort') ?>"><?php foreach (['' => t('Newest first'), 'oldest' => t('Oldest first'), 'name' => t('Name')] + ($hwSite ? ['near' => t('Nearest the site')] : []) as $k => $l): ?><option value="<?= e($k) ?>"<?= $hwFilter['sort'] === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>
   <?php if ($hwSite): ?><select name="miles" aria-label="<?= te('Distance from the site') ?>" id="miles-filter"><option value=""><?= te('Any distance') ?></option><?php foreach (geo_radii() as $r): ?><option value="<?= $r ?>"<?= $hwFilter['miles'] === $r ? ' selected' : '' ?>><?= te('Within :n miles of the site', ['n' => $r]) ?></option><?php endforeach; ?></select><?php else: ?><span class="small muted" id="no-site-location"><?= te('No distance: the project\'s site has no city and state or ZIP code.') ?></span><?php endif; ?>
   <input type="search" name="q" value="<?= e($hwFilter['q']) ?>" placeholder="<?= te('Search applicants by name, place or degree') ?>" aria-label="<?= te('Search applicants') ?>">
   <button class="btn ghost"><?= te('Apply') ?></button>
@@ -86,7 +85,7 @@ $hwScore = static function (?string $s): string {
             <div class="sm"><?= e(trim(($a['city'] ?? '') . ', ' . ($a['state'] ?? ''), ', ')) ?><?= $a['phone'] ? ' · ' . e($a['phone']) : '' ?><?= $a['email'] ? ' · ' . e($a['email']) : '' ?></div>
             <div class="sm"><span class="tag <?= $hwStageTone[$a['stage']] ?? 'grey' ?>"><?= e(hw_stages()[$a['stage']]) ?></span> · <?= te('applied :when', ['when' => hw_ago((string) $a['created_at'])]) ?> · <?= e((string) $a['source']) ?></div></div></div>
         <div class="head-tools">
-          <?php $hwInterestButtons($a, $hwSelf . '&app=' . (int) $a['id']); ?>
+          <?php if (empty($a['approved'])) { $hwInterestButtons($a, $hwSelf . '&app=' . (int) $a['id']); } ?>
           <?php if ($a['prev']): ?><a class="btn ghost sm" href="<?= e($hwSelf . '&app=' . (int) $a['prev']) ?>" aria-label="<?= te('Previous applicant') ?>" id="prev-app">←</a><?php endif; ?>
           <?php if ($a['next']): ?><a class="btn ghost sm" href="<?= e($hwSelf . '&app=' . (int) $a['next']) ?>" aria-label="<?= te('Next applicant') ?>" id="next-app">→</a><?php endif; ?>
           <?php if ($a['position']): ?><span class="small muted"><?= te(':i of :n', ['i' => (int) $a['position'], 'n' => count($hwList)]) ?></span><?php endif; ?>
@@ -97,21 +96,26 @@ $hwScore = static function (?string $s): string {
       <p class="small m0 mb" data-match="<?= (int) $match['id'] ?>"><span class="tag amber"><?= te('Possible duplicate') ?></span> <?= te('Same name or contact as') ?> <a href="/candidates/<?= (int) $match['id'] ?>"><?= e($match['full_name']) ?></a> &middot; <?= te(candidate_stages()[$match['stage']] ?? ucfirst((string) $match['stage'])) ?></p>
       <?php endforeach; ?>
       <?php if (! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
+      <?php // P5-M94: approved, the hiring team carries the person through; the recruiting tools stay on Candidates. ?>
+      <?php if (empty($a['approved'])): ?>
       <form method="post" action="/hiring" class="detail-actions" id="move-form"><?= csrf_field() ?><input type="hidden" name="do" value="move"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
         <select name="stage" aria-label="<?= te('Move to') ?>"><?php foreach (['screening', 'interview', 'offered', 'new', 'withdrawn'] as $s): if ($s === $a['stage']) { continue; } ?><option value="<?= $s ?>"><?= te('Move to :stage', ['stage' => hw_stages()[$s]]) ?></option><?php endforeach; ?></select>
         <input name="note" maxlength="2000" placeholder="<?= te('Note: with an offer, the candidate reads it beside the agreed terms') ?>" aria-label="<?= te('Note') ?>" class="f1 min-w-s">
         <button class="btn"><?= te('Move') ?></button>
       </form>
+      <?php endif; ?>
       <form method="post" action="/hiring" class="detail-actions" id="reject-form"><?= csrf_field() ?><input type="hidden" name="do" value="reject"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
-        <input name="note" maxlength="2000" placeholder="<?= te('Why (kept on the application)') ?>" aria-label="<?= te('Why') ?>" class="f1 min-w-s"><button class="btn ghost"><?= te('Reject') ?></button>
-        <a class="btn ghost" href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= te('Full profile') ?></a>
+        <input name="note" maxlength="2000" placeholder="<?= te('Why (kept on the application)') ?>" aria-label="<?= te('Why') ?>" class="f1 min-w-s"><button class="btn ghost"><?= empty($a['approved']) ? te('Reject') : te('Withdraw') ?></button>
+        <?php if (empty($a['approved'])): ?><a class="btn ghost" href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= te('Full profile') ?></a><?php endif; ?>
       </form>
       <?php else: ?><p class="small muted"><?= te('That application is settled. Raise a new one for the same person if they come back.') ?> <a href="/candidates/<?= (int) $a['candidate_id'] ?>"><?= te('Full profile') ?></a></p><?php endif; ?>
     </div>
+    <?php if (empty($a['approved'])): ?>
     <nav class="tabs" aria-label="<?= te('Applicant') ?>">
       <a href="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>" class="<?= $hwDetail === 'application' ? 'on' : '' ?>"><?= te('Application') ?></a>
       <a href="<?= e($hwSelf . '&app=' . (int) $a['id'] . '&detail=activity') ?>" class="<?= $hwDetail === 'activity' ? 'on' : '' ?>" id="tab-activity"><?= te('Activity & notes') ?></a>
     </nav>
+    <?php endif; ?>
     <?php if (! empty($a['block'])): $bk = $a['block']; ?>
     <div class="card tone-alert" id="rehire-block" role="alert">
       <h3 class="m0 t-red"><?= te(':label: do not move this applicant forward', ['label' => t($bk['label'])]) ?></h3>
@@ -147,7 +151,20 @@ $hwScore = static function (?string $s): string {
       <?php endif; ?>
     </div>
     <?php endif; ?>
-    <?php if ($hwDetail === 'application'): ?>
+    <?php if (! empty($a['progress'])): $goBase = '/hiring?v=' . (int) $v['id'] . '&app=' . (int) $a['id'] . '&go='; ?>
+    <?php // P5-M94: every step to the first day, who has it, where it stands - open to step in. ?>
+    <div class="card" id="onboarding-progress"><h3 class="m0"><?= te('From approval to the first day') ?></h3>
+      <table class="mt-s"><tbody><?php foreach ($a['progress'] as $st): ?><tr data-step="<?= e($st['key']) ?>">
+        <td><strong><?= e($st['label']) ?></strong></td>
+        <td><span class="tag <?= e($st['tone']) ?>"><?= e($st['state']) ?></span></td>
+        <td class="small muted"><?= $st['owner'] ? e($st['owner']) : '' ?></td>
+        <td class="right"><?php if ($st['go']): ?><a class="btn ghost sm" href="<?= e($goBase . $st['go']) ?>" data-step-open="<?= e($st['key']) ?>"><?= te('Open') ?></a><?php endif; ?></td>
+      </tr><?php endforeach; ?></tbody></table>
+    </div>
+    <?php endif; ?>
+    <?php if (! empty($a['approved'])): ?>
+    <?php if ($textPanel): require __DIR__ . '/_text-panel.php'; endif; ?>
+    <?php elseif ($hwDetail === 'application'): ?>
     <?php $rvStat = review_statuses(); $rvPending = null; foreach ($a['reviews'] as $rr) { if ($rr['status'] === 'pending') { $rvPending = $rr; } } ?>
     <div class="grid g2">
       <div class="card" id="manager-review"><h3><?= te('Manager review') ?></h3>
@@ -155,7 +172,7 @@ $hwScore = static function (?string $s): string {
           <?php if ($rr['decision_note']): ?><div class="a small"><?= nl2br(e($rr['decision_note'])) ?></div><?php endif; ?></div><?php endforeach; ?>
         <?php if ($rvPending): ?>
           <form method="post" action="/hiring" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="review_withdraw"><input type="hidden" name="review_id" value="<?= (int) $rvPending['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>"><button class="btn sm ghost"><?= te('Take it back') ?></button></form>
-        <?php elseif (empty($a['block']) && in_array($a['stage'], ['new', 'screening', 'interview'], true)): ?>
+        <?php elseif (empty($a['block']) && empty($a['approved']) && in_array($a['stage'], ['new', 'screening', 'interview'], true)): ?>
           <form method="post" action="/hiring" id="pass-to-manager" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="review_request"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
             <p class="small muted m0"><?= te('Screened and meets the requirements? Pass them to a manager to validate, or to ask for another interview.') ?></p>
             <div class="row mt-s">
@@ -170,7 +187,7 @@ $hwScore = static function (?string $s): string {
       <div class="card" id="interviews"><h3><?= te('Interviews') ?></h3>
         <?php foreach ($a['interviews'] as $iv): ?><div class="qa"><div class="q"><?= e(d(substr((string) $iv['scheduled_at'], 0, 10)) . ' · ' . date('g:i a', strtotime((string) $iv['scheduled_at']))) ?> · <?= e(interview_modes()[$iv['mode']]) ?> · <?= e($iv['interviewer']) ?></div>
           <div class="a small"><?php if ($iv['status'] === 'done'): ?><strong><?= (int) $iv['rating'] ?>/5 · <?= e(interview_verdicts()[$iv['verdict']] ?? '') ?></strong> — <?= nl2br(e((string) $iv['feedback'])) ?><?php elseif ($iv['status'] === 'scheduled'): ?><a href="/reviews?interview=<?= (int) $iv['id'] ?>"><?= te('Open the scorecard') ?></a><?php else: ?><span class="muted"><?= e(str_replace('_', ' ', (string) $iv['status'])) ?></span><?php endif; ?></div></div><?php endforeach; ?>
-        <?php if (empty($a['block']) && ! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
+        <?php if (empty($a['block']) && empty($a['approved']) && ! in_array($a['stage'], ['accepted', 'rejected', 'withdrawn'], true)): ?>
         <details class="mt-s" id="schedule-interview"><summary class="small"><?= te('Schedule an interview') ?></summary>
           <form method="post" action="/hiring" class="mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="interview_schedule"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
             <div class="row">

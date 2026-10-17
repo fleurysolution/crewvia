@@ -146,8 +146,11 @@ rec.post({'do': 'note', 'application_id': ANN, 'note': 'Prefers night shift', 'b
 check('A note joins the application\'s events', [e for e in probe()['events'] if int(e['application_id']) == ANN][-1]['note'] == 'Prefers night shift')
 status, body = rec.get(W + '&stage=all&app=%d' % BEN)
 check('The split review shows the person beside the list', status == 200 and 'id="review"' in body and 'data-application="%d"' % BEN in body and 'data-list-app="%d"' % CARA in body)
-check('with the screener questions, the move and reject forms', 'id="screener"' in body and 'id="move-form"' in body and 'id="reject-form"' in body)
+check('Approved, only what carries them to the first day: no screener, interviews, review or stage moves (P5-M94)',
+      'id="onboarding-progress"' in body and 'id="screener"' not in body and 'id="interviews"' not in body and 'id="manager-review"' not in body and 'id="move-form"' not in body and 'id="reject-form"' in body)
 check('and the next or previous person', 'id="prev-app"' in body or 'id="next-app"' in body)
+body = rec.get(W + '&stage=all&app=%d' % ANN)[1]
+check('Not approved yet, opened by its link: the screener questions, the move and reject forms', 'id="screener"' in body and 'id="move-form"' in body and 'id="reject-form"' in body)
 body = rec.get(W + '&stage=all&app=%d&detail=activity' % ANN)[1]
 check('Its activity shows the notes and moves', 'id="activity"' in body and 'Prefers night shift' in body and 'Phone screen booked' in body)
 check('An application of another requisition is not opened here', rec.get(H + '?v=%d&app=%d' % (CLOSED, ANN))[0] == 404)
