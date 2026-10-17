@@ -4,7 +4,7 @@ $d = $tf['data'];
 $x = static fn($k) => e((string) ($d[$k] ?? '')) ?: '—';
 $money = static fn($k) => '$' . number_format((float) ($d[$k] ?? 0), 2);
 $yes = static fn($k) => ! empty($d[$k]) ? te('Yes') : te('No');
-$statusWord = ['submitted' => t('Waiting to be checked'), 'accepted' => t('Accepted'), 'returned' => t('Sent back'), 'replaced' => t('Replaced by a newer one')];
+$statusWord = ['draft' => t('Filled in, to sign at the office'), 'submitted' => t('Waiting to be checked'), 'accepted' => t('Accepted'), 'returned' => t('Sent back'), 'replaced' => t('Replaced by a newer one')];
 $name = trim(($d['first_name'] ?? '') . ' ' . ($d['middle_initial'] ?? '') . ' ' . ($d['last_name'] ?? ''));
 $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['apartment'] : '') . ', ' . ($d['city'] ?? '') . ', ' . ($d['state'] ?? '') . ' ' . ($d['zip'] ?? ''));
 ?>
@@ -56,7 +56,10 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
 
 <div class="card"><h2><?= te('Signature') ?></h2>
   <p class="small" lang="en"><?= e((string) ($d['statement'] ?? '')) ?></p>
-  <p><?= te('Signed electronically by :name on :date, from their own account in the portal.', ['name' => $tf['signer_name'], 'date' => date('m/d/Y g:i a', strtotime((string) $tf['signed_at']))]) ?></p>
+  <?php if ($tf['status'] === 'draft'): ?><p class="t-red"><?= te('Not signed yet: it is signed in person, in front of the coordinator.') ?></p>
+  <?php elseif ($witness !== ''): ?><p data-signed-in-person="1"><?= te('Signed in person by :name on :date, from their own phone, in front of :witness.', ['name' => $tf['signer_name'], 'date' => date('m/d/Y g:i a', strtotime((string) $tf['signed_at'])), 'witness' => $witness]) ?></p>
+  <?php if (! empty($tf['signature'])): ?><img src="<?= e($tf['signature']) ?>" alt="<?= te('Signature') ?>" class="sign-image"><?php endif; ?>
+  <?php else: ?><p><?= te('Signed electronically by :name on :date, from their own account in the portal.', ['name' => $tf['signer_name'], 'date' => date('m/d/Y g:i a', strtotime((string) $tf['signed_at']))]) ?></p><?php endif; ?>
   <?php if (! $own): ?><p class="small muted mono"><?= te('Address :ip · record :hash', ['ip' => (string) $tf['signer_ip'], 'hash' => substr((string) $tf['payload_hash'], 0, 16)]) ?> · <?= $tf['intact'] ? te('matches what was signed') : te('does not match') ?></p><?php endif; ?>
 </div>
 <?php if (! empty($tf['employer'])): $em = $tf['employer']; ?>
@@ -77,7 +80,23 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
 <p class="small muted no-print" id="tf-pdf-status" aria-live="polite" data-wait="<?= te('Filling the official form…') ?>" data-fail="<?= te('The official form could not be filled in this browser. Print this page instead.') ?>"><?= te('The official form, as published (:edition), filled from what was signed.', ['edition' => TF_PDF[$tf['form']][1]]) ?></p>
 <script src="/assets/pdf-lib.min.js"></script><script src="/assets/official-form.js"></script><?php endif; ?>
 
-<?php if ($canDecide): $o = $decideOld; $ov = static fn($k, $def = '') => e((string) ($o[$k] ?? $def)); ?>
+<?php if ($tf['form'] === 'i9' && ! $own && in_array($tf['status'], ['draft', 'submitted'], true)): $docsList = tf_i9_documents(); ?>
+<div class="card no-print" id="copies"><h2><?= te('Copies of the documents examined') ?></h2>
+  <p class="small muted"><?= te('RSS keeps a copy of the documents of everyone. Compare each original with the photo the person sent, or photograph it here.') ?></p>
+  <?php foreach ($copies as $k): ?><p class="small" data-copy="<?= (int) $k['id'] ?>">List <?= e($k['list']) ?> · <?= e($k['title']) ?> · <?= $k['by_office'] ? te('photographed by the office') : te('sent by the person') ?> · <a href="/tax-forms?copy=<?= (int) $k['document_id'] ?>" target="_blank" rel="noopener"><?= te('Open') ?></a></p><?php endforeach; ?>
+  <?php if (! $copies): ?><p class="muted"><?= te('No copy yet.') ?></p><?php endif; ?>
+  <?php foreach (['A', 'B', 'C'] as $l): ?><datalist id="cdocs-<?= $l ?>"><?php foreach ($docsList[$l] as $t): ?><option value="<?= e($t) ?>"><?php endforeach; ?></datalist><?php endforeach; ?>
+  <form method="post" action="/tax-forms" enctype="multipart/form-data" class="grid g3 mt-s"><?= csrf_field() ?><input type="hidden" name="do" value="add_copy"><input type="hidden" name="candidate_id" value="<?= (int) $tf['candidate_id'] ?>"><input type="hidden" name="back" value="/tax-forms?id=<?= (int) $tf['id'] ?>">
+    <div><label for="cc-l"><?= te('List') ?></label><select id="cc-l" name="list" onchange="document.getElementById('cc-t').setAttribute('list','cdocs-'+this.value)"><option>A</option><option>B</option><option>C</option></select></div>
+    <div><label for="cc-t"><?= te('Document') ?></label><input id="cc-t" name="title" list="cdocs-A" maxlength="150" required></div>
+    <div><label for="cc-f"><?= te('Photograph the original') ?></label><input id="cc-f" name="copy" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment" required></div>
+    <button class="btn ghost"><?= te('Keep the copy') ?></button>
+  </form>
+</div>
+<?php endif; ?>
+<?php if ($canDecide): $o = $decideOld; $ov = static fn($k, $def = '') => e((string) ($o[$k] ?? $def));
+    $findings = [];
+    if ($tf['form'] === 'i9' && $o) { [$fwhy, $fe] = tf_check_i9_section2($o); $findings = $fwhy === null ? tf_s2_findings($d, $fe, $copies) : []; } ?>
 <form class="card no-print" method="post" action="/tax-forms" id="decide"><?= csrf_field() ?><input type="hidden" name="do" value="decide"><input type="hidden" name="form_id" value="<?= (int) $tf['id'] ?>">
   <h2><?= te('Decide') ?></h2>
   <?php if ($tf['form'] === 'w4'): ?>
@@ -108,6 +127,13 @@ $address = trim(($d['address'] ?? '') . (! empty($d['apartment']) ? ', ' . $d['a
     <div><label for="s2-sig"><?= te('Your signature: type your first and last name') ?></label><input id="s2-sig" name="s2_signature" maxlength="190" autocomplete="off" value="<?= $ov('s2_signature') ?>"></div>
     <div><label for="s2-bn"><?= e('Employer\'s Business or Organization Name') ?></label><input id="s2-bn" name="s2_business_name" maxlength="190" value="<?= $ov('s2_business_name', $empDefaults['business_name']) ?>"></div>
     <div><label for="s2-ba"><?= e('Employer\'s Business or Organization Address, City or Town, State, ZIP Code') ?></label><input id="s2-ba" name="s2_business_address" maxlength="250" value="<?= $ov('s2_business_address', $empDefaults['business_address']) ?>"></div>
+  </div>
+  <div class="card soft" id="findings"><h3><?= te('What Crewvia compares') ?></h3>
+    <ul class="small"><li><?= te('Section 1 attests: :status', ['status' => tf_i9_statuses()[$d['status'] ?? ''] ?? '—']) ?><?= ! empty($d['doc_number']) ? ' · ' . e(tf_i9_doc_types()[$d['doc_type']] ?? '') . ' ' . e((string) $d['doc_number']) : '' ?><?= ! empty($d['work_until']) ? ' · ' . te('until :date', ['date' => d((string) $d['work_until'])]) : '' ?></li>
+    <?php foreach ($findings as [$level, $msg]): ?><li class="<?= $level === 'fail' ? 't-red' : ($level === 'warn' ? 't-amber' : 't-green') ?>" data-finding="<?= e($level) ?>"><?= e($msg) ?></li><?php endforeach; ?>
+    <li><?= te('When you accept, Crewvia checks again: no expired document, a copy of each, the box of Section 1 consistent with the documents.') ?></li></ul>
+    <label class="tick"><input class="w-auto" type="checkbox" name="s2_names_match" value="1" <?= ! empty($o['s2_names_match']) ? 'checked' : '' ?>> <?= te('The name on each document matches Section 1 (or the difference is explained in Additional Information)') ?></label>
+    <label class="tick"><input class="w-auto" type="checkbox" name="s2_reviewed" value="1" <?= ! empty($o['s2_reviewed']) ? 'checked' : '' ?>> <?= te('I reviewed any difference Crewvia shows') ?></label>
   </div>
   <p class="small" lang="en"><strong>Certification: <?= e(TF_I9_S2_ATTEST) ?></strong></p>
   <label class="tick"><input class="w-auto" type="checkbox" name="processed" value="1"> <?= te('I certify it, and I sign Section 2') ?></label>

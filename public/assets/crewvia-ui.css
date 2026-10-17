@@ -361,3 +361,8 @@ input.secret{-webkit-text-security:disc;text-security:disc;font-family:monospace
 input.secret.shown{-webkit-text-security:none;text-security:none}
 .card.official h2{font-size:1.05rem}
 .official-head{border-bottom:2px solid currentColor;padding-bottom:.4rem;margin-top:0}
+/* P5-M65: the signature drawn on the phone. */
+.sign-pad{display:block;width:100%;max-width:600px;height:auto;aspect-ratio:10/3;border:1px dashed var(--ui-line,#c9d2dd);border-radius:8px;background:#fff;touch-action:none}
+.sign-image{display:block;max-width:300px;max-height:90px;border-bottom:1px solid var(--ui-line,#c9d2dd)}
+.t-amber{color:#8a5600}
+main .card.official > table,main .card[data-person-form] > table{min-width:0}

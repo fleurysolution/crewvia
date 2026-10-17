@@ -1,6 +1,15 @@
 <div class="page-head"><div><h1><?= te('Change requests') ?></h1>
 <p class="sub"><?= te('What workers asked to change from their own folder. Nothing changes until it is accepted here; a refusal tells the worker why.') ?></p></div></div>
 
+<?php if (can('recruiter')): ?>
+<div class="card" id="to-sign">
+  <h2><?= te('Forms filled in, to sign at the office') ?></h2>
+  <p class="muted"><?= te('When the person is in front of you: find them, check their forms with them, open the signature.') ?></p>
+  <input type="search" placeholder="<?= te('Find a person') ?>" aria-label="<?= te('Find a person') ?>" oninput="var q=this.value.toLowerCase();document.querySelectorAll('[data-to-sign]').forEach(function(r){r.hidden=q&&r.dataset.name.indexOf(q)===-1;})">
+  <?php if (! $toSign): ?><p class="muted"><?= te('Nobody waiting to sign.') ?></p><?php endif; ?>
+  <?php foreach ($toSign as $p): ?><div class="row list-row" data-to-sign="<?= (int) $p['id'] ?>" data-name="<?= e(mb_strtolower($p['name'])) ?>"><div class="min-w"><strong><?= e($p['name']) ?></strong><div class="small"><?= e(implode(' · ', $p['forms'])) ?></div></div><a class="btn sm" href="/tax-forms?person=<?= (int) $p['id'] ?>"><?= te('Open') ?></a></div><?php endforeach; ?>
+</div>
+<?php endif; ?>
 <div class="card" id="tax-forms">
   <h2><?= te('Forms signed in the portal') ?></h2>
   <p class="muted"><?= can('payroll') && can('recruiter') ? te('W-4s for payroll to enter in ADP; I-9s for the office to check before Section 2. Opening a form shows the full numbers, and is recorded.') : (can('payroll') ? te('W-4s to enter in ADP, then accept. Opening a form shows the full numbers, and is recorded.') : te('Section 1 of the I-9, to check before you complete Section 2 with the person and their original documents. Opening a form shows the full numbers, and is recorded.')) ?></p>

@@ -1,10 +1,15 @@
 <?php
-// P5-M64: the worker fills in and signs a W-4 or Section 1 of an I-9. Secrets are masked and typed twice.
+// P5-M64/M65: the worker fills in a W-4 or Section 1 of an I-9, saved as a draft, signed at the office. Secrets are masked and typed twice.
 $v = static fn(string $k): string => e((string) ($old[$k] ?? ''));
 $on = static fn(string $k): string => ! empty($old[$k]) ? 'checked' : '';
 $statusWord = ['submitted' => t('Waiting to be checked'), 'accepted' => t('Accepted'), 'returned' => t('Sent back to you'), 'replaced' => t('Replaced by a newer one')];
-$secret = static function (string $name, string $label, string $hint, bool $required, string $pattern) {
-    $id = 'tf-' . $name; ?>
+$secret = static function (string $name, string $label, string $hint, bool $required, string $pattern) use ($kept) {
+    $id = 'tf-' . $name;
+    // P5-M65: a number already given stays unless it is typed again.
+    if (($kept[$name] ?? '') !== '') {
+        $required = false;
+        $hint = t('Already given, ending :last: leave both empty to keep it.', ['last' => $kept[$name]]) . ($hint !== '' ? ' ' . $hint : '');
+    } ?>
   <div class="grid g2" data-secret="<?= e($name) ?>">
     <div><label for="<?= $id ?>"><?= e($label) ?></label>
       <div class="row no-wrap"><input id="<?= $id ?>" name="<?= e($name) ?>" type="text" class="secret" data-lpignore="true" data-1p-ignore inputmode="<?= $pattern === 'digits' ? 'numeric' : 'text' ?>" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" <?= $required ? 'required' : '' ?>>
@@ -19,11 +24,8 @@ $signature = static function (string $heading, string $statement, string $sigLab
   <div class="card soft official" id="tf-sign">
     <h2><?= e($heading) ?></h2>
     <p class="small" lang="en"><strong><?= e($statement) ?></strong></p>
-    <label class="tick"><input class="w-auto" type="checkbox" name="attest" value="1" required> <?= te('I have read this statement and I sign it.') ?></label>
-    <label for="tf-signer"><?= e($sigLabel) ?> · <?= te('Type your first and last name to sign') ?></label>
-    <input id="tf-signer" name="signer_name" required maxlength="190" autocomplete="off">
-    <p class="small muted"><?= te('Your typed name is your signature. It is recorded with today\'s date and time, from your own account; the form can no longer change once signed.') ?></p>
-    <button class="btn"><?= e($button) ?></button>
+    <p><?= te('You sign at the office, in front of the coordinator: they check your form with you, give you a code, and you sign on your own phone. Nobody can sign in your place.') ?></p>
+    <button class="btn"><?= te('Save: I sign it at the office') ?></button>
   </div>
 <?php }; ?>
 <div class="page-head"><div><h1><?= e(tf_forms()[$form]['name']) ?></h1>
@@ -37,7 +39,8 @@ $signature = static function (string $heading, string $statement, string $sigLab
 <?php if ($waiting): ?>
 <div class="card"><p><?= $form === 'w4' ? te('Your W-4 is waiting for payroll. If something in it is wrong, ask payroll to send it back to you, then correct it here.') : te('Your I-9 is waiting for the office. If something in it is wrong, ask the office to send it back to you, then correct it here.') ?></p></div>
 <?php else: ?>
-<form method="post" action="/tax-forms" class="tax-form" autocomplete="off" data-conditional><?= csrf_field() ?><input type="hidden" name="do" value="sign"><input type="hidden" name="form" value="<?= e($form) ?>">
+<?php if ($draft): ?><div class="card"><p data-draft="<?= (int) $draft['id'] ?>"><span class="tag amber"><?= te('Filled in, to sign at the office') ?></span> <?= te('You can still change it here until you sign it.') ?></p></div><?php endif; ?>
+<form method="post" action="/tax-forms" class="tax-form" autocomplete="off" enctype="multipart/form-data" data-conditional><?= csrf_field() ?><input type="hidden" name="do" value="save"><input type="hidden" name="form" value="<?= e($form) ?>">
 <p class="small muted"><?= te('Your Social Security number and document numbers turn into dots as you type them, and are typed twice so a wrong digit is caught. Everything is encrypted as soon as you sign; only payroll and the office see the full numbers, and each look is recorded.') ?> <a href="<?= $form === 'w4' ? 'https://www.irs.gov/forms-pubs/about-form-w-4' : 'https://www.uscis.gov/i-9' ?>" target="_blank" rel="noopener"><?= $form === 'w4' ? te('The official W-4 and its instructions') : te('The official I-9 and its instructions') ?></a></p>
 
 <?php
@@ -135,7 +138,7 @@ if ($form === 'w4'): ?>
     <div><label for="tf-email">Employee's Email Address</label><input id="tf-email" name="email" type="email" maxlength="190" value="<?= $v('email') ?>"></div>
     <div><label for="tf-phone">Employee's Telephone Number</label><input id="tf-phone" name="phone" maxlength="30" value="<?= $v('phone') ?>"></div>
   </div>
-  <?php $secret('ssn', 'U.S. Social Security Number', t('Required if the employer uses E-Verify; otherwise you may leave both empty.'), false, 'digits'); ?>
+  <?php $secret('ssn', 'U.S. Social Security Number', $everify ? t('Required: the employer uses E-Verify.') : t('Required if the employer uses E-Verify; otherwise you may leave both empty.'), $everify, 'digits'); ?>
 </div>
 <div class="card official">
   <p class="small"><strong>I am aware that federal law provides for imprisonment and/or fines for false statements, or the use of false documents, in connection with the completion of this form. I attest, under penalty of perjury, that this information, including my selection of the box attesting to my citizenship or immigration status, is true and correct.</strong></p>
@@ -153,6 +156,18 @@ if ($form === 'w4'): ?>
     </div>
     <?php $secret('doc_number', 'USCIS or A-Number / Form I-94 Admission Number / Foreign Passport Number', t('A lawful permanent resident gives the USCIS or A-Number (7 to 9 digits).'), true, 'text'); ?>
   </div>
+</div>
+<div class="card official" id="my-documents"><h2><?= te('Your documents for Section 2 (optional)') ?></h2>
+  <p class="small"><?= te('On your first day you show the office your original documents: one from List A, OR one from List B AND one from List C. You choose which, from the lists of acceptable documents. To save time, you may send a photo of them now; the office still examines the originals, and keeps a copy of everyone\'s documents.') ?> <a href="https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents" target="_blank" rel="noopener"><?= te('The lists of acceptable documents') ?></a></p>
+  <?php foreach ($copies as $k): ?><p class="small" data-copy="<?= (int) $k['id'] ?>">List <?= e($k['list']) ?> · <?= e($k['title']) ?> · <?= te('sent :date', ['date' => d(substr((string) $k['added_at'], 0, 10))]) ?></p><?php endforeach; ?>
+  <?php $docs = tf_i9_documents(); foreach (['A', 'B', 'C'] as $l): ?><datalist id="mydocs-<?= $l ?>"><?php foreach ($docs[$l] as $t): ?><option value="<?= e($t) ?>"><?php endforeach; ?></datalist><?php endforeach; ?>
+  <?php for ($i = 0; $i < 3; $i++): ?>
+  <div class="grid g3">
+    <div><label for="cp-l<?= $i ?>"><?= te('List') ?></label><select id="cp-l<?= $i ?>" name="copy_list[]" onchange="this.closest('.grid').querySelector('input[list]').setAttribute('list','mydocs-'+this.value)"><option value="A">List A</option><option value="B">List B</option><option value="C">List C</option></select></div>
+    <div><label for="cp-t<?= $i ?>"><?= te('Document') ?></label><input id="cp-t<?= $i ?>" name="copy_title[]" list="mydocs-A" maxlength="150"></div>
+    <div><label for="cp-f<?= $i ?>"><?= te('Photo or PDF') ?></label><input id="cp-f<?= $i ?>" name="copy_file[]" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*" capture="environment"></div>
+  </div>
+  <?php endfor; ?>
 </div>
 <?php $signature('Signature of Employee', TF_I9_ATTEST, 'Signature of Employee · Today\'s Date (mm/dd/yyyy): ' . date('m/d/Y'), t('Sign and send Section 1 of my I-9')); ?>
 <div class="card official">

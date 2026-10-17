@@ -46,7 +46,7 @@ function onboarding_form_tasks(int $candidateId, string $kind, string $status, s
 {
     $from = $status === 'submitted' ? ['pending', 'rejected'] : ['pending', 'submitted', 'rejected'];
     q("UPDATE onboarding_tasks t JOIN placements p ON p.id = t.placement_id JOIN onboarding_requirements r ON r.id = t.requirement_id
-       SET t.status = ?, t.response = ?, t.reviewed_by = ?, t.reviewed_at = " . ($status === 'submitted' ? 'NULL' : 'NOW()') . "
+       SET t.status = ?, t.response = ?, t.reviewed_by = ?, t.reviewed_at = " . (in_array($status, ['submitted', 'pending'], true) ? 'NULL' : 'NOW()') . "
        WHERE p.candidate_id = ? AND r.form_kind = ? AND t.status IN (?,?" . (count($from) === 3 ? ',?' : '') . ") AND p.status NOT IN ('completed','cancelled')",
       [$status, mb_substr($response, 0, 2000), $reviewer, $candidateId, $kind, ...$from]);
 }

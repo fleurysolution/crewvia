@@ -36,6 +36,10 @@
           page.drawText('X', { x: r.x + r.width / 2 - 2.6, y: r.y + r.height / 2 - 3, size: 8, font: font });
         });
       });
+      for (const im of (map.images || [])) {
+        const png = await pdf.embedPng(Uint8Array.from(atob(im.data.split(',')[1]), function (c) { return c.charCodeAt(0); }));
+        pages[im.page].drawImage(png, { x: im.x, y: im.y, height: im.h, width: png.width * im.h / png.height });
+      }
       map.draw.forEach(function (t) { pages[t.page].drawText(t.text, { x: t.x, y: t.y, size: 9, font: font }); });
       form.flatten();
       var blob = new Blob([await pdf.save()], { type: 'application/pdf' });

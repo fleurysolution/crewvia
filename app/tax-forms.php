@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/notices.php';
 require_once __DIR__ . '/onboarding-tasks.php';
+require_once __DIR__ . '/identity-docs.php';
 
 /** Step 3 of the W-4: per qualifying child under 17, per other dependent. Check them against each year's form. */
 const TF_W4_YEAR = 2026;
@@ -201,10 +202,6 @@ function tf_check_w4(array $in): array
         $p[$k] = $v;
     }
     $p['step3_total'] = $p['children'] * TF_W4_CHILD + $p['other_dependents'] * TF_W4_OTHER + $p['other_credits'];
-    if (($why = tf_signature($in, $p)) !== null) {
-        return [$why, []];
-    }
-
     return [null, $p];
 }
 
@@ -221,7 +218,7 @@ function tf_check_i9(array $in): array
         return [t('Give your date of birth.'), []];
     }
     $p['birth_date'] = $dob;
-    if (($why = tf_ssn($in, $p, true)) !== null) {
+    if (($why = tf_ssn($in, $p, ! tf_everify())) !== null) {
         return [$why, []];
     }
     $p['email'] = tf_text($in, 'email');
@@ -282,10 +279,6 @@ function tf_check_i9(array $in): array
         }
         $p['preparer'] = $prep + ['statement' => TF_I9_PREPARER_ATTEST, 'signs_in_ink' => true];
     }
-    if (($why = tf_signature($in, $p)) !== null) {
-        return [$why, []];
-    }
-
     return [null, $p];
 }
 
@@ -310,9 +303,11 @@ function tf_history(int $candidateId, string $form): array
 }
 
 /**
- * The worker signs the form. Returns the refusal, or null.
+ * P5-M65: the worker fills the form beforehand; it is a draft until they sign it in person, in front of the
+ * coordinator (the owner, 17 Oct 2026: "the signature is in person: it is safer and it avoids fraud").
+ * The numbers already given are kept when the draft is changed without typing them again.
  */
-function tf_submit(int $candidateId, string $form, array $in, int $userId): ?string
+function tf_save_draft(int $candidateId, string $form, array $in, int $userId): ?string
 {
     if (! isset(tf_forms()[$form])) {
         return t('Unknown form.');
@@ -321,36 +316,279 @@ function tf_submit(int $candidateId, string $form, array $in, int $userId): ?str
     if (! crypto_key_ready()) {
         return t('Secure document storage is not configured.');
     }
+    if (val("SELECT id FROM worker_tax_forms WHERE candidate_id = ? AND form = ? AND status = 'submitted'", [$candidateId, $form])) {
+        return $form === 'w4' ? t('Your W-4 is already waiting for payroll. If it is wrong, ask payroll to send it back to you.') : t('Your I-9 is already waiting for the office. If it is wrong, ask the office to send it back to you.');
+    }
+    $draft = row("SELECT * FROM worker_tax_forms WHERE candidate_id = ? AND form = ? AND status = 'draft' ORDER BY id DESC LIMIT 1", [$candidateId, $form]);
+    $prev = $draft ? tf_payload($draft) : [];
+    foreach (['ssn', 'doc_number'] as $k) {
+        if (trim((string) ($in[$k] ?? '')) === '' && trim((string) ($in[$k . '_confirm'] ?? '')) === '' && ! empty($prev[$k])
+            && ($k === 'ssn' ? empty($in['ssn_applied']) : ($prev['doc_type'] ?? '') === ($in['status'] === 'permanent' ? 'a_number' : ($in['doc_type'] ?? '')))) {
+            $in[$k] = $in[$k . '_confirm'] = $prev[$k];
+        }
+    }
     [$why, $p] = $form === 'w4' ? tf_check_w4($in) : tf_check_i9($in);
     if ($why !== null) {
         return $why;
     }
-    if (val("SELECT id FROM worker_tax_forms WHERE candidate_id = ? AND form = ? AND status = 'submitted'", [$candidateId, $form])) {
-        return $form === 'w4' ? t('Your W-4 is already waiting for payroll. If it is wrong, ask payroll to send it back to you.') : t('Your I-9 is already waiting for the office. If it is wrong, ask the office to send it back to you.');
-    }
-    $p['statement'] = $form === 'w4' ? TF_W4_ATTEST : TF_I9_ATTEST;
-    $p['signer_name'] = tf_text($in, 'signer_name');
-    $p['signed_on'] = date('Y-m-d');
     $json = json_encode($p, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
-    q("INSERT INTO worker_tax_forms (candidate_id, form, encrypted_payload, payload_hash, ssn_last_four, signer_name, signed_at, signed_by, signer_ip, signer_agent)
-       VALUES (?,?,?,?,?,?, NOW(), ?,?,?)",
-      [$candidateId, $form, base64_encode(crypto_seal($json)), hash('sha256', $json), $p['ssn'] !== '' ? substr($p['ssn'], -4) : null, $p['signer_name'], $userId,
-       mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45), mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]);
-    $id = (int) db()->lastInsertId();
-    tf_log($id, $candidateId, $userId, 'signed');
-    q('INSERT IGNORE INTO employment_clearance (candidate_id) VALUES (?)', [$candidateId]);
-    if ($form === 'w4') {
-        q("UPDATE employment_clearance SET w4_form_id = ?, w4_status = 'submitted' WHERE candidate_id = ?", [$id, $candidateId]);
+    $last4 = $p['ssn'] !== '' ? substr($p['ssn'], -4) : null;
+    if ($draft) {
+        q('UPDATE worker_tax_forms SET encrypted_payload = ?, payload_hash = ?, ssn_last_four = ? WHERE id = ?', [base64_encode(crypto_seal($json)), hash('sha256', $json), $last4, (int) $draft['id']]);
+        $id = (int) $draft['id'];
     } else {
-        q("UPDATE employment_clearance SET i9_form_id = ?, i9_status = 'employee_submitted' WHERE candidate_id = ? AND i9_status <> 'employer_completed'", [$id, $candidateId]);
+        q("INSERT INTO worker_tax_forms (candidate_id, form, encrypted_payload, payload_hash, ssn_last_four, status) VALUES (?,?,?,?,?, 'draft')",
+          [$candidateId, $form, base64_encode(crypto_seal($json)), hash('sha256', $json), $last4]);
+        $id = (int) db()->lastInsertId();
     }
-    $short = tf_forms()[$form]['short'];
-    onboarding_form_tasks($candidateId, $form, 'submitted', t(':form filled in and signed in the portal.', ['form' => $short]));
-    q('INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?,?,?,?)', [$candidateId, $userId, $short . ' signed in the portal', 'Form ' . $id . ', signed electronically']);
-    $who = (string) val('SELECT full_name FROM candidates WHERE id = ?', [$candidateId]);
-    notify_desks([tf_forms()[$form]['desk']], t(':name signed their :form in the portal: check it on Change requests.', ['name' => $who, 'form' => $short]), '/change-requests#tax-forms');
+    tf_log($id, $candidateId, $userId, 'filled in');
+    onboarding_form_tasks($candidateId, $form, 'pending', t(':form filled in: to sign at the office, in front of the coordinator.', ['form' => tf_forms()[$form]['short']]));
 
     return null;
+}
+
+/** What a stored form holds, or [] when it cannot be read or no longer matches its hash. */
+function tf_payload(array $row): array
+{
+    require_once __DIR__ . '/crypto.php';
+    $json = crypto_open((string) base64_decode((string) $row['encrypted_payload'], true));
+
+    return $json !== null && hash_equals((string) $row['payload_hash'], hash('sha256', $json)) ? (json_decode($json, true) ?: []) : [];
+}
+
+/** The drafts waiting for the in-person signature: the worker's own, or everybody's for the office. */
+function tf_drafts(?int $candidateId = null): array
+{
+    return rows("SELECT f.id, f.form, f.candidate_id, f.ssn_last_four, f.created_at, c.full_name FROM worker_tax_forms f JOIN candidates c ON c.id = f.candidate_id
+                 WHERE f.status = 'draft'" . ($candidateId ? ' AND f.candidate_id = ' . (int) $candidateId : '') . ' ORDER BY c.full_name, f.form LIMIT 500');
+}
+
+/** The coordinator, with the worker in front of them, makes the one-time code that opens the signature. */
+function tf_code_make(int $candidateId, int $by): ?array
+{
+    if (! tf_drafts($candidateId)) {
+        return null;
+    }
+    q("UPDATE signing_codes SET used_at = NOW(), outcome = 'replaced' WHERE candidate_id = ? AND purpose = 'forms' AND used_at IS NULL", [$candidateId]);
+    $code = (string) random_int(10000000, 99999999);
+    $expires = date('Y-m-d H:i:s', time() + SIGNING_CODE_MINUTES * 60);
+    q("INSERT INTO signing_codes (candidate_id, purpose, code_hash, created_by, expires_at) VALUES (?, 'forms', ?, ?, ?)", [$candidateId, hash('sha256', $code), $by, $expires]);
+    log_activity('opened the signature of the forms, in person', 'candidate', $candidateId);
+
+    return [$code, $expires];
+}
+
+/** A drawn signature, as the browser sends it: a PNG, at most 300 KB. Returns the bytes, or null. */
+function tf_signature_png(string $dataUrl): ?string
+{
+    if (! str_starts_with($dataUrl, 'data:image/png;base64,')) {
+        return null;
+    }
+    $png = base64_decode(substr($dataUrl, 22), true);
+
+    return $png !== false && strlen($png) > 200 && strlen($png) <= 300 * 1024 && str_starts_with($png, "\x89PNG\r\n\x1a\n") ? $png : null;
+}
+
+/**
+ * The worker signs their drafts, from their own phone, with the code the coordinator in front of them made:
+ * each statement ticked, their name typed, their signature drawn. Returns the refusal, or null.
+ */
+function tf_sign_in_person(int $candidateId, string $code, array $in, int $userId): ?string
+{
+    require_once __DIR__ . '/crypto.php';
+    $c = row("SELECT * FROM signing_codes WHERE candidate_id = ? AND purpose = 'forms' AND code_hash = ? AND used_at IS NULL AND expires_at > NOW()",
+             [$candidateId, hash('sha256', preg_replace('/\D/', '', $code))]);
+    if (! $c) {
+        return t('That code is not valid. Ask the coordinator in front of you for a new one.');
+    }
+    $drafts = rows("SELECT * FROM worker_tax_forms WHERE candidate_id = ? AND status = 'draft' ORDER BY form", [$candidateId]);
+    if (! $drafts) {
+        return t('There is no form to sign. Fill your W-4 and your I-9 first.');
+    }
+    $png = tf_signature_png((string) ($in['signature_png'] ?? ''));
+    if ($png === null) {
+        return t('Sign with your finger or the mouse in the signature box.');
+    }
+    $typed = tf_text($in, 'signer_name');
+    $witness = (string) val('SELECT name FROM users WHERE id = ?', [(int) $c['created_by']]);
+    foreach ($drafts as $d) {
+        $p = tf_payload($d);
+        if (! $p) {
+            return t('A form cannot be read. Fill it again.');
+        }
+        if (empty($in['attest_' . $d['form']])) {
+            return t('Tick the statement of each form to sign it.');
+        }
+        if (tf_signature(['attest' => 1] + $in, $p) !== null) {
+            return t('Sign by typing your first and last name, as written in the form.');
+        }
+    }
+    foreach ($drafts as $d) {
+        $p = tf_payload($d);
+        $p += ['statement' => $d['form'] === 'w4' ? TF_W4_ATTEST : TF_I9_ATTEST];
+        $p['signer_name'] = $typed;
+        $p['signed_on'] = date('Y-m-d');
+        $p['signature_sha256'] = hash('sha256', $png);
+        $p['signed_in_person'] = ['witness_id' => (int) $c['created_by'], 'witness' => $witness, 'code_id' => (int) $c['id']];
+        $json = json_encode($p, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        q("UPDATE worker_tax_forms SET encrypted_payload = ?, payload_hash = ?, encrypted_signature = ?, signer_name = ?, signed_at = NOW(), signed_by = ?, witness_id = ?,
+                  signer_ip = ?, signer_agent = ?, status = 'submitted' WHERE id = ? AND status = 'draft'",
+          [base64_encode(crypto_seal($json)), hash('sha256', $json), base64_encode(crypto_seal($png)), $typed, $userId, (int) $c['created_by'],
+           mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45), mb_substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255), (int) $d['id']]);
+        $id = (int) $d['id'];
+        tf_log($id, $candidateId, $userId, 'signed in person');
+        q('INSERT IGNORE INTO employment_clearance (candidate_id) VALUES (?)', [$candidateId]);
+        if ($d['form'] === 'w4') {
+            q("UPDATE employment_clearance SET w4_form_id = ?, w4_status = 'submitted' WHERE candidate_id = ?", [$id, $candidateId]);
+        } else {
+            q("UPDATE employment_clearance SET i9_form_id = ?, i9_status = 'employee_submitted' WHERE candidate_id = ? AND i9_status <> 'employer_completed'", [$id, $candidateId]);
+        }
+        $short = tf_forms()[$d['form']]['short'];
+        onboarding_form_tasks($candidateId, $d['form'], 'submitted', t(':form signed in person, in front of :name.', ['form' => $short, 'name' => $witness]));
+        q('INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?,?,?,?)', [$candidateId, $userId, $short . ' signed in person', 'Form ' . $id . ', witnessed by user ' . (int) $c['created_by']]);
+    }
+    q("UPDATE signing_codes SET used_at = NOW(), outcome = 'signed' WHERE id = ?", [(int) $c['id']]);
+    $who = (string) val('SELECT full_name FROM candidates WHERE id = ?', [$candidateId]);
+    if (in_array('w4', array_column($drafts, 'form'), true)) {
+        notify_desks(['payroll'], t(':name signed their W-4 at the office: enter it in ADP from Change requests.', ['name' => $who]), '/change-requests#tax-forms');
+    }
+    notify_user((int) $c['created_by'], t(':name signed. Complete Section 2 of the I-9 with their original documents.', ['name' => $who]), '/tax-forms?person=' . $candidateId);
+
+    return null;
+}
+
+/** The drawn signature of a signed form, as a data URL for the official PDF; '' when there is none. */
+function tf_signature_data(array $row): string
+{
+    if (empty($row['encrypted_signature'])) {
+        return '';
+    }
+    require_once __DIR__ . '/crypto.php';
+    $png = crypto_open((string) base64_decode((string) $row['encrypted_signature'], true));
+
+    return $png !== null ? 'data:image/png;base64,' . base64_encode($png) : '';
+}
+
+/** P5-M65: whether the employer uses E-Verify (Employment, an administrator). The SSN is then required on the I-9. */
+function tf_everify(): bool
+{
+    return (string) val("SELECT setting_value FROM platform_settings WHERE setting_key = 'everify_enabled'") === '1';
+}
+
+/**
+ * P5-M65: a copy of a document the person presents for Section 2 (RSS keeps copies for everyone). The worker
+ * may send photos beforehand, of documents they chose; the office photographs the originals otherwise.
+ * Stored like every identity document: encrypted, restricted (P5-M33). Returns the refusal, or null.
+ */
+function tf_copy_add(int $candidateId, string $list, string $title, ?array $file, int $by, bool $byOffice): ?string
+{
+    global $config;
+    $title = mb_substr(trim($title), 0, 150);
+    if (! in_array($list, ['A', 'B', 'C'], true) || $title === '') {
+        return t('Say which document it is: its list (A, B or C) and its title.');
+    }
+    if (! $file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || $file['size'] > 10 * 1024 * 1024) {
+        return t('Take a photo of the document, or choose a photo or a PDF of up to 10 MB.');
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (! in_array($mime, ['application/pdf', 'image/jpeg', 'image/png'], true)) {
+        return t('The copy must be a photo (JPEG or PNG) or a PDF.');
+    }
+    require_once __DIR__ . '/crypto.php';
+    if (! crypto_key_ready()) {
+        return t('Secure document storage is not configured.');
+    }
+    $bytes = (string) file_get_contents($file['tmp_name']);
+    $dir = workforce_storage_path($config) . '/documents';
+    if (! is_dir($dir)) {
+        mkdir($dir, 0700, true);
+    }
+    $name = bin2hex(random_bytes(32));
+    if (file_put_contents($dir . '/' . $name, crypto_seal($bytes), LOCK_EX) === false) {
+        return t('Document storage unavailable.');
+    }
+    q('INSERT INTO worker_documents (candidate_id, uploaded_by, document_type, restricted, original_name, storage_name, mime_type, file_hash) VALUES (?,?,?,1,?,?,?,?)',
+      [$candidateId, $by, mb_substr('I-9 copy · List ' . $list . ' · ' . $title, 0, 120), mb_substr(basename((string) $file['name']), 0, 190), $name, $mime, hash('sha256', $bytes)]);
+    $docId = (int) db()->lastInsertId();
+    q('INSERT INTO i9_document_copies (candidate_id, list, title, document_id, added_by, by_office) VALUES (?,?,?,?,?,?)', [$candidateId, $list, $title, $docId, $by, $byOffice ? 1 : 0]);
+    log_activity($byOffice ? 'photographed an I-9 document' : 'sent a copy of an I-9 document', 'candidate', $candidateId, 'List ' . $list . ' · ' . $title);
+
+    return null;
+}
+
+/** The copies kept for the person's I-9, newest first. */
+function tf_copies(int $candidateId): array
+{
+    return rows('SELECT k.*, d.status AS doc_status, d.restricted, d.mime_type FROM i9_document_copies k JOIN worker_documents d ON d.id = k.document_id
+                 WHERE k.candidate_id = ? ORDER BY k.id DESC LIMIT 30', [$candidateId]);
+}
+
+/**
+ * P5-M65: what Crewvia compares before Section 2 is signed - what the person attested in Section 1, the
+ * documents the office lists, the copies kept. 'fail' stops the acceptance; 'warn' needs the office to say
+ * it reviewed the difference. @return list<array{0:string,1:string}>
+ */
+function tf_s2_findings(array $s1, array $emp, array $copies): array
+{
+    $out = [];
+    $docs = $emp['list_a'] ?: array_filter([$emp['list_b'] ?? null, $emp['list_c'] ?? null]);
+    $status = (string) ($s1['status'] ?? '');
+    foreach ($docs as $doc) {
+        if (($doc['expires'] ?? '') !== '' && $doc['expires'] < date('Y-m-d')) {
+            $out[] = ['fail', t(':doc expired on :date: an expired document is not accepted.', ['doc' => $doc['title'], 'date' => d($doc['expires'])])];
+        }
+        $title = strtolower((string) $doc['title']);
+        if ((str_contains($title, 'i-551') || str_contains($title, 'permanent resident')) && $status !== 'permanent') {
+            $out[] = ['warn', t('A Permanent Resident Card, but Section 1 does not attest box 3 (lawful permanent resident).')];
+        }
+        if ((str_contains($title, 'i-766') || str_contains($title, 'employment authorization')) && $status !== 'authorized') {
+            $out[] = ['warn', t('An Employment Authorization Document, but Section 1 does not attest box 4 (authorized to work until).')];
+        }
+        if (str_starts_with($title, 'u.s. passport') && ! in_array($status, ['citizen', 'national'], true)) {
+            $out[] = ['warn', t('A U.S. passport, but Section 1 does not attest box 1 or 2.')];
+        }
+        if ($status === 'permanent' && (str_contains($title, 'i-551') || str_contains($title, 'permanent resident')) && ($doc['number'] ?? '') !== '') {
+            $out[] = str_contains(preg_replace('/\D/', '', (string) $doc['number']), (string) ($s1['doc_number'] ?? '-'))
+                ? ['ok', t('The card carries the A-Number given in Section 1.')]
+                : ['warn', t('Compare the USCIS# on the card with the A-Number given in Section 1 (A:number).', ['number' => (string) ($s1['doc_number'] ?? '')])];
+        }
+        if ($status === 'authorized' && ! empty($s1['work_until']) && ($doc['expires'] ?? '') !== '' && (str_contains($title, 'i-766') || str_contains($title, 'employment authorization')) && $doc['expires'] !== $s1['work_until']) {
+            $out[] = ['warn', t('The card expires on :card; Section 1 says authorized until :s1.', ['card' => d($doc['expires']), 's1' => d($s1['work_until'])])];
+        }
+    }
+    $have = array_count_values(array_column($copies, 'list'));
+    $need = $emp['list_a'] ? ['A' => count($emp['list_a'])] : ['B' => 1, 'C' => 1];
+    foreach ($need as $list => $n) {
+        if (($have[$list] ?? 0) < $n) {
+            $out[] = ['fail', t('Keep a copy of each document examined: List :list is missing one. Photograph the original.', ['list' => $list])];
+        }
+    }
+
+    return $out;
+}
+
+/** P5-M65: the E-Verify case of an I-9 completed, recorded by the office. Returns the refusal, or null. */
+function tf_everify_save(int $formId, string $case, string $result, int $by): ?string
+{
+    $case = strtoupper(trim($case));
+    if (! preg_match('/^[0-9A-Z-]{6,40}$/D', $case)) {
+        return t('Give the E-Verify case number, as E-Verify shows it.');
+    }
+    if (! in_array($result, tf_everify_results(), true)) {
+        return t('Choose the case result.');
+    }
+    if (! val("SELECT id FROM worker_tax_forms WHERE id = ? AND form = 'i9' AND status = 'accepted'", [$formId])) {
+        return t('Complete Section 2 first: the E-Verify case comes after it.');
+    }
+    q('UPDATE worker_tax_forms SET everify_case = ?, everify_result = ?, everify_by = ?, everify_at = NOW() WHERE id = ?', [$case, $result, $by, $formId]);
+    log_activity('recorded an E-Verify case', 'tax_form', $formId, $result);
+
+    return null;
+}
+
+function tf_everify_results(): array
+{
+    return ['Open', 'Employment Authorized', 'Tentative Nonconfirmation (TNC)', 'Case in Continuance', 'Final Nonconfirmation', 'Close Case and Resubmit', 'Closed'];
 }
 
 function tf_log(int $formId, int $candidateId, int $userId, string $action): void
@@ -369,7 +607,7 @@ function tf_staff_can_open(array $f): bool
         return true;
     }
 
-    return can('recruiter') && $f['status'] === 'submitted';
+    return can('recruiter') && in_array($f['status'], ['draft', 'submitted'], true);
 }
 
 /**
@@ -389,6 +627,7 @@ function tf_open(int $formId, int $userId, bool $own): ?array
     $f['data'] = $f['intact'] ? json_decode($json, true) : [];
     // P5-M64c: the employer's part (W-4 "Employers Only", I-9 Section 2), once accepted.
     $f['employer'] = tf_employer_part($f);
+    $f['signature'] = tf_signature_data($f);
     unset($f['encrypted_payload'], $f['encrypted_employer']);
     if ($own) {
         foreach (['ssn', 'doc_number'] as $k) {
@@ -440,6 +679,23 @@ function tf_decide(int $formId, string $decision, string $note, int $userId, boo
         if ($why !== null) {
             return $why;
         }
+        if ($f['form'] === 'i9') {
+            // P5-M65: what Section 1 attests, the documents listed and the copies kept, compared before it is signed.
+            $findings = tf_s2_findings(tf_payload($f), $emp, tf_copies($cid));
+            foreach ($findings as [$level, $msg]) {
+                if ($level === 'fail') {
+                    return $msg;
+                }
+            }
+            if (empty($employer['s2_names_match'])) {
+                return t('Tick that the name on each document matches Section 1 (or explain the difference in Additional Information).');
+            }
+            if (in_array('warn', array_column($findings, 0), true) && empty($employer['s2_reviewed'])) {
+                return t('Review the differences Crewvia shows, then tick that you did.');
+            }
+            $emp['findings'] = $findings;
+            $emp['copies'] = array_column(tf_copies($cid), 'document_id');
+        }
         require_once __DIR__ . '/crypto.php';
         q("UPDATE worker_tax_forms SET status = 'replaced' WHERE candidate_id = ? AND form = ? AND status = 'accepted'", [$cid, $f['form']]);
         q("UPDATE worker_tax_forms SET status = 'accepted', reviewed_by = ?, reviewed_at = NOW(), review_note = ?, encrypted_employer = ? WHERE id = ?",
@@ -451,6 +707,10 @@ function tf_decide(int $formId, string $decision, string $note, int $userId, boo
             q("UPDATE employment_clearance SET first_day = ?, review_due_on = ?, verifier_name = ?, verification_method = 'in_person', verified_by = ?, verified_at = NOW(), i9_status = 'employer_completed'
                WHERE candidate_id = ? AND i9_form_id = ?", [$emp['first_day'], tf_business_days_after($emp['first_day'], 3), $emp['rep_name_title'], $userId, $cid, $formId]);
             tf_remember_employer(['tf_employer_business_name' => $emp['business_name'], 'tf_employer_business_address' => $emp['business_address']]);
+            // The copies examined are validated: from now on only administrators and authorized readers open them (P5-M33).
+            if ($emp['copies']) {
+                q("UPDATE worker_documents SET status = 'approved', reviewed_by = ?, reviewed_at = NOW() WHERE id IN (" . implode(',', array_map('intval', $emp['copies'])) . ')', [$userId]);
+            }
         }
         onboarding_form_tasks($cid, $f['form'], 'approved', t(':form accepted.', ['form' => $short]), $userId);
         notify_candidate($cid, t('Your :form was checked and accepted.', ['form' => $short]), '/portal#onboarding');
@@ -573,7 +833,7 @@ function tf_pdf_map(array $tf, array $emp, bool $mask): array
     $last4 = static fn(string $v) => substr(preg_replace('/\D/', '', $v) ?: $v, -4);
     $ssn = (string) ($d['ssn'] ?? '');
     $signedOn = $md($d['signed_on'] ?? substr((string) $tf['signed_at'], 0, 10));
-    $sig = '/s/ ' . $tf['signer_name'] . ' (signed electronically)';
+    $sig = '/s/ ' . $tf['signer_name'] . (! empty($d['signed_in_person']) ? ' (signed in person)' : ' (signed electronically)');
     if ($tf['form'] === 'w4') {
         $P = 'topmostSubform[0].Page1[0].';
         $text = [
@@ -599,7 +859,7 @@ function tf_pdf_map(array $tf, array $emp, bool $mask): array
         }
 
         return ['src' => TF_PDF['w4'][0], 'file' => 'W-4-2026-' . preg_replace('/[^A-Za-z0-9]+/', '-', $tf['full_name']) . '.pdf', 'text' => array_filter($text, 'strlen'),
-                'checks' => $checks, 'choices' => [], 'draw_ticks' => true,
+                'checks' => $checks, 'choices' => [], 'draw_ticks' => true, 'images' => $tf['signature'] ? [['page' => 0, 'x' => 380, 'y' => 92, 'h' => 18, 'data' => $tf['signature']]] : [],
                 'draw' => [['page' => 0, 'x' => 140, 'y' => 96, 'text' => $sig], ['page' => 0, 'x' => 466, 'y' => 96, 'text' => $signedOn]]];
     }
     $num = static fn(string $v) => $mask && $v !== '' ? 'XXXXX' . $last4($v) : $v;
@@ -659,7 +919,8 @@ function tf_pdf_map(array $tf, array $emp, bool $mask): array
     }
 
     return ['src' => TF_PDF['i9'][0], 'file' => 'I-9-' . preg_replace('/[^A-Za-z0-9]+/', '-', $tf['full_name']) . '.pdf', 'text' => array_filter($text, 'strlen'),
-            'checks' => array_values(array_filter($checks)), 'choices' => array_filter($choices, 'strlen'), 'draw_ticks' => false, 'draw' => []];
+            'checks' => array_values(array_filter($checks)), 'choices' => array_filter($choices, 'strlen'), 'draw_ticks' => false, 'draw' => [],
+            'images' => $tf['signature'] ? [['page' => 0, 'x' => 255, 'y' => 421, 'h' => 13, 'data' => $tf['signature']]] : []];
 }
 
 /** The forms waiting for this staff member: W-4s for payroll, I-9s for the office. */

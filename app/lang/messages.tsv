@@ -4880,3 +4880,102 @@ With the person and their original documents in front of you, within three busin
 Your signature: type your first and last name	Votre signature : tapez votre prénom et votre nom	Su firma: escriba su nombre y apellido
 I certify it, and I sign Section 2	Je le certifie, et je signe la section 2	Lo certifico, y firmo la sección 2
 A preparer or translator helped: print the official I-9 and have them sign Supplement A (page 3) in ink.	Un préparateur ou traducteur a aidé : imprimez l'I-9 officiel et faites-lui signer le Supplément A (page 3) à l'encre.	Un preparador o traductor ayudó: imprima el I-9 oficial y pídale que firme el Suplemento A (página 3) con tinta.
+:form filled in: to sign at the office, in front of the coordinator.	:form rempli : à signer au bureau, devant le coordonnateur.	:form llenado: para firmar en la oficina, ante el coordinador.
+There is no form to sign. Fill your W-4 and your I-9 first.	Il n'y a aucun formulaire à signer. Remplissez d'abord votre W-4 et votre I-9.	No hay ningún formulario para firmar. Llene primero su W-4 y su I-9.
+Sign with your finger or the mouse in the signature box.	Signez avec votre doigt ou la souris dans la zone de signature.	Firme con el dedo o el ratón en el recuadro de firma.
+A form cannot be read. Fill it again.	Un formulaire est illisible. Remplissez-le à nouveau.	Un formulario no se puede leer. Llénelo de nuevo.
+Tick the statement of each form to sign it.	Cochez la déclaration de chaque formulaire pour le signer.	Marque la declaración de cada formulario para firmarlo.
+:form signed in person, in front of :name.	:form signé en personne, devant :name.	:form firmado en persona, ante :name.
+:name signed their W-4 at the office: enter it in ADP from Change requests.	:name a signé son W-4 au bureau : saisissez-le dans ADP depuis Demandes de changement.	:name firmó su W-4 en la oficina: ingréselo en ADP desde Solicitudes de cambio.
+:name signed. Complete Section 2 of the I-9 with their original documents.	:name a signé. Remplissez la section 2 de l'I-9 avec ses documents originaux.	:name firmó. Complete la sección 2 del I-9 con sus documentos originales.
+Say which document it is: its list (A, B or C) and its title.	Indiquez de quel document il s'agit : sa liste (A, B ou C) et son titre.	Indique qué documento es: su lista (A, B o C) y su título.
+Take a photo of the document, or choose a photo or a PDF of up to 10 MB.	Prenez une photo du document, ou choisissez une photo ou un PDF de 10 Mo au plus.	Tome una foto del documento, o elija una foto o un PDF de hasta 10 MB.
+The copy must be a photo (JPEG or PNG) or a PDF.	La copie doit être une photo (JPEG ou PNG) ou un PDF.	La copia debe ser una foto (JPEG o PNG) o un PDF.
+:doc expired on :date: an expired document is not accepted.	:doc a expiré le :date : un document expiré n'est pas accepté.	:doc venció el :date: no se acepta un documento vencido.
+A Permanent Resident Card, but Section 1 does not attest box 3 (lawful permanent resident).	Une carte de résident permanent, mais la section 1 n'atteste pas la case 3 (résident permanent légal).	Una tarjeta de residente permanente, pero la sección 1 no declara la casilla 3 (residente permanente legal).
+An Employment Authorization Document, but Section 1 does not attest box 4 (authorized to work until).	Un document d'autorisation d'emploi, mais la section 1 n'atteste pas la case 4 (autorisé à travailler jusqu'au).	Un documento de autorización de empleo, pero la sección 1 no declara la casilla 4 (autorizado a trabajar hasta).
+A U.S. passport, but Section 1 does not attest box 1 or 2.	Un passeport américain, mais la section 1 n'atteste pas la case 1 ou 2.	Un pasaporte estadounidense, pero la sección 1 no declara la casilla 1 o 2.
+The card carries the A-Number given in Section 1.	La carte porte le A-Number indiqué dans la section 1.	La tarjeta lleva el A-Number indicado en la sección 1.
+Compare the USCIS# on the card with the A-Number given in Section 1 (A:number).	Comparez le USCIS# de la carte avec le A-Number indiqué dans la section 1 (A:number).	Compare el USCIS# de la tarjeta con el A-Number indicado en la sección 1 (A:number).
+The card expires on :card; Section 1 says authorized until :s1.	La carte expire le :card ; la section 1 indique autorisé jusqu'au :s1.	La tarjeta vence el :card; la sección 1 dice autorizado hasta el :s1.
+Keep a copy of each document examined: List :list is missing one. Photograph the original.	Gardez une copie de chaque document examiné : il en manque une pour la liste :list. Photographiez l'original.	Guarde una copia de cada documento examinado: falta una de la Lista :list. Fotografíe el original.
+Give the E-Verify case number, as E-Verify shows it.	Indiquez le numéro de dossier E-Verify, tel qu'E-Verify l'affiche.	Indique el número de caso de E-Verify, tal como lo muestra E-Verify.
+Choose the case result.	Choisissez le résultat du dossier.	Elija el resultado del caso.
+Complete Section 2 first: the E-Verify case comes after it.	Remplissez d'abord la section 2 : le dossier E-Verify vient après.	Complete primero la sección 2: el caso de E-Verify viene después.
+Tick that the name on each document matches Section 1 (or explain the difference in Additional Information).	Cochez que le nom de chaque document correspond à la section 1 (ou expliquez l'écart dans Additional Information).	Marque que el nombre de cada documento coincide con la sección 1 (o explique la diferencia en Additional Information).
+Review the differences Crewvia shows, then tick that you did.	Examinez les écarts que Crewvia affiche, puis cochez que vous l'avez fait.	Revise las diferencias que muestra Crewvia y marque que lo hizo.
+The worker fills their own forms, from their portal.	Le travailleur remplit ses propres formulaires, depuis son portail.	El trabajador llena sus propios formularios, desde su portal.
+Saved. Sign it at the office, in front of the coordinator: they give you a code, you sign on your phone.	Enregistré. Signez-le au bureau, devant le coordonnateur : il vous donne un code, vous signez sur votre téléphone.	Guardado. Fírmelo en la oficina, ante el coordinador: le da un código y usted firma en su teléfono.
+The worker signs their own forms, from their own phone.	Le travailleur signe ses propres formulaires, depuis son propre téléphone.	El trabajador firma sus propios formularios, desde su propio teléfono.
+Signed, in front of the coordinator. Show them your original documents for Section 2 of the I-9.	Signé, devant le coordonnateur. Montrez-lui vos documents originaux pour la section 2 de l'I-9.	Firmado, ante el coordinador. Muéstrele sus documentos originales para la sección 2 del I-9.
+Only payroll or the office does that.	Seuls la paie ou le bureau font cela.	Solo nómina o la oficina hacen eso.
+This person has no form filled in to sign.	Cette personne n'a aucun formulaire rempli à signer.	Esta persona no tiene ningún formulario llenado para firmar.
+Copy kept, encrypted.	Copie conservée, chiffrée.	Copia guardada, cifrada.
+E-Verify case recorded.	Dossier E-Verify enregistré.	Caso de E-Verify registrado.
+That copy is not available to you.	Cette copie ne vous est pas accessible.	Esa copia no está disponible para usted.
+Forms to sign	Formulaires à signer	Formularios para firmar
+Sign my forms	Signer mes formulaires	Firmar mis formularios
+Already given, ending :last: leave both empty to keep it.	Déjà indiqué, se terminant par :last : laissez les deux vides pour le garder.	Ya indicado, termina en :last: deje ambos vacíos para conservarlo.
+You sign at the office, in front of the coordinator: they check your form with you, give you a code, and you sign on your own phone. Nobody can sign in your place.	Vous signez au bureau, devant le coordonnateur : il vérifie votre formulaire avec vous, vous donne un code, et vous signez sur votre propre téléphone. Personne ne peut signer à votre place.	Usted firma en la oficina, ante el coordinador: revisa su formulario con usted, le da un código y usted firma en su propio teléfono. Nadie puede firmar en su lugar.
+Save: I sign it at the office	Enregistrer : je signe au bureau	Guardar: firmo en la oficina
+Filled in, to sign at the office	Rempli, à signer au bureau	Llenado, para firmar en la oficina
+You can still change it here until you sign it.	Vous pouvez encore le modifier ici jusqu'à la signature.	Todavía puede cambiarlo aquí hasta que lo firme.
+Required: the employer uses E-Verify.	Obligatoire : l'employeur utilise E-Verify.	Obligatorio: el empleador usa E-Verify.
+Your documents for Section 2 (optional)	Vos documents pour la section 2 (facultatif)	Sus documentos para la sección 2 (opcional)
+On your first day you show the office your original documents: one from List A, OR one from List B AND one from List C. You choose which, from the lists of acceptable documents. To save time, you may send a photo of them now; the office still examines the originals, and keeps a copy of everyone's documents.	Le premier jour, vous montrez au bureau vos documents originaux : un de la liste A, OU un de la liste B ET un de la liste C. Vous choisissez lesquels, dans les listes de documents acceptables. Pour gagner du temps, vous pouvez en envoyer une photo maintenant ; le bureau examine quand même les originaux, et garde une copie des documents de tout le monde.	El primer día muestra a la oficina sus documentos originales: uno de la Lista A, O uno de la Lista B Y uno de la Lista C. Usted elige cuáles, de las listas de documentos aceptables. Para ahorrar tiempo, puede enviar una foto ahora; la oficina examina igualmente los originales y guarda una copia de los documentos de todos.
+The lists of acceptable documents	Les listes de documents acceptables	Las listas de documentos aceptables
+sent :date	envoyé le :date	enviado el :date
+List	Liste	Lista
+Photo or PDF	Photo ou PDF	Foto o PDF
+Not signed yet: it is signed in person, in front of the coordinator.	Pas encore signé : il se signe en personne, devant le coordonnateur.	Aún no firmado: se firma en persona, ante el coordinador.
+Signed in person by :name on :date, from their own phone, in front of :witness.	Signé en personne par :name le :date, depuis son propre téléphone, devant :witness.	Firmado en persona por :name el :date, desde su propio teléfono, ante :witness.
+Copies of the documents examined	Copies des documents examinés	Copias de los documentos examinados
+RSS keeps a copy of the documents of everyone. Compare each original with the photo the person sent, or photograph it here.	RSS garde une copie des documents de tout le monde. Comparez chaque original avec la photo envoyée par la personne, ou photographiez-le ici.	RSS guarda una copia de los documentos de todos. Compare cada original con la foto que envió la persona, o fotografíelo aquí.
+photographed by the office	photographié par le bureau	fotografiado por la oficina
+sent by the person	envoyé par la personne	enviado por la persona
+No copy yet.	Aucune copie pour l'instant.	Todavía no hay copia.
+Photograph the original	Photographier l'original	Fotografiar el original
+Keep the copy	Garder la copie	Guardar la copia
+What Crewvia compares	Ce que Crewvia compare	Lo que Crewvia compara
+Section 1 attests: :status	La section 1 atteste : :status	La sección 1 declara: :status
+until :date	jusqu'au :date	hasta el :date
+When you accept, Crewvia checks again: no expired document, a copy of each, the box of Section 1 consistent with the documents.	À l'acceptation, Crewvia vérifie à nouveau : aucun document expiré, une copie de chacun, la case de la section 1 cohérente avec les documents.	Al aceptar, Crewvia vuelve a verificar: ningún documento vencido, una copia de cada uno, la casilla de la sección 1 coherente con los documentos.
+The name on each document matches Section 1 (or the difference is explained in Additional Information)	Le nom de chaque document correspond à la section 1 (ou l'écart est expliqué dans Additional Information)	El nombre de cada documento coincide con la sección 1 (o la diferencia se explica en Additional Information)
+I reviewed any difference Crewvia shows	J'ai examiné tout écart affiché par Crewvia	Revisé toda diferencia que muestra Crewvia
+At the office, the coordinator gives you a code and you sign on your phone.	Au bureau, le coordonnateur vous donne un code et vous signez sur votre téléphone.	En la oficina, el coordinador le da un código y usted firma en su teléfono.
+I am at the office: sign	Je suis au bureau : signer	Estoy en la oficina: firmar
+Forms filled in, to sign at the office	Formulaires remplis, à signer au bureau	Formularios llenados, para firmar en la oficina
+When the person is in front of you: find them, check their forms with them, open the signature.	Quand la personne est devant vous : trouvez-la, vérifiez ses formulaires avec elle, ouvrez la signature.	Cuando la persona esté frente a usted: búsquela, revise sus formularios con ella y abra la firma.
+Find a person	Trouver une personne	Buscar una persona
+Nobody waiting to sign.	Personne n'attend pour signer.	Nadie espera para firmar.
+This employer uses E-Verify (the I-9 then asks for the Social Security number, and each case is recorded here)	Cet employeur utilise E-Verify (l'I-9 demande alors le numéro de sécurité sociale, et chaque dossier est enregistré ici)	Este empleador usa E-Verify (el I-9 pide entonces el número de Seguro Social, y cada caso se registra aquí)
+E-Verify is not used. An administrator turns it on here when the employer enrolls.	E-Verify n'est pas utilisé. Un administrateur l'active ici quand l'employeur s'inscrit.	E-Verify no se usa. Un administrador lo activa aquí cuando el empleador se inscribe.
+Open the case in E-Verify no later than :date (the third business day after the first day), with the information of the I-9.	Ouvrez le dossier dans E-Verify au plus tard le :date (le troisième jour ouvrable après le premier jour), avec les renseignements de l'I-9.	Abra el caso en E-Verify a más tardar el :date (el tercer día hábil después del primer día), con la información del I-9.
+Case :case · :result · recorded :date	Dossier :case · :result · enregistré le :date	Caso :case · :result · registrado el :date
+Case number	Numéro de dossier	Número de caso
+Record the case	Enregistrer le dossier	Registrar el caso
+The E-Verify case is opened once Section 2 of the I-9 is completed.	Le dossier E-Verify s'ouvre une fois la section 2 de l'I-9 remplie.	El caso de E-Verify se abre una vez completada la sección 2 del I-9.
+In front of the coordinator, on your own phone. Read each form again: once signed, it can no longer change.	Devant le coordonnateur, sur votre propre téléphone. Relisez chaque formulaire : une fois signé, il ne peut plus changer.	Ante el coordinador, en su propio teléfono. Vuelva a leer cada formulario: una vez firmado, ya no puede cambiar.
+There is no form to sign. Fill your W-4 and your I-9 first, from your onboarding tasks.	Il n'y a aucun formulaire à signer. Remplissez d'abord votre W-4 et votre I-9, depuis vos tâches d'intégration.	No hay ningún formulario para firmar. Llene primero su W-4 y su I-9, desde sus tareas de incorporación.
+The code the coordinator shows you	Le code que le coordonnateur vous montre	El código que le muestra el coordinador
+Something is wrong? Correct it first	Quelque chose est erroné ? Corrigez-le d'abord	¿Algo está mal? Corríjalo primero
+Type your first and last name	Tapez votre prénom et votre nom	Escriba su nombre y apellido
+Sign here, with your finger	Signez ici, avec votre doigt	Firme aquí, con el dedo
+Signature box	Zone de signature	Recuadro de firma
+Your signature is recorded with the date, the time and the coordinator who witnessed it, and placed on the official forms.	Votre signature est enregistrée avec la date, l'heure et le coordonnateur qui en a été témoin, et apposée sur les formulaires officiels.	Su firma se registra con la fecha, la hora y el coordinador que la presenció, y se coloca en los formularios oficiales.
+Sign in the box first.	Signez d'abord dans la zone.	Firme primero en el recuadro.
+Filled in, to sign here	Rempli, à signer ici	Llenado, para firmar aquí
+Signed, being checked	Signé, en vérification	Firmado, en revisión
+Sent back to them	Renvoyé à la personne	Devuelto a la persona
+With the person in front of you: check their forms with them, open the signature, then examine their original documents for Section 2.	Avec la personne devant vous : vérifiez ses formulaires avec elle, ouvrez la signature, puis examinez ses documents originaux pour la section 2.	Con la persona frente a usted: revise sus formularios con ella, abra la firma y luego examine sus documentos originales para la sección 2.
+Not filled in yet. They fill it from their onboarding tasks, on their phone.	Pas encore rempli. La personne le remplit depuis ses tâches d'intégration, sur son téléphone.	Todavía no llenado. La persona lo llena desde sus tareas de incorporación, en su teléfono.
+signs Supplement A in ink	signe le Supplément A à l'encre	firma el Suplemento A con tinta
+Open it and complete Section 2	L'ouvrir et remplir la section 2	Abrirlo y completar la sección 2
+Signature, in person	Signature, en personne	Firma, en persona
+:name scans this code with their own phone, or opens their portal and enters it. It works once, until :time.	:name scanne ce code avec son propre téléphone, ou ouvre son portail et le saisit. Il sert une seule fois, jusqu'à :time.	:name escanea este código con su propio teléfono, o abre su portal y lo ingresa. Sirve una sola vez, hasta las :time.
+Check the forms above with them. When they are ready, open the signature: a code valid 15 minutes, for them only, signed on their own phone.	Vérifiez les formulaires ci-dessus avec la personne. Quand elle est prête, ouvrez la signature : un code valable 15 minutes, pour elle seule, signé sur son propre téléphone.	Revise los formularios de arriba con la persona. Cuando esté lista, abra la firma: un código válido 15 minutos, solo para ella, firmado en su propio teléfono.
+Open the signature	Ouvrir la signature	Abrir la firma
+Nothing to sign: no form filled in and waiting.	Rien à signer : aucun formulaire rempli en attente.	Nada que firmar: ningún formulario llenado en espera.
+Copies of their documents	Copies de ses documents	Copias de sus documentos
+RSS keeps a copy of the documents of everyone. The person chooses which documents to present (List A, or List B and List C); never ask for a particular one.	RSS garde une copie des documents de tout le monde. La personne choisit les documents qu'elle présente (liste A, ou listes B et C) ; ne demandez jamais un document précis.	RSS guarda una copia de los documentos de todos. La persona elige qué documentos presentar (Lista A, o Listas B y C); nunca pida uno en particular.
+restricted	restreint	restringido

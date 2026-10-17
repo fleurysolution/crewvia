@@ -31,3 +31,18 @@
   <button class="btn mt-s"><?= te('Sign my W-4') ?></button>
 </form>
 <?php endif; ?>
+
+<?php if (! $isWorker): ?>
+<div class="card" id="everify"><h2>E-Verify</h2>
+  <?php if (can('admin')): ?><form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="everify_setting"><input type="hidden" name="candidate_id" value="<?= (int) $cid ?>"><label class="tick"><input class="w-auto" type="checkbox" name="enabled" value="1" <?= $everify ? 'checked' : '' ?>> <?= te('This employer uses E-Verify (the I-9 then asks for the Social Security number, and each case is recorded here)') ?></label><button class="btn ghost sm"><?= te('Save') ?></button></form><?php endif; ?>
+  <?php if (! $everify): ?><p class="small muted"><?= te('E-Verify is not used. An administrator turns it on here when the employer enrolls.') ?></p>
+  <?php elseif ($case && $i9Accepted): ?>
+    <p><?= te('Open the case in E-Verify no later than :date (the third business day after the first day), with the information of the I-9.', ['date' => $case['review_due_on'] ? d((string) $case['review_due_on']) : '—']) ?></p>
+    <?php if ($i9Accepted['everify_case']): ?><p data-everify-case="1"><?= te('Case :case · :result · recorded :date', ['case' => $i9Accepted['everify_case'], 'result' => $i9Accepted['everify_result'], 'date' => d(substr((string) $i9Accepted['everify_at'], 0, 10))]) ?></p><?php endif; ?>
+    <form method="post" action="/tax-forms" class="row"><?= csrf_field() ?><input type="hidden" name="do" value="everify"><input type="hidden" name="form_id" value="<?= (int) $i9Accepted['id'] ?>">
+      <input name="case" maxlength="40" required placeholder="<?= te('Case number') ?>" aria-label="<?= te('Case number') ?>" value="<?= e((string) $i9Accepted['everify_case']) ?>">
+      <select name="result" aria-label="<?= te('Result') ?>"><?php foreach (tf_everify_results() as $r): ?><option <?= $r === $i9Accepted['everify_result'] ? 'selected' : '' ?>><?= e($r) ?></option><?php endforeach; ?></select>
+      <button class="btn sm"><?= te('Record the case') ?></button></form>
+  <?php elseif ($case): ?><p class="small muted"><?= te('The E-Verify case is opened once Section 2 of the I-9 is completed.') ?></p><?php endif; ?>
+</div>
+<?php endif; ?>

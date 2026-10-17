@@ -66,5 +66,7 @@ $fields = self_service_fields();
 // P5-M64: the W-4s (payroll) and I-9s (the office) signed in the portal, waiting to be checked.
 require_once __DIR__ . '/../tax-forms.php';
 $taxForms = tf_waiting();
+// P5-M65: the people whose forms are filled in, to sign at the office in front of the coordinator.
+$toSign = can('recruiter') ? array_values(array_reduce(tf_drafts(), static function ($acc, $r) { $acc[$r['candidate_id']] ??= ['id' => $r['candidate_id'], 'name' => $r['full_name'], 'forms' => []]; $acc[$r['candidate_id']]['forms'][] = tf_forms()[$r['form']]['short']; return $acc; }, [])) : [];
 $pageTitle = t('Change requests') . ' · ' . $config['app_name'];
-render('change-requests', compact('bank', 'details', 'revealed', 'fields', 'taxForms'));
+render('change-requests', compact('bank', 'details', 'revealed', 'fields', 'taxForms', 'toSign'));

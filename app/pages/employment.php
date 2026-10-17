@@ -6,6 +6,12 @@ if($cid && row('SELECT id FROM candidates WHERE id=?',[$cid])) q('INSERT IGNORE 
 require_once __DIR__.'/../identity-docs.php';
 if($_SERVER['REQUEST_METHOD']==='POST') {
  $do=$_POST['do'] ?? ''; $docId=(int)($_POST['document_id'] ?? 0);
+ // P5-M65: whether the employer uses E-Verify; when it does, the I-9 asks for the SSN and each case is recorded.
+ if($do==='everify_setting') {
+  require_role('admin');
+  q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('everify_enabled', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)",[isset($_POST['enabled'])?'1':'0']);
+  log_activity('set E-Verify use','setting',0,isset($_POST['enabled'])?'on':'off');flash(t('Saved.'));redirect('/employment'.($cid?'?candidate_id='.$cid:''));
+ }
  // P5-M33: the W-4 signed in person. The coordinator makes the code; the worker uses it from their own portal.
  if($do==='signing_code') {
   require_role('recruiter');
@@ -45,4 +51,5 @@ $signFromLink=$isWorker?preg_replace('/\D/','',(string)($_GET['sign']??'')):'';
 // P5-M64: the W-4 and the I-9 signed in the portal.
 require_once __DIR__.'/../tax-forms.php';
 $portalForms=$cid?['w4'=>tf_history($cid,'w4')[0]??null,'i9'=>tf_history($cid,'i9')[0]??null]:[];
-render('employment',compact('isWorker','case','documents','candidates','cid','signing','witness','signFromLink','portalForms'));
+$everify=tf_everify();$i9Accepted=$cid?row("SELECT id,everify_case,everify_result,everify_at FROM worker_tax_forms WHERE candidate_id=? AND form='i9' AND status='accepted' ORDER BY id DESC LIMIT 1",[$cid]):null;
+render('employment',compact('isWorker','case','documents','candidates','cid','signing','witness','signFromLink','portalForms','everify','i9Accepted'));

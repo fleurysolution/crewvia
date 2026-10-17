@@ -10,7 +10,7 @@
   - the Direct deposit task holds the bank form, typed twice with the proof, and closes when payroll accepts.
 Runs after project_manager_http.py (menu_crawl_db.php created the payroll account), on the walkthrough fixture.
 """
-import base64, html, http.cookiejar, json, os, re, subprocess, urllib.error, urllib.parse, urllib.request
+import base64, html, http.cookiejar, json, os, re, struct, subprocess, urllib.error, urllib.parse, urllib.request, zlib
 
 base = 'http://127.0.0.1:8097'
 php = os.environ.get('PHP_BIN', 'php')
@@ -99,6 +99,28 @@ def task(kind):
     return [t for t in probe()['tasks'] if t['kind'] == kind][0]
 
 
+def png_signature():
+    """A signature drawn on the phone, as the pad sends it: a PNG data URL."""
+    w, h = 300, 90
+    raw = b''.join(b'\x00' + bytes((0 if (y - 45) ** 2 + ((x - 150) // 3) ** 2 < 400 and x % 7 else 255) for x in range(w)) for y in range(h))
+    chunk = lambda t, d: struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+    png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 0, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+    return 'data:image/png;base64,' + base64.b64encode(png).decode()
+
+
+def open_signature(coordinator, cid):
+    """The coordinator, the person in front of them, opens the signature: the code shown once on their screen."""
+    status, body = coordinator.post('/tax-forms', {'do': 'authorize', 'candidate_id': cid}, '/tax-forms?person=%d' % cid)
+    m = re.search(r'data-code="(\d{8})"', body)
+    return m[1] if m else None, body
+
+
+def sign(client, code, forms, name='Walk onsite', signature=None):
+    values = {'do': 'sign_in_person', 'code': code, 'signer_name': name, 'signature_png': png_signature() if signature is None else signature}
+    values.update({'attest_' + f: '1' for f in forms})
+    return client.post('/tax-forms', values, '/tax-forms?sign=' + code)
+
+
 p = probe()
 office = Client(); office.login('wk-rec@test.invalid')
 office.post('/select-project', {'job_id': p['job'], 'then': '/onboarding'}, '/onboarding')
@@ -120,7 +142,7 @@ status, body = worker.get('/tax-forms?fill=w4')
 check('The W-4: the SSN masked and typed twice', re.search(r'name="ssn" type="text" class="secret"', body) and re.search(r'name="ssn_confirm" type="text" class="secret"[^>]*data-secret-pair', body)
       and 'Under penalties of perjury' in body and '/assets/masked-fields.js' in body, body[:400])
 
-W4 = {'do': 'sign', 'form': 'w4', 'first_name': 'Walk', 'last_name': 'onsite', 'address': '12 Test Street', 'city': 'Gary', 'state': 'IN', 'zip': '46402',
+W4 = {'do': 'save', 'form': 'w4', 'first_name': 'Walk', 'last_name': 'onsite', 'address': '12 Test Street', 'city': 'Gary', 'state': 'IN', 'zip': '46402',
       'ssn': SSN, 'ssn_confirm': SSN, 'filing_status': 'single', 'children': '1', 'other_dependents': '0', 'extra_withholding': '20',
       'signer_name': 'Walk onsite', 'attest': '1'}
 status, body = worker.post('/tax-forms', {**W4, 'ssn_confirm': SSN2}, '/tax-forms?fill=w4')
@@ -128,22 +150,45 @@ check('Two SSNs that differ: nothing is sent, the form comes back filled, less t
       'The two Social Security numbers differ' in body and probe()['forms'] == [] and '12 Test Street' in body and SSN not in body and SSN2 not in body, body[:300])
 status, body = worker.post('/tax-forms', {**W4, 'ssn': '000551234', 'ssn_confirm': '000551234'}, '/tax-forms?fill=w4')
 check('A number that is not an SSN is refused', 'not a valid Social Security number' in body and probe()['forms'] == [])
-status, body = worker.post('/tax-forms', {**W4, 'signer_name': 'Somebody Else'}, '/tax-forms?fill=w4')
-check('A signature that is not the worker\'s name is refused', 'Sign by typing your first and last name' in body and probe()['forms'] == [])
 status, body = worker.post('/tax-forms', W4, '/tax-forms?fill=w4')
 f = probe()['forms']
-check('Signed: stored encrypted, no number readable, the hash of what was signed kept',
-      len(f) == 1 and f[0]['status'] == 'submitted' and f[0]['ssn_last_four'] == '1234' and not f[0]['secret_in_storage'] and f[0]['hash_ok']
-      and f[0]['data']['ssn'] == SSN and f[0]['data']['step3_total'] == 2200 and f[0]['access'] == ['signed'], f)
+check('Saved, filled in: a draft, encrypted, no number readable; it is not signed',
+      len(f) == 1 and f[0]['status'] == 'draft' and f[0]['ssn_last_four'] == '1234' and not f[0]['secret_in_storage'] and f[0]['hash_ok']
+      and f[0]['data']['ssn'] == SSN and f[0]['data']['step3_total'] == 2200 and f[0]['signer'] is None and task('w4')['status'] == 'pending', f)
 w4 = f[0]['id']
+status, body = worker.post('/tax-forms', {**W4, 'ssn': '', 'ssn_confirm': '', 'extra_withholding': '25'}, '/tax-forms?fill=w4')
+f = probe()['forms']
+check('The draft is changed without typing the SSN again: the number given stays', len(f) == 1 and f[0]['data']['ssn'] == SSN and f[0]['data']['extra_withholding'] == 25.0, f)
+status, body = worker.get('/portal')
+check('The task says: filled in, to sign at the office', 'data-draft-task="w4"' in body and 'href="/tax-forms?sign="' in body)
+status, body = sign(worker, '12345678', ['w4'])
+check('Without the coordinator\'s code, nobody signs', 'That code is not valid' in body and probe()['forms'][0]['status'] == 'draft')
+rec = Client(); rec.login('wk-rec@test.invalid')
+status, body = rec.get('/change-requests')
+check('The coordinator finds the person among those to sign', ('data-to-sign="%d"' % p['cid']) in body and 'W-4' in body)
+code, body = open_signature(rec, p['cid'])
+check('With the person in front of them, the coordinator sees the W-4 filled in (SSN by its last four) and opens the signature',
+      code is not None and '•••••1234' in body and SSN not in body and 'qrcode.min.js' in body, body[body.find('<main'):][:1500])
+status, body = sign(worker, code, ['w4'], name='Somebody Else')
+check('A signature that is not the worker\'s name is refused', 'Sign by typing your first and last name' in body and probe()['forms'][0]['status'] == 'draft')
+status, body = sign(worker, code, ['w4'], signature='')
+check('Without a drawn signature, nothing is signed', 'Sign with your finger' in body and probe()['forms'][0]['status'] == 'draft')
+status, body = worker.get('/tax-forms?sign=' + code)
+check('The signing screen: the code, each form to read again, its statement, the signature pad', 'name="attest_w4"' in body and 'id="sg-pad"' in body and '/assets/signature-pad.js' in body)
+sign(worker, code, ['w4'])
+f = probe()['forms']
+check('Signed in person: in front of the coordinator, with the drawn signature, encrypted; the hash covers what was signed',
+      f[0]['status'] == 'submitted' and f[0]['signer'] == 'Walk onsite' and f[0]['witnessed'] and f[0]['has_signature'] and f[0]['hash_ok']
+      and f[0]['data']['signed_in_person']['witness'] == 'Walk rec' and 'signed in person' in f[0]['access'], f)
+status, body = sign(worker, code, ['w4'])
+check('A code works once', 'That code is not valid' in body or 'no form to sign' in body)
 p = probe()
 check('The W-4 task and the employment record follow the form', task('w4')['status'] == 'submitted' and p['clearance']['w4_status'] == 'submitted' and p['clearance']['w4_form_id'] == w4, (task('w4'), p['clearance']))
 status, body = worker.post('/tax-forms', W4, '/tax-forms?fill=w4')
 check('A second W-4 while the first waits is refused', 'already waiting for payroll' in body and len(probe()['forms']) == 1)
 status, body = worker.get('/tax-forms?id=%d' % w4)
-check('The worker sees what they signed, the SSN by its last four', '•••••1234' in body and SSN not in body and 'Walk onsite' in body)
+check('The worker sees what they signed, the SSN by its last four', '•••••1234' in body and SSN not in body and 'Walk onsite' in body and 'in front of Walk rec' in body)
 
-rec = Client(); rec.login('wk-rec@test.invalid')
 status, body = rec.get('/tax-forms?id=%d' % w4)
 check('A recruiter cannot open a W-4', status == 404 and SSN not in body, status)
 status, body = office.post('/onboarding', {'do': 'review', 'task_id': task('w4')['id'], 'status': 'approved'}, '/onboarding')
@@ -165,6 +210,8 @@ check('Sent back: the task goes back to the worker with the reason, who is told'
 status, body = worker.get('/portal')
 check('The worker can fill it again from the task', 'href="/tax-forms?fill=w4"' in body and 'Your street number is missing' in body)
 worker.post('/tax-forms', {**W4, 'address': '12B Test Street'}, '/tax-forms?fill=w4')
+code, body = open_signature(rec, p['cid'])
+sign(worker, code, ['w4'])
 w4b = probe()['forms'][-1]['id']
 payroll.get('/tax-forms?id=%d' % w4b)
 status, body = payroll.post('/tax-forms', {'do': 'decide', 'form_id': w4b, 'decision': 'accept', 'note': '', 'processed': '1', **EMP_W4, 'ein': '12-345'}, '/tax-forms?id=%d' % w4b)
@@ -177,7 +224,7 @@ check('Accepted: the task closes by itself, the employment record says reviewed,
       and any('W-4 was checked and accepted' in m for m in p['told']), (p['forms'], task('w4'), p['clearance']))
 
 # ── I-9 Section 1 ─────────────────────────────────────────────────────────
-I9 = {'do': 'sign', 'form': 'i9', 'first_name': 'Walk', 'last_name': 'onsite', 'address': '12B Test Street', 'city': 'Gary', 'state': 'IN', 'zip': '46402',
+I9 = {'do': 'save', 'form': 'i9', 'first_name': 'Walk', 'last_name': 'onsite', 'address': '12B Test Street', 'city': 'Gary', 'state': 'IN', 'zip': '46402',
       'birth_date': '1990-05-04', 'ssn': SSN, 'ssn_confirm': SSN, 'status': 'authorized', 'doc_type': 'i94', 'doc_number': I94, 'doc_number_confirm': I94,
       'work_until_na': '1', 'signer_name': 'Walk onsite', 'attest': '1'}
 status, body = worker.get('/tax-forms?fill=i9')
@@ -187,7 +234,16 @@ status, body = worker.post('/tax-forms', {**I9, 'doc_number_confirm': '123456789
 check('Two document numbers that differ: nothing is sent', 'The two document numbers differ' in body and len(probe()['forms']) == 2)
 status, body = worker.post('/tax-forms', {**I9, 'status': ''}, '/tax-forms?fill=i9')
 check('Without a status ticked, nothing is sent', 'citizenship or immigration status' in body and len(probe()['forms']) == 2)
-worker.post('/tax-forms', I9, '/tax-forms?fill=i9')
+status, body = worker.post_files('/tax-forms', {**I9, 'copy_list[]': 'B', 'copy_title[]': "Driver's license issued by a State or outlying possession of the U.S."},
+                                  {'copy_file[]': ('license.png', PNG, 'image/png')}, '/tax-forms?fill=i9')
+p = probe()
+check('The I-9 is saved with the photo of a document the worker chose; the copy is encrypted and restricted',
+      p['forms'][-1]['status'] == 'draft' and [(c['list'], c['restricted'], c['by_office']) for c in p['copies']] == [('B', 1, 0)] and not p['copies'][0]['plain_on_disk'], p['copies'])
+code, body = open_signature(rec, p['cid'])
+check('The coordinator sees the photo the worker sent', 'sent by the person' in body and ('/tax-forms?copy=%d' % p['copies'][0]['document_id']) in body)
+status, raw = rec.open(base + '/tax-forms?copy=%d' % p['copies'][0]['document_id'])
+check('and opens it to compare with the original', status == 200 and 'PNG' in raw[:8], (status, raw[:8]))
+sign(worker, code, ['i9'])
 p = probe(); i9 = p['forms'][-1]
 check('Section 1 signed: encrypted, the I-94 number unreadable in storage; the record says employee submitted',
       i9['form'] == 'i9' and i9['status'] == 'submitted' and not i9['secret_in_storage'] and i9['data']['doc_number'] == I94 and p['clearance']['i9_status'] == 'employee_submitted'
@@ -205,12 +261,22 @@ check('The official I-9 (01/20/25) is filled with Section 1: names, address, bir
 status, body = rec.get('/tax-forms?id=%d' % i9['id'])
 check('Section 2 is on the page, word for word, with the lists of acceptable documents', 'Section 2. Employer Review and Verification' in body and 'U.S. Passport Card' in body
       and html.unescape('I attest, under penalty of perjury, that (1) I have examined the documentation presented') in html.unescape(body))
-status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', **{**S2, 's2_c1_title': ''}}, '/tax-forms?id=%d' % i9['id'])
+status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', 's2_names_match': '1', **S2}, '/tax-forms?id=%d' % i9['id'])
+check('Section 2 without a copy of the List C document is refused (RSS keeps copies for everyone)', 'List C is missing one' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
+status, body = rec.post_files('/tax-forms', {'do': 'add_copy', 'candidate_id': p['cid'], 'list': 'C', 'title': S2['s2_c1_title'], 'back': '/tax-forms?id=%d' % i9['id']},
+                              {'copy': ('ssn-card.png', PNG, 'image/png')}, '/tax-forms?id=%d' % i9['id'])
+check('The office photographs the original it examines', [(c['list'], c['by_office']) for c in probe()['copies']] == [('C', 1), ('B', 0)], probe()['copies'])
+status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', 's2_names_match': '1', **{**S2, 's2_b1_expires': '2020-01-01'}}, '/tax-forms?id=%d' % i9['id'])
+check('An expired document is refused', 'expired on' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
+status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', **S2}, '/tax-forms?id=%d' % i9['id'])
+check('Without saying the names match, it is refused', 'name on each document matches' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
+status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', 's2_names_match': '1', **{**S2, 's2_c1_title': ''}}, '/tax-forms?id=%d' % i9['id'])
 check('Section 2 with a List B document and no List C is refused', 'one from List B and one from List C' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
 status, body = rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', **S2}, '/tax-forms?id=%d' % i9['id'])
 check('Section 2 without the certification ticked is refused', 'tick the certification' in body and probe()['forms'][-1]['status'] == 'submitted', body[:200])
-rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', **S2}, '/tax-forms?id=%d' % i9['id'])
+rec.post('/tax-forms', {'do': 'decide', 'form_id': i9['id'], 'decision': 'accept', 'note': '', 'processed': '1', 's2_names_match': '1', **S2}, '/tax-forms?id=%d' % i9['id'])
 p = probe()
+check('Accepted, the copies examined are validated: restricted from now on', all(c['doc_status'] == 'approved' for c in p['copies']), p['copies'])
 check('Section 2 completed: the employment record says employer completed, first day 11/02, review due three business days later',
       p['clearance']['i9_status'] == 'employer_completed' and p['clearance']['first_day'] == '2026-11-02' and p['clearance']['review_due_on'] == '2026-11-05'
       and 'D123456789' not in json.dumps(p['forms'][-1]['employer_raw']), p['clearance'])
@@ -230,6 +296,19 @@ check('The official 2026 W-4 is filled from the record: name, address, SSN, Step
       and filled['checked'] == [P + 'c1_1[0]'] and filled['fields_left'] == 0 and any('/s/ Walk onsite' in d['text'] for d in mp['draw']), (v, filled['checked']))
 mp, filled = official(worker, w4b, 'w4-own')
 check('The worker\'s own copy of the official W-4 shows the SSN by its last four only', filled['values'][P + 'f1_05[0]'] == 'XXX-XX-1234' and SSN not in json.dumps(mp))
+
+# ── P5-M65: E-Verify ──────────────────────────────────────────────────────
+admin = Client(); admin.login('wk-admin@test.invalid')
+status, body = rec.get('/employment?candidate_id=%d' % p['cid'])
+check('E-Verify is off unless the employer uses it', 'E-Verify is not used' in body)
+admin.post('/employment', {'do': 'everify_setting', 'enabled': '1', 'candidate_id': p['cid']}, '/employment?candidate_id=%d' % p['cid'])
+status, body = rec.get('/employment?candidate_id=%d' % p['cid'])
+check('On, the office sees when to open the case: by the third business day after the first day', 'Open the case in E-Verify no later than' in body and 'name="case"' in body, body[body.find('id="everify"'):][:400])
+rec.post('/tax-forms', {'do': 'everify', 'form_id': i9['id'], 'case': '2026290123456AB', 'result': 'Employment Authorized'}, '/employment?candidate_id=%d' % p['cid'])
+check('The case number and its result are recorded on the I-9', probe()['forms'][-1]['everify'] == ['2026290123456AB', 'Employment Authorized'], probe()['forms'][-1])
+status, body = worker.get('/tax-forms?fill=i9')
+check('With E-Verify, the I-9 says the SSN is required', 'Required: the employer uses E-Verify.' in body)
+admin.post('/employment', {'do': 'everify_setting', 'candidate_id': p['cid']}, '/employment?candidate_id=%d' % p['cid'])
 
 # ── direct deposit, in the task ───────────────────────────────────────────
 check('No bank details on file yet for the worker', not probe()['bank_verified'])

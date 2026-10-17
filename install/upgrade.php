@@ -2697,4 +2697,38 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Official forms: payroll completes the W-4 "Employers Only" box, the office Section 2 of the I-9 in Crewvia; the official IRS and USCIS PDFs are filled from the record.' . PHP_EOL;
 }
 
+// ── P5-M65: the forms are filled beforehand and signed in person; copies of the I-9 documents; E-Verify ready ──
+// The forms already signed from the portal and not yet checked go back to "filled in": they are signed again
+// at the office, in front of the coordinator (the owner, 17 Oct 2026). Reversed by install/rollback/p5-m65.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='worker_tax_forms' AND column_name='witness_id'")) {
+    q("ALTER TABLE worker_tax_forms MODIFY status ENUM('draft','submitted','accepted','returned','replaced') NOT NULL DEFAULT 'draft',
+       MODIFY signer_name VARCHAR(190) NULL, MODIFY signed_at DATETIME NULL, MODIFY signed_by INT UNSIGNED NULL,
+       ADD COLUMN witness_id INT UNSIGNED NULL, ADD COLUMN encrypted_signature MEDIUMTEXT NULL,
+       ADD COLUMN everify_case VARCHAR(40) NULL, ADD COLUMN everify_result VARCHAR(60) NULL, ADD COLUMN everify_by INT UNSIGNED NULL, ADD COLUMN everify_at DATETIME NULL");
+    q("CREATE TABLE IF NOT EXISTS i9_document_copies (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        candidate_id INT UNSIGNED NOT NULL,
+        list CHAR(1) NOT NULL,
+        title VARCHAR(150) NOT NULL,
+        document_id INT UNSIGNED NOT NULL,
+        added_by INT UNSIGNED NOT NULL,
+        by_office TINYINT NOT NULL DEFAULT 0,
+        added_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX (candidate_id),
+        FOREIGN KEY (candidate_id) REFERENCES candidates(id),
+        FOREIGN KEY (document_id) REFERENCES worker_documents(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('everify_enabled', '0') ON DUPLICATE KEY UPDATE setting_value = setting_value");
+    $back = rows("SELECT id, candidate_id, form FROM worker_tax_forms WHERE status = 'submitted' AND witness_id IS NULL");
+    foreach ($back as $f) {
+        q("UPDATE worker_tax_forms SET status = 'draft', signer_name = NULL, signed_at = NULL, signed_by = NULL WHERE id = ?", [(int) $f['id']]);
+        q("INSERT INTO worker_tax_form_access (form_id, candidate_id, user_id, action) VALUES (?, ?, 0, 'back to filled in: signed in person now')", [(int) $f['id'], (int) $f['candidate_id']]);
+        q($f['form'] === 'w4' ? "UPDATE employment_clearance SET w4_status = 'pending' WHERE w4_form_id = ?" : "UPDATE employment_clearance SET i9_status = 'pending' WHERE i9_form_id = ? AND i9_status = 'employee_submitted'", [(int) $f['id']]);
+        q("UPDATE onboarding_tasks t JOIN placements p ON p.id = t.placement_id JOIN onboarding_requirements r ON r.id = t.requirement_id
+           SET t.status = 'pending', t.response = 'Filled in: to sign at the office, in front of the coordinator.', t.reviewed_at = NULL
+           WHERE p.candidate_id = ? AND r.form_kind = ? AND t.status = 'submitted'", [(int) $f['candidate_id'], $f['form']]);
+    }
+    echo 'Forms signed in person: the worker fills the W-4 and the I-9 beforehand, and signs on their phone with the code the coordinator in front of them gives; copies of the I-9 documents are kept (sent by the worker or photographed by the office); E-Verify can be turned on (Employment). Forms signed from the portal and not yet checked, back to "to sign at the office": ' . count($back) . '.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

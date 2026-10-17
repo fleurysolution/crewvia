@@ -26,6 +26,10 @@ const L = require(pub + '/assets/pdf-lib.min.js');
       page.drawText('X', { x: r.x + r.width / 2 - 2.6, y: r.y + r.height / 2 - 3, size: 8, font });
     }
   }
+  for (const im of (map.images || [])) {
+    const png = await pdf.embedPng(Buffer.from(im.data.split(',')[1], 'base64'));
+    pages[im.page].drawImage(png, { x: im.x, y: im.y, height: im.h, width: png.width * im.h / png.height });
+  }
   for (const t of map.draw) pages[t.page].drawText(t.text, { x: t.x, y: t.y, size: 9, font });
   form.flatten();
   const bytes = await pdf.save();
