@@ -133,3 +133,16 @@ check('Added without leaving the line: the answer gives the new discipline to ch
 req = urllib.request.Request(base + '/job', urllib.parse.urlencode({'_csrf': admin.token, 'do': 'add_discipline', 'discipline_label': '  '}).encode(), {'Accept': 'application/json'})
 status, body = admin.open(req)
 check('A discipline needs a name', status == 422 and json.loads(body)['ok'] is False)
+
+# P5-M72: the scope line - what the person is paid, then what the client is billed; "Add a trade" folded once there is a line.
+status, body = admin.get('/job')
+check('With no line yet, the trade form is open, overtime at 40 hours and time and a half', re.search(r'<details class="card-foot" id="add-trade" open>', body)
+      and 'name="overtime_after" min="0"\n                 step="1" value="40"' in body and 'value="1.5"' in body)
+admin.post('/job', {'do': 'add_line', 'role_title': 'Pipefitter', 'discipline': 'mechanical', 'quantity': '2', 'pay_rate': '38', 'bill_rate': '50', 'bill_by': 'markup', 'markup': '40',
+                    'overtime_after': '38', 'overtime_multiplier': '1.5'}, '/job')
+line = one("SELECT pay_rate, bill_rate, overtime_after FROM job_order_lines WHERE job_id = %d AND role_title = 'Pipefitter'" % int(job['id']))
+check('Billed by a markup, the markup sets the bill rate; overtime after 38 hours as the contract says', line and float(line['bill_rate']) == 53.2 and int(line['overtime_after']) == 38, line)
+admin.post('/job', {'do': 'add_line', 'role_title': 'Welder', 'discipline': 'mechanical', 'quantity': '1', 'pay_rate': '40', 'bill_rate': '60', 'bill_by': 'rate', 'markup': '50'}, '/job')
+check('Billed by a rate, the rate typed is kept', float(one("SELECT bill_rate FROM job_order_lines WHERE job_id = %d AND role_title = 'Welder'" % int(job['id']))['bill_rate']) == 60)
+status, body = admin.get('/job')
+check('Once the scope has lines, adding a trade is a button that opens the form', '<details class="card-foot" id="add-trade">' in body and 'data-add-trade' in body and 'scope-line.js' in body)

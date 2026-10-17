@@ -58,3 +58,10 @@ $check('The week: $4,440', bt_total($parts) == 4440.0, bt_total($parts));
 bt_save($job, ['ot_mode' => 'straight', 'lodging_mode' => 'flat_night', 'lodging_night_rate' => '120'], 1);
 $by = array_column(bt_week_parts($sheet, $m, $jobRow, bt_terms($job)), null, 'kind');
 $check('Overtime at the bill rate reads as one line of 50 hours, hotel at a flat $120 a night, the shift premium kept', ! isset($by['overtime']) && $by['regular']['qty'] == 50 && $by['regular']['amount'] == 2500.0 && $by['lodging']['amount'] == 840.0 && $by['shift']['amount'] == 150.0 && ! isset($by['per_diem']), $by);
+
+// P5-M72: no markup on "at cost", no flat rate unless chosen, and "cost plus" needs its percentage.
+bt_save($job, ['ot_mode' => 'straight', 'lodging_mode' => 'cost', 'lodging_markup_pct' => '20', 'lodging_night_rate' => '150', 'per_diem_mode' => 'none', 'per_diem_markup_pct' => '15'], 1);
+$t = bt_terms($job);
+$check('At cost keeps no markup and no flat rate, whatever was typed', (float) $t['lodging_markup_pct'] == 0.0 && $t['lodging_night_rate'] === null && (float) $t['per_diem_markup_pct'] == 0.0, $t);
+$why = bt_save($job, ['lodging_mode' => 'cost_plus', 'lodging_markup_pct' => ''], 1);
+$check('At cost plus a percentage needs the percentage', $why !== null && str_contains($why, 'percentage'), $why);

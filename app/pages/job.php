@@ -66,7 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
             if (! is_numeric($markup) || (float) $markup < 0 || (float) $markup > 1000) {
                 return ['error' => 'markup'];
             }
-            if ($terms['bill_rate'] === null && $terms['pay_rate'] !== null) {
+            // P5-M72: chosen as the way to bill, the markup sets the bill rate; otherwise it only fills a blank one.
+            if ($terms['pay_rate'] !== null && ($terms['bill_rate'] === null || ($_POST['bill_by'] ?? '') === 'markup')) {
                 $terms['bill_rate'] = round($terms['pay_rate'] * (1 + (float) $markup / 100), 2);
             }
         }

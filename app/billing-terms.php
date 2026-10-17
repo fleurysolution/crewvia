@@ -65,6 +65,26 @@ function bt_save(int $jobId, array $in, int $by): ?string
             return t('Check the numbers: a multiplier from 1 to 3, a percentage from 0 to 100, amounts in dollars.');
         }
     }
+    // P5-M72: an amount only goes with the way of billing that uses it - no markup on "at cost", no flat rate unless chosen.
+    foreach (['per_diem', 'lodging', 'travel'] as $item) {
+        if ($t[$item . '_mode'] !== 'cost_plus') {
+            $t[$item . '_markup_pct'] = 0.0;
+        } elseif (! $t[$item . '_markup_pct']) {
+            return t('At cost plus a percentage needs the percentage. Otherwise choose at cost.');
+        }
+    }
+    if ($t['lodging_mode'] !== 'flat_night') {
+        $t['lodging_night_rate'] = null;
+    }
+    if ($t['ot_mode'] !== 'rate') {
+        $t['ot_rate'] = null;
+    }
+    if ($t['ot_mode'] !== 'multiplier') {
+        $t['ot_multiplier'] = 1.5;
+    }
+    if ($t['transport_mode'] === 'none') {
+        $t['transport_rate'] = null;
+    }
     if ($t['ot_mode'] === 'rate' && ! $t['ot_rate']) {
         return t('Give the overtime rate billed, or choose another way to bill overtime.');
     }

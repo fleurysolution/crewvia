@@ -332,7 +332,10 @@ $strike   = (bool) $job['strike_live'];
   <?php endif; ?>
 
   <!-- writing or correcting a line -->
-  <form method="post" action="/job" class="card-foot">
+  <?php // P5-M72: folded behind "Add a trade" once the scope has a line (RSS: "too much information in my face"); open to write the first one or to change one. ?>
+  <details class="card-foot" id="add-trade"<?= $editLine || ! $scope || isset($_GET['discipline']) ? ' open' : '' ?>>
+  <summary class="btn<?= $scope ? ' ghost' : '' ?>" data-add-trade><?= $editLine ? te('Change :role', ['role' => $editLine['role_title']]) : te('+ Add a trade') ?></summary>
+  <form method="post" action="/job" class="mt">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="<?= $editLine ? 'save_line' : 'add_line' ?>">
     <?php if ($editLine): ?>
@@ -384,24 +387,52 @@ $strike   = (bool) $job['strike_live'];
       </div>
     </div>
 
-    <div class="row mt">
-      <?php foreach ($terms as $field => $meta): ?>
+    <?php
+    // P5-M72: the line in two parts - what the person is paid, then what the client is billed for this trade
+    // (RSS, 17 Oct 2026: "pay rate, then bill rate, then markup on pay - it's confusing"). Overtime starts at
+    // 40 hours and time and a half, and is changed when the contract says otherwise (sometimes 38).
+    $termInput = static function (string $field, array $meta, $default = '') use ($editLine): void {
+        $value = $editLine ? ($editLine[$field] !== null ? ($meta['kind'] === 'hours' ? (int) $editLine[$field] : (float) $editLine[$field]) : '') : $default; ?>
         <div>
           <label for="l-<?= e($field) ?>"><?= te($meta['label']) ?></label>
           <input id="l-<?= e($field) ?>" type="number" name="<?= e($field) ?>" min="0"
-                 step="<?= $meta['kind'] === 'hours' ? '1' : '0.01' ?>"
-                 value="<?= $editLine && $editLine[$field] !== null
-                            ? e($meta['kind'] === 'hours' ? (int) $editLine[$field] : (float) $editLine[$field])
-                            : '' ?>">
+                 step="<?= $meta['kind'] === 'hours' ? '1' : '0.01' ?>" value="<?= e((string) $value) ?>">
           <span class="hint"><?= te($meta['hint']) ?></span>
         </div>
-      <?php endforeach; ?>
-      <div>
-        <label for="l-markup"><?= te('Markup on pay (%)') ?></label>
-        <input id="l-markup" type="number" name="markup" min="0" max="1000" step="0.1" placeholder="35">
-        <span class="hint"><?= te('Leave the bill rate blank and the markup sets it: pay x (1 + markup).') ?></span>
+    <?php };
+    $lineMarkup = $editLine && (float) ($editLine['pay_rate'] ?? 0) > 0 && $editLine['bill_rate'] !== null
+        ? round(((float) $editLine['bill_rate'] / (float) $editLine['pay_rate'] - 1) * 100, 1) : null; ?>
+    <fieldset class="mt" data-line-pay>
+      <legend><?= te('1. What the person is paid') ?></legend>
+      <div class="row">
+        <?php $termInput('pay_rate', $terms['pay_rate']); ?>
+        <?php $termInput('per_diem_rate', $terms['per_diem_rate']); ?>
+        <?php $termInput('guarantee_hours', $terms['guarantee_hours']); ?>
+        <?php $termInput('strike_guarantee_hours', $terms['strike_guarantee_hours']); ?>
       </div>
-    </div>
+      <div class="row">
+        <?php $termInput('overtime_after', $terms['overtime_after'], 40); ?>
+        <?php $termInput('overtime_multiplier', $terms['overtime_multiplier'], 1.5); ?>
+      </div>
+      <p class="small muted m0"><?= te('Overtime starts at 40 hours and time and a half. Change it when the contract says otherwise, for example 38 hours.') ?></p>
+    </fieldset>
+    <fieldset class="mt" data-line-bill>
+      <legend><?= te('2. What the client is billed for this trade, per hour') ?></legend>
+      <div class="row">
+        <div>
+          <label class="d-block"><input type="radio" name="bill_by" value="rate" checked> <?= te('A bill rate agreed with the client') ?></label>
+          <label class="d-block"><input type="radio" name="bill_by" value="markup"> <?= te('A markup on the pay rate') ?></label>
+        </div>
+        <?php $termInput('bill_rate', $terms['bill_rate']); ?>
+        <div>
+          <label for="l-markup"><?= te('Markup on pay (%)') ?></label>
+          <input id="l-markup" type="number" name="markup" min="0" max="1000" step="0.1" placeholder="35" value="<?= $lineMarkup !== null ? e((string) $lineMarkup) : '' ?>">
+          <span class="hint"><?= te('Bill rate = pay rate x (1 + markup).') ?></span>
+        </div>
+      </div>
+      <p class="small m0" data-line-figures data-text="<?= te('Billed $:bill/h for $:pay/h paid: $:margin/h margin (:pct% markup).') ?>"></p>
+      <p class="small muted m0"><?= te('Hotel, travel, per diem, vehicles and overtime are billed by the project\'s terms, with their own markups:') ?> <a href="#billing-terms"><?= te('What the client is billed') ?></a></p>
+    </fieldset>
 
     <div class="field mt">
       <label for="l-notes"><?= te('Anything else agreed on this line') ?></label>
@@ -417,6 +448,7 @@ $strike   = (bool) $job['strike_live'];
       <a class="btn ghost ml-s" href="/job#scope"><?= te('Cancel') ?></a>
     <?php endif; ?>
   </form>
+  </details>
 </section>
 
 <!-- ── P5-M27: the plant's shifts ── -->
@@ -481,11 +513,20 @@ $strike   = (bool) $job['strike_live'];
   <?php $bm = bt_modes(); $sel = static fn(string $k) => implode('', array_map(static fn($v, $label) => '<option value="' . e($v) . '"' . ((string) $billing[$k] === (string) $v ? ' selected' : '') . '>' . e($label) . '</option>', array_keys($bm[$k]), $bm[$k])); $num = static fn(string $k) => e($billing[$k] === null ? '' : rtrim(rtrim(number_format((float) $billing[$k], 2, '.', ''), '0'), '.')); ?>
   <form method="post" action="/job#billing-terms"><?= csrf_field() ?><input type="hidden" name="do" value="billing_terms">
     <table class="terms">
-      <tr><td><?= te('Overtime') ?></td><td><select name="ot_mode" aria-label="<?= te('Overtime') ?>"><?= $sel('ot_mode') ?></select></td><td><label class="small"><?= te('Multiplier') ?> <input name="ot_multiplier" inputmode="decimal" class="in-xs" value="<?= $num('ot_multiplier') ?>"></label> <label class="small"><?= te('or rate $/h') ?> <input name="ot_rate" inputmode="decimal" class="in-xs" value="<?= $num('ot_rate') ?>"></label></td></tr>
-      <tr><td><?= te('Per diem') ?></td><td><select name="per_diem_mode" aria-label="<?= te('Per diem') ?>"><?= $sel('per_diem_mode') ?></select></td><td><label class="small"><?= te('Markup %') ?> <input name="per_diem_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('per_diem_markup_pct') ?>"></label></td></tr>
-      <tr><td><?= te('Hotel') ?></td><td><select name="lodging_mode" aria-label="<?= te('Hotel') ?>"><?= $sel('lodging_mode') ?></select></td><td><label class="small"><?= te('Markup %') ?> <input name="lodging_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('lodging_markup_pct') ?>"></label> <label class="small"><?= te('or $ per night') ?> <input name="lodging_night_rate" inputmode="decimal" class="in-xs" value="<?= $num('lodging_night_rate') ?>"></label></td></tr>
-      <tr><td><?= te('Travel') ?></td><td><select name="travel_mode" aria-label="<?= te('Travel') ?>"><?= $sel('travel_mode') ?></select></td><td><label class="small"><?= te('Markup %') ?> <input name="travel_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('travel_markup_pct') ?>"></label></td></tr>
-      <tr><td><?= te('Transport on site') ?></td><td><select name="transport_mode" aria-label="<?= te('Transport on site') ?>"><?= $sel('transport_mode') ?></select></td><td><label class="small"><?= te('Rate $') ?> <input name="transport_rate" inputmode="decimal" class="in-xs" value="<?= $num('transport_rate') ?>"></label></td></tr>
+      <?php // P5-M72: each amount is asked for only with the way of billing that uses it (RSS: "at cost and then a 20% markup makes no sense"). ?>
+      <tr><td><?= te('Overtime') ?></td><td><select name="ot_mode" data-bt-mode aria-label="<?= te('Overtime') ?>"><?= $sel('ot_mode') ?></select></td>
+          <td><label class="small" data-bt-when="multiplier"><?= te('Multiplier') ?> <input name="ot_multiplier" inputmode="decimal" class="in-xs" value="<?= $num('ot_multiplier') ?>"></label>
+              <label class="small" data-bt-when="rate"><?= te('Overtime rate $/h') ?> <input name="ot_rate" inputmode="decimal" class="in-xs" value="<?= $num('ot_rate') ?>"></label></td></tr>
+      <tr><td><?= te('Per diem') ?></td><td><select name="per_diem_mode" data-bt-mode aria-label="<?= te('Per diem') ?>"><?= $sel('per_diem_mode') ?></select></td>
+          <td><label class="small" data-bt-when="cost_plus"><?= te('Markup %') ?> <input name="per_diem_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('per_diem_markup_pct') ?>"></label></td></tr>
+      <tr><td><?= te('Hotel') ?></td><td><select name="lodging_mode" data-bt-mode aria-label="<?= te('Hotel') ?>"><?= $sel('lodging_mode') ?></select></td>
+          <td><label class="small" data-bt-when="cost_plus"><?= te('Markup %') ?> <input name="lodging_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('lodging_markup_pct') ?>"></label>
+              <label class="small" data-bt-when="flat_night"><?= te('Billed $ per room per night, whatever the hotel') ?> <input name="lodging_night_rate" inputmode="decimal" class="in-xs" value="<?= $num('lodging_night_rate') ?>"></label>
+              <span class="small muted d-block" data-bt-when="cost cost_plus"><?= te('At cost, each booking is billed at its own nightly rate: a project with several hotels bills each one at its price. The rate can be filled in when the room is booked.') ?></span></td></tr>
+      <tr><td><?= te('Travel') ?></td><td><select name="travel_mode" data-bt-mode aria-label="<?= te('Travel') ?>"><?= $sel('travel_mode') ?></select></td>
+          <td><label class="small" data-bt-when="cost_plus"><?= te('Markup %') ?> <input name="travel_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('travel_markup_pct') ?>"></label></td></tr>
+      <tr><td><?= te('Transport on site') ?></td><td><select name="transport_mode" data-bt-mode aria-label="<?= te('Transport on site') ?>"><?= $sel('transport_mode') ?></select></td>
+          <td><label class="small" data-bt-when="per_day per_week"><?= te('Rate $') ?> <input name="transport_rate" inputmode="decimal" class="in-xs" value="<?= $num('transport_rate') ?>"></label></td></tr>
       <?php foreach ($shifts as $sh): ?><tr data-shift-premium="<?= (int) $sh['id'] ?>"><td><?= te(':shift shift', ['shift' => $sh['name']]) ?></td><td><?= te('premium billed, $ per hour') ?></td><td><input name="shift_premium[<?= (int) $sh['id'] ?>]" inputmode="decimal" class="in-xs" value="<?= (float) ($sh['bill_premium'] ?? 0) > 0 ? e(rtrim(rtrim(number_format((float) $sh['bill_premium'], 2, '.', ''), '0'), '.')) : '' ?>" placeholder="0"> <span class="small muted"><?= te('empty: billed at the regular rate') ?></span></td></tr><?php endforeach; ?>
     </table>
     <button class="btn mt-s"><?= te('Save what the client is billed') ?></button>
@@ -638,3 +679,5 @@ $strike   = (bool) $job['strike_live'];
 <script src="/assets/site-address.js"></script>
 <form method="post" action="/job#scope" id="add-discipline"><?= csrf_field() ?><input type="hidden" name="do" value="add_discipline"><?php if (! empty($editLine['id'])): ?><input type="hidden" name="line_id" value="<?= (int) $editLine['id'] ?>"><?php endif; ?></form>
 <script src="/assets/add-discipline.js"></script>
+<script src="/assets/scope-line.js"></script>
+<script src="/assets/billing-terms.js"></script>

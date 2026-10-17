@@ -5224,3 +5224,16 @@ Due :date	Échéance :date	Vence :date
 e.g. Millwright	ex. Mécanicien de chantier	p. ej. Mecánico montador
 New discipline	Nouvelle discipline	Nueva disciplina
 Add	Ajouter	Añadir
++ Add a trade	+ Ajouter un métier	+ Añadir un oficio
+1. What the person is paid	1. Ce que la personne est payée	1. Lo que se le paga a la persona
+Overtime starts at 40 hours and time and a half. Change it when the contract says otherwise, for example 38 hours.	L'overtime commence à 40 heures, à une fois et demie. Changez-le si le contrat dit autre chose, par exemple 38 heures.	Las horas extra empiezan a las 40 horas, a tiempo y medio. Cámbielo si el contrato dice otra cosa, por ejemplo 38 horas.
+2. What the client is billed for this trade, per hour	2. Ce que le client est facturé pour ce métier, à l'heure	2. Lo que se factura al cliente por este oficio, por hora
+A bill rate agreed with the client	Un taux de facturation convenu avec le client	Una tarifa acordada con el cliente
+A markup on the pay rate	Une marge sur le taux payé	Un margen sobre la tarifa pagada
+Bill rate = pay rate x (1 + markup).	Taux facturé = taux payé x (1 + marge).	Tarifa facturada = tarifa pagada x (1 + margen).
+Billed $:bill/h for $:pay/h paid: $:margin/h margin (:pct% markup).	Facturé :bill $/h pour :pay $/h payé : marge de :margin $/h (:pct %).	Facturado $:bill/h por $:pay/h pagado: margen de $:margin/h (:pct %).
+Hotel, travel, per diem, vehicles and overtime are billed by the project's terms, with their own markups:	Hôtel, voyage, per diem, véhicules et overtime sont facturés selon les termes du projet, avec leurs propres marges :	Hotel, viaje, viáticos, vehículos y horas extra se facturan según los términos del proyecto, con sus propios márgenes:
+Overtime rate $/h	Taux d'overtime $/h	Tarifa de horas extra $/h
+Billed $ per room per night, whatever the hotel	Facturé $ par chambre et par nuit, quel que soit l'hôtel	Facturado $ por habitación y noche, sea cual sea el hotel
+At cost, each booking is billed at its own nightly rate: a project with several hotels bills each one at its price. The rate can be filled in when the room is booked.	Au coût, chaque réservation est facturée à son propre prix par nuit : un projet avec plusieurs hôtels facture chacun à son prix. Le prix peut être saisi au moment de la réservation.	Al costo, cada reserva se factura a su propia tarifa por noche: un proyecto con varios hoteles factura cada uno a su precio. La tarifa se puede indicar al reservar.
+At cost plus a percentage needs the percentage. Otherwise choose at cost.	« Au coût plus un pourcentage » demande le pourcentage. Sinon, choisissez « au coût ».	«Al costo más un porcentaje» necesita el porcentaje. Si no, elija «al costo».
