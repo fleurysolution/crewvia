@@ -18,7 +18,7 @@ require_once __DIR__ . '/../scope.php';
           &middot; <span class="tag red"><?= te('Strike is live') ?></span>
         <?php endif; ?>
       <?php else: ?>
-        <?= te('The project as contracted, and the scope of work everything else is calculated from.') ?>
+        <?= te('Project details and scope of work.') ?>
       <?php endif; ?>
     </p>
   </div>
@@ -246,7 +246,7 @@ $strike   = (bool) $job['strike_live'];
   <summary><span><span class="eyebrow"><?= te('THE SCOPE OF WORK') ?></span><h2><?= te('What the client ordered, and what each trade is paid') ?></h2></span><span class="fold-note"><?= tn((int) $totals['lines'], ':n trade', ':n trades') ?> · <?= tn((int) $totals['people'], ':n person', ':n people') ?></span>
   <div class="card-bar"></summary>
     <p class="small muted m0">
-      <?= te('One line per trade. Each line carries its own rates, because an engineer and a labourer on the same site are neither paid nor billed the same. Requisitions are raised against a line and inherit its terms.') ?>
+      <?= te('One line per trade, with its own rates.') ?>
     </p>
   </div>
 
@@ -350,7 +350,7 @@ $strike   = (bool) $job['strike_live'];
           : te('Add a trade to the order') ?>
     </h3>
     <p class="small muted m0 mb">
-      <?= te('Leave a rate blank if it has not been agreed yet. The line is still on the order; the figures simply say it is not priced.') ?>
+      <?= te('Leave a rate blank if it is not agreed yet.') ?>
     </p>
 
     <div class="row">
@@ -416,7 +416,7 @@ $strike   = (bool) $job['strike_live'];
         <?php $termInput('overtime_after', $terms['overtime_after'], 40); ?>
         <?php $termInput('overtime_multiplier', $terms['overtime_multiplier'], 1.5); ?>
       </div>
-      <p class="small muted m0"><?= te('Overtime starts at 40 hours and time and a half. Change it when the contract says otherwise, for example 38 hours.') ?></p>
+      <p class="small muted m0"><?= te('Default: overtime after 40 hours at 1.5x.') ?></p>
     </fieldset>
     <fieldset class="mt" data-line-bill>
       <legend><?= te('2. What the client is billed for this trade, per hour') ?></legend>
@@ -433,7 +433,7 @@ $strike   = (bool) $job['strike_live'];
         </div>
       </div>
       <p class="small m0" data-line-figures data-text="<?= te('Billed $:bill/h for $:pay/h paid: $:margin/h margin (:pct% markup).') ?>"></p>
-      <p class="small muted m0"><?= te('Hotel, travel, per diem, vehicles and overtime are billed by the project\'s terms, with their own markups:') ?> <a href="#billing-terms"><?= te('What the client is billed') ?></a></p>
+      <p class="small muted m0"><?= te('Hotel, travel, per diem and transport are billed under') ?> <a href="#billing-terms"><?= te('What the client is billed') ?></a></p>
     </fieldset>
 
     <div class="field mt">
@@ -448,6 +448,8 @@ $strike   = (bool) $job['strike_live'];
     </button>
     <?php if ($editLine): ?>
       <a class="btn ghost ml-s" href="/job#scope"><?= te('Cancel') ?></a>
+    <?php else: ?>
+      <button type="button" class="btn ghost ml-s" data-fold-close><?= te('Cancel') ?></button>
     <?php endif; ?>
   </form>
   </details>
@@ -456,7 +458,7 @@ $strike   = (bool) $job['strike_live'];
 <!-- ── P5-M27: the plant's shifts ── -->
 <details class="card fold" id="shifts">
   <summary><span><span class="eyebrow"><?= te('THE PLANT') ?></span><h2><?= te('Shifts and buses') ?></h2></span><span class="fold-note"><?= $shifts ? e(implode(' · ', array_column($shifts, 'name'))) : te('none yet') ?></span></summary>
-  <p class="small muted m0 mb"><?= te('When each shift starts and ends, and when the bus leaves the hotels. A worker given a shift is late, marked and clocked against its start.') ?></p>
+  <p class="small muted m0 mb"><?= te('Shift times and bus departures.') ?></p>
   <?php if (! $shifts): ?>
     <form method="post" action="/job" class="mb"><?= csrf_field() ?><input type="hidden" name="do" value="shift_defaults"><button class="btn ghost sm"><?= te('Add the usual day and night shifts') ?></button></form>
   <?php else: ?>
@@ -489,7 +491,7 @@ $strike   = (bool) $job['strike_live'];
 <!-- P5-M71: who from the client is on this project, and the one in charge -->
 <details class="card fold" id="project-contacts">
   <summary><h2><?= te('Client contacts on this project') ?></h2><span class="fold-note"><?php $chiefNote = array_values(array_filter($projectContacts, static fn($x) => (int) $x['in_charge'] === 1))[0] ?? null; ?><?= $chiefNote ? te('in charge: :name', ['name' => $chiefNote['name']]) : te('nobody chosen yet') ?></span></summary>
-  <p class="small muted"><?= te('Choose, from :client\'s contacts, the people relevant to this project, and the one in charge of it.', ['client' => $job['client_name'] ?? '']) ?></p>
+  <p class="small muted"><?= te('Select the client contacts for this project and the person in charge.', ['client' => $job['client_name'] ?? '']) ?></p>
   <?php if (! $clientContacts): ?>
   <p class="muted"><?= te('This client has no contact yet.') ?> <a href="/clients?id=<?= (int) $job['client_id'] ?>#contacts"><?= te('Add their contacts') ?></a></p>
   <?php else: ?>
@@ -510,7 +512,7 @@ $strike   = (bool) $job['strike_live'];
 <!-- P5-M70: what the client is billed, beyond the hours at the bill rate -->
 <details class="card fold" id="billing-terms">
   <summary><h2><?= te('What the client is billed') ?></h2><span class="fold-note"><?php $btSet = array_filter(['per_diem_mode', 'lodging_mode', 'travel_mode', 'transport_mode'], static fn($k) => $billing[$k] !== 'none'); ?><?= $btSet || $billing['ot_mode'] !== 'straight' ? te('terms set') : te('every hour at the bill rate, nothing else') ?></span></summary>
-  <p class="small muted"><?= te('Each approved week is invoiced by these terms: regular hours at the trade\'s bill rate, then each item below as agreed with the client. Every shift is billed at the regular rate unless it carries a premium.') ?></p>
+  <p class="small muted"><?= te('How each approved week is invoiced to the client.') ?></p>
   <?php $bm = bt_modes(); $sel = static fn(string $k) => implode('', array_map(static fn($v, $label) => '<option value="' . e($v) . '"' . ((string) $billing[$k] === (string) $v ? ' selected' : '') . '>' . e($label) . '</option>', array_keys($bm[$k]), $bm[$k])); $num = static fn(string $k) => e($billing[$k] === null ? '' : rtrim(rtrim(number_format((float) $billing[$k], 2, '.', ''), '0'), '.')); ?>
   <form method="post" action="/job#billing-terms"><?= csrf_field() ?><input type="hidden" name="do" value="billing_terms">
     <table class="terms">
@@ -523,7 +525,8 @@ $strike   = (bool) $job['strike_live'];
       <tr><td><?= te('Hotel') ?></td><td><select name="lodging_mode" data-bt-mode aria-label="<?= te('Hotel') ?>"><?= $sel('lodging_mode') ?></select></td>
           <td><label class="small" data-bt-when="cost_plus"><?= te('Markup %') ?> <input name="lodging_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('lodging_markup_pct') ?>"></label>
               <label class="small" data-bt-when="flat_night"><?= te('Billed $ per room per night, whatever the hotel') ?> <input name="lodging_night_rate" inputmode="decimal" class="in-xs" value="<?= $num('lodging_night_rate') ?>"></label>
-              <span class="small muted d-block" data-bt-when="cost cost_plus"><?= te('At cost, each booking is billed at its own nightly rate: a project with several hotels bills each one at its price. The rate can be filled in when the room is booked.') ?></span></td></tr>
+              <span class="small muted d-block" data-bt-when="hotel_rate"><?= te('The price per night is set on each of the project\'s hotels.') ?> <a href="/hotels#project-hotels"><?= te('Hotels') ?></a></span>
+              <span class="small muted d-block" data-bt-when="cost cost_plus"><?= te('At cost: each booking is billed at its own nightly rate.') ?></span></td></tr>
       <tr><td><?= te('Travel') ?></td><td><select name="travel_mode" data-bt-mode aria-label="<?= te('Travel') ?>"><?= $sel('travel_mode') ?></select></td>
           <td><label class="small" data-bt-when="cost_plus"><?= te('Markup %') ?> <input name="travel_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('travel_markup_pct') ?>"></label></td></tr>
       <tr><td><?= te('Transport on site') ?></td><td><select name="transport_mode" data-bt-mode aria-label="<?= te('Transport on site') ?>"><?= $sel('transport_mode') ?></select></td>
@@ -577,13 +580,13 @@ $strike   = (bool) $job['strike_live'];
       <label for="j-desc"><?= te('Description of the work') ?></label>
       <textarea id="j-desc" name="description" rows="4" maxlength="8000"
                 placeholder="<?= te('e.g. Provide skilled labour support to the client plant for the duration of the work stoppage, in accordance with the scope of work below.') ?>"><?= e($job['description'] ?? '') ?></textarea>
-      <span class="hint"><?= te('The work as the contract describes it, in the words the client would recognise. It is what applicants read.') ?></span>
+      <span class="hint"><?= te('Shown to applicants.') ?></span>
     </div>
 
   <?php // P5-M71: the site address finds the position, city, state and ZIP (app/geocode.php). ?>
   <div class="row mt" data-geo data-lat="#j-lat" data-lng="#j-lng" data-city="#j-city" data-state="#j-state" data-zip="#j-zip">
     <div class="f2"><label for="j-address"><?= te('Site address') ?></label><input id="j-address" name="site_address" maxlength="190" autocomplete="off" data-geo-address value="<?= e($job['site_address'] ?? '') ?>" placeholder="<?= te('e.g. 1 N Broadway, Gary, IN') ?>">
-      <span class="hint" data-geo-status data-searching="<?= te('Finding the address...') ?>" data-found="<?= te('Using :address - position :lat, :lng. Save to keep it.') ?>" data-use="<?= te('Use this address') ?>" data-other="<?= te('Not this one') ?>" data-hint="<?= te('Type the address more fully (number, street, city, state), or type the latitude and longitude.') ?>"><?= te('Type the street address: the city, state, ZIP and the position for the clock-in fill in by themselves.') ?></span></div>
+      <span class="hint" data-geo-status data-searching="<?= te('Finding the address...') ?>" data-found="<?= te('Using :address - position :lat, :lng. Save to keep it.') ?>" data-use="<?= te('Use this address') ?>" data-other="<?= te('Not this one') ?>" data-hint="<?= te('Type the address more fully (number, street, city, state), or type the latitude and longitude.') ?>"><?= te('City, state, ZIP and position are filled from the address.') ?></span></div>
     <div><label>&nbsp;</label><button type="button" class="btn ghost sm" data-geo-find><?= te('Find the address') ?></button></div>
   </div>
     <div class="row mt-s">
@@ -609,7 +612,7 @@ $strike   = (bool) $job['strike_live'];
       </div>
       <div class="in-s">
         <label for="j-radius"><?= te('Clock-in radius (m)') ?></label>
-        <input id="j-radius" name="site_radius_m" type="number" min="50" max="5000" value="<?= (int) ($job['site_radius_m'] ?? 300) ?>"><span class="hint"><?= te('In metres: 300 m is about 1,000 ft. Clocking in farther away is allowed, and the supervisor is told.') ?></span>
+        <input id="j-radius" name="site_radius_m" type="number" min="50" max="5000" value="<?= (int) ($job['site_radius_m'] ?? 300) ?>"><span class="hint"><?= te('In metres (300 m is about 1,000 ft). Clock-ins outside it are flagged to the supervisor.') ?></span>
       </div>
       <div class="in-s"><label>&nbsp;</label><button type="button" class="btn ghost sm" onclick="var b=this;navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(p){document.getElementById('j-lat').value=p.coords.latitude.toFixed(6);document.getElementById('j-lng').value=p.coords.longitude.toFixed(6);b.textContent=b.dataset.done;},function(){b.textContent=b.dataset.fail;},{enableHighAccuracy:true,timeout:15000})" data-done="<?= te('Position taken: save') ?>" data-fail="<?= te('Position unavailable') ?>"><?= te('My position here') ?></button></div>
       <div class="in-s">
@@ -629,7 +632,7 @@ $strike   = (bool) $job['strike_live'];
 
     <h3 class="mt-l"><?= te('What the contract covers') ?></h3>
     <p class="hint m0 pull-up mb">
-      <?= te('Beyond the rates on the lines. These are what the crew is told and what the client is invoiced for, so they are recorded here rather than remembered.') ?>
+      <?= te('Provided to the crew and billed to the client.') ?>
     </p>
 
     <div class="row">
@@ -651,7 +654,7 @@ $strike   = (bool) $job['strike_live'];
     </div>
 
     <p class="small muted m0 mt-l">
-      <?= te('How many people the agreement asks for is the total of the scope of work above: :n.', [
+      <?= te('Headcount from the scope of work: :n.', [
           'n' => (int) $totals['people']]) ?>
     </p>
   </details>
@@ -660,7 +663,7 @@ $strike   = (bool) $job['strike_live'];
     <summary><h2><?= te('Internal notes') ?></h2><span class="fold-note"><?= $job['notes'] ? e(mb_strimwidth((string) $job['notes'], 0, 60, '...')) : te('none') ?></span></summary>
     <textarea name="notes" rows="5"><?= e($job['notes'] ?? '') ?></textarea>
     <p class="small muted m0 mt-s">
-      <?= te('For the team only - never shown to applicants or on a contract. Kept here so the terms live in the system rather than in somebody\'s inbox.') ?>
+      <?= te('Internal only. Not shown to applicants or clients.') ?>
     </p>
   </details>
 

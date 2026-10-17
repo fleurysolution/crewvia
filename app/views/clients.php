@@ -20,7 +20,7 @@ $form = static function (array $c, string $do, string $button, array $invoiceTo 
     <?php endif; ?>
     <div><label><?= te('Payment terms (days)') ?></label><input name="payment_terms_days" type="number" min="0" max="180" value="<?= $v('payment_terms_days', 30) ?>"></div>
     <div><label><?= te('Notes') ?></label><input name="notes" maxlength="2000" value="<?= $v('notes') ?>"></div>
-    <div><button class="btn"><?= e($button) ?></button></div>
+    <div><button class="btn"><?= e($button) ?></button><?php if ($do === 'create'): ?> <button type="button" class="btn ghost" data-fold-close><?= te('Cancel') ?></button><?php endif; ?></div>
   </form>
 <?php };
 $contactForm = static function (int $clientId, ?array $x) { $v = static fn(string $k) => e((string) ($x[$k] ?? '')); $id = (int) ($x['id'] ?? 0); ?>
@@ -34,11 +34,11 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
     <div><label>&nbsp;</label>
       <label class="d-block"><input type="checkbox" name="cc_main" value="1"<?= ! empty($x['is_main']) ? ' checked' : '' ?>> <?= te('Main point of contact') ?></label>
       <label class="d-block"><input type="checkbox" name="cc_invoices" value="1"<?= ! empty($x['receives_invoices']) ? ' checked' : '' ?>> <?= te('Receives the invoices') ?></label></div>
-    <div><button class="btn<?= $id ? '' : ' ghost' ?>"><?= $id ? te('Save the contact') : te('Add the contact') ?></button><?php if ($id): ?> <a class="btn ghost" href="/clients?id=<?= $clientId ?>#contacts"><?= te('Cancel') ?></a><?php endif; ?></div>
+    <div><button class="btn<?= $id ? '' : ' ghost' ?>"><?= $id ? te('Save the contact') : te('Add the contact') ?></button><?php if ($id): ?> <a class="btn ghost" href="/clients?id=<?= $clientId ?>#contacts"><?= te('Cancel') ?></a><?php else: ?> <button type="button" class="btn ghost" data-fold-close><?= te('Cancel') ?></button><?php endif; ?></div>
   </form>
 <?php }; ?>
 <div class="page-head"><div><h1><?= te('Clients') ?></h1>
-  <p class="sub"><?= te('The companies the crews work for. Add a client first, then take on their projects; invoices use their terms and billing email.') ?></p></div>
+  <p class="sub"><?= te('Your clients, their contacts and billing details.') ?></p></div>
   <div class="actions"><a class="btn" href="#new" data-new-client><?= te('+ Add a client') ?></a><a class="btn ghost" href="/projects"><?= te('Projects') ?></a><a class="btn ghost" href="/client-access"><?= te('Client access') ?></a></div></div>
 
 <?php if ($open): ?>
@@ -47,7 +47,7 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
 </div>
 
 <div class="card" id="contacts"><h2><?= te('Contacts at :client', ['client' => $open['name']]) ?></h2>
-  <p class="small muted"><?= te('Everyone you deal with at this client. One is the main point of contact; those ticked as receiving the invoices are where invoices go. Each project then chooses its contacts and the one in charge.') ?></p>
+  <p class="small muted"><?= te('The client\'s contacts, the main contact and who receives invoices.') ?></p>
   <?php if (! $contacts): ?><p class="muted"><?= te('No contact yet. Add the first one below: they become the main point of contact.') ?></p><?php else: ?>
   <table><thead><tr><th><?= te('Name') ?></th><th><?= te('Title or role') ?></th><th><?= te('Email') ?></th><th><?= te('Phone') ?></th><th><?= te('Projects') ?></th><th></th></tr></thead><tbody>
   <?php foreach ($contacts as $x): ?>
@@ -69,6 +69,19 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
   <details class="mt" id="add-contact"<?= $contacts ? '' : ' open' ?>><summary class="btn<?= $contacts ? ' ghost' : '' ?>" data-add-contact><?= te('+ Add a contact') ?></summary>
   <?php $contactForm((int) $open['id'], null); ?>
   </details>
+</div>
+
+<?php // P5-M77: the client's sites, kept from its projects. ?>
+<div class="card" id="client-sites"><h2><?= te('Sites') ?></h2>
+  <?php if (! $sites): ?><p class="muted"><?= te('No site yet. The site of each project is kept here.') ?></p><?php else: ?>
+  <table><thead><tr><th><?= te('Site') ?></th><th><?= te('Address') ?></th><th><?= te('Clock-in radius (m)') ?></th><th><?= te('Projects') ?></th><th></th></tr></thead><tbody>
+  <?php foreach ($sites as $st): ?>
+    <tr data-client-site="<?= (int) $st['id'] ?>"><td><?= e($st['name'] ?? '') ?: '&mdash;' ?></td><td class="small"><?= e(trim(($st['address'] ?? '') . ', ' . ($st['city'] ?? '') . ' ' . ($st['state'] ?? '') . ' ' . ($st['zip'] ?? ''), ' ,')) ?><?= $st['lat'] !== null ? '<br><span class="muted">' . e($st['lat'] . ', ' . $st['lng']) . '</span>' : '' ?></td>
+      <td><?= $st['radius_m'] !== null ? (int) $st['radius_m'] : '&mdash;' ?></td><td><?= (int) $st['projects'] ?></td>
+      <td class="right"><a class="btn ghost sm" href="/projects?client_id=<?= (int) $open['id'] ?>&site=<?= (int) $st['id'] ?>#new-project"><?= te('New project here') ?></a>
+        <form method="post" action="/clients" class="inline" onsubmit="return confirm(this.dataset.ask)" data-ask="<?= te('Remove this site from the client? Its projects keep their site.') ?>"><?= csrf_field() ?><input type="hidden" name="do" value="site_remove"><input type="hidden" name="client_id" value="<?= (int) $open['id'] ?>"><input type="hidden" name="site_id" value="<?= (int) $st['id'] ?>"><button class="btn ghost sm"><?= te('Remove') ?></button></form></td></tr>
+  <?php endforeach; ?></tbody></table>
+  <?php endif; ?>
 </div>
 
 <div class="card" id="client-projects"><h2><?= te('Projects') ?></h2>
@@ -94,6 +107,6 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
 <?php // P5-M73: the clients first; adding one is a button that opens the form. ?>
 <details class="card fold" id="new" data-fold-forget<?= ! $clients || $old ? ' open' : '' ?>><summary><h2><?= te('Add a client') ?></h2></summary>
   <?php $form($old, 'create', t('Add the client')); ?>
-  <p class="small muted"><?= te('More contacts - the site manager, accounts payable - are added on the client once it is created.') ?></p>
+  <p class="small muted"><?= te('More contacts can be added once the client is created.') ?></p>
 </details>
 <script src="/assets/fold.js"></script>

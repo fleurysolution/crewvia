@@ -65,3 +65,15 @@ $t = bt_terms($job);
 $check('At cost keeps no markup and no flat rate, whatever was typed', (float) $t['lodging_markup_pct'] == 0.0 && $t['lodging_night_rate'] === null && (float) $t['per_diem_markup_pct'] == 0.0, $t);
 $why = bt_save($job, ['lodging_mode' => 'cost_plus', 'lodging_markup_pct' => ''], 1);
 $check('At cost plus a percentage needs the percentage', $why !== null && str_contains($why, 'percentage'), $why);
+
+// P5-M76: the project's hotels - each with its block and its price billed per night.
+require_once __DIR__ . '/test-app/app/project-hotels.php';
+$inn = (int) val("SELECT id FROM hotels WHERE name = 'Billing Inn'");
+$check('A block smaller than the crew already there is refused', ph_link($job, $inn, ['rooms_held' => '0']) !== null);
+$check('The hotel is linked to the project with its block, its cost and its price per night', ph_link($job, $inn, ['rooms_held' => '20', 'block_starts' => '2026-09-01', 'block_ends' => '2026-12-31', 'nightly_rate' => '100', 'client_night_rate' => '140']) === null);
+$ph = ph_hotels($job);
+$check('The project lists the hotel and how many of its crew are in it', count($ph) === 1 && (int) $ph[0]['taken'] === 1 && (int) $ph[0]['rooms_held'] === 20, $ph);
+bt_save($job, ['ot_mode' => 'straight', 'lodging_mode' => 'hotel_rate'], 1);
+$by = array_column(bt_week_parts($sheet, $m, $jobRow, bt_terms($job)), null, 'kind');
+$check('Billed at the rate agreed for each hotel: 7 nights at $140', isset($by['lodging']) && $by['lodging']['qty'] == 7 && $by['lodging']['amount'] == 980.0, $by['lodging'] ?? null);
+$check('A hotel the crew is booked in cannot be taken off the project', ph_unlink($job, $inn) !== null && count(ph_hotels($job)) === 1);

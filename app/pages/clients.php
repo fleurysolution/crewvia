@@ -105,6 +105,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirect($back);
     }
+    // ── P5-M77: a site taken off the client's list ──
+    if ($do === 'site_remove') {
+        require_once __DIR__ . '/../client-sites.php';
+        $id = (int) ($_POST['client_id'] ?? 0);
+        cs_remove($id, (int) ($_POST['site_id'] ?? 0));
+        flash(t('Site removed from the client.'));
+        redirect('/clients?id=' . $id . '#client-sites');
+    }
     refuse(422, t('Unknown action.'), '/clients');
 }
 
@@ -117,8 +125,10 @@ $openProjects = $open ? rows('SELECT j.id, j.title, j.status, j.site_city, j.sit
                               FROM jobs j WHERE j.client_id = ? ORDER BY j.id DESC', [(int) $open['id']]) : [];
 $contacts = $open ? rows('SELECT c.*, (SELECT COUNT(*) FROM job_contacts jc WHERE jc.contact_id = c.id) AS on_projects FROM client_contacts c WHERE c.client_id = ? ORDER BY c.is_main DESC, c.name', [(int) $open['id']]) : [];
 $invoiceTo = $open ? cc_invoice_recipients((int) $open['id']) : [];
+require_once __DIR__ . '/../client-sites.php';
+$sites = $open ? cs_sites((int) $open['id']) : [];
 $editContact = isset($_GET['contact']) && $open ? row('SELECT * FROM client_contacts WHERE id = ? AND client_id = ?', [(int) $_GET['contact'], (int) $open['id']]) : null;
 $old = $_SESSION['client_old'] ?? [];
 unset($_SESSION['client_old']);
 $pageTitle = t('Clients');
-render('clients', compact('clients', 'open', 'openProjects', 'old', 'contacts', 'editContact', 'invoiceTo'));
+render('clients', compact('clients', 'open', 'openProjects', 'old', 'contacts', 'editContact', 'invoiceTo', 'sites'));

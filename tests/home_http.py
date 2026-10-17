@@ -127,7 +127,8 @@ check('and is no longer a separate entry in the worker\'s menu', 'href="/self-se
 
 # ── the menus and the logo ─────────────────────────────────────────────
 body = c['rec'].get('/candidates')[1]
-nav = re.search(r'<nav[^>]*>(.*?)</nav>', body, re.S)[1]
+# P5-M73: the person's bookmarks and recent screens sit above the menu; the menu itself is what follows.
+nav = re.sub(r'<div class="nav-marks" data-nav-marks>.*?</div>', '', re.search(r'<nav[^>]*>(.*?)</nav>', body, re.S)[1], flags=re.S)
 check('Today is the first entry of a desk\'s menu', re.findall(r'href="(/[^"]*)"', nav)[:1] == ['/home'])
 check('and the logo leads home', 'class="brand" href="/home"' in body and 'class="brand" href="/portal"' in c['w'].get('/portal')[1])
 

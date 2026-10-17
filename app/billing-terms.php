@@ -36,7 +36,7 @@ function bt_modes(): array
     return [
         'ot_mode' => ['multiplier' => t('the bill rate times a multiplier'), 'straight' => t('the bill rate (no premium)'), 'rate' => t('its own rate')],
         'per_diem_mode' => ['none' => t('not billed'), 'cost' => t('at cost'), 'cost_plus' => t('at cost plus a percentage')],
-        'lodging_mode' => ['none' => t('not billed'), 'cost' => t('at cost'), 'cost_plus' => t('at cost plus a percentage'), 'flat_night' => t('a flat rate per night')],
+        'lodging_mode' => ['none' => t('not billed'), 'cost' => t('at cost'), 'cost_plus' => t('at cost plus a percentage'), 'flat_night' => t('a flat rate per night'), 'hotel_rate' => t('the rate agreed for each hotel')],
         'travel_mode' => ['none' => t('not billed'), 'cost' => t('at cost'), 'cost_plus' => t('at cost plus a percentage')],
         'transport_mode' => ['none' => t('not billed (included)'), 'per_day' => t('per day on site'), 'per_week' => t('per week worked')],
     ];
@@ -159,18 +159,24 @@ function bt_week_parts(array $sheet, array $m, array $job, array $terms): array
     if ($terms['lodging_mode'] !== 'none') {
         $nights = 0;
         $cost = 0.0;
-        foreach (rows("SELECT l.check_in, l.check_out, COALESCE(l.nightly_rate, h.nightly_rate, 0) AS rate FROM lodging l LEFT JOIN hotels h ON h.id = l.hotel_id
+        $billedAt = 0.0;
+        // P5-M76: the cost is the booking's, else the project's rate at that hotel, else the hotel's; the price per hotel is the project's.
+        foreach (rows("SELECT l.check_in, l.check_out, COALESCE(l.nightly_rate, jh.nightly_rate, h.nightly_rate, 0) AS rate, jh.client_night_rate
+                       FROM lodging l LEFT JOIN hotels h ON h.id = l.hotel_id LEFT JOIN job_hotels jh ON jh.job_id = ? AND jh.hotel_id = l.hotel_id
                        WHERE l.placement_id = ? AND l.status <> 'cancelled' AND l.check_in IS NOT NULL AND l.check_in < ? AND COALESCE(l.check_out, ?) > ?",
-                      [$placement, $weekAfter, $weekAfter, $weekStart]) as $l) {
+                      [$jobId, $placement, $weekAfter, $weekAfter, $weekStart]) as $l) {
             $from = max($l['check_in'], $weekStart);
             $to = min((string) ($l['check_out'] ?: $weekAfter), $weekAfter);
             $n = max(0, (int) round((strtotime($to) - strtotime($from)) / 86400));
             $nights += $n;
             $cost += $n * (float) $l['rate'];
+            $billedAt += $n * (float) ($l['client_night_rate'] ?? $l['rate']);
         }
         if ($nights) {
             if ($terms['lodging_mode'] === 'flat_night') {
                 $add('lodging', t('Hotel, flat rate per night'), $nights, (float) $terms['lodging_night_rate']);
+            } elseif ($terms['lodging_mode'] === 'hotel_rate') {
+                $add('lodging', t('Hotel nights, at the rate agreed for each hotel'), $nights, $billedAt / $nights, $billedAt);
             } else {
                 $f = $markup($terms['lodging_mode'], (float) $terms['lodging_markup_pct']);
                 $add('lodging', $f > 1 ? t('Hotel nights, at cost plus :pct%', ['pct' => (float) $terms['lodging_markup_pct']]) : t('Hotel nights, at cost'), $nights, $nights ? $cost * $f / $nights : 0, $cost * $f);

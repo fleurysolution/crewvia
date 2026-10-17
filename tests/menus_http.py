@@ -57,7 +57,8 @@ def check(label, condition, detail=''):
 
 
 def menu(body):
-    nav = re.search(r'<nav[^>]*>(.*?)</nav>', body, re.S)[1]
+    # P5-M73: the person's bookmarks and recent screens sit above the menu; the menu itself is what follows.
+    nav = re.sub(r'<div class="nav-marks" data-nav-marks>.*?</div>', '', re.search(r'<nav[^>]*>(.*?)</nav>', body, re.S)[1], flags=re.S)
     daily = re.search(r'<div class="nav-daily">(.*?)</div>', nav, re.S)
     more = re.search(r'<details class="nav-more"([^>]*)><summary>([^<]*)</summary>(.*)</details>', nav, re.S)
     hrefs = lambda html: re.findall(r'<a href="(/[^"]*)"', html or '')

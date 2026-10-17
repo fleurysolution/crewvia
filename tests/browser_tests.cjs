@@ -12,7 +12,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
  for(const [route,name] of [['/contracts','contracts-desktop'],['/manning','manning-desktop'],['/overview','executive-overview'],['/organization','organization-chart'],['/requisitions','requisitions-desktop'],['/channels','recruitment-channels'],['/agency-setup','agency-setup'],['/qualifications','qualifications'],['/screening-workflow','screening-workflow'],['/offboarding','offboarding'],['/safety-plan','safety-plan'],['/account-security','account-security']]) {
   await page.goto('http://127.0.0.1:8097'+route);await page.screenshot({path:path.resolve('outputs/'+name+'.png'),fullPage:true});
  }
- await page.goto('http://127.0.0.1:8097/requisitions');await page.waitForSelector('.application-qr img');
+ await page.goto('http://127.0.0.1:8097/requisitions');await page.waitForSelector('.application-qr img',{state:'attached'});
  if(await page.locator('.application-qr canvas').count()<1) throw Error('Application QR failed to render');
  console.log('PASS QR canvas renders');
  const clientContext=await browser.newContext({viewport:{width:1440,height:1000}});const cp=await clientContext.newPage();cp.on('pageerror',e=>issues.push(e.message));

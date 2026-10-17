@@ -1,16 +1,70 @@
 <div class="page-heading">
   <div>
-    <h1><?= te('Open the next opportunity.') ?></h1>
-    <p class="sub"><?= te('One requisition. One scannable application QR. Every candidate arrives in your workspace.') ?></p>
+    <h1><?= te('Requisitions') ?></h1>
+    <p class="sub"><?= te('Openings for the current project.') ?></p>
   </div>
-  <a class="btn ghost" href="/recruitment"><?= te('Review applications') ?></a>
+  <div class="flex gap-s"><a class="btn" href="#new-requisition" data-new-requisition><?= te('+ Add a requisition') ?></a><a class="btn ghost" href="/recruitment"><?= te('Review applications') ?></a></div>
 </div>
 
-<div class="grid g2">
-  <form method="post" class="card">
+<?php // P5-M74: one line per requisition - the trade, the rate, how far it is filled; the QR code and the link on demand. ?>
+<div class="card tight" id="requisitions">
+  <div class="card-bar"><h2 class="m0"><?= tn(count($requisitions), ':n requisition', ':n requisitions') ?></h2></div>
+  <?php if (! $requisitions): ?>
+    <div class="empty"><?= te('No requisitions on this project yet. Add one: its link and QR code are ready at once.') ?></div>
+  <?php else: ?>
+  <div class="table-scroll"><table class="req-lines">
+    <thead><tr><th><?= te('Requisition') ?></th><th><?= te('Pay') ?></th><th><?= te('Filled') ?></th><th><?= te('Applications') ?></th><th><?= te('Status') ?></th><th></th></tr></thead>
+    <tbody>
+    <?php foreach ($requisitions as $requisition):
+        $rolePay  = $requisition['pay_rate']  ?? $requisition['line_pay'];
+        $roleBill = $requisition['bill_rate'] ?? $requisition['line_bill'];
+        $asked  = max(1, (int) ($requisition['openings'] ?? 1));
+        $placed = (int) ($requisition['placed'] ?? 0);
+        $link = rtrim((string) ($config['app_url'] ?? ''), '/') . '/apply?id=' . (int) $requisition['id'];
+        $where = trim((string) $requisition['site_city'] . ' ' . (string) $requisition['site_state']); ?>
+      <tr data-requisition="<?= (int) $requisition['id'] ?>">
+        <td><strong><?= e($requisition['title']) ?></strong>
+          <div class="small muted"><?= te(ucfirst((string) ($requisition['discipline'] ?? 'other'))) ?><?= $where !== '' ? ' &middot; ' . e($where) : '' ?><?= ! empty($requisition['shift']) ? ' &middot; ' . e($requisition['shift']) : '' ?><?= ! empty($requisition['starts_on']) ? ' &middot; ' . te('Starts') . ' ' . e(d($requisition['starts_on'])) : '' ?>
+          <?php if (empty($requisition['line_role'])): ?> &middot; <span class="tag amber"><?= te('Not on the scope of work') ?></span><?php endif; ?></div></td>
+        <td class="nowrap"><strong><?= $rolePay !== null ? e(money((float) $rolePay)) : '&mdash;' ?></strong> <span class="small muted"><?= te('/h') ?></span>
+          <?php if ($roleBill !== null): ?><div class="small muted"><?= te('billed :amount', ['amount' => money((float) $roleBill)]) ?></div><?php endif; ?></td>
+        <td class="req-fill"><div class="headcount-bar"><span style="width:<?= (int) round(min($placed, $asked) / $asked * 100) ?>%"></span></div>
+          <span class="small"><?= te(':placed of :asked placed', ['placed' => $placed, 'asked' => $asked]) ?></span></td>
+        <td><?= (int) $requisition['applications'] ?></td>
+        <td><span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>"><?= $requisition['is_open'] ? te('Open') : te('Closed') ?></span></td>
+        <td class="right nowrap">
+          <button type="button" class="btn ghost sm" data-copy-link="<?= e($link) ?>" data-copied="<?= te('Link copied') ?>"><?= te('Copy link') ?></button>
+          <details class="req-more inline-block"><summary class="btn ghost sm"><?= te('QR code & more') ?></summary>
+            <div class="req-pop">
+              <div class="application-qr qr-box" data-vacancy="<?= (int) $requisition['id'] ?>"></div>
+              <p class="small"><a href="/apply?id=<?= (int) $requisition['id'] ?>" target="_blank" rel="noopener"><?= te('Open the public application page') ?></a><br>
+                <a href="/poster?id=<?= (int) $requisition['id'] ?>" target="_blank" rel="noopener" data-poster="<?= (int) $requisition['id'] ?>"><?= te('Print the job poster with its QR code') ?></a>
+                <?php if (! empty($requisition['line_role'])): ?><br><a href="/job#scope"><?= te('See the scope') ?></a><?php endif; ?></p>
+              <?php if (can('admin')): ?>
+              <div class="requisition-actions">
+                <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
+                  <button class="btn ghost sm" type="submit"><?= $requisition['is_open'] ? te('Close this requisition') : te('Reopen it') ?></button></form>
+                <?php if ((int) $requisition['applications'] === 0): ?>
+                <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="remove"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
+                  <button class="btn ghost sm" type="submit"><?= te('Remove') ?></button></form>
+                <?php endif; ?>
+              </div>
+              <?php endif; ?>
+            </div>
+          </details>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table></div>
+  <?php endif; ?>
+</div>
+
+<details class="card fold" id="new-requisition" data-fold-forget<?= ! $requisitions || ! empty($_GET['new']) ? ' open' : '' ?>>
+  <summary><h2><?= te('Create a requisition') ?></h2></summary>
+  <form method="post">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="create">
-    <h2><?= te('Create a requisition') ?></h2>
     <p class="hint m0 pull-up mb-l">
       <?php if (! empty($job['title'])): ?>
         <?= te('For') ?> <strong><?= e($job['title']) ?></strong>
@@ -107,9 +161,11 @@
     </div>
 
     <?php if (can('admin')): ?>
-    <h3 class="m0 mt-xl mb-xs"><?= te('Override the agreed rates') ?></h3>
-    <p class="hint m0 mb">
-      <?= te('Leave these blank — and almost always do. The rates were settled with the client on the line of the scope above, and the requisition inherits them; a number retyped here is how the order and the agreement start disagreeing. Fill one in only when this particular requisition really was agreed differently.') ?>
+    <?php // P5-M75: the override is a button (RSS: "the override should be a button"); the line's rates apply unless it is opened and filled. ?>
+    <p class="hint mt-l m0" id="rates-from-line-admin"><?= te('Pay, bill rate, per diem and guarantee come from the line of the scope.') ?></p>
+    <details class="mt-s" id="rate-override"><summary class="btn ghost sm" data-rate-override><?= te('Override the agreed rates') ?></summary>
+    <p class="hint m0 mb mt-s">
+      <?= te('Fill in only what was agreed differently for this requisition.') ?>
     </p>
 
     <div class="row">
@@ -136,6 +192,8 @@
                placeholder="<?= te('from the line') ?>">
       </div>
     </div>
+    <button type="button" class="btn ghost sm" data-fold-close><?= te('Keep the rates of the line') ?></button>
+    </details>
     <?php else: ?>
     <p class="hint mt-l" id="rates-from-line"><?= te('Pay, bill rate, per diem and guarantee come from the line of the scope. Only an administrator can override them.') ?></p>
     <?php endif; ?>
@@ -149,18 +207,19 @@
 
     <?php if (! empty($job['id']) && $scope
               && ! array_filter($scope, static fn ($l) => (int) $l['remaining'] > 0)): ?>
-      <button class="btn" type="submit" disabled><?= te('Create application QR') ?></button>
+      <button class="btn" type="submit" disabled><?= te('Create the requisition') ?></button>
       <span class="hint inline-block ml">
         <?= te('Nothing left to order on this agreement.') ?>
       </span>
     <?php else: ?>
-      <button class="btn" type="submit"><?= te('Create application QR') ?></button>
+      <button class="btn" type="submit"><?= te('Create the requisition') ?></button>
     <?php endif; ?>
+    <button type="button" class="btn ghost" data-fold-close><?= te('Cancel') ?></button>
   </form>
+</details>
 
-  <section class="card">
-    <span class="eyebrow"><?= te('CANDIDATE JOURNEY') ?></span>
-    <h2><?= te('From scan to assignment.') ?></h2>
+<details class="card fold" id="candidate-journey">
+  <summary><span><span class="eyebrow"><?= te('CANDIDATE JOURNEY') ?></span><h2><?= te('From scan to assignment.') ?></h2></span></summary>
     <ol class="journey-list">
       <li><?= te('Scan the QR and apply with a personal email.') ?></li>
       <li><?= te('The recruiting team reviews and screens the application.') ?></li>
@@ -168,125 +227,9 @@
       <li><?= te('The candidate verifies the link and chooses their password.') ?></li>
       <li><?= te('Complete onboarding, deployment and assignment closeout.') ?></li>
     </ol>
-  </section>
-</div>
-
-<div class="grid g3 requisition-grid">
-<?php foreach($requisitions as $requisition): ?>
-  <article class="card">
-    <span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>">
-      <?= $requisition['is_open'] ? te('Open') : te('Closed') ?>
-    </span>
-    <h2 class="mt"><?= e($requisition['title']) ?></h2>
-
-    <p class="muted small m0 mb">
-      <?= te(ucfirst((string) ($requisition['discipline'] ?? 'other'))) ?>
-      &middot; <?= (int) ($requisition['openings'] ?? 1) ?> <?= te('needed') ?>
-      <?php $where = trim((string)$requisition['site_city'] . ' ' . (string)$requisition['site_state']); ?>
-      <?php if ($where !== ''): ?>&middot; <?= e($where) ?><?php endif; ?>
-      <?php if (! empty($requisition['shift'])): ?><br><?= e($requisition['shift']) ?><?php endif; ?>
-      <?php if (! empty($requisition['starts_on'])): ?>
-        &middot; <?= te('Starts') ?> <?= e(d($requisition['starts_on'])) ?>
-      <?php endif; ?>
-    </p>
-
-    <?php
-    // The rate shown is the one that will actually be offered: the
-    // requisition's own if it was given one, otherwise the agreed rate on
-    // its line of the scope. Nothing falls back to a project-wide number,
-    // because there is no longer any such thing.
-    $rolePay  = $requisition['pay_rate']  ?? $requisition['line_pay'];
-    $roleBill = $requisition['bill_rate'] ?? $requisition['line_bill'];
-    $ownRate  = $requisition['pay_rate'] !== null;
-    ?>
-    <p class="small m0 mb-xs">
-      <strong><?= $rolePay !== null ? e(money((float) $rolePay)) : '&mdash;' ?></strong>
-      <?= te('an hour') ?>
-      <?php if ($roleBill !== null): ?>
-        <span class="muted">&middot; <?= te('billed :amount', ['amount' => money((float) $roleBill)]) ?></span>
-      <?php endif; ?>
-      <?php if ($ownRate): ?>
-        <span class="tag blue"><?= te('Own rate') ?></span>
-      <?php elseif ($rolePay !== null): ?>
-        <span class="muted small"><?= te('agreed on the scope') ?></span>
-      <?php endif; ?>
-    </p>
-
-    <p class="small muted m0 mb">
-      <?php if (! empty($requisition['line_role'])): ?>
-        <?= te('Against :role on the scope (:n covered)', [
-            'role' => e($requisition['line_role']),
-            'n'    => (int) $requisition['line_quantity']]) ?>
-        &middot; <a href="/job#scope"><?= te('See the scope') ?></a>
-      <?php else: ?>
-        <span class="tag amber"><?= te('Not on the scope of work') ?></span>
-        <?= te('No line of the agreement backs this requisition, so it has no agreed rate behind it.') ?>
-      <?php endif; ?>
-    </p>
-
-    <?php if (! empty($requisition['degree'])): ?>
-      <p class="small m0 mb"><strong><?= te('Degree required') ?>:</strong> <?= e($requisition['degree']) ?></p>
-    <?php endif; ?>
-
-    <div class="application-qr qr-box" data-vacancy="<?= (int)$requisition['id'] ?>"
-        ></div>
-
-    <?php
-    $asked  = max(1, (int) ($requisition['openings'] ?? 1));
-    $placed = (int) ($requisition['placed'] ?? 0);
-    $left   = max(0, $asked - $placed);
-    ?>
-
-    <p class="small mt">
-      <strong><?= $left ?></strong>
-      <?= te('of :asked still to place', ['asked' => $asked]) ?>
-      <span class="muted">
-        &middot; <?= te(':count applications received', ['count' => (int) $requisition['applications']]) ?>
-      </span>
-    </p>
-
-    <div class="headcount-bar mt-s">
-      <span style="width:<?= (int) round($placed / $asked * 100) ?>%"></span>
-    </div>
-    <p class="small">
-      <a href="/apply?id=<?= (int)$requisition['id'] ?>" target="_blank" rel="noopener">
-        <?= te('Open the public application page') ?>
-      </a>
-      &middot; <a href="/poster?id=<?= (int) $requisition['id'] ?>" target="_blank" rel="noopener" data-poster="<?= (int) $requisition['id'] ?>"><?= te('Print the job poster with its QR code') ?></a>
-    </p>
-
-    <?php if (can('admin')): ?>
-    <div class="requisition-actions">
-      <form method="post">
-        <?= csrf_field() ?>
-        <input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>">
-        <input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
-        <button class="btn ghost sm" type="submit">
-          <?= $requisition['is_open'] ? te('Close this requisition') : te('Reopen it') ?>
-        </button>
-      </form>
-
-      <?php if ((int) $requisition['applications'] === 0): ?>
-      <form method="post">
-        <?= csrf_field() ?>
-        <input type="hidden" name="do" value="remove">
-        <input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
-        <button class="btn ghost sm" type="submit"><?= te('Remove') ?></button>
-      </form>
-      <?php endif; ?>
-    </div>
-    <?php else: ?>
-      <p class="hint"><?= te('An administrator opens and closes requisitions.') ?></p>
-    <?php endif; ?>
-  </article>
-<?php endforeach; ?>
-<?php if (! $requisitions): ?>
-  <div class="card"><div class="empty">
-    <?= te('No requisitions on this project yet. Create one above and its QR code appears here.') ?>
-  </div></div>
-<?php endif; ?>
-</div>
+</details>
 
 <script src="/assets/qrcode.min.js"></script>
 <?php // P5-M46: the site's configured address, not the one the office browses from, so a QR code always opens the real page. ?>
 <script>document.querySelectorAll('.application-qr').forEach(el=>new QRCode(el,{text:<?= json_encode(rtrim((string) ($config['app_url'] ?? ''), '/'), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) ?>+'/apply?id='+el.dataset.vacancy,width:192,height:192,correctLevel:QRCode.CorrectLevel.M}));</script>
+<script src="/assets/fold.js"></script>

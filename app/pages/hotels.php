@@ -55,9 +55,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $blockEnds ?: null,
         ]);
 
-        log_activity('added a hotel', 'hotel', (int) db()->lastInsertId(), $name);
+        $newHotel = (int) db()->lastInsertId();
+        log_activity('added a hotel', 'hotel', $newHotel, $name);
+        // P5-M76: a hotel added while a project is open is that project's, with the block typed.
+        if ($jobId) {
+            require_once __DIR__ . '/../project-hotels.php';
+            ph_link($jobId, $newHotel, $_POST);
+        }
         flash(t(':name added.', ['name'=>$name]));
-        redirect('/hotels');
+        redirect('/hotels#project-hotels');
+    }
+
+    // ── P5-M76: the project's hotels - several, each with its own block, dates, cost and price to the client ──
+    if (in_array($do, ['link_hotel', 'update_link', 'unlink_hotel'], true)) {
+        require_once __DIR__ . '/../project-hotels.php';
+        $hid = (int) ($_POST['hotel_id'] ?? 0);
+        if (! $jobId || ! val('SELECT id FROM hotels WHERE id = ?', [$hid])) {
+            refuse(422, t('Choose a hotel, with a project open.'), '/hotels#project-hotels');
+        }
+        if ($do === 'unlink_hotel') {
+            $why = ph_unlink($jobId, $hid);
+        } else {
+            $why = ph_link($jobId, $hid, $_POST);
+        }
+        if ($why) {
+            refuse(422, $why, '/hotels#project-hotels');
+        }
+        log_activity($do === 'unlink_hotel' ? 'removed a hotel from the project' : 'set a hotel of the project', 'job', $jobId, (string) val('SELECT name FROM hotels WHERE id = ?', [$hid]));
+        flash($do === 'unlink_hotel' ? t('Hotel removed from this project.') : t('Saved: the hotel of this project and its block.'));
+        redirect('/hotels#project-hotels');
     }
 
     if ($do === 'book') {
@@ -87,10 +113,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Checked inside the lock: two recruiters booking the last room at
         // the same moment would otherwise both be told there was one.
-        $heldBlock = val('SELECT rooms_held FROM hotels WHERE id = ?', [$hid]);
+        // P5-M76: the block held for this project at this hotel when it has one; the hotel's own otherwise.
+        $link = row('SELECT rooms_held, nightly_rate FROM job_hotels WHERE job_id = ? AND hotel_id = ?', [$jobId, $hid]);
+        if ($link && $link['nightly_rate'] !== null) {
+            $h['nightly_rate'] = $link['nightly_rate'];
+        }
+        $heldBlock = $link ? $link['rooms_held'] : val('SELECT rooms_held FROM hotels WHERE id = ?', [$hid]);
 
         if ($heldBlock !== null) {
-            $taken = (int) val('SELECT COUNT(*) FROM lodging
+            $taken = $link
+                ? (int) val("SELECT COUNT(*) FROM lodging l JOIN placements p ON p.id = l.placement_id
+                             WHERE l.hotel_id = ? AND p.job_id = ? AND l.placement_id <> ? AND l.status IN ('held','booked','checked_in')", [$hid, $jobId, $pid])
+                : (int) val('SELECT COUNT(*) FROM lodging
                                 WHERE hotel_id = ? AND status IN (?,?,?)',
                                [$hid, 'held', 'booked', 'checked_in']);
 
@@ -186,5 +220,11 @@ $needBed = rows(
 
 $sharing = array_values(array_filter($booked, static fn ($b) => (int) $b['private_room'] === 0));
 
+// P5-M76: the hotels of this project, each with its block and how much of it is taken by this project's crew.
+require_once __DIR__ . '/../project-hotels.php';
+$projectHotels = $jobId ? ph_hotels($jobId) : [];
+$linkedIds = array_map('intval', array_column($projectHotels, 'hotel_id'));
+$otherHotels = array_values(array_filter($hotels, static fn ($h) => ! in_array((int) $h['id'], $linkedIds, true)));
+
 $pageTitle = t('Hotels').' · '.$config['app_name'];
-render('hotels', compact('job','hotels','booked','needBed','sharing'));
+render('hotels', compact('job','hotels','booked','needBed','sharing','projectHotels','otherHotels'));

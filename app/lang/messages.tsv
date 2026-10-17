@@ -5262,3 +5262,70 @@ Only a screen of the menu can be bookmarked.	Seul un écran du menu peut être m
 + New project	+ Nouveau projet	+ Nuevo proyecto
 + Add a client	+ Ajouter un client	+ Añadir un cliente
 + Add a contact	+ Ajouter un contact	+ Añadir un contacto
+The project says what the work is	Le projet dit en quoi consiste le travail	El proyecto dice en qué consiste el trabajo
++ Add a requisition	+ Ajouter une réquisition	+ Añadir una requisición
+No requisitions on this project yet. Add one: its link and QR code are ready at once.	Aucune réquisition sur ce projet. Ajoutez-en une : son lien et son QR code sont prêts tout de suite.	Aún no hay requisiciones en este proyecto. Añada una: su enlace y su código QR están listos al instante.
+Filled	Pourvu	Cubierto
+Link copied	Lien copié	Enlace copiado
+Copy link	Copier le lien	Copiar el enlace
+QR code & more	QR code et plus	Código QR y más
+Create the requisition	Créer la réquisition	Crear la requisición
+/h	/h	/h
+Your clients, their contacts and billing details.	Vos clients, leurs contacts et leurs informations de facturation.	Sus clientes, sus contactos y sus datos de facturación.
+How each approved week is invoiced to the client.	Comment chaque semaine approuvée est facturée au client.	Cómo se factura al cliente cada semana aprobada.
+The client's contacts, the main contact and who receives invoices.	Les contacts du client, le contact principal et qui reçoit les factures.	Los contactos del cliente, el contacto principal y quién recibe las facturas.
+More contacts can be added once the client is created.	D'autres contacts peuvent être ajoutés une fois le client créé.	Se pueden añadir más contactos una vez creado el cliente.
+Project details and scope of work.	Détails du projet et périmètre de travail.	Detalles del proyecto y alcance del trabajo.
+Select the client contacts for this project and the person in charge.	Choisissez les contacts du client pour ce projet et le responsable.	Elija los contactos del cliente para este proyecto y el responsable.
+Shown to applicants.	Visible par les candidats.	Visible para los candidatos.
+Your active and planned projects.	Vos projets en cours et prévus.	Sus proyectos activos y previstos.
+Provided to the crew and billed to the client.	Fourni à l'équipe et facturé au client.	Proporcionado al equipo y facturado al cliente.
+Default: overtime after 40 hours at 1.5x.	Par défaut : overtime après 40 heures à 1,5x.	Por defecto: horas extra después de 40 horas a 1,5x.
+Hotel, travel, per diem and transport are billed under	Hôtel, voyage, per diem et transport sont facturés dans	Hotel, viaje, viáticos y transporte se facturan en
+At cost: each booking is billed at its own nightly rate.	Au coût : chaque réservation est facturée à son prix par nuit.	Al costo: cada reserva se factura a su tarifa por noche.
+City, state, ZIP and position are filled from the address.	Ville, État, ZIP et position sont remplis à partir de l'adresse.	Ciudad, estado, ZIP y posición se completan a partir de la dirección.
+In metres (300 m is about 1,000 ft). Clock-ins outside it are flagged to the supervisor.	En mètres (300 m font environ 1 000 pieds). Les pointages en dehors sont signalés au superviseur.	En metros (300 m son unos 1.000 pies). Los fichajes fuera se señalan al supervisor.
+One line per trade, with its own rates.	Une ligne par métier, avec ses propres taux.	Una línea por oficio, con sus propias tarifas.
+Leave a rate blank if it is not agreed yet.	Laissez un taux vide s'il n'est pas encore convenu.	Deje una tarifa en blanco si aún no está acordada.
+Shift times and bus departures.	Horaires des shifts et départs des bus.	Horarios de turnos y salidas de autobús.
+Internal only. Not shown to applicants or clients.	Interne uniquement. Non visible par les candidats ni les clients.	Solo interno. No visible para candidatos ni clientes.
+Headcount from the scope of work: :n.	Effectif selon le périmètre de travail : :n.	Personal según el alcance del trabajo: :n.
+Requisitions	Réquisitions	Requisiciones
+Openings for the current project.	Postes ouverts pour le projet en cours.	Vacantes del proyecto actual.
+Fill in only what was agreed differently for this requisition.	Ne remplissez que ce qui a été convenu autrement pour cette réquisition.	Rellene solo lo que se acordó de otra forma para esta requisición.
++ Add a hotel to this project	+ Ajouter un hôtel à ce projet	+ Añadir un hotel a este proyecto
+No hotel on this project yet.	Aucun hôtel sur ce projet.	Aún no hay hoteles en este proyecto.
+Cost per night	Coût par nuit	Costo por noche
+Billed per night	Facturé par nuit	Facturado por noche
+Remove :hotel from this project?	Retirer :hotel de ce projet ?	¿Quitar :hotel de este proyecto?
+Remove from this project	Retirer de ce projet	Quitar de este proyecto
+Add a hotel to this project	Ajouter un hôtel à ce projet	Añadir un hotel a este proyecto
+A hotel already in the directory	Un hôtel déjà dans l'annuaire	Un hotel ya en el directorio
+Add to this project	Ajouter à ce projet	Añadir a este proyecto
+Or a new hotel	Ou un nouvel hôtel	O un hotel nuevo
+For this project	Pour ce projet	Para este proyecto
+This project's hotels	Hôtels de ce projet	Hoteles de este proyecto
+Other hotels	Autres hôtels	Otros hoteles
+All hotels	Tous les hôtels	Todos los hoteles
+Choose a hotel, with a project open.	Choisissez un hôtel, avec un projet ouvert.	Elija un hotel, con un proyecto abierto.
+Hotel removed from this project.	Hôtel retiré de ce projet.	Hotel quitado de este proyecto.
+Saved: the hotel of this project and its block.	Enregistré : l'hôtel de ce projet et son bloc.	Guardado: el hotel de este proyecto y su bloque.
+A rate per night is in dollars, up to 5,000.	Un prix par nuit est en dollars, jusqu'à 5 000.	Una tarifa por noche es en dólares, hasta 5.000.
+:n of this project's crew are already in this hotel: the block cannot be smaller.	:n personnes de ce projet sont déjà dans cet hôtel : le bloc ne peut pas être plus petit.	:n personas de este proyecto ya están en este hotel: el bloque no puede ser menor.
+:n of this project's crew are booked in this hotel. Move them first.	:n personnes de ce projet sont réservées dans cet hôtel. Déplacez-les d'abord.	:n personas de este proyecto tienen reserva en este hotel. Muévalas primero.
+Sites	Sites	Sitios
+No site yet. The site of each project is kept here.	Aucun site pour l'instant. Le site de chaque projet est gardé ici.	Aún no hay sitios. El sitio de cada proyecto se guarda aquí.
+New project here	Nouveau projet ici	Nuevo proyecto aquí
+Remove this site from the client? Its projects keep their site.	Retirer ce site du client ? Ses projets gardent leur site.	¿Quitar este sitio del cliente? Sus proyectos conservan su sitio.
+Site removed from the client.	Site retiré du client.	Sitio quitado del cliente.
+A site of this client	Un site de ce client	Un sitio de este cliente
+A new site	Un nouveau site	Un sitio nuevo
+Pay, bill rate, per diem and guarantee come from the line of the scope.	Le taux payé, le taux facturé, le per diem et la garantie viennent de la ligne du périmètre.	La tarifa pagada, la facturada, los viáticos y la garantía vienen de la línea del alcance.
+Keep the rates of the line	Garder les taux de la ligne	Mantener las tarifas de la línea
+The price per night is set on each of the project's hotels.	Le prix par nuit se règle sur chaque hôtel du projet.	El precio por noche se fija en cada hotel del proyecto.
+the rate agreed for each hotel	le prix convenu pour chaque hôtel	la tarifa acordada para cada hotel
+Hotel nights, at the rate agreed for each hotel	Nuits d'hôtel, au prix convenu pour chaque hôtel	Noches de hotel, a la tarifa acordada para cada hotel
+:n hotel on this project	:n hôtel sur ce projet	:n hotel en este proyecto
+:n hotels on this project	:n hôtels sur ce projet	:n hoteles en este proyecto
+:n hotel	:n hôtel	:n hotel
+:n hotels	:n hôtels	:n hoteles

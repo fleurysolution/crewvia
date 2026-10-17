@@ -179,3 +179,41 @@ status, body = admin.get('/projects?client_id=%d' % cid)
 check('Coming from a client, the new project form is open', re.search(r'id="new-project" data-fold-forget open>', body))
 status, body = admin.get('/clients')
 check('Clients shows the clients first; adding one is a button', re.search(r'<details class="card fold" id="new" data-fold-forget>', body) and 'data-new-client' in body)
+
+# P5-M74: requisitions one per line, the QR code on demand; a form opened by a button has a Cancel.
+status, body = admin.get('/requisitions')
+check('With no requisition yet, the form to create one is open, with Cancel', re.search(r'<details class="card fold" id="new-requisition" data-fold-forget open>', body)
+      and 'data-fold-close' in body and 'Create the requisition' in body)
+admin.post('/requisitions', {'do': 'create', 'order_line_id': one("SELECT id FROM job_order_lines WHERE job_id = %d AND role_title = 'Pipefitter'" % int(job['id']))['id'],
+                             'title': 'P5-M74 Pipefitter', 'discipline': 'mechanical', 'openings': '2', 'description': 'Pipefitters for the plant.'}, '/requisitions')
+status, body = admin.get('/requisitions')
+vac = one("SELECT id FROM vacancies WHERE title = 'P5-M74 Pipefitter'")
+check('A requisition is one line: its trade, its pay, how far it is filled, Copy link and the QR code on demand', vac is not None
+      and re.search(r'<tr data-requisition="%s">' % vac['id'], body) and 'data-copy-link="' in body and '/apply?id=%s"' % vac['id'] in body
+      and '<details class="req-more' in body and '<details class="card fold" id="new-requisition" data-fold-forget>' in body, vac)
+for page in ('/job', '/projects', '/clients?id=%d' % cid):
+    status, body = admin.get(page)
+    check('Cancel closes the form opened by a button on ' + page.split('?')[0], 'data-fold-close' in body)
+
+# P5-M76: the hotels of a project, each with its block.
+admin.post('/hotels', {'do': 'add_hotel', 'name': 'P5-M76 Inn', 'city': 'Gary', 'state': 'IN', 'nightly_rate': '119', 'client_night_rate': '140', 'rooms_held': '20', 'block_starts': '2026-10-20', 'block_ends': '2026-12-20'}, '/hotels')
+inn = one("SELECT id FROM hotels WHERE name = 'P5-M76 Inn'")
+jh = one('SELECT * FROM job_hotels WHERE job_id = %d AND hotel_id = %s' % (int(job['id']), inn['id'])) if inn else None
+check('A hotel added with a project open is that project\'s, with its block, dates, cost and price per night', jh and int(jh['rooms_held']) == 20 and float(jh['client_night_rate']) == 140 and jh['block_starts'] == '2026-10-20', jh)
+status, body = admin.get('/hotels')
+check('Hotels lists the project\'s hotels with rooms held, taken and left', re.search(r'<tr data-project-hotel="%s">' % inn['id'], body) and 'id="link-hotel"' in body and 'id="hotel-directory"' in body)
+admin.post('/hotels', {'do': 'update_link', 'hotel_id': inn['id'], 'rooms_held': '25', 'nightly_rate': '115', 'client_night_rate': ''}, '/hotels')
+jh = one('SELECT rooms_held, nightly_rate, client_night_rate FROM job_hotels WHERE job_id = %d AND hotel_id = %s' % (int(job['id']), inn['id']))
+check('The project\'s block is changed', int(jh['rooms_held']) == 25 and float(jh['nightly_rate']) == 115 and jh['client_night_rate'] is None, jh)
+admin.post('/hotels', {'do': 'unlink_hotel', 'hotel_id': inn['id']}, '/hotels')
+check('A hotel nobody is booked in comes off the project', one('SELECT COUNT(*) n FROM job_hotels WHERE job_id = %d AND hotel_id = %s' % (int(job['id']), inn['id']))['n'] in (0, '0'))
+
+# P5-M77: the site of each project is kept on its client, and offered for its next project.
+site = one("SELECT * FROM client_sites WHERE client_id = %d AND address = '1 N Broadway'" % cid)
+check('The project\'s site is kept on its client', site is not None and site['city'] == 'Gary', site)
+status, body = admin.get('/projects?client_id=%d' % cid)
+check('A new project for that client is offered its sites', 'id="p-saved-site"' in body and '1 N Broadway' in body and 'client-sites.js' in body)
+status, body = admin.get('/clients?id=%d' % cid)
+check('The client lists its sites, with a new project there', re.search(r'<tr data-client-site="%s">' % site['id'], body) and 'site=%s#new-project' % site['id'] in body)
+admin.post('/clients', {'do': 'site_remove', 'client_id': cid, 'site_id': site['id']}, '/clients?id=%d' % cid)
+check('A site is taken off the client', not sql('SELECT id FROM client_sites WHERE id = %s' % site['id']))

@@ -388,3 +388,12 @@ details.fold[open] .fold-note { display: none; }
 .nav-mark-form button { background: none; border: 0; color: #a9bed5; font-size: 12px; padding: 4px 12px; cursor: pointer; text-align: left; }
 .nav-mark-form button:hover { color: #fff; text-decoration: underline; }
 .nav-mark-hint { display: block; color: #a9bed5; padding: 4px 12px; font-size: 12px; }
+/* P5-M74: requisitions one per line; the QR code and actions in a small panel. */
+.req-lines td { vertical-align: middle; }
+.req-fill { min-width: 140px; }
+.req-fill .headcount-bar { margin: 0 0 4px; }
+.req-more { position: relative; }
+.req-more > summary { list-style: none; }
+.req-more > summary::-webkit-details-marker { display: none; }
+.req-pop { position: fixed; z-index: 30; width: 250px; background: #fff; border: 1px solid var(--line, #e9ecef); border-radius: 10px; padding: 12px; box-shadow: 0 8px 24px rgba(13,33,55,.15); text-align: left; white-space: normal; }
+.req-pop .application-qr img, .req-pop .application-qr canvas { width: 160px !important; height: 160px !important; }

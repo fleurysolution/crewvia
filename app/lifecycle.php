@@ -109,12 +109,13 @@ function lifecycle_signals(array $job): array
     return match ($stage) {
         'planning' => [
             lifecycle_signal(
-                'The agreement says what the work is',
+                'The project says what the work is',
                 trim((string) ($job['description'] ?? '')) !== '',
                 trim((string) ($job['description'] ?? '')) !== ''
                     ? 'Described in ' . str_word_count((string) $job['description']) . ' words'
-                    : 'No description of the work on the agreement',
-                '/job'),
+                    : 'No description of the work on the project',
+                // P5-M74: Fix opens the folded project form at the description (it used to reload the page).
+                '/job#j-desc'),
 
             lifecycle_signal(
                 'A scope of work is written',

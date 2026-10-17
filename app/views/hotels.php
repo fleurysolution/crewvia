@@ -18,6 +18,103 @@
 </div>
 <?php endif; ?>
 
+
+<?php // P5-M76: the hotels of this project, each with its block of rooms, its dates, its cost and its price to the client. ?>
+<div class="card tight" id="project-hotels">
+  <div class="card-bar flex gap-s">
+    <h2 class="m0"><?= tn(count($projectHotels), ':n hotel on this project', ':n hotels on this project') ?></h2>
+    <?php if ($job): ?><span class="ml-auto"><a class="btn sm" href="#link-hotel" data-link-hotel><?= te('+ Add a hotel to this project') ?></a></span><?php endif; ?>
+  </div>
+  <?php if (! $projectHotels): ?>
+    <div class="empty"><?= te('No hotel on this project yet.') ?></div>
+  <?php else: ?>
+  <div class="scroll"><table>
+    <thead><tr><th><?= te('Hotel') ?></th><th class="num"><?= te('Rooms held') ?></th><th class="num"><?= te('Taken') ?></th><th class="num"><?= te('Left') ?></th><th><?= te('Held for') ?></th><th class="num"><?= te('Cost per night') ?></th><th class="num"><?= te('Billed per night') ?></th><th></th></tr></thead>
+    <tbody>
+    <?php foreach ($projectHotels as $ph): $left = $ph['rooms_held'] === null ? null : max(0, (int) $ph['rooms_held'] - (int) $ph['taken']); ?>
+      <tr data-project-hotel="<?= (int) $ph['hotel_id'] ?>">
+        <td><strong><?= e($ph['name']) ?></strong><div class="small muted"><?= e(trim(($ph['city'] ?? '') . ' ' . ($ph['state'] ?? ''))) ?><?= $ph['phone'] ? ' &middot; ' . e($ph['phone']) : '' ?></div></td>
+        <td class="num"><?= $ph['rooms_held'] === null ? '&mdash;' : (int) $ph['rooms_held'] ?></td>
+        <td class="num"><?= (int) $ph['taken'] ?></td>
+        <td class="num"><?= $left === null ? '<span class="muted small">' . te('no block') . '</span>' : '<span class="tag ' . ($left > 0 ? 'green' : 'red') . '">' . $left . '</span>' ?></td>
+        <td class="small muted"><?= $ph['block_starts'] || $ph['block_ends'] ? ($ph['block_starts'] ? e(d($ph['block_starts'])) : '&mdash;') . ' &rarr; ' . ($ph['block_ends'] ? e(d($ph['block_ends'])) : '&mdash;') : '&mdash;' ?></td>
+        <td class="num small"><?= ($r = $ph['nightly_rate'] ?? $ph['hotel_rate']) !== null ? e(money((float) $r)) : '&mdash;' ?></td>
+        <td class="num small"><?= $ph['client_night_rate'] !== null ? e(money((float) $ph['client_night_rate'])) : '&mdash;' ?></td>
+        <td class="right nowrap">
+          <details class="req-more inline-block"><summary class="btn ghost sm"><?= te('Edit') ?></summary>
+            <div class="req-pop" style="width:320px">
+              <form method="post" action="/hotels"><?= csrf_field() ?><input type="hidden" name="do" value="update_link"><input type="hidden" name="hotel_id" value="<?= (int) $ph['hotel_id'] ?>">
+                <div class="grid g2">
+      <div class="in-s"><label><?= te('Rooms held') ?></label><input name="rooms_held" type="number" min="0" max="2000" value="<?= $ph['rooms_held'] === null ? '' : (int) $ph['rooms_held'] ?>" placeholder="20"></div>
+      <div><label><?= te('Held from') ?></label><input name="block_starts" type="date" value="<?= e((string) $ph['block_starts']) ?>"></div>
+      <div><label><?= te('Held until') ?></label><input name="block_ends" type="date" value="<?= e((string) $ph['block_ends']) ?>"></div>
+      <div class="in-s"><label><?= te('Cost per night') ?></label><input name="nightly_rate" type="number" min="0" step="0.01" value="<?= $ph['nightly_rate'] === null ? '' : e((string) (float) $ph['nightly_rate']) ?>" placeholder="129.00"></div>
+      <div class="in-s"><label><?= te('Billed per night') ?></label><input name="client_night_rate" type="number" min="0" step="0.01" value="<?= $ph['client_night_rate'] === null ? '' : e((string) (float) $ph['client_night_rate']) ?>" placeholder="<?= te('optional') ?>"></div>
+                </div>
+                <button class="btn sm mt-s"><?= te('Save') ?></button> <button type="button" class="btn ghost sm mt-s" data-fold-close><?= te('Cancel') ?></button>
+              </form>
+              <?php if (! (int) $ph['taken']): ?>
+              <form method="post" action="/hotels" class="mt-s" onsubmit="return confirm(this.dataset.ask)" data-ask="<?= te('Remove :hotel from this project?', ['hotel' => $ph['name']]) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="unlink_hotel"><input type="hidden" name="hotel_id" value="<?= (int) $ph['hotel_id'] ?>"><button class="btn ghost sm"><?= te('Remove from this project') ?></button></form>
+              <?php endif; ?>
+            </div>
+          </details>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table></div>
+  <?php endif; ?>
+</div>
+
+<?php if ($job): ?>
+<details class="card fold" id="link-hotel" data-fold-forget<?= ! $projectHotels && ! $hotels ? ' open' : '' ?>>
+  <summary><h2><?= te('Add a hotel to this project') ?></h2></summary>
+  <?php if ($otherHotels): ?>
+  <form method="post" action="/hotels" class="mb-l"><?= csrf_field() ?><input type="hidden" name="do" value="link_hotel">
+    <div class="row">
+      <div class="f2"><label for="lh-hotel"><?= te('A hotel already in the directory') ?></label><select id="lh-hotel" name="hotel_id" required><option value=""><?= te('Choose') ?></option>
+        <?php foreach ($otherHotels as $h): ?><option value="<?= (int) $h['id'] ?>"><?= e($h['name'] . ($h['city'] ? ' · ' . $h['city'] . ', ' . $h['state'] : '')) ?></option><?php endforeach; ?></select></div>
+      <div class="in-s"><label><?= te('Rooms held') ?></label><input name="rooms_held" type="number" min="0" max="2000" value="" placeholder="20"></div>
+      <div><label><?= te('Held from') ?></label><input name="block_starts" type="date" value=""></div>
+      <div><label><?= te('Held until') ?></label><input name="block_ends" type="date" value=""></div>
+      <div class="in-s"><label><?= te('Cost per night') ?></label><input name="nightly_rate" type="number" min="0" step="0.01" value="" placeholder="129.00"></div>
+      <div class="in-s"><label><?= te('Billed per night') ?></label><input name="client_night_rate" type="number" min="0" step="0.01" value="" placeholder="<?= te('optional') ?>"></div>
+    </div>
+    <button class="btn mt-s"><?= te('Add to this project') ?></button> <button type="button" class="btn ghost mt-s" data-fold-close><?= te('Cancel') ?></button>
+  </form>
+  <h3><?= te('Or a new hotel') ?></h3>
+  <?php endif; ?>
+  <form method="post" action="/hotels">
+    <?= csrf_field() ?>
+    <input type="hidden" name="do" value="add_hotel">
+    <div class="row">
+      <div class="f2"><label><?= te('Name') ?></label><input name="name" required placeholder="<?= te('Hampton Inn') ?>"></div>
+      <div class="f2"><label><?= te('Address') ?></label><input name="address"></div>
+      <div><label><?= te('City') ?></label><input name="city"></div>
+      <div class="in-xs"><label><?= te('State') ?></label><input name="state" maxlength="2"></div>
+    </div>
+    <div class="row mt">
+      <div><label><?= te('Phone') ?></label><input name="phone"></div>
+      <div><label><?= te('Cost per night') ?></label><input name="nightly_rate" type="number" step="0.01" placeholder="129.00"></div>
+      <div><label><?= te('Billed per night') ?></label><input name="client_night_rate" type="number" min="0" step="0.01" placeholder="<?= te('optional') ?>"></div>
+      <div class="f2"><label><?= te('Who we book through') ?></label><input name="confirmation_contact"></div>
+    </div>
+    <div class="row mt">
+      <div>
+        <label for="h-held"><?= te('Rooms held') ?></label>
+        <input id="h-held" name="rooms_held" type="number" min="0" max="2000" placeholder="20">
+        <span class="hint"><?= te('For this project') ?></span>
+      </div>
+      <div><label for="h-from"><?= te('Held from') ?></label>
+        <input id="h-from" name="block_starts" type="date"></div>
+      <div><label for="h-to"><?= te('Held until') ?></label>
+        <input id="h-to" name="block_ends" type="date"></div>
+      <div class="row tight"><button class="btn" type="submit"><?= te('Add hotel') ?></button> <button type="button" class="btn ghost" data-fold-close><?= te('Cancel') ?></button></div>
+    </div>
+  </form>
+</details>
+<?php endif; ?>
+
 <?php if ($needBed): ?>
 <div class="card tight">
   <div class="card-bar">
@@ -54,9 +151,13 @@
               <label for="h-hotel-<?= (int) $n['id'] ?>"><?= te('Hotel') ?></label>
               <select id="h-hotel-<?= (int) $n['id'] ?>" name="hotel_id" required>
                 <option value=""><?= te('Choose') ?></option>
-                <?php foreach ($hotels as $h): ?>
+                <?php if ($projectHotels): ?><optgroup label="<?= te('This project\'s hotels') ?>">
+                  <?php foreach ($projectHotels as $h): ?><option value="<?= (int) $h['hotel_id'] ?>"><?= e($h['name']) ?><?= $h['rooms_held'] !== null ? ' (' . te(':n left', ['n' => max(0, (int) $h['rooms_held'] - (int) $h['taken'])]) . ')' : '' ?></option><?php endforeach; ?>
+                </optgroup><optgroup label="<?= te('Other hotels') ?>"><?php endif; ?>
+                <?php foreach ($projectHotels ? $otherHotels : $hotels as $h): ?>
                   <option value="<?= (int) $h['id'] ?>"><?= e($h['name']) ?></option>
                 <?php endforeach; ?>
+                <?php if ($projectHotels): ?></optgroup><?php endif; ?>
               </select>
             </div>
 
@@ -136,39 +237,11 @@
   <?php endif; ?>
 </div>
 
-<div class="card">
-  <h2><?= te('Add a hotel') ?></h2>
-  <form method="post" action="/hotels">
-    <?= csrf_field() ?>
-    <input type="hidden" name="do" value="add_hotel">
-    <div class="row">
-      <div class="f2"><label><?= te('Name') ?></label><input name="name" required placeholder="<?= te('Hampton Inn') ?>"></div>
-      <div class="f2"><label><?= te('Address') ?></label><input name="address"></div>
-      <div><label><?= te('City') ?></label><input name="city"></div>
-      <div class="in-xs"><label><?= te('State') ?></label><input name="state" maxlength="2"></div>
-    </div>
-    <div class="row mt">
-      <div><label><?= te('Phone') ?></label><input name="phone"></div>
-      <div><label><?= te('Nightly rate') ?></label><input name="nightly_rate" type="number" step="0.01" placeholder="129.00"></div>
-      <div class="f2"><label><?= te('Who we book through') ?></label><input name="confirmation_contact"></div>
-    </div>
-    <div class="row mt">
-      <div>
-        <label for="h-held"><?= te('Rooms held') ?></label>
-        <input id="h-held" name="rooms_held" type="number" min="0" max="2000" placeholder="20">
-        <span class="hint"><?= te('How many the agency has blocked here') ?></span>
-      </div>
-      <div><label for="h-from"><?= te('Held from') ?></label>
-        <input id="h-from" name="block_starts" type="date"></div>
-      <div><label for="h-to"><?= te('Held until') ?></label>
-        <input id="h-to" name="block_ends" type="date"></div>
-      <div class="row tight"><button class="btn" type="submit"><?= te('Add hotel') ?></button></div>
-    </div>
-  </form>
-</div>
+
 
 <?php if ($hotels): ?>
-<div class="card tight">
+<details class="card fold tight" id="hotel-directory">
+  <summary><h2><?= te('All hotels') ?></h2><span class="fold-note"><?= tn(count($hotels), ':n hotel', ':n hotels') ?></span></summary>
   <div class="scroll">
   <table>
     <thead><tr><th><?= te('Hotel') ?></th><th><?= te('Where') ?></th><th><?= te('Phone') ?></th>
@@ -208,5 +281,6 @@
     </tbody>
   </table>
   </div>
-</div>
+</details>
 <?php endif; ?>
+<script src="/assets/fold.js"></script>

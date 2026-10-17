@@ -2843,4 +2843,59 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Menu: Bookmarks and Recent at the top of the left menu, for each person.' . PHP_EOL;
 }
 
+// ── P5-M76: the hotels of each project - several, each with its block, dates, cost and price billed per night ──
+// Reversed by install/rollback/p5-m76.sql. The hotels a project's crew already sleeps in become its hotels.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='job_hotels'")) {
+    q("CREATE TABLE job_hotels (
+        job_id INT UNSIGNED NOT NULL,
+        hotel_id INT UNSIGNED NOT NULL,
+        rooms_held SMALLINT UNSIGNED NULL,
+        block_starts DATE NULL,
+        block_ends DATE NULL,
+        nightly_rate DECIMAL(10,2) NULL,
+        client_night_rate DECIMAL(10,2) NULL,
+        notes VARCHAR(500) NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (job_id, hotel_id),
+        FOREIGN KEY (job_id) REFERENCES jobs(id),
+        FOREIGN KEY (hotel_id) REFERENCES hotels(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    $linked = q("INSERT IGNORE INTO job_hotels (job_id, hotel_id, rooms_held, block_starts, block_ends, nightly_rate)
+                 SELECT DISTINCT p.job_id, l.hotel_id, h.rooms_held, h.block_starts, h.block_ends, h.nightly_rate
+                 FROM lodging l JOIN placements p ON p.id = l.placement_id JOIN hotels h ON h.id = l.hotel_id")->rowCount();
+    echo 'Project hotels: each project lists its hotels, each with its block of rooms, dates, cost and price billed per night (Hotels). ' . $linked . ' hotel(s) linked to the projects already lodged there.' . PHP_EOL;
+}
+// The hotel billed at the rate agreed for each of the project's hotels.
+if (val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='job_billing_terms'")
+    && ! str_contains((string) val("SELECT COLUMN_TYPE FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='job_billing_terms' AND column_name='lodging_mode'"), 'hotel_rate')) {
+    q("ALTER TABLE job_billing_terms MODIFY lodging_mode ENUM('none','cost','cost_plus','flat_night','hotel_rate') NOT NULL DEFAULT 'none'");
+}
+
+// ── P5-M77: each client's sites, kept from its projects and chosen for the next one ──
+// Reversed by install/rollback/p5-m77.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='client_sites'")) {
+    q("CREATE TABLE client_sites (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        client_id INT UNSIGNED NOT NULL,
+        name VARCHAR(190) NULL,
+        address VARCHAR(190) NULL,
+        city VARCHAR(120) NULL,
+        state VARCHAR(40) NULL,
+        zip VARCHAR(10) NULL,
+        lat DECIMAL(9,6) NULL,
+        lng DECIMAL(9,6) NULL,
+        radius_m SMALLINT UNSIGNED NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY (client_id),
+        FOREIGN KEY (client_id) REFERENCES clients(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    require_once __DIR__ . '/../app/client-sites.php';
+    $kept = 0;
+    foreach (rows("SELECT id FROM jobs WHERE COALESCE(NULLIF(TRIM(site_address), ''), NULLIF(TRIM(site_name), ''), NULLIF(TRIM(site_city), '')) IS NOT NULL ORDER BY id") as $kj) {
+        cs_remember((int) $kj['id']);
+        $kept++;
+    }
+    echo 'Client sites: the site of each project is kept on its client and chosen for the next project (Projects, Clients). ' . (int) val('SELECT COUNT(*) FROM client_sites') . ' site(s) kept from ' . $kept . ' project(s).' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -383,6 +383,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
     }
 
     db()->commit();
+    // P5-M77: the site is kept on the client, for its next project.
+    require_once __DIR__ . '/../client-sites.php';
+    cs_remember($jobId);
 
     if ($strike !== $was) {
         // The strike switch changes what every line guarantees, so the figure

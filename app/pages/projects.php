@@ -87,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         q('UPDATE jobs SET site_lat = ?, site_lng = ?, site_radius_m = ? WHERE id = ?', [round((float) $lat, 6), round((float) $lng, 6), max(50, min(5000, (int) ($_POST['site_radius_m'] ?? 300) ?: 300)), $_SESSION['job_id']]);
     }
     db()->commit();
+    // P5-M77: the site is kept on the client, for its next project.
+    require_once __DIR__ . '/../client-sites.php';
+    cs_remember((int) $_SESSION['job_id']);
     // P5-M27: the usual two, day and night, each with its bus; changed on the agreement.
     require_once __DIR__ . '/../shifts.php';
     shifts_seed_defaults((int) $_SESSION['job_id']);
@@ -116,4 +119,6 @@ $taskProgress = pt_progress_all();
 
 $clientChoices = rows('SELECT id, name FROM clients ORDER BY name LIMIT 1000');
 $chosenClient = (int) ($_GET['client_id'] ?? 0);
-render('projects', compact('projects', 'taskProgress', 'clientChoices', 'chosenClient'));
+require_once __DIR__ . '/../client-sites.php';
+$clientSites = cs_by_client();
+render('projects', compact('projects', 'taskProgress', 'clientChoices', 'chosenClient', 'clientSites'));
