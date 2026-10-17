@@ -5,110 +5,10 @@
       <?= te('Each one is work already contracted with a client - the contract is signed before it comes here. Crewvia runs and tracks it: where, for how long, what it covers. How many of each trade and what they are paid is the scope of work, written on the project itself.') ?>
     </p>
   </div>
+  <div class="flex gap-s"><a class="btn" href="#new-project" data-new-project><?= te('+ New project') ?></a></div>
 </div>
 
-<form class="card" method="post" id="new-project">
-  <?= csrf_field() ?>
-  <span class="eyebrow"><?= te('NEW PROJECT') ?></span>
-  <h2><?= te('Take on a project') ?></h2>
 
-  <div class="row">
-    <div class="f2">
-      <label for="p-client"><?= te('Client') ?></label>
-      <?php // P5-M69: the client is created first, on Clients, and chosen here. ?>
-      <select id="p-client" name="client_id" required>
-        <option value=""><?= $clientChoices ? te('Choose the client…') : te('No client yet: add one first') ?></option>
-        <?php foreach ($clientChoices as $cc): ?><option value="<?= (int) $cc['id'] ?>" <?= (int) $cc['id'] === $chosenClient ? 'selected' : '' ?>><?= e($cc['name']) ?></option><?php endforeach; ?>
-      </select>
-      <p class="small m0"><a href="/clients#new"><?= te('Add a client') ?></a></p>
-    </div>
-    <div class="f2">
-      <label for="p-title"><?= te('Project name') ?></label>
-      <input id="p-title" name="title" required maxlength="190"
-             placeholder="<?= te('e.g. Strike coverage - plant engineers') ?>">
-    </div>
-    <div>
-      <label for="p-ref"><?= te('Client order reference') ?></label>
-      <input id="p-ref" name="order_reference" maxlength="120"
-             placeholder="<?= te('Their PO or contract number') ?>">
-    </div>
-  </div>
-
-  <div class="field mt-l">
-    <label for="p-desc"><?= te('What the work is') ?></label>
-    <textarea id="p-desc" name="description" rows="4" maxlength="8000"
-              placeholder="<?= te('e.g. Provide skilled labour support to the client plant for the duration of the work stoppage, in accordance with the attached scope of work.') ?>"></textarea>
-    <span class="hint"><?= te('The work as the contract describes it, in the words the client would recognise.') ?></span>
-  </div>
-
-  <?php // P5-M71: the site address finds the position, city, state and ZIP (app/geocode.php). ?>
-  <div class="row" data-geo data-lat="#p-lat" data-lng="#p-lng" data-city="#p-city" data-state="#p-state" data-zip="#p-zip">
-    <div class="f2"><label for="p-address"><?= te('Site address') ?></label><input id="p-address" name="site_address" maxlength="190" autocomplete="off" data-geo-address value="" placeholder="<?= te('e.g. 1 N Broadway, Gary, IN') ?>">
-      <span class="hint" data-geo-status data-searching="<?= te('Finding the address...') ?>" data-found="<?= te('Found: :address - position :lat, :lng filled in. Check it before saving.') ?>"><?= te('Type the street address: the city, state, ZIP and the position for the clock-in fill in by themselves.') ?></span></div>
-    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" data-geo-find><?= te('Find the address') ?></button></div>
-  </div>
-  <div class="row">
-    <div class="f2">
-      <label for="p-site"><?= te('Site') ?></label>
-      <input id="p-site" name="site_name" maxlength="190"
-             placeholder="<?= te('Plant or facility name') ?>">
-    </div>
-    <div>
-      <label for="p-city"><?= te('City') ?></label>
-      <input id="p-city" name="site_city" maxlength="120">
-    </div>
-    <div class="in-s">
-      <label for="p-state"><?= te('State') ?></label>
-      <input id="p-state" name="site_state" maxlength="2" placeholder="IN">
-    </div>
-    <div class="in-s">
-      <label for="p-zip"><?= te('ZIP code') ?></label>
-      <input id="p-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
-    </div>
-  </div>
-  <?php // P5-M70: the site's exact position from the start, for the clock-in (P5-M67); filled from the address (P5-M71). ?>
-  <div class="row">
-    <div><label for="p-lat"><?= te('Site latitude') ?></label><input id="p-lat" name="site_lat" inputmode="decimal" maxlength="12" placeholder="41.6036"></div>
-    <div><label for="p-lng"><?= te('Site longitude') ?></label><input id="p-lng" name="site_lng" inputmode="decimal" maxlength="12" placeholder="-87.3378"></div>
-    <div><label for="p-radius"><?= te('Clock-in radius (m)') ?></label><input id="p-radius" name="site_radius_m" type="number" min="50" max="5000" value="300"></div>
-    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" onclick="var b=this;navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(p){document.getElementById('p-lat').value=p.coords.latitude.toFixed(6);document.getElementById('p-lng').value=p.coords.longitude.toFixed(6);b.textContent=b.dataset.done;},function(){b.textContent=b.dataset.fail;},{enableHighAccuracy:true,timeout:15000})" data-done="<?= te('Position taken') ?>" data-fail="<?= te('Position unavailable') ?>"><?= te('My position here') ?></button></div>
-    <div>
-      <label for="p-start"><?= te('Starts') ?></label>
-      <input id="p-start" type="date" name="starts_on">
-    </div>
-    <div>
-      <label for="p-end"><?= te('Ends') ?></label>
-      <input id="p-end" type="date" name="ends_on">
-      <?php // P5-M71: many projects have no end date - they run until the client stops them; billing carries on. ?>
-      <label class="d-block small"><input type="checkbox" name="ends_unknown" value="1" onchange="var d=document.getElementById('p-end');d.disabled=this.checked;if(this.checked)d.value=''"> <?= te('End date unknown (ongoing)') ?></label>
-    </div>
-  </div>
-
-  <h3 class="mt-xl"><?= te('What the contract covers') ?></h3>
-  <p class="hint m0 pull-up mb">
-    <?= te('Beyond the hourly rate. These are what the crew is told and what the client is invoiced for, so they are recorded on the project rather than remembered.') ?>
-  </p>
-
-  <div class="row">
-    <label class="own-room">
-      <input type="checkbox" name="lodging_provided" value="1" checked>
-      <?= te('Lodging paid') ?>
-    </label>
-    <label class="own-room">
-      <input type="checkbox" name="travel_provided" value="1" checked>
-      <?= te('Travel to and from site paid') ?>
-    </label>
-    <label class="own-room">
-      <input type="checkbox" name="transport_provided" value="1" checked>
-      <?= te('Transport on site provided') ?>
-    </label>
-  </div>
-
-  <button class="btn mt-l" type="submit"><?= te('Create the project') ?></button>
-  <span class="hint inline-block ml">
-    <?= te('You will land on its scope of work, where the trades and their rates are written.') ?>
-  </span>
-</form>
 
 <div class="card tight">
   <div class="card-bar">
@@ -175,4 +75,110 @@
   </div>
   <?php endif; ?>
 </div>
+
+<?php // P5-M73: Projects shows the projects first; a new one is a button that opens the form (RSS: "when I click projects, I want to see my projects"). ?>
+<details class="card fold" id="new-project" data-fold-forget<?= ! $projects || $chosenClient || ! empty($_GET['new']) ? ' open' : '' ?>>
+  <summary><span><span class="eyebrow"><?= te('NEW PROJECT') ?></span><h2><?= te('Take on a project') ?></h2></span></summary>
+<form method="post">
+  <?= csrf_field() ?>
+
+  <div class="row">
+    <div class="f2">
+      <label for="p-client"><?= te('Client') ?></label>
+      <?php // P5-M69: the client is created first, on Clients, and chosen here. ?>
+      <select id="p-client" name="client_id" required>
+        <option value=""><?= $clientChoices ? te('Choose the client…') : te('No client yet: add one first') ?></option>
+        <?php foreach ($clientChoices as $cc): ?><option value="<?= (int) $cc['id'] ?>" <?= (int) $cc['id'] === $chosenClient ? 'selected' : '' ?>><?= e($cc['name']) ?></option><?php endforeach; ?>
+      </select>
+      <p class="small m0"><a href="/clients#new"><?= te('Add a client') ?></a></p>
+    </div>
+    <div class="f2">
+      <label for="p-title"><?= te('Project name') ?></label>
+      <input id="p-title" name="title" required maxlength="190"
+             placeholder="<?= te('e.g. Strike coverage - plant engineers') ?>">
+    </div>
+    <div>
+      <label for="p-ref"><?= te('Client order reference') ?></label>
+      <input id="p-ref" name="order_reference" maxlength="120"
+             placeholder="<?= te('Their PO or contract number') ?>">
+    </div>
+  </div>
+
+  <div class="field mt-l">
+    <label for="p-desc"><?= te('What the work is') ?></label>
+    <textarea id="p-desc" name="description" rows="4" maxlength="8000"
+              placeholder="<?= te('e.g. Provide skilled labour support to the client plant for the duration of the work stoppage, in accordance with the attached scope of work.') ?>"></textarea>
+    <span class="hint"><?= te('The work as the contract describes it, in the words the client would recognise.') ?></span>
+  </div>
+
+  <?php // P5-M71: the site address finds the position, city, state and ZIP (app/geocode.php). ?>
+  <div class="row" data-geo data-lat="#p-lat" data-lng="#p-lng" data-city="#p-city" data-state="#p-state" data-zip="#p-zip">
+    <div class="f2"><label for="p-address"><?= te('Site address') ?></label><input id="p-address" name="site_address" maxlength="190" autocomplete="off" data-geo-address value="" placeholder="<?= te('e.g. 1 N Broadway, Gary, IN') ?>">
+      <span class="hint" data-geo-status data-searching="<?= te('Finding the address...') ?>" data-found="<?= te('Using :address - position :lat, :lng. Save to keep it.') ?>" data-use="<?= te('Use this address') ?>" data-other="<?= te('Not this one') ?>" data-hint="<?= te('Type the address more fully (number, street, city, state), or type the latitude and longitude.') ?>"><?= te('Type the street address: the city, state, ZIP and the position for the clock-in fill in by themselves.') ?></span></div>
+    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" data-geo-find><?= te('Find the address') ?></button></div>
+  </div>
+  <div class="row">
+    <div class="f2">
+      <label for="p-site"><?= te('Site') ?></label>
+      <input id="p-site" name="site_name" maxlength="190"
+             placeholder="<?= te('Plant or facility name') ?>">
+    </div>
+    <div>
+      <label for="p-city"><?= te('City') ?></label>
+      <input id="p-city" name="site_city" maxlength="120">
+    </div>
+    <div class="in-s">
+      <label for="p-state"><?= te('State') ?></label>
+      <input id="p-state" name="site_state" maxlength="2" placeholder="IN">
+    </div>
+    <div class="in-s">
+      <label for="p-zip"><?= te('ZIP code') ?></label>
+      <input id="p-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
+    </div>
+  </div>
+  <?php // P5-M70: the site's exact position from the start, for the clock-in (P5-M67); filled from the address (P5-M71). ?>
+  <div class="row">
+    <div><label for="p-lat"><?= te('Site latitude') ?></label><input id="p-lat" name="site_lat" inputmode="decimal" maxlength="12" placeholder="41.6036"></div>
+    <div><label for="p-lng"><?= te('Site longitude') ?></label><input id="p-lng" name="site_lng" inputmode="decimal" maxlength="12" placeholder="-87.3378"></div>
+    <div><label for="p-radius"><?= te('Clock-in radius (m)') ?></label><input id="p-radius" name="site_radius_m" type="number" min="50" max="5000" value="300"><span class="hint"><?= te('In metres: 300 m is about 1,000 ft. Clocking in farther away is allowed, and the supervisor is told.') ?></span></div>
+    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" onclick="var b=this;navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(p){document.getElementById('p-lat').value=p.coords.latitude.toFixed(6);document.getElementById('p-lng').value=p.coords.longitude.toFixed(6);b.textContent=b.dataset.done;},function(){b.textContent=b.dataset.fail;},{enableHighAccuracy:true,timeout:15000})" data-done="<?= te('Position taken') ?>" data-fail="<?= te('Position unavailable') ?>"><?= te('My position here') ?></button></div>
+    <div>
+      <label for="p-start"><?= te('Starts') ?></label>
+      <input id="p-start" type="date" name="starts_on">
+    </div>
+    <div>
+      <label for="p-end"><?= te('Ends') ?></label>
+      <input id="p-end" type="date" name="ends_on">
+      <?php // P5-M71: many projects have no end date - they run until the client stops them; billing carries on. ?>
+      <label class="d-block small"><input type="checkbox" name="ends_unknown" value="1" onchange="var d=document.getElementById('p-end');d.disabled=this.checked;if(this.checked)d.value=''"> <?= te('End date unknown (ongoing)') ?></label>
+    </div>
+  </div>
+
+  <h3 class="mt-xl"><?= te('What the contract covers') ?></h3>
+  <p class="hint m0 pull-up mb">
+    <?= te('Beyond the hourly rate. These are what the crew is told and what the client is invoiced for, so they are recorded on the project rather than remembered.') ?>
+  </p>
+
+  <div class="row">
+    <label class="own-room">
+      <input type="checkbox" name="lodging_provided" value="1" checked>
+      <?= te('Lodging paid') ?>
+    </label>
+    <label class="own-room">
+      <input type="checkbox" name="travel_provided" value="1" checked>
+      <?= te('Travel to and from site paid') ?>
+    </label>
+    <label class="own-room">
+      <input type="checkbox" name="transport_provided" value="1" checked>
+      <?= te('Transport on site provided') ?>
+    </label>
+  </div>
+
+  <button class="btn mt-l" type="submit"><?= te('Create the project') ?></button>
+  <span class="hint inline-block ml">
+    <?= te('You will land on its scope of work, where the trades and their rates are written.') ?>
+  </span>
+</form>
+</details>
 <script src="/assets/site-address.js"></script>
+<script src="/assets/fold.js"></script>

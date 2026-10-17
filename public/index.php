@@ -257,6 +257,7 @@ $routes = [
     '/forms-register' => 'forms-register',
     '/clients' => 'clients',
     '/geocode' => 'geocode',
+    '/nav-mark' => 'nav-mark',
     '/pay-grades' => 'pay-grades',
     '/assets' => 'assets',
     '/appraisals' => 'appraisals',

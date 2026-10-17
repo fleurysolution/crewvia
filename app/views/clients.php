@@ -39,7 +39,7 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
 <?php }; ?>
 <div class="page-head"><div><h1><?= te('Clients') ?></h1>
   <p class="sub"><?= te('The companies the crews work for. Add a client first, then take on their projects; invoices use their terms and billing email.') ?></p></div>
-  <div class="actions"><a class="btn ghost" href="/projects"><?= te('Projects') ?></a><a class="btn ghost" href="/client-access"><?= te('Client access') ?></a></div></div>
+  <div class="actions"><a class="btn" href="#new" data-new-client><?= te('+ Add a client') ?></a><a class="btn ghost" href="/projects"><?= te('Projects') ?></a><a class="btn ghost" href="/client-access"><?= te('Client access') ?></a></div></div>
 
 <?php if ($open): ?>
 <div class="card" id="client" data-client="<?= (int) $open['id'] ?>"><h2><?= e($open['name']) ?></h2>
@@ -65,8 +65,10 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
   </tbody></table>
   <?php endif; ?>
   <?php if ($editContact): ?><h3 class="mt"><?= te('Change :name', ['name' => $editContact['name']]) ?></h3><?php $contactForm((int) $open['id'], $editContact); ?><?php endif; ?>
-  <h3 class="mt"><?= te('Add a contact') ?></h3>
+  <?php // P5-M73: once the client has a contact, adding another is a button that opens the form (RSS: "it should go away after I added a contact"). ?>
+  <details class="mt" id="add-contact"<?= $contacts ? '' : ' open' ?>><summary class="btn<?= $contacts ? ' ghost' : '' ?>" data-add-contact><?= te('+ Add a contact') ?></summary>
   <?php $contactForm((int) $open['id'], null); ?>
+  </details>
 </div>
 
 <div class="card" id="client-projects"><h2><?= te('Projects') ?></h2>
@@ -76,10 +78,6 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
 </div>
 <?php endif; ?>
 
-<div class="card" id="new"><h2><?= te('Add a client') ?></h2>
-  <?php $form($old, 'create', t('Add the client')); ?>
-  <p class="small muted"><?= te('More contacts - the site manager, accounts payable - are added on the client once it is created.') ?></p>
-</div>
 
 <div class="card"><h2><?= tn(count($clients), ':n client', ':n clients') ?></h2>
   <table><thead><tr><th><?= te('Client') ?></th><th><?= te('Main contact') ?></th><th><?= te('Terms') ?></th><th><?= te('Projects') ?></th><th><?= te('Portal accounts') ?></th></tr></thead><tbody>
@@ -92,3 +90,10 @@ $contactForm = static function (int $clientId, ?array $x) { $v = static fn(strin
   <?php endforeach; ?>
   </tbody></table>
 </div>
+
+<?php // P5-M73: the clients first; adding one is a button that opens the form. ?>
+<details class="card fold" id="new" data-fold-forget<?= ! $clients || $old ? ' open' : '' ?>><summary><h2><?= te('Add a client') ?></h2></summary>
+  <?php $form($old, 'create', t('Add the client')); ?>
+  <p class="small muted"><?= te('More contacts - the site manager, accounts payable - are added on the client once it is created.') ?></p>
+</details>
+<script src="/assets/fold.js"></script>

@@ -23,6 +23,11 @@ foreach($sections as $section=>$links) foreach($links as $link){$navSections[$li
 usort($nav,fn($left,$right)=>($navOrder[$left[0]] ?? 999)<=>($navOrder[$right[0]] ?? 999));
 if(!$u)$nav=[];
 $here = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '', '/');
+// P5-M73: bookmarks and recent screens, at the top of the menu.
+require_once __DIR__ . '/../nav-marks.php';
+$navLabels = array_column($nav, 1, 0);
+if ($u && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && isset($navLabels[$here]) && workspace_can_open($here, $u)) { nm_touch((int) $u['id'], $here); }
+$navMarks = $u ? ['bookmark' => array_intersect_key(nm_list((int) $u['id'], 'bookmark'), $navLabels), 'recent' => array_intersect_key(nm_list((int) $u['id'], 'recent'), $navLabels)] : ['bookmark' => [], 'recent' => []];
 ?>
 <!doctype html>
 <html lang="<?= e(locale()) ?>">
@@ -606,7 +611,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=8">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=9">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -616,6 +621,19 @@ input,select,textarea{border-color:#8a96a6}
   <div><a class="brand" href="<?= e($u ? home_for((string) $u['role']) : '/login') ?>"><?= e($appName) ?></a><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
   <?php if ($u): ?><button type="button" class="btn ghost sm nav-toggle" aria-controls="workspace-nav" aria-expanded="false"><?= te('Menu') ?></button><?php endif; ?>
   <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div><div class="nav-find"><label class="sr-only" for="nav-find"><?= te('Find a screen') ?></label><input id="nav-find" type="search" autocomplete="off" placeholder="<?= te('Find a screen' ) ?>" title="<?= te('Type a few letters, then Enter' ) ?>"></div>
+    <?php if ($u): /* P5-M73: the person's bookmarks, then the screens they opened last. */ ?>
+    <div class="nav-marks" data-nav-marks>
+      <details class="nav-group" data-section="Bookmarks" open><summary><?= te('Bookmarks') ?></summary>
+        <?php foreach ($navMarks['bookmark'] as $mPath => $_): ?><a href="<?= e($mPath) ?>" class="<?= $here === $mPath ? 'on' : '' ?>" data-bookmark>&#9733; <?= te($navLabels[$mPath]) ?></a><?php endforeach; ?>
+        <?php if (isset($navLabels[$here])): $marked = isset($navMarks['bookmark'][$here]); ?>
+        <form method="post" action="/nav-mark" class="nav-mark-form"><?= csrf_field() ?><input type="hidden" name="path" value="<?= e($here) ?>"><button class="link small" data-bookmark-toggle><?= $marked ? te('Remove this screen from bookmarks') : te('+ Bookmark this screen') ?></button></form>
+        <?php elseif (! $navMarks['bookmark']): ?><span class="small muted nav-mark-hint"><?= te('Open a screen, then bookmark it here.') ?></span><?php endif; ?>
+      </details>
+      <?php if ($navMarks['recent']): ?><details class="nav-group" data-section="Recent" open><summary><?= te('Recent') ?></summary>
+        <?php foreach ($navMarks['recent'] as $mPath => $_): ?><a href="<?= e($mPath) ?>" class="<?= $here === $mPath ? 'on' : '' ?>" data-recent><?= te($navLabels[$mPath]) ?></a><?php endforeach; ?>
+      </details><?php endif; ?>
+    </div>
+    <?php endif; ?>
     <?php
     // Everything the sidebar needs is local to this call, so nothing it
     // uses can still be set when the view runs below.

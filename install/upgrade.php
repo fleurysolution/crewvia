@@ -2830,4 +2830,17 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Site address: Projects and the plant take the street address of the site, and find its position for the clock-in, its city, state and ZIP.' . PHP_EOL;
 }
 
+// ── P5-M73: each person's bookmarks and recent screens, at the top of the left menu ──
+// Reversed by install/rollback/p5-m73.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='user_nav_marks'")) {
+    q("CREATE TABLE user_nav_marks (
+        user_id INT UNSIGNED NOT NULL,
+        kind ENUM('bookmark','recent') NOT NULL,
+        path VARCHAR(120) NOT NULL,
+        used_at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, kind, path)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    echo 'Menu: Bookmarks and Recent at the top of the left menu, for each person.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

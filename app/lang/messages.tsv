@@ -5237,3 +5237,28 @@ Overtime rate $/h	Taux d'overtime $/h	Tarifa de horas extra $/h
 Billed $ per room per night, whatever the hotel	Facturé $ par chambre et par nuit, quel que soit l'hôtel	Facturado $ por habitación y noche, sea cual sea el hotel
 At cost, each booking is billed at its own nightly rate: a project with several hotels bills each one at its price. The rate can be filled in when the room is booked.	Au coût, chaque réservation est facturée à son propre prix par nuit : un projet avec plusieurs hôtels facture chacun à son prix. Le prix peut être saisi au moment de la réservation.	Al costo, cada reserva se factura a su propia tarifa por noche: un proyecto con varios hoteles factura cada uno a su precio. La tarifa se puede indicar al reservar.
 At cost plus a percentage needs the percentage. Otherwise choose at cost.	« Au coût plus un pourcentage » demande le pourcentage. Sinon, choisissez « au coût ».	«Al costo más un porcentaje» necesita el porcentaje. Si no, elija «al costo».
+Stand the strike down? Every line goes back to its normal guaranteed week.	Lever la grève ? Chaque ligne revient à sa semaine garantie normale.	¿Levantar la huelga? Cada línea vuelve a su semana garantizada normal.
+Declare the strike live? Every line then guarantees its strike hours. Check the contract first.	Déclarer la grève en cours ? Chaque ligne garantit alors ses heures de grève. Vérifiez d'abord le contrat.	¿Declarar la huelga activa? Cada línea garantiza entonces sus horas de huelga. Revise antes el contrato.
+While the strike is live, every line of the scope guarantees its strike hours instead of its normal week.	Pendant la grève, chaque ligne du périmètre garantit ses heures de grève au lieu de sa semaine normale.	Durante la huelga, cada línea del alcance garantiza sus horas de huelga en lugar de su semana normal.
+Strike is live - stand it down	Grève en cours – la lever	Huelga activa – levantarla
+Declare the strike live	Déclarer la grève	Declarar la huelga
+THE PROJECT	LE PROJET	EL PROYECTO
+nobody chosen yet	personne de choisi	nadie elegido aún
+terms set	termes définis	términos definidos
+every hour at the bill rate, nothing else	chaque heure au taux facturé, rien d'autre	cada hora a la tarifa facturada, nada más
+Using :address - position :lat, :lng. Save to keep it.	Adresse retenue : :address – position :lat, :lng. Enregistrez pour la garder.	Usando :address – posición :lat, :lng. Guarde para conservarla.
+Use this address	Utiliser cette adresse	Usar esta dirección
+Not this one	Pas celle-ci	No es esta
+Type the address more fully (number, street, city, state), or type the latitude and longitude.	Saisissez l'adresse plus complètement (numéro, rue, ville, État), ou la latitude et la longitude.	Escriba la dirección más completa (número, calle, ciudad, estado), o la latitud y la longitud.
+In metres: 300 m is about 1,000 ft. Clocking in farther away is allowed, and the supervisor is told.	En mètres : 300 m font environ 1 000 pieds. Pointer plus loin reste possible, et le superviseur est prévenu.	En metros: 300 m son unos 1.000 pies. Fichar más lejos se permite y se avisa al supervisor.
+Bookmarks	Favoris	Favoritos
+Remove this screen from bookmarks	Retirer cet écran des favoris	Quitar esta pantalla de favoritos
++ Bookmark this screen	+ Ajouter cet écran aux favoris	+ Añadir esta pantalla a favoritos
+Open a screen, then bookmark it here.	Ouvrez un écran, puis ajoutez-le ici en favori.	Abra una pantalla y añádala aquí a favoritos.
+Recent	Récents	Recientes
+Only a screen of the menu can be bookmarked.	Seul un écran du menu peut être mis en favori.	Solo una pantalla del menú puede ser favorita.
+:screen is in your bookmarks.	:screen est dans vos favoris.	:screen está en sus favoritos.
+:screen is no longer bookmarked.	:screen n'est plus en favori.	:screen ya no es favorito.
++ New project	+ Nouveau projet	+ Nuevo proyecto
++ Add a client	+ Ajouter un client	+ Añadir un cliente
++ Add a contact	+ Ajouter un contact	+ Añadir un contacto

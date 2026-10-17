@@ -374,3 +374,17 @@ main .card.official > table,main .card[data-person-form] > table{min-width:0}
 /* P5-M68: the forms register. */
 .register td{vertical-align:top}
 .register tr.has-issue td{background:#fff4f2}
+/* P5-M73: a section folded to its title and a one-line summary; clicked to open. */
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary h2 { margin: 0; }
+details.fold > summary::after { content: '\25BE'; color: var(--muted, #5d6b7d); font-size: 18px; transition: transform .15s; }
+details.fold:not([open]) > summary::after { transform: rotate(-90deg); }
+details.fold[open] > summary { margin-bottom: 12px; }
+details.fold .fold-note { margin-left: auto; color: var(--muted, #5d6b7d); font-size: 13px; text-align: right; }
+details.fold[open] .fold-note { display: none; }
+/* P5-M73: bookmarks and recent screens at the top of the menu. */
+.nav-mark-form { margin: 0; }
+.nav-mark-form button { background: none; border: 0; color: #a9bed5; font-size: 12px; padding: 4px 12px; cursor: pointer; text-align: left; }
+.nav-mark-form button:hover { color: #fff; text-decoration: underline; }
+.nav-mark-hint { display: block; color: #a9bed5; padding: 4px 12px; font-size: 12px; }

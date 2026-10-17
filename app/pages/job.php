@@ -312,6 +312,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
 
     $strike = isset($_POST['strike_live']) ? 1 : 0;
     $was    = (int) $job['strike_live'];
+    // P5-M73: the strike switch at the top of the page changes only the strike.
+    if (($_POST['do'] ?? '') === 'strike') {
+        $strike = ! empty($_POST['strike_live']) ? 1 : 0;
+        if ($strike !== $was) {
+            q('UPDATE jobs SET strike_live = ? WHERE id = ?', [$strike, $jobId]);
+            $totals = scope_totals($jobId, (bool) $strike);
+            log_activity($strike ? 'declared the strike live' : 'stood the strike down', 'job', $jobId, 'weekly commitment now ' . money($totals['weekly_pay']));
+            flash(t($strike
+                ? 'Strike is live. Every line now guarantees its strike hours - a full week of the scope is :amount.'
+                : 'Strike stood down. Every line is back to its normal guarantee - a full week of the scope is :amount.',
+                ['amount' => money($totals['weekly_pay'])]));
+        }
+        redirect('/job');
+    }
 
     db()->beginTransaction();
     q('SELECT id FROM jobs WHERE id = ? FOR UPDATE', [$jobId]);
