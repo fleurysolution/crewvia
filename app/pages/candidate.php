@@ -188,6 +188,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Moving an application along, from the person rather than from the board.
     // The same rules as the screening screen, because they are the rules.
+    // ── P5-M83: the recruiter sends the applicant to the person who decides (the owner, a manager) ──
+    if ($do === 'send_review') {
+        require_once __DIR__ . '/../reviews.php';
+        $appId = (int) ($_POST['application_id'] ?? 0);
+        $vacancyId = (int) ($_POST['vacancy_id'] ?? 0);
+        if (! $appId && $vacancyId && val('SELECT id FROM vacancies WHERE id = ? AND is_open = 1', [$vacancyId])) {
+            $appId = (int) val('SELECT id FROM applications WHERE candidate_id = ? AND vacancy_id = ?', [$id, $vacancyId]);
+            if (! $appId) {
+                q("INSERT INTO applications (candidate_id, vacancy_id, stage, source) VALUES (?, ?, 'new', 'Recruiter')", [$id, $vacancyId]);
+                $appId = (int) db()->lastInsertId();
+                q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [$appId, uid(), 'new', 'Added by the recruiter']);
+            }
+        }
+        if (! val('SELECT id FROM applications WHERE id = ? AND candidate_id = ?', [$appId, $id])) {
+            refuse(422, t('Choose the requisition this person is for.'), '/candidates/' . $id . '#send-review');
+        }
+        if ($why = review_request($appId, (int) ($_POST['reviewer_id'] ?? 0), (int) ($_POST['rating'] ?? 0), (string) ($_POST['recommendation'] ?? ''), uid())) {
+            refuse(422, $why, '/candidates/' . $id . '#send-review');
+        }
+        q("UPDATE applications SET stage = 'screening' WHERE id = ? AND stage = 'new'", [$appId]);
+        q("UPDATE candidates SET stage = 'screening', owner_id = COALESCE(owner_id, ?) WHERE id = ? AND stage IN ('new','contacted')", [uid(), $id]);
+        flash(t('Sent for review to :name. They see it in Waiting on your decision.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [(int) $_POST['reviewer_id']])]));
+        redirect('/candidates/' . $id);
+    }
+
     if ($do === 'stage') {
         $application = row('SELECT a.*, v.job_id FROM applications a
                             JOIN vacancies v ON v.id = a.vacancy_id
@@ -202,6 +227,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (! in_array($stage, ['new','screening','interview','offered','rejected','withdrawn'], true)) {
             refuse(422, t('That is not a stage an application can be in.'));
+        }
+        // P5-M83: past screening, a recruiter needs the decision of the person who approves; the owner decides directly.
+        if (! can('admin') && in_array($stage, ['screening', 'interview', 'offered'], true)
+            && ! val("SELECT id FROM application_reviews WHERE application_id = ? AND status = 'validated'", [$application['id']])) {
+            refuse(422, t('Send this applicant for review first: the decision comes back to you.'), '/candidates/' . $id . '#send-review');
         }
 
         if ($stage === 'offered') {
@@ -499,7 +529,14 @@ require_once __DIR__ . '/../messaging.php';
 $textPanel = msg_panel($id);
 $contactPref = $textPanel['preferences'];
 
-render('candidate', compact('textPanel', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
+// P5-M83: who can decide, the open requisitions, and a review already under way.
+require_once __DIR__ . '/../reviews.php';
+$reviewPeople = review_people();
+$reviewDefault = (int) (val("SELECT id FROM users WHERE is_active = 1 AND role = 'admin' AND id <> ? ORDER BY id LIMIT 1", [uid()]) ?: 0);
+$openVacancies = rows('SELECT v.id, v.title, j.title AS job FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.is_open = 1 ORDER BY j.title, v.title LIMIT 300');
+$pendingReview = row("SELECT r.*, u.name AS reviewer FROM application_reviews r JOIN applications a ON a.id = r.application_id JOIN users u ON u.id = r.reviewer_id
+                      WHERE a.candidate_id = ? AND r.status IN ('pending','validated') ORDER BY r.status = 'pending' DESC, r.id DESC LIMIT 1", [$id]);
+render('candidate', compact('textPanel', 'reviewPeople', 'reviewDefault', 'openVacancies', 'pendingReview', 'contactPref', 'c', 'calls', 'applications', 'placements', 'documents',
                             'qualifications', 'contracts', 'clearance', 'account',
                             'invitation', 'job', 'jobId', 'standing', 'theirSkills',
                             'workHistory', 'owedToUs'));

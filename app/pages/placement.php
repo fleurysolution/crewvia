@@ -22,6 +22,31 @@ if (! $p) {
 // Walkthrough finding 22: nothing could change a placement's dates once it
 // existed, and one made at acceptance had none. Arrivals, roll call and pay
 // all read them. Recruiting and Logistics set them; each change is logged.
+// P5-M84: HR puts the person in a group, under its supervisor - or marks them the one who leads it.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'group') {
+    require_role('recruiter', 'hotels');
+    $group = mb_substr(trim((string) ($_POST['crew_group'] ?? '')), 0, 60);
+    $leads = ! empty($_POST['leads_group']) ? 1 : 0;
+    $sup = (int) ($_POST['supervisor_id'] ?? 0);
+    if ($sup && ! val("SELECT id FROM users WHERE id = ? AND is_active = 1 AND role IN ('supervisor','admin')", [$sup])) {
+        refuse(422, t('Choose a supervisor.'), '/placements/' . $id . '#group');
+    }
+    if (val('SELECT placement_id FROM assignment_details WHERE placement_id = ?', [$id])) {
+        q('UPDATE assignment_details SET crew_group = ?, leads_group = ?, supervisor_id = ? WHERE placement_id = ?', [$group ?: null, $leads, $sup ?: null, $id]);
+    } else {
+        // The trade is required on the row: it comes from the line of the scope the person was placed on.
+        $trade = (string) (val('SELECT ol.role_title FROM placements p2 JOIN job_order_lines ol ON ol.id = p2.order_line_id WHERE p2.id = ?', [$id]) ?: '');
+        q('INSERT INTO assignment_details (placement_id, trade, crew_group, leads_group, supervisor_id) VALUES (?,?,?,?,?)', [$id, $trade, $group ?: null, $leads, $sup ?: null]);
+    }
+    if ($sup) {
+        require_once __DIR__ . '/../notices.php';
+        notify_user($sup, t(':name joins your crew:group.', ['name' => $p['full_name'], 'group' => $group !== '' ? ' (' . $group . ')' : '']), '/my-team');
+    }
+    log_activity('set the group and supervisor', 'placement', $id, trim($group . ($leads ? ' (leads it)' : '')));
+    flash(t('Saved: group and supervisor.'));
+    redirect('/placements/' . $id . '#group');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'dates') {
     require_role('recruiter', 'hotels');
     $start = trim((string) ($_POST['start_date'] ?? ''));
@@ -83,7 +108,11 @@ $legs = rows('SELECT * FROM travel WHERE placement_id = ? AND status <> ? ORDER 
 
 require_once __DIR__ . '/../messaging.php';
 $textPanel = msg_panel((int) $p['candidate_id'], $id);
-if(!can('payroll')) { render('placement-logistics',compact('p','lodge','legs','textPanel'));exit; }
+// P5-M84: the person's group and supervisor, and the groups already on the project.
+$groupRow = row('SELECT crew_group, leads_group, supervisor_id FROM assignment_details WHERE placement_id = ?', [$id]) ?: ['crew_group' => null, 'leads_group' => 0, 'supervisor_id' => null];
+$groupNames = array_column(rows("SELECT DISTINCT d.crew_group FROM assignment_details d JOIN placements p2 ON p2.id = d.placement_id WHERE p2.job_id = ? AND d.crew_group IS NOT NULL AND d.crew_group <> '' ORDER BY d.crew_group", [(int) $p['job_id']]), 'crew_group');
+$supervisorChoices = rows("SELECT id, name FROM users WHERE is_active = 1 AND role IN ('supervisor','admin') ORDER BY role = 'admin', name");
+if(!can('payroll')) { render('placement-logistics',compact('p','lodge','legs','textPanel','groupRow','groupNames','supervisorChoices'));exit; }
 $sheets = rows('SELECT ts.*,s.result_json AS snapshot_json FROM timesheets ts LEFT JOIN pay_snapshots s ON s.timesheet_id=ts.id WHERE placement_id = ? ORDER BY week_ending DESC LIMIT 12', [$id]);
 
 
@@ -107,4 +136,4 @@ $rateChanges = rows('SELECT r.*, u.name AS changed_by_name FROM placement_rate_c
                      WHERE r.placement_id = ? ORDER BY r.id DESC LIMIT 50', [$id]);
 
 $pageTitle = $p['full_name'] . ' · '.$config['app_name'];
-render('placement', compact('p','lodge','legs','sheets','job','totals','origin','line','rateChanges','textPanel'));
+render('placement', compact('p','lodge','legs','sheets','job','totals','origin','line','rateChanges','textPanel','groupRow','groupNames','supervisorChoices'));

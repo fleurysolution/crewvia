@@ -186,6 +186,8 @@ function can(string ...$roles): bool
 
     if(in_array($u['role'], $roles, true)) return true;
     if(in_array($u['role'],['worker','supervisor','client'],true)) return false;
+    // P5-M84: HR works the recruiting desk's onboarding screens (its menu is its own).
+    if($u['role']==='hr' && in_array('recruiter',$roles,true)) return true;
     foreach($roles as $desk) {
         if($desk==='admin') continue;
         if(row('SELECT desk FROM role_permissions WHERE role_name=? AND desk=?',[$u['role'],$desk])) return true;
@@ -611,7 +613,9 @@ function roles(): array
         'supervisor' => 'Supervisor',
         'admin' => 'Full access',
         'recruiter' => 'Recruiting',
-        'hotels'    => 'Hotels & Travel',
+        // P5-M84: onboarding is HR's; hotels, travel and the rest of the project's logistics are the project coordinators'.
+        'hr'        => 'HR (onboarding)',
+        'hotels'    => 'Project coordinator',
         'payroll'   => 'Payroll & Billing',
     ];
 }

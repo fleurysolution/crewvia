@@ -9,6 +9,12 @@ $stages = candidate_stages();
 
 <div class="page-head"><div><h1><?= te('Candidates') ?></h1>
 <p class="sub"><?= $total ?> on file &middot; <?= (int) ($counts['new'] ?? 0) ?> nobody has called yet</p></div></div>
+<?php // P5-M83: the call list in its steps - to contact, contacted, in review - so a person called leaves the list to call. ?>
+<nav class="tabs mb" id="candidate-tabs" aria-label="<?= te('Candidates') ?>">
+  <?php foreach (['new' => [t('To contact'), (int) ($counts['new'] ?? 0)], 'contacted' => [t('Contacted'), (int) ($counts['contacted'] ?? 0)], 'screening' => [t('In review'), (int) ($counts['screening'] ?? 0)], 'all' => [t('All'), $total]] as $tk => [$tl, $tn]): ?>
+    <a href="/candidates?stage=<?= e($tk) ?>" class="<?= ($stage === $tk || ($tk === 'all' && $stage === '')) ? 'on' : '' ?>" data-tab="<?= e($tk) ?>"><?= e($tl) ?> <span class="muted">(<?= $tn ?>)</span></a>
+  <?php endforeach; ?>
+</nav>
 
 <form class="card" method="get" action="/candidates">
   <div class="row">

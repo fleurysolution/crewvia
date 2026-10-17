@@ -250,3 +250,51 @@ check('The database matching it: same trade, not already applied', 'Pool Match' 
 ids = ','.join(str(x['id']) for x in sql("SELECT id FROM candidates WHERE email IN ('early@test.invalid','late@test.invalid')"))
 status, body = admin.get('/campaigns?ids=%s&vacancy_id=%d&preview=1&channel=email' % (ids, vac_id))
 check('The people ticked get one message: the campaign is for exactly them, applicants included', 'data-chosen-people' in body and 'data-count="2"' in body and ('name="ids" value="%s"' % ids) in body)
+
+# P5-M83: a recruiter sends an applicant for review; they cannot move them past it alone. The owner decides.
+pool = one("SELECT id FROM candidates WHERE email = 'pool@test.invalid'")
+rec.post('/candidates', {'do': 'stage', 'candidate_id': pool['id'], 'stage': 'screening', 'back': ''}, '/candidates')
+check('A recruiter cannot move someone to Screening without a review', one('SELECT stage FROM candidates WHERE id = %s' % pool['id'])['stage'] != 'screening' and '/candidates/%s' % pool['id'] in rec.url, rec.url)
+owner_id = one("SELECT id FROM users WHERE email = 'wk-admin@test.invalid'")['id']
+status, body = rec.get('/candidates/%s' % pool['id'])
+check('The person\'s page offers Send for review, the contact card compact', 'id="send-review"' in body and 'id="text-panel-fold"' in body and 'id="contact-preferences-fold"' in body)
+rec.post('/candidates/%s' % pool['id'], {'do': 'send_review', 'application_id': '0', 'vacancy_id': vac_id, 'reviewer_id': owner_id, 'rating': '4', 'recommendation': 'Eight years on refinery turnarounds.'}, '/candidates/%s' % pool['id'])
+rv = one("SELECT r.status, r.reviewer_id FROM application_reviews r JOIN applications a ON a.id = r.application_id WHERE a.candidate_id = %s" % pool['id'])
+check('Sent for review: the owner has it waiting on their decision, the person is In review', rv and rv['status'] == 'pending' and int(rv['reviewer_id']) == int(owner_id)
+      and one('SELECT stage FROM candidates WHERE id = %s' % pool['id'])['stage'] == 'screening', rv)
+status, body = admin.get('/reviews')
+check('...and it is on the owner\'s Waiting on your decision', 'Pool Match' in body)
+status, body = rec.get('/candidates')
+check('A recruiter opens Candidates on the people still to contact', re.search(r'class="on" data-tab="new"', body) is not None)
+
+# P5-M84: the owner approves - the applicant goes to the project's HR coordinator with a task and the portal invitation; HR sets the group.
+rec_id = one("SELECT id FROM users WHERE email = 'wk-rec@test.invalid'")['id']
+php_q("UPDATE jobs SET coordinator_id = %s WHERE id = (SELECT job_id FROM vacancies WHERE id = %d)" % (rec_id, vac_id))
+rid = one("SELECT r.id FROM application_reviews r JOIN applications a ON a.id = r.application_id WHERE a.candidate_id = %s AND r.status = 'pending'" % pool['id'])['id']
+admin.post('/reviews', {'do': 'decide', 'review_id': rid, 'decision': 'validated', 'note': ''}, '/reviews?id=%s' % rid)
+task = one("SELECT assignee_id, title FROM project_tasks WHERE title LIKE 'Onboard Pool Match%'")
+check('Approved: the applicant goes to the project\'s HR coordinator with an onboarding task', task and int(task['assignee_id']) == int(rec_id), task)
+note = one("SELECT message FROM notifications WHERE user_id = %s AND message LIKE 'Pool Match approved%%' ORDER BY id DESC LIMIT 1" % rec_id)
+check('The recruiter is told it is approved and with HR, nothing more to do', note is not None and 'HR' in note['message'], note)
+check('The person leaves the recruiter\'s review list', one('SELECT stage FROM candidates WHERE id = %s' % pool['id'])['stage'] == 'offered')
+status, body = rec.get('/candidates/%s' % pool['id'])
+check('The person\'s page says approved and handed to HR', 'handed to HR for onboarding' in body)
+php_q("INSERT INTO placements (candidate_id, job_id, status, start_date) VALUES (%s, (SELECT job_id FROM vacancies WHERE id = %d), 'confirmed', CURDATE())" % (pool['id'], vac_id))
+plc = one('SELECT id FROM placements WHERE candidate_id = %s ORDER BY id DESC LIMIT 1' % pool['id'])['id']
+sup = one("SELECT id FROM users WHERE role = 'supervisor' AND is_active = 1 ORDER BY id LIMIT 1")
+gst, gbody = admin.post('/placements/%s' % plc, {'do': 'group', 'crew_group': 'Group 1', 'supervisor_id': sup['id'] if sup else '', 'leads_group': '1'}, '/placements/%s' % plc)
+g = one('SELECT crew_group, leads_group, supervisor_id FROM assignment_details WHERE placement_id = %s' % plc)
+check('HR puts the person in a group, under its supervisor, leading it', g and g['crew_group'] == 'Group 1' and int(g['leads_group']) == 1, (g, gst, re.findall(r'class="flash[^"]*"[^>]*>([^<]*)', gbody), admin.url, gbody[:300] if gst != 200 else ''))
+status, body = admin.get('/manning')
+check('Manning shows the group, and the one who leads it needs a vehicle', 'Group 1' in body and ('data-needs-vehicle="%s"' % plc) in body)
+
+# P5-M84: the HR role does onboarding; Project coordinator is the hotels desk's name.
+php_q("INSERT INTO users (name, email, password_hash, role, must_change_pw) SELECT 'HR Tester', 'wk-hr@test.invalid', password_hash, 'hr', 0 FROM users WHERE email = 'wk-rec@test.invalid'")
+hr = Client(); hr.login('wk-hr@test.invalid')
+status, body = hr.get('/onboarding')
+check('HR opens Onboarding', status == 200 and 'Fatal' not in body, status)
+nav = re.sub(r'<div class="nav-marks" data-nav-marks>.*?</div>', '', re.search(r'<nav[^>]*>(.*?)</nav>', body, re.S)[1], flags=re.S)
+daily = re.findall(r'<a href="(/[^"]*)"', re.search(r'<div class="nav-daily">(.*?)</div>', nav, re.S)[1])
+check('HR\'s menu starts with its own day: onboarding, then tax forms', daily[:3] == ['/activity', '/onboarding', '/tax-forms'], daily)
+status, body = admin.get('/people')
+check('Team offers HR (onboarding) and Project coordinator', 'HR (onboarding)' in body and 'Project coordinator' in body)

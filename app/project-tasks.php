@@ -60,7 +60,7 @@ function pt_can_view(int $jobId): bool
 function pt_assignable(int $jobId): array
 {
     return rows("SELECT u.id, u.name, u.role, 'staff' AS kind FROM users u
-                  WHERE u.is_active = 1 AND u.role IN ('admin','recruiter','payroll','hotels','supervisor')
+                  WHERE u.is_active = 1 AND u.role IN ('admin','recruiter','hr','payroll','hotels','supervisor')
                     AND NOT EXISTS (SELECT 1 FROM worker_accounts w WHERE w.user_id = u.id)
                  UNION
                  SELECT DISTINCT u.id, u.name, u.role, 'crew' AS kind FROM users u

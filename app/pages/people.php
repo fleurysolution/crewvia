@@ -115,11 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // P5-M57: the staff first, on their own tab, with the form to add somebody on top. The employees'
 // and clients' portal accounts (a thousand and more) have their own tabs, searched and paged; listed
 // all together, they buried the staff and the form under them, and "Add somebody" could not be found.
-const PEOPLE_STAFF = ['admin', 'recruiter', 'hotels', 'payroll', 'supervisor'];
+const PEOPLE_STAFF = ['admin', 'recruiter', 'hr', 'hotels', 'payroll', 'supervisor'];
 $peopleTab = in_array($_GET['tab'] ?? '', ['staff', 'clients', 'workers'], true) ? (string) $_GET['tab'] : 'staff';
 $peopleQ = trim((string) ($_GET['q'] ?? ''));
 $peoplePage = max(1, (int) ($_GET['page'] ?? 1));
-$tabWhere = ['staff' => "role IN ('admin','recruiter','hotels','payroll','supervisor')", 'clients' => "role = 'client'", 'workers' => "role = 'worker'"];
+$tabWhere = ['staff' => "role IN ('admin','recruiter','hr','hotels','payroll','supervisor')", 'clients' => "role = 'client'", 'workers' => "role = 'worker'"];
 $peopleCounts = [];
 foreach ($tabWhere as $k => $w) { $peopleCounts[$k] = (int) val('SELECT COUNT(*) FROM users WHERE ' . $w); }
 $where = $tabWhere[$peopleTab];

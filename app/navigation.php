@@ -241,6 +241,7 @@ function workspace_daily(?array $u): array
     return match ($u['role'] ?? '') {
         'admin'      => ['/overview', '/activity', '/approvals', '/', '/projects', '/hiring', '/reviews', '/hours', '/billing', '/people', '/settings'],
         'recruiter'  => ['/home', '/activity', '/hiring', '/reviews', '/candidates', '/requisitions', '/recruitment', '/onboarding', '/tax-forms', '/contracts', '/client-orders', '/approvals'],
+        'hr'         => ['/home', '/activity', '/onboarding', '/tax-forms', '/candidates', '/contracts', '/manning', '/my-tasks', '/approvals'],
         'hotels'     => ['/home', '/activity', '/hotels', '/travel', '/folios', '/manning', '/operations', '/procurement', '/approvals'],
         'payroll'    => ['/home', '/activity', '/hours', '/attendance-week', '/lateness', '/payroll-runs', '/payroll-export', '/billing', '/client-invoices', '/accounts-payable', '/approvals'],
         'supervisor' => ['/my-team', '/activity', '/reviews', '/attendance', '/lateness', '/my-tasks', '/project-tasks', '/procurement', '/safety-plan', '/notifications'],

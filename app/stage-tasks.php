@@ -22,7 +22,7 @@ function stage_task_plan(): array
             ['Recruit and send the offers', 'Screen the applicants, interview, and send the offers for every trade on the scope.', 'recruiter', 3],
             ['Book the hotel rooms for the crew', 'Hold the rooms on the project\'s hotels and book each person as they are confirmed.', 'hotels', 5],
             ['Book the travel to the site', 'Flights or drives for each confirmed person, arriving before their first shift.', 'hotels', 5],
-            ['Check the tax forms, the direct deposit and ADP', 'W-4, I-9 and direct deposit accepted for each new hire, and each one created in ADP.', 'payroll', 5],
+            ['Check the tax forms, the direct deposit and ADP', 'W-4, I-9 and direct deposit accepted for each new hire, and each one created in ADP.', 'hr', 5],
             ['Prepare the site: shifts, buses and clock-in', 'Shift times, bus departures, the site position for the clock-in, and the supervisors of each crew.', 'site', 2],
         ],
         'on_site' => [
@@ -47,6 +47,9 @@ function stage_task_assignee(array $job, string $role): ?int
             return $pm;
         }
         $role = 'supervisor';
+    }
+    if ($role === 'hr' && ! val("SELECT id FROM users WHERE is_active = 1 AND role = 'hr' LIMIT 1")) {
+        $role = 'payroll';
     }
     $id = val("SELECT u.id FROM users u
                WHERE u.is_active = 1 AND u.role = ? AND NOT EXISTS (SELECT 1 FROM worker_accounts w WHERE w.user_id = u.id)

@@ -169,3 +169,13 @@ $gtd     = (int) ($p['strike_live'] && $p['strike_hours'] !== null
   <?php endif; ?>
 </div>
 <?php endif; ?>
+<?php // P5-M84: HR sets the person's group and supervisor - or marks them the one leading the group. ?>
+<form method="post" class="card" id="group"><?= csrf_field() ?><input type="hidden" name="do" value="group">
+  <h2><?= te('Group and supervisor') ?></h2>
+  <div class="row">
+    <div><label for="g-name"><?= te('Group') ?></label><input id="g-name" name="crew_group" maxlength="60" list="g-names" value="<?= e((string) ($groupRow['crew_group'] ?? '')) ?>" placeholder="<?= te('e.g. Group 1, Zone A') ?>"><datalist id="g-names"><?php foreach ($groupNames as $gn): ?><option value="<?= e($gn) ?>"><?php endforeach; ?></datalist></div>
+    <div><label for="g-sup"><?= te('Supervisor') ?></label><select id="g-sup" name="supervisor_id"><option value=""><?= te('None yet') ?></option><?php foreach ($supervisorChoices as $sc): ?><option value="<?= (int) $sc['id'] ?>"<?= (int) ($groupRow['supervisor_id'] ?? 0) === (int) $sc['id'] ? ' selected' : '' ?>><?= e($sc['name']) ?></option><?php endforeach; ?></select></div>
+    <div><label>&nbsp;</label><label class="d-block"><input type="checkbox" name="leads_group" value="1"<?= ! empty($groupRow['leads_group']) ? ' checked' : '' ?>> <?= te('Leads this group (a vehicle is reserved for them)') ?></label></div>
+  </div>
+  <button class="btn mt-s"><?= te('Save') ?></button>
+</form>

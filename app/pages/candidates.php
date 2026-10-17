@@ -52,6 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $cand = row('SELECT id, full_name FROM candidates WHERE id = ?', [$cid]);
 
+        // P5-M83: a recruiter passes an applicant on through the review; the owner moves anyone directly.
+        if ($cand && ! can('admin') && in_array($stage, ['screening', 'offered', 'accepted', 'placed'], true)) {
+            flash(t('Send :name for review first: the decision comes back to you.', ['name' => $cand['full_name']]), 'err');
+            redirect('/candidates/' . $cid . '#send-review');
+        }
+
         if ($cand) {
             q('UPDATE candidates SET stage = ?, owner_id = COALESCE(owner_id, ?) WHERE id = ?',
               [$stage, uid(), $cid]);
@@ -67,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ── The list ─────────────────────────────────────────────────────────────
 $search     = trim((string) ($_GET['q'] ?? ''));
 $stage      = (string) ($_GET['stage'] ?? '');
+// P5-M83: a recruiter opens on the people still to call; once called they move to Contacted.
+if (! isset($_GET['stage']) && (user()['role'] ?? '') === 'recruiter' && count(array_diff(array_keys($_GET), ['page'])) === 0) { $stage = 'new'; }
 $discipline = (string) ($_GET['field'] ?? '');
 $hasPhone   = ($_GET['phone'] ?? '') === '1';
 $mine       = ($_GET['mine'] ?? '') === '1';

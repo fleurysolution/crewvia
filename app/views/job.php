@@ -589,6 +589,11 @@ $strike   = (bool) $job['strike_live'];
       </div>
     </div>
 
+    <?php // P5-M84: who onboards the approved applicants of this project. ?>
+    <div class="row mt-s"><div class="f2"><label for="j-coord"><?= te('HR (onboarding)') ?></label>
+      <select id="j-coord" name="coordinator_id"><option value=""><?= te('Whoever runs onboarding') ?></option>
+        <?php foreach ($staff as $st): if (! in_array($st['role'], ['admin', 'recruiter', 'hr', 'payroll', 'hotels', 'supervisor'], true)) { continue; } ?><option value="<?= (int) $st['id'] ?>"<?= (int) ($job['coordinator_id'] ?? 0) === (int) $st['id'] ? ' selected' : '' ?>><?= e($st['name']) ?></option><?php endforeach; ?>
+      </select><span class="hint"><?= te('Receives the applicants a manager approves.') ?></span></div></div>
     <div class="field mt">
       <label for="j-desc"><?= te('Description of the work') ?></label>
       <textarea id="j-desc" name="description" rows="4" maxlength="8000"

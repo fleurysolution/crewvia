@@ -143,7 +143,11 @@ function review_decide(int $reviewId, string $decision, string $note, int $by, a
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)',
       [$applicationId, $by, (string) val('SELECT stage FROM applications WHERE id = ?', [$applicationId]), $words . $who . '.' . ($note !== '' ? ' ' . $note : '')]);
     $a = review_application($applicationId);
-    review_notify((int) $r['requested_by'], t(':name: :decision', ['name' => (string) ($a['full_name'] ?? ''), 'decision' => review_statuses()[$decision]]),
+    // P5-M84: approved, the applicant goes to HR; the recruiter's part is done.
+    $hr = $decision === 'validated' ? review_hand_to_hr($applicationId, $by) : null;
+    review_notify((int) $r['requested_by'], $hr
+                      ? t(':name approved by :who and handed to HR (:hr). Nothing more for you.', ['name' => (string) ($a['full_name'] ?? ''), 'who' => $who, 'hr' => $hr])
+                      : t(':name: :decision', ['name' => (string) ($a['full_name'] ?? ''), 'decision' => review_statuses()[$decision]]),
                   '/hiring?v=' . (int) ($a['vacancy_id'] ?? 0) . '&app=' . $applicationId);
     log_activity('decided on an applicant', 'application', $applicationId, $decision);
 
@@ -232,4 +236,47 @@ function review_dossier(int $applicationId): ?array
     $a['interviews'] = rows('SELECT i.*, u.name AS interviewer FROM interviews i JOIN users u ON u.id = i.interviewer_id WHERE i.application_id = ? ORDER BY i.scheduled_at DESC', [$applicationId]);
 
     return $a;
+}
+
+/**
+ * P5-M84: an approved applicant goes to HR - the project's coordinator, or whoever runs onboarding - with a task
+ * (paperwork in the portal, drug test and background if needed, group and supervisor) and the portal invitation,
+ * so the person can fill in their forms. Returns who has it.
+ */
+function review_hand_to_hr(int $applicationId, int $by): ?string
+{
+    $a = row('SELECT a.id, a.candidate_id, c.full_name, v.title, v.job_id, j.coordinator_id FROM applications a JOIN candidates c ON c.id = a.candidate_id
+              JOIN vacancies v ON v.id = a.vacancy_id JOIN jobs j ON j.id = v.job_id WHERE a.id = ?', [$applicationId]);
+    if (! $a) {
+        return null;
+    }
+    $hr = (int) ($a['coordinator_id'] ?? 0);
+    if (! $hr || ! val('SELECT is_active FROM users WHERE id = ?', [$hr])) {
+        $hr = (int) val("SELECT u.id FROM users u WHERE u.is_active = 1 AND u.role IN ('hr','recruiter','admin') AND u.id <> ?
+                         AND NOT EXISTS (SELECT 1 FROM worker_accounts w WHERE w.user_id = u.id)
+                         ORDER BY u.role <> 'hr', u.role = 'admin', (SELECT COUNT(*) FROM project_tasks t WHERE t.assignee_id = u.id AND t.status IN ('todo','in_progress','blocked')), u.id LIMIT 1", [$by]);
+    }
+    $name = $hr ? (string) val('SELECT name FROM users WHERE id = ?', [$hr]) : '';
+    q("UPDATE candidates SET stage = 'offered' WHERE id = ? AND stage IN ('new','contacted','screening')", [(int) $a['candidate_id']]);
+    require_once __DIR__ . '/project-tasks.php';
+    $title = t('Onboard :name: paperwork, drug test, group and supervisor', ['name' => $a['full_name']]);
+    if (! val('SELECT COUNT(*) FROM project_tasks WHERE job_id = ? AND title = ?', [(int) $a['job_id'], $title])) {
+        q("INSERT INTO project_tasks (job_id, title, description, assignee_id, priority, due_on, created_by) VALUES (?,?,?,?, 'high', ?, ?)",
+          [(int) $a['job_id'], $title, t('Approved for :role. The portal invitation has gone to them for the W-4, I-9 and direct deposit. Send the drug test and background check details if this job needs them, then set their group and supervisor on the placement.', ['role' => $a['title']]),
+           $hr ?: null, date('Y-m-d', strtotime('+2 days')), $by]);
+        $task = (int) db()->lastInsertId();
+        pt_event($task, $by, 'created', null, $title);
+        if ($hr) {
+            pt_notify($hr, $by, t('To onboard: :name, approved for :role', ['name' => $a['full_name'], 'role' => $a['title']]), '/my-tasks?task=' . $task);
+        }
+    }
+    try {
+        require_once __DIR__ . '/invitations.php';
+        workforce_invite_candidate((int) $a['candidate_id']);
+    } catch (Throwable $e) {
+        // The task says what to do; an invitation that could not go is sent again from Onboarding.
+    }
+    log_activity('handed an approved applicant to HR', 'application', $applicationId, $name);
+
+    return $name !== '' ? $name : t('Onboarding');
 }

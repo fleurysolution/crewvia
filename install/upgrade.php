@@ -2942,4 +2942,18 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'ADP: payroll sees who is ready to be created in ADP and sends them in one click, by the new-hire file or by ADP\'s API once its credentials are in the configuration (ADP).' . PHP_EOL;
 }
 
+// ── P5-M84: the project's HR coordinator; each person's group and whether they lead it ──
+// Reversed by install/rollback/p5-m84.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='jobs' AND column_name='coordinator_id'")) {
+    q('ALTER TABLE jobs ADD COLUMN coordinator_id INT UNSIGNED NULL');
+    q('ALTER TABLE assignment_details ADD COLUMN crew_group VARCHAR(60) NULL, ADD COLUMN leads_group TINYINT(1) NOT NULL DEFAULT 0');
+    echo 'Hiring flow: a manager\'s approval hands the applicant to the project\'s HR coordinator (the plant) with a task and the portal invitation; HR puts each person in a group with its supervisor (the placement).' . PHP_EOL;
+}
+
+// P5-M84: the HR role (onboarding); "Hotels & Travel" is shown as Project coordinator.
+if (! str_contains((string) val("SELECT COLUMN_TYPE FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='users' AND column_name='role'"), "'hr'")) {
+    q("ALTER TABLE users MODIFY role ENUM('admin','recruiter','hr','hotels','payroll','worker','supervisor','client') NOT NULL DEFAULT 'recruiter'");
+    echo 'Roles: HR (onboarding) added; Hotels & Travel is now called Project coordinator. Move the onboarding team to HR on Team.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

@@ -151,6 +151,29 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <?php endif; ?>
 </section>
 
+<?php // P5-M83: from the recruiter to the person who decides. ?>
+<?php if ($pendingReview): ?>
+<div class="card" id="send-review"><p class="m0"><?php if ($pendingReview['status'] === 'validated'): ?><span class="tag green"><?= te('Approved') ?></span> <?= te('Approved by :name on :date and handed to HR for onboarding.', ['name' => $pendingReview['reviewer'], 'date' => d(substr((string) ($pendingReview['decided_at'] ?? $pendingReview['created_at']), 0, 10))]) ?><?php else: ?><span class="tag blue"><?= te('In review') ?></span> <?= te('With :name since :date. Fit :n/5.', ['name' => $pendingReview['reviewer'], 'date' => d(substr((string) $pendingReview['created_at'], 0, 10)), 'n' => (int) $pendingReview['rating']]) ?><?php endif; ?></p></div>
+<?php elseif (! in_array($c['stage'], ['accepted', 'placed', 'rejected', 'declined'], true)): ?>
+<details class="card fold" id="send-review"<?= in_array($c['stage'], ['new', 'contacted'], true) && $c['last_contact_at'] ? ' open' : '' ?>>
+  <summary><span><span class="eyebrow"><?= te('NEXT STEP') ?></span><h2><?= te('Send for review') ?></h2></span><span class="fold-note"><?= te('The person who approves decides') ?></span></summary>
+  <form method="post" class="grid g2"><?= csrf_field() ?><input type="hidden" name="do" value="send_review">
+    <div><label for="sr-for"><?= te('For') ?></label>
+      <select id="sr-for" name="application_id" onchange="document.getElementById('sr-vac').hidden=this.value!=='0'">
+        <?php foreach ($applications as $ap): if (in_array($ap['stage'], ['offered', 'accepted', 'rejected', 'withdrawn'], true)) { continue; } ?><option value="<?= (int) $ap['id'] ?>"><?= e($ap['role'] . ' · ' . $ap['project']) ?></option><?php endforeach; ?>
+        <option value="0"<?= $applications ? '' : ' selected' ?>><?= te('Another requisition...') ?></option>
+      </select>
+      <select id="sr-vac" name="vacancy_id" class="mt-xs"<?= $applications ? ' hidden' : '' ?> aria-label="<?= te('Requisition') ?>"><option value=""><?= te('Choose') ?></option>
+        <?php foreach ($openVacancies as $ov): ?><option value="<?= (int) $ov['id'] ?>"><?= e($ov['title'] . ' · ' . $ov['job']) ?></option><?php endforeach; ?></select></div>
+    <div><label for="sr-who"><?= te('Who decides') ?></label><select id="sr-who" name="reviewer_id" required>
+      <?php foreach ($reviewPeople as $rp): if ((int) $rp['id'] === uid()) { continue; } ?><option value="<?= (int) $rp['id'] ?>"<?= (int) $rp['id'] === $reviewDefault ? ' selected' : '' ?>><?= e($rp['name']) ?></option><?php endforeach; ?></select></div>
+    <div><label for="sr-fit"><?= te('Fit') ?></label><select id="sr-fit" name="rating" required><?php foreach ([5, 4, 3, 2, 1] as $r): ?><option value="<?= $r ?>"<?= $r === 4 ? ' selected' : '' ?>><?= $r ?>/5</option><?php endforeach; ?></select></div>
+    <div><label for="sr-why"><?= te('Your recommendation') ?></label><input id="sr-why" name="recommendation" required maxlength="4000" placeholder="<?= te('Why this person, and anything to watch') ?>"></div>
+    <div><button class="btn"><?= te('Send for review') ?></button></div>
+  </form>
+</details>
+<?php endif; ?>
+
 <!-- ── reaching them ───────────────────────────────────────────────── -->
 <section class="card contact-card" id="contact">
   <div class="contact-head">
@@ -188,15 +211,6 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </div>
   </div>
 
-  <p class="small" id="driver-records-link"><a href="/driver-checks?candidate=<?= (int) $c['id'] ?>"><?= te('Driving records: MVR, Clearinghouse, PSP') ?></a></p>
-  <?php require __DIR__ . '/_text-panel.php'; ?>
-  <form method="post" action="/contacts" class="card" id="contact-preferences"><?= csrf_field() ?><input type="hidden" name="do" value="preferences"><input type="hidden" name="candidate_id" value="<?= (int) $c['id'] ?>">
-    <h3><?= te('How they may be contacted') ?></h3>
-    <label><input type="checkbox" name="no_texts" value="1"<?= $contactPref['no_texts_since'] !== null ? ' checked' : '' ?>> <?= te('Asked not to be texted') ?></label>
-    <label><input type="checkbox" name="no_calls" value="1"<?= $contactPref['no_calls_since'] !== null ? ' checked' : '' ?>> <?= te('Asked not to be called') ?></label>
-    <label><?= te('How they asked (for example: replied STOP)') ?><input name="reason" maxlength="255" value="<?= e((string) ($contactPref['reason'] ?? '')) ?>"></label>
-    <button class="btn sm"><?= te('Save') ?></button>
-  </form>
   <form method="post" class="row contact-log">
     <?= csrf_field() ?>
     <input type="hidden" name="do" value="call">
@@ -215,12 +229,20 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     </div>
     <button class="btn" type="submit"><?= te('Record the contact') ?></button>
   </form>
-
-  <p class="hint m0 mt">
-    <?= $c['stage'] === 'new'
-        ? te('Recording a contact moves them from Never contacted to Contacted.')
-        : te('Recording a contact keeps the history below in order.') ?>
-  </p>
+  <?php // P5-M83: the call comes first; a text, the contact preferences and the driving records are there when needed. ?>
+  <details class="mt-s" id="text-panel-fold"><summary class="small"><?= te('Send a text message') ?></summary>
+  <?php require __DIR__ . '/_text-panel.php'; ?>
+  </details>
+  <details class="mt-xs" id="contact-preferences-fold"><summary class="small"><?= te('Contact preferences') ?><?= $contactPref['no_texts_since'] !== null || $contactPref['no_calls_since'] !== null ? ' &middot; <span class="t-red">' . te('restricted') . '</span>' : '' ?></summary>
+  <form method="post" action="/contacts" id="contact-preferences"><?= csrf_field() ?><input type="hidden" name="do" value="preferences"><input type="hidden" name="candidate_id" value="<?= (int) $c['id'] ?>">
+    <h3><?= te('How they may be contacted') ?></h3>
+    <label><input type="checkbox" name="no_texts" value="1"<?= $contactPref['no_texts_since'] !== null ? ' checked' : '' ?>> <?= te('Asked not to be texted') ?></label>
+    <label><input type="checkbox" name="no_calls" value="1"<?= $contactPref['no_calls_since'] !== null ? ' checked' : '' ?>> <?= te('Asked not to be called') ?></label>
+    <label><?= te('How they asked (for example: replied STOP)') ?><input name="reason" maxlength="255" value="<?= e((string) ($contactPref['reason'] ?? '')) ?>"></label>
+    <button class="btn sm"><?= te('Save') ?></button>
+  </form>
+  </details>
+  <p class="small m0 mt-xs" id="driver-records-link"><a href="/driver-checks?candidate=<?= (int) $c['id'] ?>"><?= te('Driving records: MVR, Clearinghouse, PSP') ?></a></p>
 </section>
 
 <div class="grid g2">

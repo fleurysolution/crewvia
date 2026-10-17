@@ -390,6 +390,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         trim((string) ($_POST['notes'] ?? '')) ?: null,
         $jobId,
     ]);
+    // P5-M84: the project's HR coordinator, who receives the approved applicants.
+    $coord = (int) ($_POST['coordinator_id'] ?? 0);
+    q('UPDATE jobs SET coordinator_id = ? WHERE id = ?', [$coord && val("SELECT id FROM users WHERE id = ? AND is_active = 1 AND role IN ('admin','recruiter','hr','payroll','hotels','supervisor')", [$coord]) ? $coord : null, $jobId]);
     // P5-M71: the street address of the site.
     q('UPDATE jobs SET site_address = ? WHERE id = ?', [mb_substr(trim((string) ($_POST['site_address'] ?? '')), 0, 190) ?: null, $jobId]);
     // P5-M67: the site's exact position and radius, against which clock-ins are compared.

@@ -35,7 +35,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  log_activity('manning update','project',$jobId,$do);redirect('/manning');
 }
 $include=isset($_GET['released']);
-$crew=rows("SELECT p.*,c.full_name,c.phone,j.title job_title,j.site_city,j.site_state,COALESCE(NULLIF(d.trade,''),(SELECT ol.role_title FROM job_order_lines ol WHERE ol.id=p.order_line_id)) trade,d.shift_label,u.name supervisor,
+$crew=rows("SELECT p.*,c.full_name,c.phone,j.title job_title,j.site_city,j.site_state,COALESCE(NULLIF(d.trade,''),(SELECT ol.role_title FROM job_order_lines ol WHERE ol.id=p.order_line_id)) trade,d.shift_label,d.crew_group,d.leads_group,u.name supervisor,
  (SELECT h.name FROM lodging l JOIN hotels h ON h.id=l.hotel_id WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) hotel,
  (SELECT l.room_number FROM lodging l WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) room_number,
  (SELECT l.check_in FROM lodging l WHERE l.placement_id=p.id AND l.status IN ('held','booked','checked_in') ORDER BY l.id DESC LIMIT 1) hotel_in,
@@ -44,7 +44,7 @@ $crew=rows("SELECT p.*,c.full_name,c.phone,j.title job_title,j.site_city,j.site_
 // P5-M81: a supervisor on the crew drives it - their vehicle is reserved with them (RSS: "add the vehicle if that person is a supervisor").
 $withVehicle=array_map('intval',array_column(rows('SELECT DISTINCT a.placement_id FROM vehicle_assignments a JOIN placements p ON p.id=a.placement_id WHERE p.job_id=? AND a.checked_in_at IS NULL',[$jobId]),'placement_id'));
 $leaders=array_map('intval',array_column(rows('SELECT DISTINCT p.id FROM placements p JOIN worker_accounts w ON w.candidate_id=p.candidate_id JOIN assignment_details d2 ON d2.supervisor_id=w.user_id JOIN placements p2 ON p2.id=d2.placement_id AND p2.job_id=p.job_id WHERE p.job_id=?',[$jobId]),'id'));
-foreach($crew as $i=>$c){$crew[$i]['leads']=in_array((int)$c['id'],$leaders,true)||preg_match('/supervis|foreman|lead\b|superintendent/i',(string)$c['trade']);$crew[$i]['has_vehicle']=in_array((int)$c['id'],$withVehicle,true);}
+foreach($crew as $i=>$c){$crew[$i]['leads']=in_array((int)$c['id'],$leaders,true)||!empty($c['leads_group'])||preg_match('/supervis|foreman|lead\b|superintendent/i',(string)$c['trade']);$crew[$i]['has_vehicle']=in_array((int)$c['id'],$withVehicle,true);}
 $needVehicle=array_values(array_filter($crew,static fn($c)=>$c['leads']&&!$c['has_vehicle']&&!in_array($c['status'],['completed','cancelled'],true)));
 $reserveFor=(int)($_GET['reserve'] ?? 0);
 $vans=rows('SELECT a.*,v.name,v.plate,c.full_name FROM vehicle_assignments a JOIN vehicles v ON v.id=a.vehicle_id JOIN placements p ON p.id=a.placement_id JOIN candidates c ON c.id=p.candidate_id WHERE p.job_id=? ORDER BY a.id DESC',[$jobId]);
