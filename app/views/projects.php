@@ -59,6 +59,13 @@
       <label for="p-zip"><?= te('ZIP code') ?></label>
       <input id="p-zip" name="site_zip" maxlength="10" inputmode="numeric" pattern="\d{5}(-\d{4})?">
     </div>
+  </div>
+  <?php // P5-M70: the site's exact position from the start, for the clock-in (P5-M67). ?>
+  <div class="row">
+    <div><label for="p-lat"><?= te('Site latitude') ?></label><input id="p-lat" name="site_lat" inputmode="decimal" maxlength="12" placeholder="41.6036"></div>
+    <div><label for="p-lng"><?= te('Site longitude') ?></label><input id="p-lng" name="site_lng" inputmode="decimal" maxlength="12" placeholder="-87.3378"></div>
+    <div><label for="p-radius"><?= te('Clock-in radius (m)') ?></label><input id="p-radius" name="site_radius_m" type="number" min="50" max="5000" value="300"></div>
+    <div><label>&nbsp;</label><button type="button" class="btn ghost sm" onclick="var b=this;navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(p){document.getElementById('p-lat').value=p.coords.latitude.toFixed(6);document.getElementById('p-lng').value=p.coords.longitude.toFixed(6);b.textContent=b.dataset.done;},function(){b.textContent=b.dataset.fail;},{enableHighAccuracy:true,timeout:15000})" data-done="<?= te('Position taken') ?>" data-fail="<?= te('Position unavailable') ?>"><?= te('My position here') ?></button></div>
     <div>
       <label for="p-start"><?= te('Starts') ?></label>
       <input id="p-start" type="date" name="starts_on">

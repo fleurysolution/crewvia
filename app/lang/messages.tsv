@@ -5105,3 +5105,48 @@ Portal accounts	Comptes du portail	Cuentas del portal
 :n live	:n actifs	:n activos
 Choose the client…	Choisissez le client…	Elija el cliente…
 No client yet: add one first	Aucun client : ajoutez-en un d'abord	Todavía no hay clientes: agregue uno primero
+the bill rate times a multiplier	le taux facturé multiplié	la tarifa facturada multiplicada
+the bill rate (no premium)	le taux facturé (sans majoration)	la tarifa facturada (sin recargo)
+its own rate	son propre taux	su propia tarifa
+not billed	non facturé	no facturado
+at cost	au coût	al costo
+at cost plus a percentage	au coût plus un pourcentage	al costo más un porcentaje
+a flat rate per night	un forfait par nuit	una tarifa fija por noche
+not billed (included)	non facturé (inclus)	no facturado (incluido)
+per day on site	par jour sur place	por día en el sitio
+per week worked	par semaine travaillée	por semana trabajada
+Check the numbers: a multiplier from 1 to 3, a percentage from 0 to 100, amounts in dollars.	Vérifiez les nombres : un multiplicateur de 1 à 3, un pourcentage de 0 à 100, des montants en dollars.	Verifique los números: un multiplicador de 1 a 3, un porcentaje de 0 a 100, montos en dólares.
+Give the overtime rate billed, or choose another way to bill overtime.	Indiquez le taux facturé des heures supplémentaires, ou choisissez une autre façon de les facturer.	Indique la tarifa facturada de horas extra, o elija otra forma de facturarlas.
+Give the flat rate billed per night.	Indiquez le forfait facturé par nuit.	Indique la tarifa fija facturada por noche.
+Give the transport rate billed.	Indiquez le tarif de transport facturé.	Indique la tarifa de transporte facturada.
+A shift premium is dollars per hour, from 0 to 200.	Une prime de quart est en dollars par heure, de 0 à 200.	Un recargo de turno es en dólares por hora, de 0 a 200.
+Regular hours	Heures régulières	Horas regulares
+:shift shift premium	Prime du quart :shift	Recargo del turno :shift
+Per diem, at cost plus :pct%	Per diem, au coût plus :pct %	Viáticos, al costo más :pct %
+Per diem, at cost	Per diem, au coût	Viáticos, al costo
+Hotel, flat rate per night	Hôtel, forfait par nuit	Hotel, tarifa fija por noche
+Hotel nights, at cost plus :pct%	Nuits d'hôtel, au coût plus :pct %	Noches de hotel, al costo más :pct %
+Hotel nights, at cost	Nuits d'hôtel, au coût	Noches de hotel, al costo
+Travel, at cost plus :pct%	Voyage, au coût plus :pct %	Viaje, al costo más :pct %
+Travel, at cost	Voyage, au coût	Viaje, al costo
+Transport on site, per day	Transport sur place, par jour	Transporte en el sitio, por día
+Transport on site, per week	Transport sur place, par semaine	Transporte en el sitio, por semana
+Saved: the next invoices bill these terms.	Enregistré : les prochaines factures appliquent ces conditions.	Guardado: las próximas facturas aplican estas condiciones.
+What the client is billed	Ce qui est facturé au client	Lo que se factura al cliente
+Each approved week is invoiced by these terms: regular hours at the trade's bill rate, then each item below as agreed with the client. Every shift is billed at the regular rate unless it carries a premium.	Chaque semaine approuvée est facturée selon ces conditions : les heures régulières au taux facturé du métier, puis chaque élément ci-dessous comme convenu avec le client. Chaque quart est facturé au taux régulier sauf s'il porte une prime.	Cada semana aprobada se factura con estas condiciones: las horas regulares a la tarifa del oficio, y luego cada elemento siguiente según lo acordado con el cliente. Cada turno se factura a la tarifa regular salvo que tenga un recargo.
+Overtime	Heures supplémentaires	Horas extra
+Multiplier	Multiplicateur	Multiplicador
+or rate $/h	ou taux $/h	o tarifa $/h
+Per diem	Per diem	Viáticos
+Markup %	Majoration %	Recargo %
+Hotel	Hôtel	Hotel
+or $ per night	ou $ par nuit	o $ por noche
+Travel	Voyage	Viaje
+Transport on site	Transport sur place	Transporte en el sitio
+Rate $	Tarif $	Tarifa $
+:shift shift	Quart :shift	Turno :shift
+premium billed, $ per hour	prime facturée, $ par heure	recargo facturado, $ por hora
+empty: billed at the regular rate	vide : facturé au taux régulier	vacío: se factura a la tarifa regular
+Save what the client is billed	Enregistrer ce qui est facturé au client	Guardar lo que se factura al cliente
+Billed by the terms on the project (overtime, shift premiums, per diem, hotel, travel, transport). Tax and credits require accounting review.	Facturé selon les conditions du projet (heures supplémentaires, primes de quart, per diem, hôtel, voyage, transport). Les taxes et crédits demandent une revue comptable.	Facturado según las condiciones del proyecto (horas extra, recargos de turno, viáticos, hotel, viaje, transporte). Impuestos y créditos requieren revisión contable.
+Position taken	Position prise	Posición tomada

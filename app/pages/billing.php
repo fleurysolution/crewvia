@@ -27,8 +27,12 @@ $sheets = rows(
 $weeks = [];
 $grand = ['pay' => 0.0, 'bill' => 0.0, 'hours' => 0.0, 'short' => 0.0, 'perdiem' => 0.0, 'margin' => 0.0];
 
+// P5-M70: billed by the project's terms, as the invoice will be.
+require_once __DIR__ . '/../billing-terms.php';
+$terms = bt_terms((int) ($job['id'] ?? 0));
 foreach ($sheets as $s) {
     $m  = week_money($s, $s, $job ?? []);
+    $m['bill_total'] = $job ? bt_total(bt_week_parts($s, $m, $job, $terms)) : $m['bill_total'];
     $wk = $s['week_ending'];
 
     if (! isset($weeks[$wk])) {

@@ -2760,4 +2760,33 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Clients: a Clients page to add a client first (address, contact, billing email, payment terms), then take on its projects; Projects chooses the client from the list.' . PHP_EOL;
 }
 
+// ── P5-M70: what the client is billed, on each project: overtime, shift premiums, per diem, hotel, travel, transport ──
+// Reversed by install/rollback/p5-m70.sql. Projects without terms bill as before: every hour at the bill rate.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='job_billing_terms'")) {
+    q("CREATE TABLE job_billing_terms (
+        job_id INT UNSIGNED PRIMARY KEY,
+        ot_mode ENUM('multiplier','straight','rate') NOT NULL DEFAULT 'straight',
+        ot_multiplier DECIMAL(4,2) NOT NULL DEFAULT 1.50,
+        ot_rate DECIMAL(10,2) NULL,
+        per_diem_mode ENUM('none','cost','cost_plus') NOT NULL DEFAULT 'none',
+        per_diem_markup_pct DECIMAL(5,2) NOT NULL DEFAULT 0,
+        lodging_mode ENUM('none','cost','cost_plus','flat_night') NOT NULL DEFAULT 'none',
+        lodging_markup_pct DECIMAL(5,2) NOT NULL DEFAULT 0,
+        lodging_night_rate DECIMAL(10,2) NULL,
+        travel_mode ENUM('none','cost','cost_plus') NOT NULL DEFAULT 'none',
+        travel_markup_pct DECIMAL(5,2) NOT NULL DEFAULT 0,
+        transport_mode ENUM('none','per_day','per_week') NOT NULL DEFAULT 'none',
+        transport_rate DECIMAL(10,2) NULL,
+        updated_by INT UNSIGNED NULL,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (job_id) REFERENCES jobs(id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+    echo 'Billing terms: each project says how overtime, shift premiums, per diem, hotel, travel and transport are billed (Projects, the plant, What the client is billed); the invoice shows each as its own line. Until set, every hour is billed at the bill rate, as before.' . PHP_EOL;
+}
+// The shift premium billed, separately: the P5-M27 rollback drops project_shifts and the upgrade makes it again.
+if (val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='project_shifts'")
+    && ! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='project_shifts' AND column_name='bill_premium'")) {
+    q('ALTER TABLE project_shifts ADD COLUMN bill_premium DECIMAL(8,2) NOT NULL DEFAULT 0');
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

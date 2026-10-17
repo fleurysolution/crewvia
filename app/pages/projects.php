@@ -78,6 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     $_SESSION['job_id'] = (int) db()->lastInsertId();
+    // P5-M70: the site's position and clock-in radius, when given at once.
+    $lat = trim((string) ($_POST['site_lat'] ?? ''));
+    $lng = trim((string) ($_POST['site_lng'] ?? ''));
+    if (is_numeric($lat) && is_numeric($lng) && abs((float) $lat) <= 90 && abs((float) $lng) <= 180) {
+        q('UPDATE jobs SET site_lat = ?, site_lng = ?, site_radius_m = ? WHERE id = ?', [round((float) $lat, 6), round((float) $lng, 6), max(50, min(5000, (int) ($_POST['site_radius_m'] ?? 300) ?: 300)), $_SESSION['job_id']]);
+    }
     db()->commit();
     // P5-M27: the usual two, day and night, each with its bus; changed on the agreement.
     require_once __DIR__ . '/../shifts.php';

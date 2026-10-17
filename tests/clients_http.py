@@ -69,9 +69,19 @@ status, body = admin.post('/clients', {**NEW, 'name': 'demo client corp'}, '/cli
 check('The same name twice is refused', 'already has this name' in body and len(sql("SELECT id FROM clients WHERE LOWER(name) = 'demo client corp'")) == 1)
 status, body = admin.get('/projects?client_id=%d' % cid)
 check('Projects chooses the client from the list, the new one chosen', re.search(r'<option value="%d" selected>Demo Client Corp</option>' % cid, body) and 'href="/clients#new"' in body)
-admin.post('/projects', {'client_id': cid, 'title': 'P5-M69 demo plant', 'site_city': 'Gary', 'site_state': 'IN'}, '/projects')
-j = sql("SELECT id, client_id FROM jobs WHERE title = 'P5-M69 demo plant'")
-check('The project taken on is that client\'s', len(j) == 1 and int(j[0]['client_id']) == cid, j)
+admin.post('/projects', {'client_id': cid, 'title': 'P5-M69 demo plant', 'site_city': 'Gary', 'site_state': 'IN', 'site_lat': '41.6036', 'site_lng': '-87.3378', 'site_radius_m': '500'}, '/projects')
+j = sql("SELECT id, client_id, site_lat, site_lng, site_radius_m FROM jobs WHERE title = 'P5-M69 demo plant'")
+check('The project taken on is that client\'s, with its site position and radius given at once (P5-M70)', len(j) == 1 and int(j[0]['client_id']) == cid
+      and float(j[0]['site_lat']) == 41.6036 and float(j[0]['site_lng']) == -87.3378 and int(j[0]['site_radius_m']) == 500, j)
+status, body = admin.get('/job')
+check('The new project opens on its plant, with what the client is billed (P5-M70)', status == 200 and 'id="billing-terms"' in body and 'name="ot_mode"' in body)
+status, saved = admin.post('/job', {'do': 'billing_terms', 'ot_mode': 'multiplier', 'ot_multiplier': '1.5', 'per_diem_mode': 'cost', 'lodging_mode': 'cost_plus', 'lodging_markup_pct': '10',
+                    'travel_mode': 'cost', 'transport_mode': 'per_day', 'transport_rate': '12'}, '/job')
+bt = sql('SELECT ot_mode, per_diem_mode, lodging_mode, lodging_markup_pct, transport_rate FROM job_billing_terms WHERE job_id = %d' % int(j[0]['id']))
+check('What the client is billed is saved from the plant', len(bt) == 1 and bt[0]['ot_mode'] == 'multiplier' and bt[0]['lodging_mode'] == 'cost_plus'
+      and float(bt[0]['lodging_markup_pct']) == 10 and float(bt[0]['transport_rate']) == 12 and 'Saved: the next invoices bill these terms.' in saved, bt)
+admin.post('/job', {'do': 'billing_terms', 'ot_mode': 'rate', 'ot_rate': ''}, '/job')
+check('Overtime at its own rate with no rate is refused, the terms kept', sql('SELECT ot_mode FROM job_billing_terms WHERE job_id = %d' % int(j[0]['id']))[0]['ot_mode'] == 'multiplier')
 status, body = admin.get('/clients?id=%d' % cid)
 check('The client\'s page lists its projects', ('data-client-project="%s"' % j[0]['id']) in body and 'P5-M69 demo plant' in body)
 admin.post('/clients', {**NEW, 'do': 'update', 'client_id': cid, 'payment_terms_days': '30'}, '/clients?id=%d' % cid)

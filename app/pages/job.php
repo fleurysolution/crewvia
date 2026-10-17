@@ -185,6 +185,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $job) {
         redirect('/job#scope');
     }
 
+    // ── P5-M70: what the client is billed ───────────────────────────────
+    if (($_POST['do'] ?? '') === 'billing_terms') {
+        require_once __DIR__ . '/../billing-terms.php';
+        if ($why = bt_save($jobId, $_POST, uid())) {
+            refuse(422, $why, '/job#billing-terms');
+        }
+        flash(t('Saved: the next invoices bill these terms.'));
+        redirect('/job#billing-terms');
+    }
+
     // ── P5-M27: the plant's shifts ──────────────────────────────────────
     if (in_array($_POST['do'] ?? '', ['shift_save', 'shift_remove', 'shift_defaults'], true)) {
         $do = (string) $_POST['do'];
@@ -387,6 +397,8 @@ if ($job && isset($_GET['line'])) {
 $pageTitle = ($job['title'] ?? t('Project setup')) . ' · ' . $config['app_name'];
 
 $shifts = shifts_for((int) $job['id']);
+require_once __DIR__ . '/../billing-terms.php';
+$billing = bt_terms((int) $job['id']);
 $staff = rows("SELECT id, name, role FROM users WHERE is_active = 1 AND role NOT IN ('worker','client') ORDER BY name");
 render('job', compact('job', 'stage', 'signals', 'next', 'figures',
-                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff'));
+                      'supervisors', 'scope', 'totals', 'editLine', 'shifts', 'staff', 'billing'));

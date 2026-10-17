@@ -443,6 +443,24 @@ $strike   = (bool) $job['strike_live'];
   </form>
 </section>
 
+<!-- P5-M70: what the client is billed, beyond the hours at the bill rate -->
+<section class="card" id="billing-terms">
+  <h2><?= te('What the client is billed') ?></h2>
+  <p class="small muted"><?= te('Each approved week is invoiced by these terms: regular hours at the trade\'s bill rate, then each item below as agreed with the client. Every shift is billed at the regular rate unless it carries a premium.') ?></p>
+  <?php $bm = bt_modes(); $sel = static fn(string $k) => implode('', array_map(static fn($v, $label) => '<option value="' . e($v) . '"' . ((string) $billing[$k] === (string) $v ? ' selected' : '') . '>' . e($label) . '</option>', array_keys($bm[$k]), $bm[$k])); $num = static fn(string $k) => e($billing[$k] === null ? '' : rtrim(rtrim(number_format((float) $billing[$k], 2, '.', ''), '0'), '.')); ?>
+  <form method="post" action="/job#billing-terms"><?= csrf_field() ?><input type="hidden" name="do" value="billing_terms">
+    <table class="terms">
+      <tr><td><?= te('Overtime') ?></td><td><select name="ot_mode" aria-label="<?= te('Overtime') ?>"><?= $sel('ot_mode') ?></select></td><td><label class="small"><?= te('Multiplier') ?> <input name="ot_multiplier" inputmode="decimal" class="in-xs" value="<?= $num('ot_multiplier') ?>"></label> <label class="small"><?= te('or rate $/h') ?> <input name="ot_rate" inputmode="decimal" class="in-xs" value="<?= $num('ot_rate') ?>"></label></td></tr>
+      <tr><td><?= te('Per diem') ?></td><td><select name="per_diem_mode" aria-label="<?= te('Per diem') ?>"><?= $sel('per_diem_mode') ?></select></td><td><label class="small"><?= te('Markup %') ?> <input name="per_diem_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('per_diem_markup_pct') ?>"></label></td></tr>
+      <tr><td><?= te('Hotel') ?></td><td><select name="lodging_mode" aria-label="<?= te('Hotel') ?>"><?= $sel('lodging_mode') ?></select></td><td><label class="small"><?= te('Markup %') ?> <input name="lodging_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('lodging_markup_pct') ?>"></label> <label class="small"><?= te('or $ per night') ?> <input name="lodging_night_rate" inputmode="decimal" class="in-xs" value="<?= $num('lodging_night_rate') ?>"></label></td></tr>
+      <tr><td><?= te('Travel') ?></td><td><select name="travel_mode" aria-label="<?= te('Travel') ?>"><?= $sel('travel_mode') ?></select></td><td><label class="small"><?= te('Markup %') ?> <input name="travel_markup_pct" inputmode="decimal" class="in-xs" value="<?= $num('travel_markup_pct') ?>"></label></td></tr>
+      <tr><td><?= te('Transport on site') ?></td><td><select name="transport_mode" aria-label="<?= te('Transport on site') ?>"><?= $sel('transport_mode') ?></select></td><td><label class="small"><?= te('Rate $') ?> <input name="transport_rate" inputmode="decimal" class="in-xs" value="<?= $num('transport_rate') ?>"></label></td></tr>
+      <?php foreach ($shifts as $sh): ?><tr data-shift-premium="<?= (int) $sh['id'] ?>"><td><?= te(':shift shift', ['shift' => $sh['name']]) ?></td><td><?= te('premium billed, $ per hour') ?></td><td><input name="shift_premium[<?= (int) $sh['id'] ?>]" inputmode="decimal" class="in-xs" value="<?= (float) ($sh['bill_premium'] ?? 0) > 0 ? e(rtrim(rtrim(number_format((float) $sh['bill_premium'], 2, '.', ''), '0'), '.')) : '' ?>" placeholder="0"> <span class="small muted"><?= te('empty: billed at the regular rate') ?></span></td></tr><?php endforeach; ?>
+    </table>
+    <button class="btn mt-s"><?= te('Save what the client is billed') ?></button>
+  </form>
+</section>
+
 <!-- ── the agreement ────────────────────────────────────────────────── -->
 <form method="post" action="/job">
   <?= csrf_field() ?>
