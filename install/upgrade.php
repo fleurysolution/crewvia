@@ -2731,4 +2731,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Forms signed in person: the worker fills the W-4 and the I-9 beforehand, and signs on their phone with the code the coordinator in front of them gives; copies of the I-9 documents are kept (sent by the worker or photographed by the office); E-Verify can be turned on (Employment). Forms signed from the portal and not yet checked, back to "to sign at the office": ' . count($back) . '.' . PHP_EOL;
 }
 
+// ── P5-M66: the flow carries on: the office is told when a person is cleared for deployment ──
+// Reversed by install/rollback/p5-m66.sql.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='placements' AND column_name='ready_notified_at'")) {
+    q('ALTER TABLE placements ADD COLUMN ready_notified_at DATETIME NULL');
+    echo 'Deployment: when the last condition clears (forms, Section 2, screening, tasks, contract), the office is told to confirm the person on the roster and the person that their onboarding is done; a confirmation tells hotel and travel who, where and when.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

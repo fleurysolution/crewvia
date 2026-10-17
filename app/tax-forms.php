@@ -716,6 +716,9 @@ function tf_decide(int $formId, string $decision, string $note, int $userId, boo
             }
         }
         onboarding_form_tasks($cid, $f['form'], 'approved', t(':form accepted.', ['form' => $short]), $userId);
+        // P5-M66: the last form accepted may clear the person: the office is told to confirm them.
+        require_once __DIR__ . '/deployment.php';
+        deployment_ready_notice($cid);
         notify_candidate($cid, t('Your :form was checked and accepted.', ['form' => $short]), '/portal#onboarding');
     } else {
         return t('Unknown action.');

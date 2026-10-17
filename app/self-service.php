@@ -200,6 +200,11 @@ function self_bank_decide(int $requestId, string $decision, string $note, int $u
     require_once __DIR__ . '/onboarding-tasks.php';
     onboarding_form_tasks((int) $r['candidate_id'], 'bank', $decision === 'approve' ? 'approved' : 'rejected',
                           $decision === 'approve' ? t('Bank details checked and in use.') : t('Bank details refused: :why', ['why' => mb_substr(trim($note), 0, 200)]), $userId);
+    if ($decision === 'approve') {
+        // P5-M66: the direct deposit task approved may be the last condition.
+        require_once __DIR__ . '/deployment.php';
+        deployment_ready_notice((int) $r['candidate_id']);
+    }
     q('INSERT INTO notifications (user_id, message, target) VALUES (?,?,?)',
       [(int) $r['submitted_by'], $decision === 'approve' ? 'Your bank details were checked and are now in use' : 'Your bank details were refused: ' . mb_substr(trim($note), 0, 200), '/employee-folder']);
 

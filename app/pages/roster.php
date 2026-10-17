@@ -75,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['do'] ?? '') === 'status') 
                SET c.stage = 'placed' WHERE p.id = ?", [$pid]);
         }
 
-        if($st==='confirmed') q("INSERT INTO notifications(user_id,message,target) SELECT id,?,? FROM users WHERE role IN ('admin','hotels') AND is_active=1",['Worker ready for hotel and travel allocation: project '.($job['title'] ?? ''),'/hotels']);
+        // P5-M66: hotel and travel learn who, where and when; the person is told too.
+        if($st==='confirmed') { require_once __DIR__.'/../deployment.php'; deployment_confirmed_notice($pid); }
         log_activity('moved placement', 'placement', $pid, $st);
         flash(t('Status updated.'));
     }
@@ -120,6 +121,10 @@ foreach ($projectReviews as $found) {
     $found['scores'] = assignment_review_scores((int) $found['id']);
     $reviews[(int) $found['placement_id']] = $found;
 }
+
+// P5-M66: who became ready since (a contract signed, a qualification verified) is announced to the office.
+require_once __DIR__ . '/../deployment.php';
+deployment_ready_notice(null, $jobId);
 
 // What stands between each person and the site, for the only status where
 // it decides anything. Before this, a recruiter picked a status, lost the

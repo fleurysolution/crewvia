@@ -160,13 +160,20 @@ if (isset($_GET['person'])) {
         $forms[$f] = $r ? ['row' => $r, 'data' => tf_payload($r)] : null;
     }
     $copies = tf_copies((int) $person['id']);
+    // P5-M66: what still stands between them and the site, for each assignment not started yet.
+    require_once __DIR__ . '/../deployment.php';
+    deployment_ready_notice((int) $person['id']);
+    $remaining = [];
+    foreach (rows("SELECT p.id, p.job_id, p.status, p.start_date, j.title FROM placements p JOIN jobs j ON j.id = p.job_id WHERE p.candidate_id = ? AND p.status IN ('offered','confirmed','travelling') ORDER BY p.id DESC", [(int) $person['id']]) as $pl) {
+        $remaining[] = $pl + ['blockers' => $pl['status'] === 'offered' ? deployment_blockers((int) $pl['id'], (int) $person['id'], (int) $pl['job_id']) : []];
+    }
     $signCode = null;
     if (isset($_SESSION['tf_code']) && (int) $_SESSION['tf_code']['candidate_id'] === (int) $person['id'] && $_SESSION['tf_code']['expires'] > date('Y-m-d H:i:s')) {
         $signCode = $_SESSION['tf_code'];
         unset($_SESSION['tf_code']);
     }
     $pageTitle = t('Forms to sign') . ' · ' . $person['full_name'];
-    render('tax-form-person', compact('person', 'forms', 'copies', 'signCode'));
+    render('tax-form-person', compact('person', 'forms', 'copies', 'signCode', 'remaining'));
     exit;
 }
 
