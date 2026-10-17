@@ -402,3 +402,5 @@ details.fold[open] .fold-note { display: none; }
 .card.fold.tight[open] > summary { margin-bottom: 0; }
 .card.fold.tight > summary + .card-bar { padding: 0 18px 14px; }
 .req-pop.wide { width: 320px; }
+/* P5-M88: a list of people to tick, side by side. */
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 2px 14px; }

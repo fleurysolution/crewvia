@@ -356,3 +356,32 @@ check('A question not met keeps them from the review', not sql('SELECT id FROM a
 rec.post('/candidates/%s' % ck['cid'], {'do': 'checklist', 'application_id': ck['aid'], 'answer[%s]' % items[0]: 'met', 'answer[%s]' % items[1]: 'met', 'note[%s]' % items[1]: 'Lifts 60 lb'}, '/candidates/%s' % ck['cid'])
 rec.post('/candidates/%s' % ck['cid'], {'do': 'send_review', 'application_id': ck['aid'], 'rating': '4', 'recommendation': 'Good.'}, '/candidates/%s' % ck['cid'])
 check('All met: they go for review', bool(sql('SELECT id FROM application_reviews WHERE application_id = %s' % ck['aid'])) and one('SELECT note FROM checklist_answers WHERE item_id = %s AND application_id = %s' % (items[1], ck['aid']))['note'] == 'Lifts 60 lb')
+
+# P5-M87: the recruiter does not place; the owner sending goes to the owner's review; approval assigns to the job unless full.
+status, body = rec.post('/candidates/%s' % ck['cid'], {'do': 'place', 'start_date': ''}, '/candidates/%s' % ck['cid'])
+check('A recruiter cannot place someone on a job', not sql('SELECT id FROM placements WHERE candidate_id = %s' % ck['cid']))
+php_q("INSERT INTO candidates (full_name, email, phone, discipline, stage) VALUES ('Owner Pick', 'ownerpick@test.invalid', '555-070-7007', 'mechanical', 'contacted')")
+php_q("INSERT INTO applications (candidate_id, vacancy_id, stage, source) SELECT id, %d, 'new', 'Referral' FROM candidates WHERE email = 'ownerpick@test.invalid'" % vac_id)
+op = one("SELECT c.id AS cid, a.id AS aid FROM candidates c JOIN applications a ON a.candidate_id = c.id WHERE c.email = 'ownerpick@test.invalid'")
+for it in items:
+    php_q("INSERT INTO checklist_answers (application_id, item_id, answer) VALUES (%s, %s, 'met')" % (op['aid'], it))
+admin.post('/candidates/%s' % op['cid'], {'do': 'send_review', 'application_id': op['aid'], 'rating': '5', 'recommendation': 'My pick.'}, '/candidates/%s' % op['cid'])
+orv = one('SELECT id, reviewer_id FROM application_reviews WHERE application_id = %s' % op['aid'])
+check('The owner sending, as the hiring manager, goes to the owner\'s own review', orv and int(orv['reviewer_id']) == int(owner_id), orv)
+status, body = admin.get('/reviews?id=%s' % orv['id'])
+check('The decision offers to assign to the job, with how full it is', 'id="assign"' in body and 'placed so far' in body)
+admin.post('/reviews', {'do': 'decide', 'review_id': orv['id'], 'decision': 'validated', 'note': '', 'assign': '1'}, '/reviews?id=%s' % orv['id'])
+check('Approved and assigned: an offered placement on the requisition', one("SELECT status FROM placements WHERE candidate_id = %s" % op['cid'])['status'] == 'offered')
+php_q("UPDATE vacancies SET openings = 1 WHERE id = %d" % vac_id)
+ckr = one("SELECT id FROM application_reviews WHERE application_id = %s AND status = 'pending'" % ck['aid'])
+status, body = admin.get('/reviews?id=%s' % ckr['id'])
+check('A full requisition offers no more assigning', 'the requisition is full' in body and re.search(r'name="assign" value="1" disabled', body) is not None)
+
+# P5-M88: hiring managers are marked on Team; a requisition offers only them.
+admin.post('/people', {'do': 'hiring_manager', 'user_id': owner_id, 'on': '1'}, '/people')
+admin.post('/people', {'do': 'hiring_manager', 'user_id': sup['id'] if sup else owner_id, 'on': '1'}, '/people')
+status, body = admin.get('/people')
+check('Team marks who is a hiring manager, whatever their role', 'data-hiring-manager="%s"' % owner_id in body and 'Hiring manager ✓' in body)
+status, body = admin.get('/requisitions')
+offered = set(re.findall(r'name="managers\[\]" value="(\d+)"', body))
+check('A requisition offers only the hiring managers, side by side', offered and offered <= {str(owner_id), str(sup['id'] if sup else owner_id)} and 'class="pick-grid"' in body, offered)

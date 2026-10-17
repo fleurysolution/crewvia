@@ -54,7 +54,10 @@
                 <option value="<?= e($k) ?>" <?= $t['role'] === $k ? 'selected' : '' ?>><?= te($v) ?></option>
               <?php endforeach; ?>
             </select>
-          </form><?php endif; ?>
+          </form>
+          <?php // P5-M88: who may hire. ?>
+          <form class="inline" method="post" action="/people"><?= csrf_field() ?><input type="hidden" name="do" value="hiring_manager"><input type="hidden" name="user_id" value="<?= (int) $t['id'] ?>"><input type="hidden" name="on" value="<?= ! empty($t['hiring_manager']) ? 0 : 1 ?>">
+            <button class="btn sm <?= ! empty($t['hiring_manager']) ? '' : 'ghost' ?>" data-hiring-manager="<?= (int) $t['id'] ?>" title="<?= te('Hiring managers are offered on requisitions and review the applicants.') ?>"><?= ! empty($t['hiring_manager']) ? te('Hiring manager ✓') : te('Hiring manager') ?></button></form><?php endif; ?>
         </td>
         <td class="small muted"><?= e($t['job_title'] ?? '—') ?></td>
         <td class="small muted"><?= $t['last_login_at'] ? e(date('j M, g:ia', strtotime($t['last_login_at']))) : te('never') ?></td>

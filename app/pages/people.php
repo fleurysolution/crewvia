@@ -82,6 +82,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/people');
     }
 
+    // P5-M88: who may hire, whatever their role.
+    if ($do === 'hiring_manager') {
+        $uid = (int) ($_POST['user_id'] ?? 0);
+        $on = ! empty($_POST['on']) ? 1 : 0;
+        if (val("SELECT id FROM users WHERE id = ? AND role NOT IN ('worker','client')", [$uid])) {
+            q('UPDATE users SET hiring_manager = ? WHERE id = ?', [$on, $uid]);
+            log_activity($on ? 'made a hiring manager' : 'removed a hiring manager', 'user', $uid);
+            flash($on ? t(':name is a hiring manager.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [$uid])]) : t(':name is no longer a hiring manager.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [$uid])]));
+        }
+        redirect('/people');
+    }
+
     if ($do === 'toggle') {
         $uidT = (int) ($_POST['user_id'] ?? 0);
 

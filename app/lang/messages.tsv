@@ -5522,7 +5522,8 @@ Edit :name	Modifier :name	Editar :name
 Checklist complete: every question met. Send them for review.	Liste complète : toutes les questions sont remplies. Envoyez la personne en revue.	Lista completa: se cumplen todas las preguntas. Envíela a revisión.
 Checklist saved: :met of :total met.	Liste enregistrée : :met sur :total remplies.	Lista guardada: :met de :total cumplidas.
 Not every checklist question is met: this applicant does not go for review.	Toutes les questions de la liste ne sont pas remplies : ce candidat ne part pas en revue.	No se cumplen todas las preguntas de la lista: este candidato no pasa a revisión.
-Finish the checklist first: :n question(s) not answered.	Terminez d'abord la liste : :n question(s) sans réponse.	Termine primero la lista: :n pregunta(s) sin responder.
+Finish the checklist first: :n question not answered.	Terminez d'abord la liste : :n question sans réponse.	Termine primero la lista: :n pregunta sin responder.
+Finish the checklist first: :n questions not answered.	Terminez d'abord la liste : :n questions sans réponse.	Termine primero la lista: :n preguntas sin responder.
 APPLIED FOR	CANDIDATURE	SOLICITUD
 ASSIGNMENT	AFFECTATION	ASIGNACIÓN
 None for now.	Aucune pour l'instant.	Ninguna por ahora.
@@ -5539,3 +5540,17 @@ Write a checklist template first	Écrivez d'abord un modèle de liste	Escriba pr
 The questions the recruiter asks before sending an applicant for review.	Les questions que pose le recruteur avant d'envoyer un candidat en revue.	Las preguntas que hace el reclutador antes de enviar a un candidato a revisión.
 Templates	Modèles	Plantillas
 Saved: the hiring managers and checklists.	Enregistré : les responsables du recrutement et les listes.	Guardado: los responsables de contratación y las listas.
+Applications and assignment: details	Candidatures et affectation : détails	Solicitudes y asignación: detalles
+moves, offer, placement	étapes, offre, placement	etapas, oferta, asignación
+The hiring manager assigns the person to the job, when approving them.	Le responsable du recrutement affecte la personne au poste en l'approuvant.	El responsable de contratación asigna a la persona al puesto al aprobarla.
+The requisition is full: :placed of :asked placed. Approved, but not assigned.	La réquisition est complète : :placed sur :asked placés. Approuvé, mais pas affecté.	La requisición está completa: :placed de :asked asignados. Aprobado, pero sin asignar.
+Approved and assigned to the job. HR has it.	Approuvé et affecté au poste. HR prend le relais.	Aprobado y asignado al puesto. RR. HH. se encarga.
+Assign to this job	Affecter à ce poste	Asignar a este puesto
+the requisition is full (:p of :a placed)	la réquisition est complète (:p sur :a placés)	la requisición está completa (:p de :a asignados)
+:p of :a placed so far	:p sur :a placés pour l'instant	:p de :a asignados por ahora
+:name is a hiring manager.	:name est responsable du recrutement.	:name es responsable de contratación.
+:name is no longer a hiring manager.	:name n'est plus responsable du recrutement.	:name ya no es responsable de contratación.
+Hiring managers are offered on requisitions and review the applicants.	Les responsables du recrutement sont proposés sur les réquisitions et examinent les candidats.	Los responsables de contratación se proponen en las requisiciones y revisan a los candidatos.
+Hiring manager	Responsable du recrutement	Responsable de contratación
+Hiring manager ✓	Responsable du recrutement ✓	Responsable de contratación ✓
+Mark hiring managers on Team	Désigner les responsables du recrutement dans Team	Designar a los responsables de contratación en Team

@@ -278,261 +278,7 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
 
 
 
-<div class="grid g2">
-  <!-- ── their applications and screening ─────────────────────────── -->
-  <details class="card fold" id="applications"><summary><span><span class="eyebrow"><?= te('APPLICATIONS') ?></span>
-    <h2><?= te('What they applied for') ?></h2></span></summary>
 
-    <?php if (! $applications): ?>
-      <div class="empty">
-        <?= te('No application on file. This person was imported or added by hand rather than applying through a QR code.') ?>
-      </div>
-    <?php endif; ?>
-
-    <?php foreach ($applications as $a): ?>
-      <article class="application">
-        <div class="application-head">
-          <div>
-            <strong><?= e($a['role']) ?></strong>
-            <div class="muted small"><?= e($a['project']) ?></div>
-          </div>
-          <span class="tag <?= e(stage_colour((string) $a['stage'])) ?>">
-            <?= te($appStages[$a['stage']] ?? $a['stage']) ?>
-          </span>
-        </div>
-
-        <?php if ($a['checks']): ?>
-          <h4><?= te('Screening checks') ?></h4>
-          <ul class="checks">
-            <?php foreach ($a['checks'] as $check): ?>
-              <li>
-                <span class="tag <?= $check['status'] === 'passed' ? 'green'
-                                     : ($check['status'] === 'failed' ? 'red' : 'grey') ?>">
-                  <?= te(ucfirst((string) $check['status'])) ?>
-                </span>
-                <span class="check-title"><?= e($check['title']) ?></span>
-                <form method="post" class="inline-form">
-                  <?= csrf_field() ?>
-                  <input type="hidden" name="do" value="check">
-                  <input type="hidden" name="check_id" value="<?= (int) $check['id'] ?>">
-                  <label class="sr-only" for="ck-<?= (int) $check['id'] ?>"><?= te('Outcome') ?></label>
-                  <select id="ck-<?= (int) $check['id'] ?>" name="status" onchange="this.form.submit()">
-                    <?php foreach (['pending' => 'Pending', 'passed' => 'Passed', 'failed' => 'Failed'] as $k => $v): ?>
-                      <option value="<?= e($k) ?>" <?= $check['status'] === $k ? 'selected' : '' ?>>
-                        <?= te($v) ?>
-                      </option>
-                    <?php endforeach; ?>
-                  </select>
-                </form>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
-
-        <?php $answered = array_filter($a['answers'], static fn ($x) => trim((string) $x['answer']) !== ''); ?>
-        <?php if ($a['answers']): ?>
-          <h4>
-            <?= te('Questionnaire') ?>
-            <span class="muted small">
-              <?= te(':done of :total answered', ['done' => count($answered), 'total' => count($a['answers'])]) ?>
-            </span>
-          </h4>
-          <ul class="answers">
-            <?php foreach ($a['answers'] as $qa): ?>
-              <li>
-                <span class="muted small"><?= e($qa['question']) ?></span>
-                <?php if (trim((string) $qa['answer']) !== ''): ?>
-                  <span><?= e($qa['answer']) ?></span>
-                <?php else: ?>
-                  <span class="muted"><em><?= te('not answered') ?></em></span>
-                <?php endif; ?>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
-
-        <?php if (! in_array($a['stage'], ['accepted','rejected','withdrawn'], true)): ?>
-          <form method="post" class="row mt">
-            <?= csrf_field() ?>
-            <input type="hidden" name="do" value="stage">
-            <input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>">
-            <div>
-              <label for="st-<?= (int) $a['id'] ?>"><?= te('Move to') ?></label>
-              <select id="st-<?= (int) $a['id'] ?>" name="stage">
-                <?php foreach (['screening','interview','offered','rejected','withdrawn'] as $k): ?>
-                  <?php if ($k !== $a['stage']): ?>
-                    <option value="<?= e($k) ?>"><?= te($appStages[$k]) ?></option>
-                  <?php endif; ?>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div class="f2">
-              <label for="nt-<?= (int) $a['id'] ?>"><?= te('Note, or the offer terms') ?></label>
-              <input id="nt-<?= (int) $a['id'] ?>" name="note" maxlength="500"
-                     placeholder="<?= te('An offer needs its terms in writing') ?>">
-            </div>
-            <button class="btn" type="submit"><?= te('Move') ?></button>
-          </form>
-
-          <form method="post" class="row mt">
-            <?= csrf_field() ?>
-            <input type="hidden" name="do" value="add_check">
-            <input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>">
-            <div class="f2">
-              <label for="ac-<?= (int) $a['id'] ?>"><?= te('Add a screening check') ?></label>
-              <input id="ac-<?= (int) $a['id'] ?>" name="title" maxlength="190"
-                     placeholder="<?= te('e.g. Background check, Drug screen, Reference') ?>">
-            </div>
-            <button class="btn ghost" type="submit"><?= te('Add') ?></button>
-          </form>
-        <?php endif; ?>
-      </article>
-    <?php endforeach; ?>
-  </details>
-
-  <!-- ── the assignment, and what it pays ─────────────────────────── -->
-  <details class="card fold" id="assignment"><summary><span><span class="eyebrow"><?= te('ASSIGNMENT') ?></span>
-    <h2><?= te('On the job') ?></h2></span></summary>
-
-    <?php if (! $placements): ?>
-      <div class="empty"><?= te('Not on any roster yet.') ?></div>
-
-      <?php if ($job): ?>
-        <form method="post" class="row">
-          <?= csrf_field() ?>
-          <input type="hidden" name="do" value="place">
-          <div>
-            <label for="startd"><?= te('Starts') ?></label>
-            <input id="startd" type="date" name="start_date" value="<?= e((string) ($job['starts_on'] ?? '')) ?>">
-          </div>
-          <button class="btn" type="submit">
-            <?= te('Add to :project', ['project' => $job['title']]) ?>
-          </button>
-        </form>
-        <p class="hint"><?= te('They inherit the rates agreed for their role, which you can change here once they are on.') ?></p>
-      <?php endif; ?>
-    <?php endif; ?>
-
-    <?php foreach ($placements as $p): ?>
-      <?php
-      // What this person was signed at, or the agreed rate on the line of
-      // the scope they were recruited against.
-      $pay     = $p['pay_rate'] ?? $p['line_pay'];
-      $diem    = $p['per_diem_rate'] ?? $p['line_diem'];
-      $guar    = $p['guarantee_hours']
-                 ?? ($p['strike_live'] && $p['line_strike_guarantee'] !== null
-                        ? $p['line_strike_guarantee']
-                        : $p['line_guarantee']);
-      $ownRate = $p['pay_rate'] !== null;
-      ?>
-      <article class="assignment">
-        <div class="application-head">
-          <div>
-            <strong><?= e($p['project']) ?></strong>
-            <div class="muted small">
-              <?= e($p['trade'] ?: t('Trade not set')) ?>
-              <?php if ($p['shift_label']): ?>&middot; <?= e($p['shift_label']) ?><?php endif; ?>
-              <?php if ($p['supervisor']): ?>
-                &middot; <?= te('under :who', ['who' => $p['supervisor']]) ?>
-              <?php endif; ?>
-            </div>
-          </div>
-          <span class="tag <?= $p['status'] === 'on_site' ? 'green'
-                               : ($p['status'] === 'offered' ? 'grey' : 'blue') ?>">
-            <?= te(ucfirst(str_replace('_', ' ', (string) $p['status']))) ?>
-          </span>
-        </div>
-
-        <table>
-          <tbody>
-            <tr>
-              <td><?= te('Bed') ?></td>
-              <td class="right">
-                <?php if ($p['hotel']): ?>
-                  <?= e($p['hotel']) ?>
-                  <?php if ($p['room_number']): ?><span class="mono"><?= e($p['room_number']) ?></span><?php endif; ?>
-                  <?php if ((int) $p['private_room'] === 0): ?>
-                    <span class="tag red"><?= te('sharing') ?></span>
-                  <?php endif; ?>
-                <?php else: ?>
-                  <a class="tag red" href="/hotels"><?= te('no bed') ?></a>
-                <?php endif; ?>
-              </td>
-            </tr>
-            <tr>
-              <td><?= te('Travel') ?></td>
-              <td class="right">
-                <?php if ($p['arrive_time']): ?>
-                  <?= e(trim(($p['carrier'] ?? '') . ' ' . ($p['reference'] ?? ''))) ?>
-                  <span class="muted"><?= e(date('D j M, g:ia', strtotime($p['arrive_time']))) ?></span>
-                <?php else: ?>
-                  <a class="tag amber" href="/travel"><?= te('not booked') ?></a>
-                <?php endif; ?>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h4>
-          <?= te('What this person is paid') ?>
-          <?php if ($ownRate): ?>
-            <span class="tag blue"><?= te('Own rate') ?></span>
-          <?php else: ?>
-            <span class="muted small"><?= te('inherited') ?></span>
-          <?php endif; ?>
-        </h4>
-
-        <?php if (can('admin')): ?>
-          <form method="post" class="row">
-            <?= csrf_field() ?>
-            <input type="hidden" name="do" value="rates">
-            <input type="hidden" name="placement_id" value="<?= (int) $p['id'] ?>">
-            <div>
-              <label for="pr-<?= (int) $p['id'] ?>"><?= te('Pay / hour') ?></label>
-              <input id="pr-<?= (int) $p['id'] ?>" name="pay_rate" type="number" step="0.01" min="0"
-                     value="<?= e((string) ($p['pay_rate'] ?? '')) ?>"
-                     placeholder="<?= $p['line_pay'] !== null
-                         ? e(number_format((float) $p['line_pay'], 2, '.', ''))
-                         : te('from the scope') ?>">
-            </div>
-            <div>
-              <label for="br-<?= (int) $p['id'] ?>"><?= te('Bill / hour') ?></label>
-              <input id="br-<?= (int) $p['id'] ?>" name="bill_rate" type="number" step="0.01" min="0"
-                     value="<?= e((string) ($p['bill_rate'] ?? '')) ?>">
-            </div>
-            <div>
-              <label for="dr-<?= (int) $p['id'] ?>"><?= te('Per diem') ?></label>
-              <input id="dr-<?= (int) $p['id'] ?>" name="per_diem_rate" type="number" step="0.01" min="0"
-                     value="<?= e((string) ($p['per_diem_rate'] ?? '')) ?>"
-                     placeholder="<?= $p['line_diem'] !== null
-                         ? e(number_format((float) $p['line_diem'], 2, '.', ''))
-                         : te('from the scope') ?>">
-            </div>
-            <div>
-              <label for="gh-<?= (int) $p['id'] ?>"><?= te('Guarantee') ?></label>
-              <input id="gh-<?= (int) $p['id'] ?>" name="guarantee_hours" type="number" min="0" max="168"
-                     value="<?= e((string) ($p['guarantee_hours'] ?? '')) ?>"
-                     placeholder="<?= $p['line_guarantee'] !== null
-                         ? (int) $p['line_guarantee'] : te('from the scope') ?>">
-            </div>
-            <button class="btn" type="submit"><?= te('Save') ?></button>
-          </form>
-          <p class="hint">
-            <?= te('Blank means the rate agreed for their role applies. A week already approved keeps what it was calculated on.') ?>
-          </p>
-        <?php else: ?>
-          <p class="small">
-            <strong><?= $pay !== null ? e(money((float) $pay)) : '&mdash;' ?></strong> <?= te('an hour') ?>
-            <?php if ($diem !== null): ?>
-              &middot; <?= te(':amount a day', ['amount' => money((float) $diem)]) ?>
-            <?php endif; ?>
-            <?php if ($guar): ?>&middot; <?= te(':n h guaranteed', ['n' => (int) $guar]) ?><?php endif; ?>
-          </p>
-        <?php endif; ?>
-      </article>
-    <?php endforeach; ?>
-  </details>
-</div>
 
 <div class="grid g2">
   <!-- ── paperwork ─────────────────────────────────────────────────── -->
@@ -890,5 +636,264 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
   <button class="btn" type="submit"><?= te('Save') ?></button>
   <a class="btn ghost" href="/employee-folder?id=<?= (int) $c['id'] ?>"><?= te('Open employee folder') ?></a>
 </form>
+</details>
+
+<?php // P5-M86: the full applications and assignment, with their actions, at the foot of the page - the boxes at the top say it at a glance. ?>
+<details class="card fold" id="app-details"><summary><h2><?= te('Applications and assignment: details') ?></h2><span class="fold-note"><?= te('moves, offer, placement') ?></span></summary>
+<div class="grid g2">
+  <!-- ── their applications and screening ─────────────────────────── -->
+  <details class="card fold" id="applications"><summary><span><span class="eyebrow"><?= te('APPLICATIONS') ?></span>
+    <h2><?= te('What they applied for') ?></h2></span></summary>
+
+    <?php if (! $applications): ?>
+      <div class="empty">
+        <?= te('No application on file. This person was imported or added by hand rather than applying through a QR code.') ?>
+      </div>
+    <?php endif; ?>
+
+    <?php foreach ($applications as $a): ?>
+      <article class="application">
+        <div class="application-head">
+          <div>
+            <strong><?= e($a['role']) ?></strong>
+            <div class="muted small"><?= e($a['project']) ?></div>
+          </div>
+          <span class="tag <?= e(stage_colour((string) $a['stage'])) ?>">
+            <?= te($appStages[$a['stage']] ?? $a['stage']) ?>
+          </span>
+        </div>
+
+        <?php if ($a['checks']): ?>
+          <h4><?= te('Screening checks') ?></h4>
+          <ul class="checks">
+            <?php foreach ($a['checks'] as $check): ?>
+              <li>
+                <span class="tag <?= $check['status'] === 'passed' ? 'green'
+                                     : ($check['status'] === 'failed' ? 'red' : 'grey') ?>">
+                  <?= te(ucfirst((string) $check['status'])) ?>
+                </span>
+                <span class="check-title"><?= e($check['title']) ?></span>
+                <form method="post" class="inline-form">
+                  <?= csrf_field() ?>
+                  <input type="hidden" name="do" value="check">
+                  <input type="hidden" name="check_id" value="<?= (int) $check['id'] ?>">
+                  <label class="sr-only" for="ck-<?= (int) $check['id'] ?>"><?= te('Outcome') ?></label>
+                  <select id="ck-<?= (int) $check['id'] ?>" name="status" onchange="this.form.submit()">
+                    <?php foreach (['pending' => 'Pending', 'passed' => 'Passed', 'failed' => 'Failed'] as $k => $v): ?>
+                      <option value="<?= e($k) ?>" <?= $check['status'] === $k ? 'selected' : '' ?>>
+                        <?= te($v) ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                </form>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+
+        <?php $answered = array_filter($a['answers'], static fn ($x) => trim((string) $x['answer']) !== ''); ?>
+        <?php if ($a['answers']): ?>
+          <h4>
+            <?= te('Questionnaire') ?>
+            <span class="muted small">
+              <?= te(':done of :total answered', ['done' => count($answered), 'total' => count($a['answers'])]) ?>
+            </span>
+          </h4>
+          <ul class="answers">
+            <?php foreach ($a['answers'] as $qa): ?>
+              <li>
+                <span class="muted small"><?= e($qa['question']) ?></span>
+                <?php if (trim((string) $qa['answer']) !== ''): ?>
+                  <span><?= e($qa['answer']) ?></span>
+                <?php else: ?>
+                  <span class="muted"><em><?= te('not answered') ?></em></span>
+                <?php endif; ?>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+
+        <?php if (! in_array($a['stage'], ['accepted','rejected','withdrawn'], true)): ?>
+          <form method="post" class="row mt">
+            <?= csrf_field() ?>
+            <input type="hidden" name="do" value="stage">
+            <input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>">
+            <div>
+              <label for="st-<?= (int) $a['id'] ?>"><?= te('Move to') ?></label>
+              <select id="st-<?= (int) $a['id'] ?>" name="stage">
+                <?php foreach (['screening','interview','offered','rejected','withdrawn'] as $k): ?>
+                  <?php if ($k !== $a['stage']): ?>
+                    <option value="<?= e($k) ?>"><?= te($appStages[$k]) ?></option>
+                  <?php endif; ?>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="f2">
+              <label for="nt-<?= (int) $a['id'] ?>"><?= te('Note, or the offer terms') ?></label>
+              <input id="nt-<?= (int) $a['id'] ?>" name="note" maxlength="500"
+                     placeholder="<?= te('An offer needs its terms in writing') ?>">
+            </div>
+            <button class="btn" type="submit"><?= te('Move') ?></button>
+          </form>
+
+          <form method="post" class="row mt">
+            <?= csrf_field() ?>
+            <input type="hidden" name="do" value="add_check">
+            <input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>">
+            <div class="f2">
+              <label for="ac-<?= (int) $a['id'] ?>"><?= te('Add a screening check') ?></label>
+              <input id="ac-<?= (int) $a['id'] ?>" name="title" maxlength="190"
+                     placeholder="<?= te('e.g. Background check, Drug screen, Reference') ?>">
+            </div>
+            <button class="btn ghost" type="submit"><?= te('Add') ?></button>
+          </form>
+        <?php endif; ?>
+      </article>
+    <?php endforeach; ?>
+  </details>
+
+  <!-- ── the assignment, and what it pays ─────────────────────────── -->
+  <details class="card fold" id="assignment"><summary><span><span class="eyebrow"><?= te('ASSIGNMENT') ?></span>
+    <h2><?= te('On the job') ?></h2></span></summary>
+
+    <?php if (! $placements): ?>
+      <div class="empty"><?= te('Not on any roster yet.') ?></div>
+
+      <?php if ($job && can('admin')): ?>
+        <form method="post" class="row">
+          <?= csrf_field() ?>
+          <input type="hidden" name="do" value="place">
+          <div>
+            <label for="startd"><?= te('Starts') ?></label>
+            <input id="startd" type="date" name="start_date" value="<?= e((string) ($job['starts_on'] ?? '')) ?>">
+          </div>
+          <button class="btn" type="submit">
+            <?= te('Add to :project', ['project' => $job['title']]) ?>
+          </button>
+        </form>
+        <p class="hint"><?= te('They inherit the rates agreed for their role, which you can change here once they are on.') ?></p>
+      <?php endif; ?>
+    <?php endif; ?>
+
+    <?php foreach ($placements as $p): ?>
+      <?php
+      // What this person was signed at, or the agreed rate on the line of
+      // the scope they were recruited against.
+      $pay     = $p['pay_rate'] ?? $p['line_pay'];
+      $diem    = $p['per_diem_rate'] ?? $p['line_diem'];
+      $guar    = $p['guarantee_hours']
+                 ?? ($p['strike_live'] && $p['line_strike_guarantee'] !== null
+                        ? $p['line_strike_guarantee']
+                        : $p['line_guarantee']);
+      $ownRate = $p['pay_rate'] !== null;
+      ?>
+      <article class="assignment">
+        <div class="application-head">
+          <div>
+            <strong><?= e($p['project']) ?></strong>
+            <div class="muted small">
+              <?= e($p['trade'] ?: t('Trade not set')) ?>
+              <?php if ($p['shift_label']): ?>&middot; <?= e($p['shift_label']) ?><?php endif; ?>
+              <?php if ($p['supervisor']): ?>
+                &middot; <?= te('under :who', ['who' => $p['supervisor']]) ?>
+              <?php endif; ?>
+            </div>
+          </div>
+          <span class="tag <?= $p['status'] === 'on_site' ? 'green'
+                               : ($p['status'] === 'offered' ? 'grey' : 'blue') ?>">
+            <?= te(ucfirst(str_replace('_', ' ', (string) $p['status']))) ?>
+          </span>
+        </div>
+
+        <table>
+          <tbody>
+            <tr>
+              <td><?= te('Bed') ?></td>
+              <td class="right">
+                <?php if ($p['hotel']): ?>
+                  <?= e($p['hotel']) ?>
+                  <?php if ($p['room_number']): ?><span class="mono"><?= e($p['room_number']) ?></span><?php endif; ?>
+                  <?php if ((int) $p['private_room'] === 0): ?>
+                    <span class="tag red"><?= te('sharing') ?></span>
+                  <?php endif; ?>
+                <?php else: ?>
+                  <a class="tag red" href="/hotels"><?= te('no bed') ?></a>
+                <?php endif; ?>
+              </td>
+            </tr>
+            <tr>
+              <td><?= te('Travel') ?></td>
+              <td class="right">
+                <?php if ($p['arrive_time']): ?>
+                  <?= e(trim(($p['carrier'] ?? '') . ' ' . ($p['reference'] ?? ''))) ?>
+                  <span class="muted"><?= e(date('D j M, g:ia', strtotime($p['arrive_time']))) ?></span>
+                <?php else: ?>
+                  <a class="tag amber" href="/travel"><?= te('not booked') ?></a>
+                <?php endif; ?>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>
+          <?= te('What this person is paid') ?>
+          <?php if ($ownRate): ?>
+            <span class="tag blue"><?= te('Own rate') ?></span>
+          <?php else: ?>
+            <span class="muted small"><?= te('inherited') ?></span>
+          <?php endif; ?>
+        </h4>
+
+        <?php if (can('admin')): ?>
+          <form method="post" class="row">
+            <?= csrf_field() ?>
+            <input type="hidden" name="do" value="rates">
+            <input type="hidden" name="placement_id" value="<?= (int) $p['id'] ?>">
+            <div>
+              <label for="pr-<?= (int) $p['id'] ?>"><?= te('Pay / hour') ?></label>
+              <input id="pr-<?= (int) $p['id'] ?>" name="pay_rate" type="number" step="0.01" min="0"
+                     value="<?= e((string) ($p['pay_rate'] ?? '')) ?>"
+                     placeholder="<?= $p['line_pay'] !== null
+                         ? e(number_format((float) $p['line_pay'], 2, '.', ''))
+                         : te('from the scope') ?>">
+            </div>
+            <div>
+              <label for="br-<?= (int) $p['id'] ?>"><?= te('Bill / hour') ?></label>
+              <input id="br-<?= (int) $p['id'] ?>" name="bill_rate" type="number" step="0.01" min="0"
+                     value="<?= e((string) ($p['bill_rate'] ?? '')) ?>">
+            </div>
+            <div>
+              <label for="dr-<?= (int) $p['id'] ?>"><?= te('Per diem') ?></label>
+              <input id="dr-<?= (int) $p['id'] ?>" name="per_diem_rate" type="number" step="0.01" min="0"
+                     value="<?= e((string) ($p['per_diem_rate'] ?? '')) ?>"
+                     placeholder="<?= $p['line_diem'] !== null
+                         ? e(number_format((float) $p['line_diem'], 2, '.', ''))
+                         : te('from the scope') ?>">
+            </div>
+            <div>
+              <label for="gh-<?= (int) $p['id'] ?>"><?= te('Guarantee') ?></label>
+              <input id="gh-<?= (int) $p['id'] ?>" name="guarantee_hours" type="number" min="0" max="168"
+                     value="<?= e((string) ($p['guarantee_hours'] ?? '')) ?>"
+                     placeholder="<?= $p['line_guarantee'] !== null
+                         ? (int) $p['line_guarantee'] : te('from the scope') ?>">
+            </div>
+            <button class="btn" type="submit"><?= te('Save') ?></button>
+          </form>
+          <p class="hint">
+            <?= te('Blank means the rate agreed for their role applies. A week already approved keeps what it was calculated on.') ?>
+          </p>
+        <?php else: ?>
+          <p class="small">
+            <strong><?= $pay !== null ? e(money((float) $pay)) : '&mdash;' ?></strong> <?= te('an hour') ?>
+            <?php if ($diem !== null): ?>
+              &middot; <?= te(':amount a day', ['amount' => money((float) $diem)]) ?>
+            <?php endif; ?>
+            <?php if ($guar): ?>&middot; <?= te(':n h guaranteed', ['n' => (int) $guar]) ?><?php endif; ?>
+          </p>
+        <?php endif; ?>
+      </article>
+    <?php endforeach; ?>
+  </details>
+</div>
 </details>
 <script src="/assets/fold.js"></script>

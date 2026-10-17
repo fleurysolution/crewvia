@@ -31,7 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'when' => (string) ($_POST['interview_at'] ?? ''), 'duration' => (int) ($_POST['duration'] ?? 30), 'mode' => (string) ($_POST['mode'] ?? 'video'),
             'place' => (string) ($_POST['place'] ?? ''), 'interviewer' => (int) ($_POST['interviewer_id'] ?? $me)]);
         if ($why !== null) { refuse(422, $why, '/reviews?id=' . $id); }
-        flash(t('Decision recorded. The recruiter is told.'));
+        // P5-M87: approved, the hiring manager may assign them to the job at once - unless the requisition is full.
+        $assigned = null;
+        if (($_POST['decision'] ?? '') === 'validated' && ! empty($_POST['assign'])) {
+            $assigned = review_assign_to_job((int) val('SELECT application_id FROM application_reviews WHERE id = ?', [$id]), $me);
+        }
+        flash($assigned ?? (! empty($_POST['assign']) && ($_POST['decision'] ?? '') === 'validated' ? t('Approved and assigned to the job. HR has it.') : t('Decision recorded. The recruiter is told.')), $assigned ? 'err' : 'ok');
         redirect('/reviews');
     }
     if ($do === 'interview_record') {
@@ -74,4 +79,5 @@ if (isset($_GET['id'])) {
 $people = review_people();
 
 $pageTitle = t('Candidate reviews') . ' · ' . $config['app_name'];
-render('reviews', compact('waiting', 'interviews', 'decided', 'review', 'interview', 'dossier', 'people', 'me'));
+$fill = $review ? review_requisition_fill((int) $review['application_id']) : [0, 0];
+render('reviews', compact('waiting', 'interviews', 'decided', 'review', 'interview', 'dossier', 'people', 'me', 'fill'));

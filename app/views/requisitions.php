@@ -42,7 +42,7 @@
                 <?php if (! empty($requisition['line_role'])): ?><br><a href="/job#scope"><?= te('See the scope') ?></a><?php endif; ?></p>
               <form method="post" class="mt-s" data-managers-form><?= csrf_field() ?><input type="hidden" name="do" value="managers"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
                 <p class="small m0"><strong><?= te('Hiring managers') ?></strong></p>
-                <?php foreach ($managerChoices as $mc): ?><label class="d-block small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= in_array((int) $mc['id'], $vacancyManagers[(int) $requisition['id']] ?? [], true) ? ' checked' : '' ?>> <?= e($mc['name']) ?></label><?php endforeach; ?>
+                <div class="pick-grid"><?php foreach ($managerChoices as $mc): ?><label class="small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= in_array((int) $mc['id'], $vacancyManagers[(int) $requisition['id']] ?? [], true) ? ' checked' : '' ?>> <?= e($mc['name']) ?></label><?php endforeach; ?></div>
                 <p class="small m0 mt-xs"><strong><?= te('Recruiting checklist') ?></strong></p>
                 <?php foreach ($checklistChoices as $cc): ?><label class="d-block small"><input type="checkbox" name="checklists[]" value="<?= (int) $cc['id'] ?>"<?= in_array((int) $cc['id'], $vacancyChecklists[(int) $requisition['id']] ?? [], true) ? ' checked' : '' ?>> <?= e($cc['name']) ?></label><?php endforeach; ?>
                 <button class="btn ghost sm"><?= te('Save') ?></button>
@@ -214,8 +214,8 @@
 
     <?php // P5-M85: the hiring managers - the review goes to them, and only they are told. ?>
     <fieldset class="mt"><legend><?= te('Hiring managers') ?></legend>
-      <?php foreach ($managerChoices as $mc): ?><label class="d-block small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= (int) $mc['id'] === uid() && $mc['role'] !== 'recruiter' ? ' checked' : '' ?>> <?= e($mc['name']) ?> <span class="muted">· <?= te(roles()[$mc['role']] ?? $mc['role']) ?></span></label><?php endforeach; ?>
-      <span class="hint"><?= te('They review the applicants sent for review; any of them decides.') ?></span>
+      <div class="pick-grid"><?php foreach ($managerChoices as $mc): ?><label class="small"><input type="checkbox" name="managers[]" value="<?= (int) $mc['id'] ?>"<?= (int) $mc['id'] === uid() ? ' checked' : '' ?>> <?= e($mc['name']) ?></label><?php endforeach; ?></div>
+      <span class="hint"><?= te('They review the applicants sent for review; any of them decides.') ?> <a href="/people"><?= te('Mark hiring managers on Team') ?></a></span>
     </fieldset>
     <fieldset class="mt"><legend><?= te('Recruiting checklist') ?></legend>
       <?php if (! $checklistChoices): ?><span class="hint"><a href="/checklists#new-template"><?= te('Write a checklist template first') ?></a></span><?php endif; ?>

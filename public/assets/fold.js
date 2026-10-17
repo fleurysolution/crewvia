@@ -9,7 +9,7 @@
     if (!location.hash) return;
     var target = document.getElementById(location.hash.slice(1));
     var d = target && (target.matches('details.fold') ? target : target.closest('details.fold'));
-    if (d) { d.open = true; (target || d).scrollIntoView({ block: 'start' }); }
+    if (d) { for (var up = target; up; up = up.parentElement) { if (up.tagName === 'DETAILS') up.open = true; } d.open = true; (target || d).scrollIntoView({ block: 'start' }); }
   };
   openFor();
   window.addEventListener('hashchange', openFor);

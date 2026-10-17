@@ -3031,4 +3031,11 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DAT
     echo 'Checklists: the recruiter asks a requisition\'s checklist questions (templates such as Forklift or CDL, Recruiting > Checklists) and marks each met or not; an applicant goes for review once all are met.' . PHP_EOL;
 }
 
+// P5-M88: who may hire - marked on Team, whatever their role; only they are offered as a requisition's hiring managers.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='users' AND column_name='hiring_manager'")) {
+    q('ALTER TABLE users ADD COLUMN hiring_manager TINYINT(1) NOT NULL DEFAULT 0');
+    q('UPDATE users u JOIN (SELECT DISTINCT user_id FROM vacancy_managers) m ON m.user_id = u.id SET u.hiring_manager = 1');
+    echo 'Team: mark the hiring managers (Hiring manager); a requisition offers only them.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

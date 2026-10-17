@@ -86,7 +86,8 @@ function review_request(int $applicationId, int $reviewerId, int $rating, string
     if (! $a) { return t('Application unavailable in this project.'); }
     if (in_array($a['stage'], ['offered', 'accepted', 'rejected', 'withdrawn'], true)) { return t('Only an application still being screened can be passed to a manager.'); }
     if (! review_person_ok($reviewerId)) { return t('Choose who reviews this applicant.'); }
-    if ($reviewerId === $by) { return t('Pass the applicant to somebody else: the manager reviews what the recruiter screened.'); }
+    // P5-M87: a hiring manager (or the owner) may send to the review they decide themself - the flow stays the same.
+    if ($reviewerId === $by && ! can('admin') && ! in_array($by, vacancy_managers((int) $a['vacancy_id']), true)) { return t('Pass the applicant to somebody else: the manager reviews what the recruiter screened.'); }
     if ($rating < 1 || $rating > 5) { return t('Rate the fit from 1 to 5.'); }
     if ($recommendation === '') { return t('Write your recommendation: why this applicant, and anything to watch.'); }
     if (val("SELECT id FROM application_reviews WHERE application_id = ? AND status = 'pending'", [$applicationId])) { return t('This applicant is already with a manager.'); }
@@ -346,7 +347,7 @@ function vacancy_managers_save(int $vacancyId, array $ids): void
 {
     q('DELETE FROM vacancy_managers WHERE vacancy_id = ?', [$vacancyId]);
     foreach (array_unique(array_map('intval', $ids)) as $id) {
-        if ($id && review_person_ok($id)) {
+        if ($id && in_array($id, array_map('intval', array_column(hiring_managers(), 'id')), true)) {
             q('INSERT IGNORE INTO vacancy_managers (vacancy_id, user_id) VALUES (?, ?)', [$vacancyId, $id]);
         }
     }
@@ -356,4 +357,56 @@ function vacancy_managers_save(int $vacancyId, array $ids): void
 function review_mine_sql(int $userId): string
 {
     return '(r.reviewer_id = ' . $userId . ' OR EXISTS (SELECT 1 FROM vacancy_managers vm WHERE vm.vacancy_id = a.vacancy_id AND vm.user_id = ' . $userId . '))';
+}
+
+/** P5-M87: how full the requisition of an application is: [asked, placed]. */
+function review_requisition_fill(int $applicationId): array
+{
+    $v = row('SELECT v.id, v.openings FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ?', [$applicationId]);
+    if (! $v) {
+        return [0, 0];
+    }
+    $placed = (int) val("SELECT COUNT(*) FROM placements WHERE vacancy_id = ? AND status NOT IN ('cancelled','completed')", [(int) $v['id']]);
+
+    return [max(1, (int) ($v['openings'] ?? 1)), $placed];
+}
+
+/**
+ * P5-M87: the hiring manager assigns the approved person to the requisition's job (an offered placement on its terms),
+ * unless the requisition already has the people it asked for. Returns the refusal, or null.
+ */
+function review_assign_to_job(int $applicationId, int $by): ?string
+{
+    $a = row('SELECT a.candidate_id, a.vacancy_id, v.job_id, v.starts_on FROM applications a JOIN vacancies v ON v.id = a.vacancy_id WHERE a.id = ?', [$applicationId]);
+    if (! $a) {
+        return t('Application unavailable in this project.');
+    }
+    [$asked, $placed] = review_requisition_fill($applicationId);
+    if ($placed >= $asked) {
+        return t('The requisition is full: :placed of :asked placed. Approved, but not assigned.', ['placed' => $placed, 'asked' => $asked]);
+    }
+    if (val("SELECT id FROM placements WHERE candidate_id = ? AND job_id = ? AND status NOT IN ('completed','cancelled')", [(int) $a['candidate_id'], (int) $a['job_id']])) {
+        return null;
+    }
+    require_once __DIR__ . '/placement-rates.php';
+    $rates = placement_rates((int) $a['job_id'], (int) $a['vacancy_id']);
+    q("INSERT INTO placements (candidate_id, job_id, vacancy_id, order_line_id, status, start_date, created_by, pay_rate, bill_rate, per_diem_rate, guarantee_hours)
+       VALUES (?,?,?,?, 'offered', ?,?,?,?,?,?)",
+      [(int) $a['candidate_id'], (int) $a['job_id'], $rates['vacancy_id'], $rates['order_line_id'], $a['starts_on'] ?: null, $by,
+       $rates['pay_rate'], $rates['bill_rate'], $rates['per_diem_rate'], $rates['guarantee_hours']]);
+    log_activity('assigned an approved applicant to the job', 'placement', (int) db()->lastInsertId());
+
+    return null;
+}
+
+/** P5-M88: the people who may hire - marked on Team; with nobody marked yet, the people with full access. */
+function hiring_managers(): array
+{
+    try {
+        $marked = rows("SELECT id, name, role FROM users WHERE is_active = 1 AND hiring_manager = 1 AND role NOT IN ('worker','client') ORDER BY name");
+    } catch (Throwable $e) {
+        $marked = [];
+    }
+
+    return $marked ?: rows("SELECT id, name, role FROM users WHERE is_active = 1 AND role = 'admin' ORDER BY name");
 }

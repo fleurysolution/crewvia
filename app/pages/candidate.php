@@ -222,14 +222,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         require_once __DIR__ . '/../checklists.php';
         $cl = cl_for_application($appId);
         if (! can('admin') && $cl['total'] && ! $cl['passes']) {
-            refuse(422, $cl['complete'] ? t('Not every checklist question is met: this applicant does not go for review.') : t('Finish the checklist first: :n question(s) not answered.', ['n' => $cl['total'] - $cl['answered']]), '/candidates/' . $id . '#checklist');
+            refuse(422, $cl['complete'] ? t('Not every checklist question is met: this applicant does not go for review.') : tn($cl['total'] - $cl['answered'], 'Finish the checklist first: :n question not answered.', 'Finish the checklist first: :n questions not answered.'), '/candidates/' . $id . '#checklist');
         }
         // P5-M85: it goes to the managers, not to a person the recruiter picks; any of them decides.
         // P5-M85: the requisition's hiring managers; without any, the least busy manager (Full access) - one person, not everybody.
         $vacancyOf = (int) val('SELECT vacancy_id FROM applications WHERE id = ?', [$appId]);
-        $pool = array_values(array_diff(vacancy_managers($vacancyOf), [uid()]));
-        $managers = array_map('intval', array_column(rows('SELECT u.id FROM users u WHERE u.is_active = 1 AND u.id <> ? AND ' . ($pool ? 'u.id IN (' . implode(',', $pool) . ')' : "u.role = 'admin'") . '
-                                                           ORDER BY (SELECT COUNT(*) FROM application_reviews r WHERE r.reviewer_id = u.id AND r.status = \'pending\'), u.id', [uid()]), 'id'));
+        // P5-M87: the sender stays in the pool when they are a hiring manager: the owner sending goes to the owner's review too.
+        $pool = vacancy_managers($vacancyOf);
+        $managers = array_map('intval', array_column(rows('SELECT u.id FROM users u WHERE u.is_active = 1 AND ' . ($pool ? 'u.id IN (' . implode(',', $pool) . ')' : "(u.role = 'admin')") . '
+                                                           ORDER BY u.id = ? DESC, (SELECT COUNT(*) FROM application_reviews r WHERE r.reviewer_id = u.id AND r.status = \'pending\'), u.id', [can('admin') ? uid() : 0]), 'id'));
         if (! $pool) {
             $managers = array_slice($managers, 0, 1);
         }
@@ -412,6 +413,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($do === 'place') {
+        // P5-M87: placing someone on a job is the hiring manager's decision (with the approval), not the recruiter's.
+        if (! can('admin')) {
+            refuse(403, t('The hiring manager assigns the person to the job, when approving them.'), '/candidates/' . $id);
+        }
         if (! $job || $job['status'] === 'closed') {
             flash(t('There is no active job to place them on.'), 'err');
             redirect('/candidates/' . $id);

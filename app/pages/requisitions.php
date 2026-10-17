@@ -273,7 +273,7 @@ foreach ($scope as $i => $line) {
 }
 
 require_once __DIR__ . '/../reviews.php';
-$managerChoices = review_people(); require_once __DIR__ . '/../checklists.php'; $checklistChoices = cl_templates(); $vacancyChecklists = [];
+$managerChoices = hiring_managers(); require_once __DIR__ . '/../checklists.php'; $checklistChoices = cl_templates(); $vacancyChecklists = [];
 $vacancyManagers = [];
 foreach ($requisitions as $rq) { $vacancyManagers[(int) $rq['id']] = vacancy_managers((int) $rq['id']); $vacancyChecklists[(int) $rq['id']] = cl_vacancy_templates((int) $rq['id']); }
 render('requisitions', compact('managerChoices', 'vacancyManagers', 'checklistChoices', 'vacancyChecklists', 'requisitions', 'job', 'scope'));

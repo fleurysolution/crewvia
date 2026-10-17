@@ -77,6 +77,10 @@ $when = static fn(string $dt): string => e(d(substr($dt, 0, 10)) . ' · ' . date
     <label class="own-room"><input type="radio" name="decision" value="declined"> <strong><?= te('Decline') ?></strong> <span class="small muted"><?= te('the recruiter closes it with the candidate') ?></span></label>
   </div>
   <?php // P5-M85: approved, the person goes to HR first (background check, drug test), then to the project coordinator for travel - unless it is urgent. ?>
+  <?php // P5-M87: the hiring manager assigns them to the job with the approval - not when the requisition is full. ?>
+  <?php [$fAsked, $fPlaced] = $fill; ?>
+  <label class="d-block mt-s" id="assign"><input type="checkbox" name="assign" value="1"<?= $fPlaced >= $fAsked ? ' disabled' : ' checked' ?>> <strong><?= te('Assign to this job') ?></strong>
+    <span class="small muted"><?= $fPlaced >= $fAsked ? te('the requisition is full (:p of :a placed)', ['p' => $fPlaced, 'a' => $fAsked]) : te(':p of :a placed so far', ['p' => $fPlaced, 'a' => $fAsked]) ?></span></label>
   <label class="d-block mt-s" id="expedite"><input type="checkbox" name="expedite" value="1"> <strong><?= te('Expedited') ?></strong> <span class="small muted"><?= te('book the flight and hotel now, while HR does the background check and drug test') ?></span></label>
   <div class="field mt-l"><label for="rv-note"><?= te('Your note') ?></label><textarea id="rv-note" name="note" rows="3" maxlength="4000" placeholder="<?= te('Needed for another interview or a decline: what to ask, or why not.') ?>"></textarea></div>
   <details class="mt-s" id="decide-interview"><summary class="small"><?= te('Schedule the interview now') ?></summary>
