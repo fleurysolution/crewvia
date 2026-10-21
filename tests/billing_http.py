@@ -97,6 +97,12 @@ try:
 except urllib.error.HTTPError as e:
     status = e.code
 check('No signature, no answer', status == 401)
+try:
+    with urllib.request.urlopen(urllib.request.Request(base + '/api/billing-count?month=2024-02', data=b'x', method='POST')) as r:
+        status, text = r.status, r.read().decode()
+except urllib.error.HTTPError as e:
+    status, text = e.code, e.read().decode()
+check('An unsigned POST learns nothing either (401 bad_signature)', status == 401 and json.loads(text)['error'] == 'bad_signature', text)
 
 status, body, _ = rec.get('/follow-up')
 check('Approved, next step opens for a recruiter, with counters per requisition', status == 200 and 'id="follow-up-requisitions"' in body, body[:400])

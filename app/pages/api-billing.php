@@ -27,10 +27,6 @@ $reply = static function (int $code, array $body): never {
     exit;
 };
 
-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
-    $reply(400, ['error' => 'bad_request', 'detail' => 'GET only']);
-}
-
 $secret = (string) (getenv('FS_HUB_SECRET_CREWVIA') ?: ($_SERVER['FS_HUB_SECRET_CREWVIA'] ?? ($config['fs_hub_secret_crewvia'] ?? '')));
 if ($secret === '') {
     $reply(500, ['error' => 'server_error']);
@@ -52,6 +48,10 @@ if (! ctype_digit($stamp) || abs(time() - (int) $stamp) > 300) {
 }
 if ($product !== 'crewvia') {
     $reply(404, ['error' => 'unknown_product']);
+}
+// Every code other than bad_signature goes to a caller already authenticated (contract v1.1, section 7).
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+    $reply(400, ['error' => 'bad_request', 'detail' => 'GET only']);
 }
 
 $month = (string) ($_GET['month'] ?? '');

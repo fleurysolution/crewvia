@@ -78,6 +78,8 @@ Once sealed, a month is never recomputed, and it is never sealed twice. A day va
 - 400 `bad_request`;
 - 500 `server_error` (no secret configured).
 
+The signature is checked first: a caller without the secret only ever gets `401 bad_signature`, whatever else is wrong (method, product, timestamp, month). The other codes go to an authenticated caller only, as the contract now requires of everyone.
+
 **`billing-count`** returns `product, client, month, billable_people, event_count, ledger_hash, sealed_at`. It carries no names and no personal data. On an open month, `ledger_hash` and `sealed_at` are `null`.
 
 **`revenue`**
