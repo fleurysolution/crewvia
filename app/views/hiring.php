@@ -21,7 +21,7 @@ $hwScore = static function (?string $s): string {
 <?php if (! isset($hwVacancy)): ?>
 <div class="page-head">
   <div><h1><?= te('Hiring') ?></h1><p class="sub m0"><?= te('The people the hiring managers approved, by requisition: offer, onboarding and hire. Applicants are worked on Candidates until they are approved.') ?></p></div>
-  <div class="actions"><a class="btn ghost" href="/candidates"><?= te('Candidates') ?></a></div>
+  <div class="actions"><a class="btn ghost" href="/follow-up" id="follow-up-link"><?= te('Approved, next step') ?></a> <a class="btn ghost" href="/candidates"><?= te('Candidates') ?></a></div>
 </div>
 <form method="get" class="filterbar" id="jobs-filter">
   <select name="status" aria-label="<?= te('Status') ?>"><?php foreach (['open' => t('Open'), 'closed' => t('Closed'), 'all' => t('All')] as $k => $l): ?><option value="<?= $k ?>"<?= $hwStatus === $k ? ' selected' : '' ?>><?= e($l) ?></option><?php endforeach; ?></select>

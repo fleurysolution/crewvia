@@ -41,6 +41,8 @@ if ($path === '/health') {
     echo json_encode(['status' => $up ? 'ok' : 'down']);
     exit;
 }
+// P5-M100: the Fleury Solutions hub reads the billing count and revenue, signed (contract v1.1); no session.
+if ($path === '/api/billing-count' || $path === '/api/revenue') { require __DIR__.'/../app/pages/api-billing.php'; exit; }
 // Stripe authenticates the raw POST with its signature, not a browser CSRF token.
 if ($path === '/stripe-webhook') { require __DIR__.'/../app/pages/saas-webhook.php'; exit; }
 if ($path === '/job-feed') { if($method!=='GET'){http_response_code(405);exit('GET required.');} require __DIR__.'/../app/pages/job-feed.php'; exit; }
@@ -216,6 +218,8 @@ $routes = [
     '/campaigns' => 'campaigns',
     '/home' => 'home',
     '/subscription' => 'subscription',
+    '/crewvia-billing' => 'crewvia-billing',
+    '/follow-up' => 'follow-up',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',
     '/ai-review' => 'ai-review',

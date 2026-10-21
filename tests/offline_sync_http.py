@@ -122,7 +122,7 @@ check('Trusting sets the device cookie: HttpOnly, SameSite=Strict, for the whole
       and 'httponly' in cookie_header[-1].lower() and 'samesite=strict' in cookie_header[-1].lower() and 'path=/' in cookie_header[-1].lower(), headers)
 token = w.device().value
 check('Only the hash of the token is stored', re.fullmatch(r'[a-f0-9]{64}', token) and g['token_hash'] != token and token not in json.dumps(probe()))
-check('It is trusted for 14 days', int(g['user_id']) == IDS['w'] and abs(int(g['minutes']) - 14 * 24 * 60) <= 1, g)
+check('It is trusted for 14 days', int(g['user_id']) == IDS['w'] and abs(int(g['minutes']) - 14 * 24 * 60) <= 61, g)  # 61: a daylight-saving change inside the 14 days
 status, body = w.get('/devices')
 check('The page says this phone is trusted and lists it', 'id="this-phone" data-trusted="1"' in body and 'data-grant="%s" data-state="active"' % g['id'] in body)
 check('A recruiter cannot trust a phone: offline attendance is for workers and supervisors', trust(rec)[0] == 403 and rec.device() is None)

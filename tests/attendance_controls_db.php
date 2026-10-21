@@ -81,6 +81,10 @@ check('A second upgrade is silent for P1-M02', $code === 0 && ! str_contains($se
 $fixture  = json_decode((string) file_get_contents(__DIR__ . '/fixture.json'), true, 512, JSON_THROW_ON_ERROR);
 $password = password_hash('TestPassword123!', PASSWORD_DEFAULT);
 $week     = week_ending(date('Y-m-d', strtotime('-14 days')));
+// http_tests.py, which runs after this, imports and approves fixed weeks: keep clear of them.
+while (in_array($week, ['2026-10-10', '2026-10-17', '2026-10-24'], true)) {
+    $week = date('Y-m-d', strtotime($week . ' -7 days'));
+}
 $day      = static fn(int $back): string => date('Y-m-d', strtotime($week . ' -' . $back . ' days'));
 $start    = $day(13);
 $admin    = (int) val("SELECT id FROM users WHERE email = 'admin@test.invalid'");

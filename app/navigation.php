@@ -98,11 +98,15 @@ function workspace_nav(?array $u): array
         ['/privacy-requests',   'Privacy',                            'admin'],
         ['/agency-setup',       'Agency configuration',               'admin'],
         ['/subscription',       'Subscription & workspace',           'admin'],
+        // P5-M100: the count Fleury Solutions bills, as RSS sees it before the invoice.
+        ['/crewvia-billing',    'Crewvia subscription',               'admin'],
         ['/recruitment',        'Application screening',              'recruiter'],
         ['/onboarding',         'Onboarding',                         'recruiter'],
         ['/hiring',             'Hiring',                             'recruiter'],
         ['/campaigns',          'Campaign email',                     'recruiter'],
         ['/requisitions',       'Requisitions',                       'recruiter'],
+        // P5-M100: approved people waiting for their next step.
+        ['/follow-up',          'Approved, next step',                'recruiter'],
         // P5-M93: the public job board, every open job, as applicants see it.
         ['/careers',            'Careers page',                       ['recruiter','hotels','payroll']],
         ['/screening-questions','Screening questions',                'recruiter'],
@@ -306,7 +310,7 @@ function workspace_sections(?array $u = null): array
     return [
         'Overview' => ['/home', '/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
-        'Recruiting' => ['/careers', '/reviews', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
+        'Recruiting' => ['/careers', '/reviews', '/follow-up', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
         'Hiring' => ['/hiring', '/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',
@@ -319,7 +323,7 @@ function workspace_sections(?array $u = null): array
         'Clients' => ['/clients', '/client-orders', '/client-access', '/client-portal'],
         'Administration' => ['/people', '/hr-records', '/leave-types', '/pay-grades', '/appraisal-templates', '/organization', '/job', '/employees', '/personnel',
                              '/offboarding', '/imports', '/settings', '/agency-setup',
-                             '/email-delivery', '/integrations', '/audit-log', '/system-health', '/privacy-requests', '/subscription', '/approval-chains'],
+                             '/email-delivery', '/integrations', '/audit-log', '/system-health', '/privacy-requests', '/subscription', '/crewvia-billing', '/approval-chains'],
     ];
 }
 

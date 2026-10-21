@@ -27,3 +27,6 @@ test-results/
 __pycache__/
 .DS_Store
 Thumbs.db
+
+# P5-M100: secrets live in the environment; only .env.example is versioned.
+.env

@@ -3090,4 +3090,58 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DA
     echo 'Applicants give the airport they fly from; Send home ends an assignment and asks for the flight home.' . PHP_EOL;
 }
 
+// P5-M100: verifiable billing - who was actually paid. An append-only ledger, chained by hashes, and a sealed
+// monthly close. Billable in a calendar month: anyone with a day validated by a supervisor or in a pay cycle.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='billing_events'")) {
+    q("CREATE TABLE billing_events (
+        id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        chain_no      BIGINT UNSIGNED NOT NULL,
+        period_month  CHAR(7)      NOT NULL,
+        occurred_on   DATE         NOT NULL,
+        kind          VARCHAR(32)  NOT NULL,
+        candidate_id  INT UNSIGNED NOT NULL,
+        source_table  VARCHAR(32)  NOT NULL,
+        source_id     INT UNSIGNED NOT NULL,
+        prev_hash     CHAR(64)     NOT NULL,
+        hash          CHAR(64)     NOT NULL,
+        created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_billing_chain (chain_no),
+        UNIQUE KEY uq_billing_source (source_table, source_id),
+        KEY ix_billing_period (period_month, candidate_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    q("CREATE TABLE billing_closings (
+        id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        period_month    CHAR(7)      NOT NULL,
+        billable_people INT UNSIGNED NOT NULL,
+        event_count     INT UNSIGNED NOT NULL,
+        last_chain_no   BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        ledger_hash     CHAR(64)     NOT NULL,
+        sealed_at       DATETIME     NOT NULL,
+        sealed_by       INT UNSIGNED NULL,
+        UNIQUE KEY uq_billing_closing (period_month)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo 'Billing: an append-only ledger of the people paid each month, chained by hashes, and a sealed monthly close.' . PHP_EOL;
+}
+// The ledger and its closes are never changed or deleted - by anyone, the owner and the administrator included.
+// Needs the TRIGGER privilege; without it the application still refuses changes and the hash chain shows any.
+$billingGuard = static fn(string $msg): string => "BEGIN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '$msg'; END";
+$billingTriggers = [
+    'billing_events_no_update'   => ['BEFORE UPDATE ON billing_events', $billingGuard('Billing events cannot be changed')],
+    'billing_events_no_delete'   => ['BEFORE DELETE ON billing_events', $billingGuard('Billing events cannot be deleted')],
+    'billing_closings_no_update' => ['BEFORE UPDATE ON billing_closings', $billingGuard('A sealed close cannot be changed')],
+    'billing_closings_no_delete' => ['BEFORE DELETE ON billing_closings', $billingGuard('A sealed close cannot be deleted')],
+];
+$billingWarning = null;
+foreach ($billingTriggers as $name => [$when, $body]) {
+    try {
+        db()->exec("CREATE TRIGGER IF NOT EXISTS $name $when FOR EACH ROW $body");
+    } catch (Throwable $e) {
+        $billingWarning = $e->getMessage();
+    }
+}
+if ($billingWarning !== null) {
+    echo 'Billing: WARNING, the database refused the triggers that protect the ledger (' . $billingWarning . '). '
+       . 'The application still refuses changes and the hash chain shows any; grant TRIGGER and run the upgrade again.' . PHP_EOL;
+}
+
 echo "Upgrade complete. Existing records preserved.\n";

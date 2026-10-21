@@ -5664,3 +5664,46 @@ Needs a flight home	Vol retour à réserver	Necesita vuelo de regreso
 flies to :airport	vole vers :airport	vuela a :airport
 Home airport not given	Aéroport de retour non indiqué	Aeropuerto de regreso no indicado
 Operations	Opérations	Operaciones
+Crewvia usage statement · :month	Relevé d’utilisation Crewvia · :month	Estado de uso de Crewvia · :month
+Crewvia subscription	Abonnement Crewvia	Suscripción Crewvia
+Billed per person paid in the month: at least one day validated by a supervisor, or a line in a pay cycle. Each person counts once, whatever the number of sites. :rate per person, minimum :min a month.	Facturé par personne payée dans le mois : au moins un jour validé par un superviseur, ou une ligne dans un cycle de paie. Chaque personne compte une fois, quel que soit le nombre de sites. :rate par personne, minimum :min par mois.	Facturado por persona pagada en el mes: al menos un día validado por un supervisor, o una línea en un ciclo de nómina. Cada persona cuenta una vez, sin importar el número de sitios. :rate por persona, mínimo :min al mes.
+THIS MONTH SO FAR	CE MOIS-CI À CE JOUR	ESTE MES HASTA HOY
+:n person paid so far in :month	:n personne payée à ce jour en :month	:n persona pagada hasta hoy en :month
+:n people paid so far in :month	:n personnes payées à ce jour en :month	:n personas pagadas hasta hoy en :month
+:n record	:n enregistrement	:n registro
+:n records	:n enregistrements	:n registros
+At this count the month comes to :amount. The figure is sealed on the 1st of next month.	À ce compte, le mois s’élève à :amount. Le chiffre est scellé le 1er du mois suivant.	Con este conteo, el mes suma :amount. La cifra se sella el día 1 del mes siguiente.
+See the people counted	Voir les personnes comptées	Ver las personas contadas
+LEDGER	REGISTRE	REGISTRO
+Chain intact	Chaîne intacte	Cadena intacta
+:n record checked	:n enregistrement vérifié	:n registro verificado
+:n records checked	:n enregistrements vérifiés	:n registros verificados
+Chain broken at record :n	Chaîne rompue à l’enregistrement :n	Cadena rota en el registro :n
+Every record is written once and carries the fingerprint of the one before. Records cannot be changed or deleted, and a sealed month is never recomputed.	Chaque enregistrement est écrit une seule fois et porte l’empreinte du précédent. Les enregistrements ne peuvent être ni modifiés ni supprimés, et un mois scellé n’est jamais recalculé.	Cada registro se escribe una sola vez y lleva la huella del anterior. Los registros no se pueden modificar ni eliminar, y un mes sellado nunca se recalcula.
+Seal :month now	Sceller :month maintenant	Sellar :month ahora
+Sealed months	Mois scellés	Meses sellados
+No month sealed yet. The first is sealed on the 1st of next month.	Aucun mois scellé. Le premier sera scellé le 1er du mois prochain.	Ningún mes sellado aún. El primero se sellará el día 1 del próximo mes.
+Records	Enregistrements	Registros
+Sealed	Scellé	Sellado
+PEOPLE	PERSONNES	PERSONAS
+AMOUNT	MONTANT	IMPORTE
+STATUS	STATUT	ESTADO
+Open: the count can still grow	Ouvert : le compte peut encore augmenter	Abierto: el conteo aún puede aumentar
+:n record was validated after the month was sealed; it is kept in the ledger and not added to the sealed count.	:n enregistrement a été validé après le scellement du mois ; il est conservé au registre et n’est pas ajouté au compte scellé.	:n registro se validó después del sellado del mes; se conserva en el registro y no se suma al conteo sellado.
+:n records were validated after the month was sealed; they are kept in the ledger and not added to the sealed count.	:n enregistrements ont été validés après le scellement du mois ; ils sont conservés au registre et ne sont pas ajoutés au compte scellé.	:n registros se validaron después del sellado del mes; se conservan en el registro y no se suman al conteo sellado.
+Days validated	Jours validés	Días validados
+Pay-cycle lines	Lignes de paie	Líneas de nómina
+Nobody paid in this month yet.	Personne n’a encore été payé ce mois-ci.	Nadie ha sido pagado aún este mes.
+:month is sealed: :n people.	:month est scellé : :n personnes.	:month está sellado: :n personas.
+Only a finished month is sealed.	Seul un mois terminé peut être scellé.	Solo se puede sellar un mes terminado.
+This month is already sealed.	Ce mois est déjà scellé.	Este mes ya está sellado.
+The ledger chain is broken at line :n: the month is not sealed. Contact Fleury Solutions.	La chaîne du registre est rompue à la ligne :n : le mois n’est pas scellé. Contactez Fleury Solutions.	La cadena del registro está rota en la línea :n: el mes no se selló. Contacte a Fleury Solutions.
+Record removed	Fiche supprimée	Ficha eliminada
+Approved, next step	Approuvés, prochaine étape	Aprobados, siguiente paso
+People a hiring manager approved who are not deployed yet. Those with no contact since the approval are ready for a call, on this job or the next one.	Les personnes approuvées par un responsable du recrutement et pas encore déployées. Celles sans contact depuis l’approbation sont prêtes pour un appel, sur ce poste ou le suivant.	Personas aprobadas por un responsable de contratación y aún no desplegadas. Las que no tienen contacto desde la aprobación están listas para una llamada, para este puesto o el siguiente.
+No contact for	Sans contact depuis	Sin contacto desde hace
+No approval yet.	Aucune approbation pour l’instant.	Ninguna aprobación por ahora.
+No contact since approval	Sans contact depuis l’approbation	Sin contacto desde la aprobación
+:n person ready for a call	:n personne prête pour un appel	:n persona lista para una llamada
+:n people ready for a call	:n personnes prêtes pour un appel	:n personas listas para una llamada
+Approved on	Approuvé le	Aprobado el
