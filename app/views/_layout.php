@@ -758,7 +758,7 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
 <?php if ($u && ($onProject || $unread)): ?>
   <div class="workbar">
     <?php // P5-M81: Back to the screen this one was opened from, on the page itself (RSS: "you need a back button"). ?>
-    <button type="button" class="btn ghost sm back-link" data-back hidden onclick="history.back()">&larr; <?= te('Back') ?></button>
+    <button type="button" class="btn ghost sm back-link" data-back hidden onclick="var r=document.referrer,h=location.href;history.back();setTimeout(function(){if(location.href===h&&r){location.href=r;}},400)">&larr; <?= te('Back') ?></button>
     <script>(function(){var b=document.querySelector('[data-back]');try{var r=document.referrer?new URL(document.referrer):null;if(b&&r&&r.host===location.host&&(r.pathname+r.search)!==(location.pathname+location.search)&&history.length>1){b.hidden=false;}}catch(e){}})();</script>
     <?php if ($onProject): ?>
       <form method="post" action="/select-project" class="workbar-project">

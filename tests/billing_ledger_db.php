@@ -164,3 +164,6 @@ $check('Follow-up fixture: one quiet, one called since, one deployed', (int) val
 if (! val("SELECT id FROM users WHERE email = 'wk-hr@test.invalid'")) {
     q("INSERT INTO users (name, email, password_hash, role, must_change_pw) SELECT 'HR Tester', 'wk-hr@test.invalid', password_hash, 'hr', 0 FROM users WHERE email = 'wk-rec@test.invalid'");
 }
+// P5-M102 (seen by careers_feed_http.py): a job that pays no travel and no hotel.
+q("UPDATE jobs SET travel_provided = 0, lodging_provided = 0, transport_provided = 0 WHERE id = ?", [$plantB]);
+q("INSERT INTO vacancies (job_id, title, description) VALUES (?, 'Local packer', 'Test requisition, no travel')", [$plantB]);

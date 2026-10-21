@@ -58,6 +58,11 @@ if(str_starts_with($path,'/sync/')){require __DIR__.'/../app/pages/sync.php';exi
 if($path==='/twilio-webhook'){require __DIR__.'/../app/pages/twilio-webhook.php';exit;}
 // P5-M18: a campaign email's unsubscribe link carries its own secret token; mail programs post to it with no session (RFC 8058).
 if($path==='/unsubscribe'){require __DIR__.'/../app/pages/unsubscribe.php';exit;}
+// P5-M102: an application whose form expired comes back with its entries and a line saying why - never a blank page.
+if ($path === '/apply' && $method === 'POST' && ! hash_equals((string) ($_SESSION['csrf'] ?? ''), is_string($_POST['_csrf'] ?? null) ? $_POST['_csrf'] : '')) {
+    $applyError = t('This page was open for a while, so it was refreshed. Your entries are kept: check them and press Apply again.');
+    require __DIR__.'/../app/pages/apply.php'; exit;
+}
 csrf_check();
 
 if ($path === '/google-start') { require __DIR__.'/../app/pages/google-start.php'; exit; }

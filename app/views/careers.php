@@ -14,7 +14,7 @@
           : te('Nothing open at the moment') ?>
     </h1>
     <p class="sub">
-      <?= te('Short-notice industrial assignments. Travel, lodging and a daily allowance are provided — the detail is on each position.') ?>
+      <?= te('Industrial assignments across the United States. The pay, the guaranteed hours and what is provided are on each position.') ?>
     </p>
   </div>
 </div>

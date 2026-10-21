@@ -22,10 +22,34 @@ function intake_resume_prepare(): ?array
     if(file_put_contents($path,$iv.$tag.$cipher,LOCK_EX)===false)throw new RuntimeException(t('Document storage unavailable.'));
     return ['path'=>$path,'storage_name'=>$name,'file_hash'=>hash('sha256',$raw),'extension'=>$kind,'original_name'=>mb_substr(basename($file['name']),0,190)];
 }
+/** P5-M102: why an application would be refused, in words the applicant can act on; null when it can go through. */
+function intake_problem(): ?string
+{
+    if (time() - (int) ($_SESSION['last_application'] ?? 0) < 15) {
+        return t('You sent an application a moment ago. Wait a few seconds, then press Apply again.');
+    }
+    $name = trim((string) ($_POST['name'] ?? ''));
+    $email = trim((string) ($_POST['email'] ?? ''));
+    if ($name === '' || mb_strlen($name) > 190) {
+        return t('Enter your full name.');
+    }
+    if (! filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
+        return t('Enter a valid email address.');
+    }
+    if (strlen(trim((string) ($_POST['phone'] ?? ''))) > 40) {
+        return t('Enter a valid phone number.');
+    }
+    if (! isset($_POST['consent'])) {
+        return t('Tick the box to let the agency review your application and contact you.');
+    }
+
+    return null;
+}
+
 function intake_receive(?int $vacancyId=null): void
 {
     require_once __DIR__.'/security.php';
-    if(!security_rate_limit('public-application',(string)($_SERVER['REMOTE_ADDR']??''),20,3600)||time()-(int)($_SESSION['last_application']??0)<60){http_response_code(429);exit(t('Please wait before submitting again.'));}
+    if(!security_rate_limit('public-application',(string)($_SERVER['REMOTE_ADDR']??''),20,3600)||time()-(int)($_SESSION['last_application']??0)<15){http_response_code(429);exit(t('Please wait before submitting again.'));}
     $name=trim((string)($_POST['name']??''));$email=trim((string)($_POST['email']??''));$phone=trim((string)($_POST['phone']??''));
     // Walkthrough finding 9: where somebody lives, optional, so the distance filters can place them.
     require_once __DIR__.'/geo.php';

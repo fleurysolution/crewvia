@@ -10,28 +10,35 @@ require_once __DIR__ . '/../availability.php';
 $place = trim(($vacancy['site_city'] ?? '') . ', ' . ($vacancy['site_state'] ?? ''), ', ');
 $starts = $vacancy['starts_on'] ?? null;
 ?>
+<?php // P5-M102: the place, never the project's name - it can name the client, and strike work is confidential. ?>
 <div class="page-head"><div><h1><?= e($vacancy['title']) ?></h1>
-  <p class="sub m0"><?= e($vacancy['project']) ?><?= $place !== '' ? ' · ' . e($place) : '' ?></p></div></div>
+  <?php if ($place !== ''): ?><p class="sub m0"><?= e($place) ?></p><?php endif; ?></div></div>
 <p id="job-facts">
   <?php if (isset($vacancy['pay_rate']) && $vacancy['pay_rate'] !== null): ?><span class="tag green"><?= te(':rate an hour', ['rate' => money((float) $vacancy['pay_rate'])]) ?></span><?php endif; ?>
+  <?php if (! empty($vacancy['guarantee'])): ?><span class="tag"><?= te(':n hours guaranteed a week', ['n' => (int) $vacancy['guarantee']]) ?></span><?php endif; ?>
   <?php if (isset($vacancy['per_diem_rate']) && (float) $vacancy['per_diem_rate'] > 0): ?><span class="tag"><?= te('per diem :rate', ['rate' => money((float) $vacancy['per_diem_rate'])]) ?></span><?php endif; ?>
   <?php if ($starts): ?><span class="tag"><?= e(starts_words((string) $starts)) ?></span><?php endif; ?>
+  <?php // Only the cover this project actually includes. ?>
+  <?php if (! empty($vacancy['travel_provided'])): ?><span class="tag"><?= te('Travel to and from site paid') ?></span><?php endif; ?>
+  <?php if (! empty($vacancy['lodging_provided'])): ?><span class="tag"><?= te('Hotel paid') ?></span><?php endif; ?>
+  <?php if (! empty($vacancy['transport_provided'])): ?><span class="tag"><?= te('Transport on site provided') ?></span><?php endif; ?>
   <?php if (! empty($vacancy['openings'])): ?><span class="tag"><?= ten((int) $vacancy['openings'], ':n opening', ':n openings') ?></span><?php endif; ?>
 </p>
 <?php if (trim((string) $vacancy['description']) !== ''): ?><div class="card"><?= nl2br(e($vacancy['description'])) ?></div><?php endif; ?>
 
 <form class="card" method="post" enctype="multipart/form-data" id="apply-form"><?= csrf_field() ?><input type="hidden" name="vacancy_id" value="<?= (int) $vacancy['id'] ?>">
   <h2><?= te('Apply') ?></h2>
+  <?php if (! empty($applyError)): ?><div class="flash err" role="alert" id="apply-error"><?= e($applyError) ?></div><?php endif; ?>
   <h3><?= te('About you') ?></h3>
-  <div class="field"><label for="ap-name"><?= te('Full name') ?></label><input id="ap-name" name="name" maxlength="190" required autocomplete="name"></div>
+  <div class="field"><label for="ap-name"><?= te('Full name') ?></label><input id="ap-name" name="name" maxlength="190" required autocomplete="name" value="<?= e((string) ($old['name'] ?? '')) ?>"></div>
   <div class="row">
-    <div class="f2"><label for="ap-email"><?= te('Email') ?></label><input id="ap-email" type="email" name="email" maxlength="190" required autocomplete="email"></div>
-    <div><label for="ap-phone"><?= te('Phone') ?></label><input id="ap-phone" type="tel" name="phone" maxlength="40" autocomplete="tel"></div>
+    <div class="f2"><label for="ap-email"><?= te('Email') ?></label><input id="ap-email" type="email" name="email" maxlength="190" required autocomplete="email" value="<?= e((string) ($old['email'] ?? '')) ?>"></div>
+    <div><label for="ap-phone"><?= te('Phone') ?></label><input id="ap-phone" type="tel" name="phone" maxlength="40" autocomplete="tel" value="<?= e((string) ($old['phone'] ?? '')) ?>"></div>
   </div>
-  <div class="row mt-s"><div class="f2"><label for="ap-city"><?= te('City') ?></label><input id="ap-city" name="city" maxlength="120" autocomplete="address-level2"></div><div><label for="ap-state"><?= te('State') ?></label><input id="ap-state" class="in-s" name="state" maxlength="60" autocomplete="address-level1"></div><div><label for="ap-zip"><?= te('ZIP code') ?></label><input id="ap-zip" class="in-s" name="zip" maxlength="10" inputmode="numeric" autocomplete="postal-code"></div></div>
-  <p class="hint m0"><?= te('Where you live, so we can tell you about work near you. Optional.') ?></p>
-  <?php // P5-M98: the airport they fly from - for their flight in, and home. ?>
-  <div class="field mt-s"><label for="ap-airport"><?= te('The airport you fly from') ?></label><input id="ap-airport" name="home_airport" maxlength="120" placeholder="<?= te('e.g. IAH - Houston Bush Intercontinental, Houston TX') ?>"><span class="hint"><?= te('Airport code, name and city.') ?></span></div>
+  <div class="row mt-s"><div class="f2"><label for="ap-city"><?= te('City') ?></label><input id="ap-city" name="city" maxlength="120" autocomplete="address-level2" value="<?= e((string) ($old['city'] ?? '')) ?>"></div><div><label for="ap-state"><?= te('State') ?></label><input id="ap-state" class="in-s" name="state" maxlength="60" autocomplete="address-level1" value="<?= e((string) ($old['state'] ?? '')) ?>"></div><div><label for="ap-zip"><?= te('ZIP code') ?></label><input id="ap-zip" class="in-s" name="zip" maxlength="10" inputmode="numeric" autocomplete="postal-code" value="<?= e((string) ($old['zip'] ?? '')) ?>"></div></div>
+  <p class="hint m0"><?= te('Where you live. Optional.') ?></p>
+  <?php // P5-M98: the airport they fly from - for their flight in, and home. P5-M102: asked only when this job pays the travel. ?>
+  <?php if (! empty($vacancy['travel_provided'])): ?><div class="field mt-s"><label for="ap-airport"><?= te('The airport you fly from') ?></label><input id="ap-airport" name="home_airport" maxlength="120" placeholder="<?= te('e.g. IAH - Houston Bush Intercontinental, Houston TX') ?>" value="<?= e((string) ($old['home_airport'] ?? '')) ?>"><span class="hint"><?= te('Airport code, name and city.') ?></span></div><?php endif; ?>
 
   <h3 class="mt-l"><?= te('Your CV') ?></h3>
   <label><?= te('Resume · PDF or DOCX, maximum 5 MB') ?><input name="resume" type="file" accept=".pdf,.docx"></label>
@@ -47,7 +54,7 @@ $starts = $vacancy['starts_on'] ?? null;
     <div><label for="ap-from"><?= te('From') ?></label><input id="ap-from" type="date" name="available_from" min="<?= e(date('Y-m-d')) ?>"></div>
   </div>
 
-  <p class="mt-l"><label><input class="w-auto" type="checkbox" name="consent" required> <?= te('I authorize the hiring agency to review my application and contact me about opportunities.') ?></label> <a href="/privacy" target="_blank" rel="noopener"><?= te('Read the privacy notice') ?></a></p>
+  <p class="mt-l"><label><input class="w-auto" type="checkbox" name="consent" required<?= isset($old['consent']) ? ' checked' : '' ?>> <?= te('I authorize the hiring agency to review my application and contact me about opportunities.') ?></label> <a href="/privacy" target="_blank" rel="noopener"><?= te('Read the privacy notice') ?></a></p>
   <button class="btn"><?= te('Apply') ?></button>
 </form>
 <?php if ($jobSchema): ?><script type="application/ld+json"><?= json_encode($jobSchema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES) ?></script><?php endif; ?>

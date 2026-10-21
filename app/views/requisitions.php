@@ -34,6 +34,8 @@
         <td><span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>"><?= $requisition['is_open'] ? te('Open') : te('Closed') ?></span></td>
         <td class="right nowrap">
           <button type="button" class="btn ghost sm" data-copy-link="<?= e($link) ?>" data-copied="<?= te('Link copied') ?>"><?= te('Copy link') ?></button>
+          <?php // P5-M102: closing a requisition is one click on its row, not inside "QR code & more". It leaves the careers page and the website feed at once. ?>
+          <?php if (can('admin')): ?><form method="post" class="inline-block" data-close-req="<?= (int) $requisition['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>"><button class="btn ghost sm" type="submit"><?= $requisition['is_open'] ? te('Close') : te('Reopen it') ?></button></form><?php endif; ?>
           <details class="req-more inline-block"><summary class="btn ghost sm"><?= te('QR code & more') ?></summary>
             <div class="req-pop">
               <div class="application-qr qr-box" data-vacancy="<?= (int) $requisition['id'] ?>"></div>
@@ -49,8 +51,6 @@
               </form>
               <?php if (can('admin')): ?>
               <div class="requisition-actions">
-                <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
-                  <button class="btn ghost sm" type="submit"><?= $requisition['is_open'] ? te('Close this requisition') : te('Reopen it') ?></button></form>
                 <?php if ((int) $requisition['applications'] === 0): ?>
                 <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="remove"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
                   <button class="btn ghost sm" type="submit"><?= te('Remove') ?></button></form>

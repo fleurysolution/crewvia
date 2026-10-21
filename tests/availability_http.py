@@ -65,6 +65,8 @@ def probe(*args):
     return json.loads(subprocess.run([php, 'work/availability_probe.php', *map(str, args)], check=True, capture_output=True, text=True, encoding='utf-8').stdout)
 
 
+# P5-M102: the airport is asked only when the job pays the travel - this one does (earlier tests may have edited the project).
+subprocess.run([php, '-r', "require 'work/test-app/app/bootstrap.php'; q('UPDATE jobs SET travel_provided = 1 WHERE id = (SELECT job_id FROM vacancies WHERE id = ?)', [(int) $argv[1]]);", str(wk['vA'])], check=True)
 visitor = Client()
 status, body = visitor.get('/apply?id=%d' % wk['vA'])
 check('The page a job poster\'s QR code opens shows the facts first, then asks when they can start',
