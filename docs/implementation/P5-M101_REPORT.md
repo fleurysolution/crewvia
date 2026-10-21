@@ -22,6 +22,17 @@ and an apply link that brings every applicant into Crewvia.
   (`public_opening_terms()`), so `/careers` and the feed cannot drift apart.
 - **`/job-feed`** is unchanged: it remains the Indeed feed.
 
+## Fields frozen by a consumer
+
+The RSS website on VeloraWeb (https://rssinc.veloraweb.com, demo) reads this feed. Warn the VeloraWeb session before
+renaming or removing any of these fields:
+
+- `format` (`crewvia-careers-v1`) and `jobs[]`;
+- per job: `title`, `discipline`, `city`, `state`, `shift`, `starts_on`, `pay_per_hour`, `guaranteed_hours_week`,
+  `per_diem_per_day`, `hotel_paid`, `travel_paid`, `transport_on_site` and `apply_url`.
+
+Adding fields is safe. Renaming or removing one goes through a new format version.
+
 ## Tests
 
 `tests/careers_feed_http.py` (7 checks) covers:

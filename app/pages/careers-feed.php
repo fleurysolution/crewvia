@@ -5,7 +5,8 @@
  *
  * The same positions and the same terms as /careers - pay, guaranteed hours, daily allowance, the cover actually
  * agreed - and nothing about the client. Public, read-only, readable from any website (CORS), cached 5 minutes.
- * /job-feed stays the Indeed feed (published requisitions only).
+ * /job-feed stays the Indeed feed (published requisitions only). The RSS website (VeloraWeb) reads this feed: its
+ * fields are frozen - see docs/implementation/P5-M101_REPORT.md before renaming or removing one.
  */
 
 declare(strict_types=1);
