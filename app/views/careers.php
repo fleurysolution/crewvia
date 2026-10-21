@@ -33,16 +33,12 @@
   // What this trade was actually agreed at: the requisition's own number, or
   // the one on its line of the scope of work. No project-wide fallback, so
   // nobody is ever quoted another trade's rate.
-  $pay  = $o['pay_rate']      ?? $o['line_pay'];
-  $diem = $o['per_diem_rate'] ?? $o['line_diem'];
-
-  $lineGuarantee = $o['strike_live'] && $o['line_strike_guarantee'] !== null
-      ? $o['line_strike_guarantee']
-      : $o['line_guarantee'];
-
-  $guar  = $o['guarantee_hours'] ?? $lineGuarantee;
-  $where = trim(($o['site_city'] ?? '') . ', ' . ($o['site_state'] ?? ''), ' ,');
-  $start = $o['starts_on'] ?: $o['job_starts'];
+  $terms = public_opening_terms($o);
+  $pay   = $terms['pay'];
+  $diem  = $terms['diem'];
+  $guar  = $terms['guarantee'];
+  $where = $terms['where'];
+  $start = $terms['start'];
 
   // Only what the agreement actually covers is promised. This line used to
   // read "Hotel and travel paid" on every advert whether or not it was true.

@@ -45,6 +45,8 @@ if ($path === '/health') {
 if ($path === '/api/billing-count' || $path === '/api/revenue') { require __DIR__.'/../app/pages/api-billing.php'; exit; }
 // Stripe authenticates the raw POST with its signature, not a browser CSRF token.
 if ($path === '/stripe-webhook') { require __DIR__.'/../app/pages/saas-webhook.php'; exit; }
+// P5-M101: the open positions for the agency's own website (public JSON, any origin).
+if ($path === '/careers-feed') { require __DIR__.'/../app/pages/careers-feed.php'; exit; }
 if ($path === '/job-feed') { if($method!=='GET'){http_response_code(405);exit('GET required.');} require __DIR__.'/../app/pages/job-feed.php'; exit; }
 if($path==='/recruiting-webhook'){require __DIR__.'/../app/pages/recruiting-webhook.php';exit;}
 if($path==='/app-manifest'){require __DIR__.'/../app/pages/app-manifest.php';exit;}
