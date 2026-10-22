@@ -636,6 +636,14 @@ function roles(): array
  */
 function candidate_follow_application(int $applicationId): void
 {
+    // P5-M104: the applicant is told when their application moves (under review, retained, not retained).
+    // An email that cannot be written never stops the move itself.
+    try {
+        require_once __DIR__ . '/candidate-emails.php';
+        ce_on_stage($applicationId);
+    } catch (Throwable $e) {
+        error_log('candidate email: ' . $e->getMessage());
+    }
     $a = row('SELECT candidate_id, stage FROM applications WHERE id = ?', [$applicationId]);
     $to = ['screening' => 'screening', 'interview' => 'screening', 'offered' => 'offered', 'accepted' => 'accepted'][$a['stage'] ?? ''] ?? null;
     if (! $a || $to === null) {

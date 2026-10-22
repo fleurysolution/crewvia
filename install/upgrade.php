@@ -3152,4 +3152,33 @@ if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 
        ADD COLUMN published_by INT UNSIGNED NULL, ADD COLUMN published_at DATETIME NULL");
     echo 'Requisitions: a requisition can be sent to recruiting before it is published; a recruiter publishes it.' . PHP_EOL;
 }
+// P5-M104: the emails every applicant receives (received, under review, retained, not retained), their templates
+// as the agency edits them, and the log of each one sent - a refusal is uniform and traceable.
+if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'candidate_email_log'")) {
+    q("CREATE TABLE IF NOT EXISTS candidate_email_templates (
+        template_key VARCHAR(32)  NOT NULL,
+        locale       VARCHAR(5)   NOT NULL,
+        subject      VARCHAR(255) NOT NULL,
+        body         TEXT         NOT NULL,
+        updated_by   INT UNSIGNED NULL,
+        updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (template_key, locale)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    q("CREATE TABLE candidate_email_log (
+        id                   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        application_id       INT UNSIGNED NOT NULL,
+        candidate_id         INT UNSIGNED NOT NULL,
+        template_key         VARCHAR(32)  NOT NULL,
+        status               VARCHAR(16)  NOT NULL,
+        send_after           DATETIME     NULL,
+        sent_at              DATETIME     NULL,
+        subject              VARCHAR(255) NULL,
+        template_fingerprint CHAR(16)     NULL,
+        created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_candidate_email (application_id, template_key),
+        KEY ix_candidate_email_due (status, send_after),
+        KEY ix_candidate_email_person (candidate_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo 'Applicants: an email when their application is received, under review, retained or not retained; the agency edits the texts.' . PHP_EOL;
+}
 echo "Upgrade complete. Existing records preserved.\n";

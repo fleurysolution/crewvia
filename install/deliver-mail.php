@@ -16,6 +16,9 @@ require __DIR__ . '/../app/bootstrap.php';
 require_once __DIR__ . '/../app/notices.php';
 
 $quiet = in_array('--quiet', $argv, true);
+// P5-M104: the applicant refusals whose 24 hours are up are written first, then everything goes out.
+require_once __DIR__ . '/../app/candidate-emails.php';
+ce_due();
 $done = mail_deliver();
 if ($done['held'] !== null) {
     if (! $quiet) {

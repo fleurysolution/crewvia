@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // P5-M103b: send the queued emails now, without waiting for the delivery job (a demonstration, a check).
     if (($_POST['do'] ?? '') === 'send_now') {
         require_once __DIR__ . '/../notices.php';
+        require_once __DIR__ . '/../candidate-emails.php';
+        ce_due();
         $run = mail_deliver(100);
         log_activity('sent the queued emails now', 'settings', 0, $run['sent'] . ' sent, ' . $run['failed'] . ' failed');
         if ($run['held'] !== null) {

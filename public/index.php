@@ -227,6 +227,7 @@ $routes = [
     '/subscription' => 'subscription',
     '/crewvia-billing' => 'crewvia-billing',
     '/follow-up' => 'follow-up',
+    '/candidate-emails' => 'candidate-emails',
     '/requisitions' => 'requisitions',
     '/channels' => 'channels',
     '/ai-review' => 'ai-review',

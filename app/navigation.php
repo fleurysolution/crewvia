@@ -107,6 +107,8 @@ function workspace_nav(?array $u): array
         ['/requisitions',       'Requisitions',                       'recruiter'],
         // P5-M100: approved people waiting for their next step.
         ['/follow-up',          'Approved, next step',                'recruiter'],
+        // P5-M104: the emails every applicant receives.
+        ['/candidate-emails',   'Emails to applicants',               'admin'],
         // P5-M93: the public job board, every open job, as applicants see it.
         ['/careers',            'Careers page',                       ['recruiter','hotels','payroll']],
         ['/screening-questions','Screening questions',                'recruiter'],
@@ -310,7 +312,7 @@ function workspace_sections(?array $u = null): array
     return [
         'Overview' => ['/home', '/activity', '/approvals', '/search', '/overview', '/reports', '/analytics', '/report-builder', '/', '/projects',
                        '/my-team', '/portal', '/project-tasks', '/project-board', '/workload', '/my-tasks'],
-        'Recruiting' => ['/careers', '/reviews', '/follow-up', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
+        'Recruiting' => ['/careers', '/reviews', '/follow-up', '/candidate-emails', '/campaigns', '/checklists', '/requisitions', '/candidates', '/recruitment', '/screening-questions', '/mining',
                          '/resumes', '/ai-review', '/channels', '/message-templates'],
         'Hiring' => ['/hiring', '/contracts', '/onboarding', '/employment', '/checks', '/driver-checks',
                      '/qualifications', '/screening-workflow', '/proofs',

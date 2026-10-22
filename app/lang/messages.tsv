@@ -5760,3 +5760,26 @@ Nothing was sent: email is not switched on for this installation.	Rien n’est p
 :n email is waiting; the delivery job sends every 5 minutes.	:n e-mail en attente ; la tâche d’envoi passe toutes les 5 minutes.	:n correo en espera; la tarea de envío pasa cada 5 minutos.
 :n emails are waiting; the delivery job sends every 5 minutes.	:n e-mails en attente ; la tâche d’envoi passe toutes les 5 minutes.	:n correos en espera; la tarea de envío pasa cada 5 minutos.
 Nothing waiting	Rien en attente	Nada en espera
+Application under review	Candidature en cours d’examen	Solicitud en revisión
+Applicant retained	Candidat retenu	Candidato seleccionado
+Applicant not retained	Candidat non retenu	Candidato no seleccionado
+At once, when the application arrives (careers page, the agency's website, a job board link).	Aussitôt, à l’arrivée de la candidature (page carrières, site de l’agence, lien d’une annonce).	De inmediato, cuando llega la solicitud (página de empleos, sitio de la agencia, enlace de un anuncio).
+When a recruiter takes the application in hand: moved to screening or interview, or sent to a hiring manager for review.	Quand un recruteur prend la candidature en main : passage en présélection ou en entretien, ou envoi à un responsable pour examen.	Cuando un reclutador toma la solicitud: pasa a preselección o entrevista, o se envía a un responsable para revisión.
+When the hiring manager approves the applicant, or an offer is made.	Quand le responsable approuve le candidat, ou qu’une offre est faite.	Cuando el responsable aprueba al candidato o se hace una oferta.
+24 hours after the application is rejected - not sent if it is reopened in the meantime.	24 heures après le rejet de la candidature – non envoyé si elle est rouverte entre-temps.	24 horas después del rechazo de la solicitud: no se envía si se reabre mientras tanto.
+Applicant emails are now written in this language.	Les e-mails aux candidats sont désormais rédigés dans cette langue.	Los correos a los candidatos se escriben ahora en este idioma.
+Choose an email.	Choisissez un e-mail.	Elija un correo.
+Write a subject and a message.	Rédigez un objet et un message.	Escriba un asunto y un mensaje.
+Saved. The next applicants receive this text.	Enregistré. Les prochains candidats recevront ce texte.	Guardado. Los próximos candidatos recibirán este texto.
+Back to the default text.	Retour au texte par défaut.	Se restableció el texto predeterminado.
+Back to the default text	Revenir au texte par défaut	Volver al texto predeterminado
+Industrial Maintenance Tech	Technicien de maintenance industrielle	Técnico de mantenimiento industrial
+Emails to applicants	E-mails aux candidats	Correos a los candidatos
+Every applicant receives these, whatever the way they applied: once each per application. What was sent is on the applicant's record.	Chaque candidat les reçoit, quelle que soit la façon dont il a postulé : chacun une fois par candidature. Ce qui a été envoyé figure dans son dossier.	Todos los candidatos los reciben, sin importar cómo se postularon: cada uno una vez por solicitud. Lo enviado consta en su expediente.
+Written in	Rédigés en	Escritos en
+Test mode is on: these emails go to the test inbox, not to the applicants.	Le mode test est activé : ces e-mails partent vers la boîte de test, pas aux candidats.	El modo de prueba está activado: estos correos van a la bandeja de prueba, no a los candidatos.
+In the text, {first_name}, {job_title} and {agency} are replaced for each applicant.	Dans le texte, {first_name}, {job_title} et {agency} sont remplacés pour chaque candidat.	En el texto, {first_name}, {job_title} y {agency} se reemplazan para cada candidato.
+:n sent in 30 days	:n envoyés en 30 jours	:n enviados en 30 días
+:n waiting its 24 hours	:n attend ses 24 heures	:n espera sus 24 horas
+:n waiting their 24 hours	:n attendent leurs 24 heures	:n esperan sus 24 horas
+Send this email	Envoyer cet e-mail	Enviar este correo

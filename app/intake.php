@@ -93,6 +93,8 @@ function intake_receive(?int $vacancyId=null): void
         if(isset(availability_choices()[$_POST['availability']??''])){availability_set($cid,(string)$_POST['availability'],(string)($_POST['available_from']??''));}
         db()->commit();$_SESSION['last_application']=time();
     }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();if($resume&&is_file($resume['path']))unlink($resume['path']);throw $e;}
+    // P5-M104: the applicant is told at once that the application arrived.
+    if ($applicationId) { try { require_once __DIR__.'/candidate-emails.php'; ce_send($applicationId, 'received'); } catch (Throwable $e) { error_log('candidate email: '.$e->getMessage()); } }
     // P5-M45: their portal, created now, from this page.
     require_once __DIR__.'/availability.php';
     $portal=availability_portal_offer($cid);

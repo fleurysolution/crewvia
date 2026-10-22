@@ -99,6 +99,8 @@ function review_request(int $applicationId, int $reviewerId, int $rating, string
     $reviewer = (string) val('SELECT name FROM users WHERE id = ?', [$reviewerId]);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)',
       [$applicationId, $by, $a['stage'], 'Passed to ' . $reviewer . ' for review. Fit ' . $rating . '/5. ' . $recommendation]);
+    // P5-M104: the applicant learns their application is under review.
+    try { require_once __DIR__ . '/candidate-emails.php'; ce_send($applicationId, 'in_review'); } catch (Throwable $e) { error_log('candidate email: ' . $e->getMessage()); }
     // P5-M103: the manager is emailed too - the step the recruiter waits on.
     require_once __DIR__ . '/notices.php';
     notify_by_email($reviewerId, t('To review: :name for :role', ['name' => $a['full_name'], 'role' => $a['title']]),
@@ -149,6 +151,8 @@ function review_decide(int $reviewId, string $decision, string $note, int $by, a
     $a = review_application($applicationId);
     // P5-M84: approved, the applicant goes to HR; the recruiter's part is done.
     $hr = $decision === 'validated' ? review_hand_to_hr($applicationId, $by, ! empty($GLOBALS['review_expedite'])) : null;
+    // P5-M104: approved by the manager, the applicant is told they are retained.
+    if ($decision === 'validated') { try { require_once __DIR__ . '/candidate-emails.php'; ce_send($applicationId, 'retained'); } catch (Throwable $e) { error_log('candidate email: ' . $e->getMessage()); } }
     // P5-M103: the recruiter learns the decision by email as well.
     require_once __DIR__ . '/notices.php';
     $told = $hr

@@ -55,7 +55,7 @@ def check(label, condition, detail=''):
 payroll_only = ['/ledger', '/statements', '/bill-matching', '/periods', '/balances', '/accounting', '/project-costs', '/hours', '/payroll-export', '/pay-rules', '/pay-items', '/payroll-runs', '/attendance-week', '/billing',
                 '/accounts-payable', '/client-invoices']
 admin_only = ['/integrations', '/privacy-requests', '/audit-log', '/system-health', '/pay-grades', '/appraisal-templates', '/leave-types', '/settings', '/people', '/imports', '/structure', '/approval-chains', '/projects', '/overview',
-              '/agency-setup', '/client-access', '/subscription', '/crewvia-billing', '/email-delivery', '/job']
+              '/agency-setup', '/client-access', '/subscription', '/crewvia-billing', '/candidate-emails', '/email-delivery', '/job']
 roles = {
     'admin':      ('admin@test.invalid', []),
     'recruiter':  ('m01-recruiter@test.invalid', payroll_only + admin_only + ['/asset-valuation', '/self-service', '/benefits', '/hotels', '/travel', '/procurement', '/vendors']),
