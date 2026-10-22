@@ -5753,3 +5753,10 @@ Emails to the office: a requisition sent to recruiting or published, an applican
 No email to the office yet.	Aucun e-mail au bureau pour l’instant.	Aún no hay correos a la oficina.
 Queued	Mis en file	En cola
 Waiting to send	En attente d’envoi	Pendiente de envío
+Nothing was sent: email is not switched on for this installation.	Rien n’est parti : l’envoi d’e-mails n’est pas activé sur cette installation.	No se envió nada: el correo no está activado en esta instalación.
+:sent sent, :failed failed.	:sent envoyés, :failed en échec.	:sent enviados, :failed fallidos.
+:n email has been waiting :m minutes: the delivery job may be stopped.	:n e-mail attend depuis :m minutes : la tâche d’envoi est peut-être arrêtée.	:n correo espera desde hace :m minutos: la tarea de envío puede estar detenida.
+:n emails have been waiting, the oldest for :m minutes: the delivery job may be stopped.	:n e-mails attendent, le plus ancien depuis :m minutes : la tâche d’envoi est peut-être arrêtée.	:n correos esperan, el más antiguo desde hace :m minutos: la tarea de envío puede estar detenida.
+:n email is waiting; the delivery job sends every 5 minutes.	:n e-mail en attente ; la tâche d’envoi passe toutes les 5 minutes.	:n correo en espera; la tarea de envío pasa cada 5 minutos.
+:n emails are waiting; the delivery job sends every 5 minutes.	:n e-mails en attente ; la tâche d’envoi passe toutes les 5 minutes.	:n correos en espera; la tarea de envío pasa cada 5 minutos.
+Nothing waiting	Rien en attente	Nada en espera

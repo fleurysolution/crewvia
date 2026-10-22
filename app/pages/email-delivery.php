@@ -6,6 +6,18 @@
 require_role('admin');
 require_once __DIR__ . '/../mail-routing.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // P5-M103b: send the queued emails now, without waiting for the delivery job (a demonstration, a check).
+    if (($_POST['do'] ?? '') === 'send_now') {
+        require_once __DIR__ . '/../notices.php';
+        $run = mail_deliver(100);
+        log_activity('sent the queued emails now', 'settings', 0, $run['sent'] . ' sent, ' . $run['failed'] . ' failed');
+        if ($run['held'] !== null) {
+            flash(t('Nothing was sent: email is not switched on for this installation.'), 'err');
+        } else {
+            flash(t(':sent sent, :failed failed.', ['sent' => $run['sent'], 'failed' => $run['failed']]), $run['failed'] ? 'err' : 'ok');
+        }
+        redirect('/email-delivery#staff-mail');
+    }
     if (($_POST['do'] ?? '') === 'routing') {
         $pattern = trim((string) ($_POST['test_to'] ?? ''));
         $reply = trim((string) ($_POST['reply_to'] ?? ''));
@@ -37,4 +49,7 @@ $routing = ['test' => mail_test_mode(), 'test_to' => mail_test_pattern(), 'reply
 $staffMail = rows("SELECT m.id, m.recipient, m.purpose, m.status, m.attempts, m.created_at, m.sent_at, v.title AS requisition
                    FROM mail_outbox m LEFT JOIN vacancies v ON v.id = CAST(SUBSTRING_INDEX(m.purpose, ':', -1) AS UNSIGNED) AND SUBSTRING_INDEX(m.purpose, ':', 1) IN ('requisition','published')
                    WHERE SUBSTRING_INDEX(m.purpose, ':', 1) IN ('requisition','published','review','decision') ORDER BY m.id DESC LIMIT 60");
-render('email-delivery', compact('messages', 'routing', 'staffMail'));
+// P5-M103b: a queue that stops looks like an empty one. The oldest email still waiting, and for how long, says which.
+$waiting = row("SELECT COUNT(*) AS n, MIN(created_at) AS oldest, TIMESTAMPDIFF(MINUTE, MIN(created_at), NOW()) AS minutes
+                FROM mail_outbox WHERE status IN ('pending','sending') AND attempts < 5") ?: ['n' => 0, 'oldest' => null, 'minutes' => null];
+render('email-delivery', compact('messages', 'routing', 'staffMail', 'waiting'));

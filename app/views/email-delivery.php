@@ -19,6 +19,14 @@
 
 <section class="card scroll" id="staff-mail">
   <h2 class="m0"><?= te('Sent emails') ?></h2>
+  <?php if ((int) $waiting['n'] > 0): ?>
+  <div class="flash <?= (int) $waiting['minutes'] >= 15 ? 'err' : 'ok' ?> mt-s" id="mail-waiting" data-waiting="<?= (int) $waiting['n'] ?>" data-minutes="<?= (int) $waiting['minutes'] ?>">
+    <?= (int) $waiting['minutes'] >= 15
+        ? tn((int) $waiting['n'], ':n email has been waiting :m minutes: the delivery job may be stopped.', ':n emails have been waiting, the oldest for :m minutes: the delivery job may be stopped.', ['m' => (int) $waiting['minutes']])
+        : tn((int) $waiting['n'], ':n email is waiting; the delivery job sends every 5 minutes.', ':n emails are waiting; the delivery job sends every 5 minutes.') ?>
+    <form method="post" class="inline-block ml"><?= csrf_field() ?><input type="hidden" name="do" value="send_now"><button class="btn sm" data-send-now><?= te('Send now') ?></button></form>
+  </div>
+  <?php else: ?><p class="small m0 mt-s" id="mail-waiting" data-waiting="0"><span class="tag green"><?= te('Nothing waiting') ?></span></p><?php endif; ?>
   <p class="small muted"><?= te('Emails to the office: a requisition sent to recruiting or published, an applicant to review, a decision. Sent means the mail server accepted it.') ?></p>
   <?php $kinds = ['requisition' => t('Requisition sent to recruiting'), 'published' => t('Requisition published'), 'review' => t('Applicant to review'), 'decision' => t('Decision on an applicant')]; ?>
   <?php if (! $staffMail): ?><p class="muted m0"><?= te('No email to the office yet.') ?></p><?php else: ?>

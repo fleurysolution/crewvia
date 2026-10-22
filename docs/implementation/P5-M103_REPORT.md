@@ -41,6 +41,10 @@ Before this milestone:
   - The manager's decision emails the recruiter.
 - **Sent emails** (Email delivery, administrator). The office emails, with what each was about, its recipient, its
   status (sent, waiting, failed), when it was queued and when it was sent.
+- **Send now, and a stopped queue made visible** (P5-M103b). Email delivery says how many emails are waiting and
+  has a "Send now" button that sends them at once, without waiting for the 5-minute delivery job. An email waiting
+  15 minutes or more turns the line red: "the delivery job may be stopped". A stopped job no longer looks like an
+  empty queue, and the demonstration does not wait 5 minutes.
 - **Migration.** The `vacancies` table gets `posting_status` (VARCHAR, default `published`, so existing requisitions
   stay public), `requested_by`, `requested_at`, `published_by` and `published_at`. Rollback:
   `install/rollback/p5-m103.sql`.

@@ -86,7 +86,17 @@ check('Every recruiter is emailed (the owner who sent it is not)', mails >= 1 an
       and not one("SELECT id FROM mail_outbox WHERE purpose = 'requisition:%d' AND recipient = 'wk-admin@test.invalid'" % vid), mails)
 status, body = jerry.get('/requisitions')
 check('Before delivery, the row says the emails are waiting', 'data-requested' in body and re.search(r'data-mailed="0/%d"' % mails, body) and 'Requested by' in body)
-php_run('require_once "work/test-app/app/notices.php"; echo json_encode(mail_deliver(5000));')
+status, body = jerry.get('/email-delivery')
+check('Email delivery says emails are waiting, with Send now', re.search(r'id="mail-waiting" data-waiting="[1-9]', body) and 'data-send-now' in body)
+php_run("q(\"UPDATE mail_outbox SET created_at = NOW() - INTERVAL 20 MINUTE WHERE purpose = ?\", [$argv[1]]);", 'requisition:%d' % vid)
+status, body = jerry.get('/email-delivery')
+check('An email waiting 20 minutes is called out: the delivery job may be stopped', 'the delivery job may be stopped' in body and 'class="flash err mt-s" id="mail-waiting"' in body)
+for _ in range(200):
+    jerry.post('/email-delivery', {'do': 'send_now'}, '/email-delivery')
+    status, body = jerry.get('/email-delivery')
+    if 'data-waiting="0"' in body:
+        break
+check('Send now empties the queue at once', 'data-waiting="0"' in body and 'Nothing waiting' in body)
 sent = [json.loads(l) for l in open(capture, encoding='utf-8')] if os.path.exists(capture) else []
 to_rec = [m for m in sent if 'wk-rec@test.invalid' in json.dumps(m) and 'Loop Test 1' in json.dumps(m)]
 check('The email leaves, to the recruiter, with the requisition and its link', to_rec and '/requisitions?req=%d' % vid in json.dumps(to_rec[0]), sent[:2])
