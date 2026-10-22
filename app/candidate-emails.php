@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 const CE_KEYS = ['received', 'in_review', 'retained', 'not_retained'];
 const CE_REFUSAL_DELAY_HOURS = 24;
+/** P5-M104b: more refusals than this within 10 minutes is a clean-up, not a decision per person: the batch is held. */
+const CE_BATCH_LIMIT = 10;
 
 /** What each email is for, in the agency's screen. */
 function ce_labels(): array
@@ -139,8 +141,35 @@ function ce_schedule_refusal(int $applicationId): void
         return;
     }
     $cid = (int) val('SELECT candidate_id FROM applications WHERE id = ?', [$applicationId]);
-    q("INSERT INTO candidate_email_log (application_id, candidate_id, template_key, status, send_after) VALUES (?,?, 'not_retained', 'scheduled', DATE_ADD(NOW(), INTERVAL " . CE_REFUSAL_DELAY_HOURS . " HOUR))",
-      [$applicationId, $cid]);
+    // P5-M104b: a burst of refusals (a clean-up of old applications) is held - none leaves until an administrator
+    // decides on Emails to applicants. The whole burst is held, not only what comes after the limit.
+    $recent = (int) val("SELECT COUNT(*) FROM candidate_email_log WHERE template_key = 'not_retained' AND status IN ('scheduled','held') AND created_at >= NOW() - INTERVAL 10 MINUTE");
+    $held = $recent + 1 > CE_BATCH_LIMIT;
+    q("INSERT INTO candidate_email_log (application_id, candidate_id, template_key, status, send_after) VALUES (?,?, 'not_retained', ?, DATE_ADD(NOW(), INTERVAL " . CE_REFUSAL_DELAY_HOURS . " HOUR))",
+      [$applicationId, $cid, $held ? 'held' : 'scheduled']);
+    if ($held) {
+        $wasHeld = (int) val("SELECT COUNT(*) FROM candidate_email_log WHERE template_key = 'not_retained' AND status = 'held'") > 1;
+        q("UPDATE candidate_email_log SET status = 'held' WHERE template_key = 'not_retained' AND status = 'scheduled' AND created_at >= NOW() - INTERVAL 10 MINUTE");
+        if (! $wasHeld) {
+            require_once __DIR__ . '/notices.php';
+            notify_desks([], t('Many refusals at once: they are held, nothing is sent until you decide.'), '/candidate-emails#held');
+        }
+    }
+}
+
+/** P5-M104b: the held refusals - send them (each 24 hours after its rejection, at the earliest now), or never. */
+function ce_held_count(): int
+{
+    return (int) val("SELECT COUNT(*) FROM candidate_email_log WHERE template_key = 'not_retained' AND status = 'held'");
+}
+
+function ce_release_held(bool $send): int
+{
+    $n = ce_held_count();
+    q($send ? "UPDATE candidate_email_log SET status = 'scheduled' WHERE template_key = 'not_retained' AND status = 'held'"
+            : "UPDATE candidate_email_log SET status = 'cancelled' WHERE template_key = 'not_retained' AND status = 'held'");
+
+    return $n;
 }
 
 /** The due refusals, sent by the delivery job (and Send now). Returns how many were sent. */

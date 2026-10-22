@@ -5783,3 +5783,20 @@ In the text, {first_name}, {job_title} and {agency} are replaced for each applic
 :n waiting its 24 hours	:n attend ses 24 heures	:n espera sus 24 horas
 :n waiting their 24 hours	:n attendent leurs 24 heures	:n esperan sus 24 horas
 Send this email	Envoyer cet e-mail	Enviar este correo
+Rejected from the candidates list.	Rejeté depuis la liste des candidats.	Rechazado desde la lista de candidatos.
+Many refusals at once: they are held, nothing is sent until you decide.	Beaucoup de refus en même temps : ils sont retenus, rien ne part tant que vous n’avez pas décidé.	Muchos rechazos a la vez: quedan retenidos, no se envía nada hasta que decida.
+:n refusal will be sent, 24 hours after its rejection.	:n refus sera envoyé, 24 heures après son rejet.	:n rechazo se enviará, 24 horas después de su rechazo.
+:n refusals will be sent, each 24 hours after its rejection.	:n refus seront envoyés, chacun 24 heures après son rejet.	:n rechazos se enviarán, cada uno 24 horas después de su rechazo.
+:n refusal will not be sent.	:n refus ne sera pas envoyé.	:n rechazo no se enviará.
+:n refusals will not be sent.	:n refus ne seront pas envoyés.	:n rechazos no se enviarán.
+:n refusal is held: it was one of many rejected together. Nothing is sent until you decide.	:n refus est retenu : il faisait partie d’un lot rejeté en même temps. Rien ne part tant que vous n’avez pas décidé.	:n rechazo está retenido: formaba parte de un lote rechazado a la vez. No se envía nada hasta que decida.
+:n refusals are held: they were rejected together, many at once. Nothing is sent until you decide.	:n refus sont retenus : ils ont été rejetés ensemble, en grand nombre. Rien ne part tant que vous n’avez pas décidé.	:n rechazos están retenidos: se rechazaron juntos, muchos a la vez. No se envía nada hasta que decida.
+Do not send it	Ne pas l’envoyer	No enviarlo
+Do not send them	Ne pas les envoyer	No enviarlos
+Send it	L’envoyer	Enviarlo
+Send them	Les envoyer	Enviarlos
+Sent, each leaves 24 hours after its rejection. For a clean-up of old applications, choose Do not send them.	Envoyés, chacun part 24 heures après son rejet. Pour un nettoyage d’anciennes candidatures, choisissez Ne pas les envoyer.	Si se envían, cada uno sale 24 horas después de su rechazo. Para una limpieza de solicitudes antiguas, elija No enviarlos.
+:n refusal to an applicant is held: nothing leaves until you decide.	:n refus à un candidat est retenu : rien ne part tant que vous n’avez pas décidé.	:n rechazo a un candidato está retenido: no sale nada hasta que decida.
+:n refusals to applicants are held: nothing leaves until you decide.	:n refus à des candidats sont retenus : rien ne part tant que vous n’avez pas décidé.	:n rechazos a candidatos están retenidos: no sale nada hasta que decida.
+:n refusal to an applicant leaves within 24 hours.	:n refus à un candidat part dans les 24 heures.	:n rechazo a un candidato sale en las próximas 24 horas.
+:n refusals to applicants leave within 24 hours.	:n refus à des candidats partent dans les 24 heures.	:n rechazos a candidatos salen en las próximas 24 horas.

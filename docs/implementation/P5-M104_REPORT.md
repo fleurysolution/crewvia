@@ -46,11 +46,21 @@ Firmin's decision (22 Oct 2026): this is part of the implementation, not an opti
 ## Before going live
 
 - The emails start with the next event. Nothing is sent retroactively to the applicants already in Crewvia.
-- **But** every application moved from now on triggers its email. Rejecting a batch of old applications sends each
-  of those people a refusal 24 hours later. That is the intended, uniform behaviour; to avoid it for a clean-up,
-  switch "Applicant not retained" off before rejecting in bulk, then switch it back on.
+- Every application moved from now on triggers its email. A clean-up of old applications (more than 10 rejections
+  within 10 minutes) is held, never sent on its own (P5-M104b below).
 - Check the mode on Email delivery. In test mode, these emails go to the test inbox. Switch to live only when the
   texts on "Emails to applicants" are approved.
+
+## P5-M104b — No silent mass refusal
+
+- **A burst is held.** More than 10 refusals within 10 minutes is a clean-up, not a decision per person. The whole
+  burst, the first ones included, is **held**: nothing leaves, even after 24 hours.
+- **The owner is told.** A notice goes to the owner. Email delivery shows the held refusals in red, and Emails to
+  applicants asks **Do not send them**, or **Send them** (each 24 hours after its rejection).
+- **The refusals still to come are visible.** Email delivery also shows how many refusals leave within 24 hours.
+- **Rejecting a person rejects their open applications.** "Move to → Rejected" on the Candidates list (the triage
+  of imported applicants) rejected the person but left their applications open, so they were never told. Their
+  open applications are now rejected too, the same way, with the same 24-hour refusal, which the burst rule covers.
 
 ## Migration
 
@@ -60,7 +70,7 @@ Firmin's decision (22 Oct 2026): this is part of the implementation, not an opti
 
 ## Tests
 
-`tests/candidate_emails_http.py`, 14 checks:
+`tests/candidate_emails_http.py`, 20 checks:
 
 - received at once, with no portal, and written on the record;
 - under review once;
@@ -69,4 +79,5 @@ Firmin's decision (22 Oct 2026): this is part of the implementation, not an opti
 - the edited text is what the next applicant receives;
 - switched off, nothing is sent;
 - the language;
-- a recruiter cannot edit the texts.
+- a recruiter cannot edit the texts;
+- the Candidates-list rejection, the held burst, and "Do not send them".

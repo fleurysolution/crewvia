@@ -10,6 +10,17 @@
 
 <?php if ($testMode): ?><div class="flash err" id="ce-test-mode"><?= te('Test mode is on: these emails go to the test inbox, not to the applicants.') ?> <a href="/email-delivery"><?= te('Email delivery') ?></a></div><?php endif; ?>
 
+<?php if ($held > 0): ?>
+<section class="card" id="held">
+  <div class="flash err m0" role="alert" data-held="<?= (int) $held ?>"><?= tn($held, ':n refusal is held: it was one of many rejected together. Nothing is sent until you decide.', ':n refusals are held: they were rejected together, many at once. Nothing is sent until you decide.') ?></div>
+  <div class="actions mt-s">
+    <form method="post" class="inline-block"><?= csrf_field() ?><input type="hidden" name="do" value="held_cancel"><button class="btn" data-held-cancel><?= tn($held, 'Do not send it', 'Do not send them') ?></button></form>
+    <form method="post" class="inline-block"><?= csrf_field() ?><input type="hidden" name="do" value="held_send"><button class="btn ghost" data-held-send><?= tn($held, 'Send it', 'Send them') ?></button></form>
+  </div>
+  <p class="small muted m0 mt-xs"><?= te('Sent, each leaves 24 hours after its rejection. For a clean-up of old applications, choose Do not send them.') ?></p>
+</section>
+<?php endif; ?>
+
 <p class="small muted"><?= te('In the text, {first_name}, {job_title} and {agency} are replaced for each applicant.') ?></p>
 
 <?php foreach ($templates as $key => $t): ?>

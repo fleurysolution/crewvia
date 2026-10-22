@@ -27,6 +27,8 @@
     <form method="post" class="inline-block ml"><?= csrf_field() ?><input type="hidden" name="do" value="send_now"><button class="btn sm" data-send-now><?= te('Send now') ?></button></form>
   </div>
   <?php else: ?><p class="small m0 mt-s" id="mail-waiting" data-waiting="0"><span class="tag green"><?= te('Nothing waiting') ?></span></p><?php endif; ?>
+  <?php if ($refusals['held'] > 0): ?><div class="flash err mt-s" id="refusals-held" data-held="<?= (int) $refusals['held'] ?>"><?= tn($refusals['held'], ':n refusal to an applicant is held: nothing leaves until you decide.', ':n refusals to applicants are held: nothing leaves until you decide.') ?> <a href="/candidate-emails#held"><?= te('Decide') ?></a></div><?php endif; ?>
+  <?php if ($refusals['scheduled'] > 0): ?><p class="small m0 mt-xs" id="refusals-scheduled" data-scheduled="<?= (int) $refusals['scheduled'] ?>"><?= tn($refusals['scheduled'], ':n refusal to an applicant leaves within 24 hours.', ':n refusals to applicants leave within 24 hours.') ?> <a href="/candidate-emails"><?= te('Emails to applicants') ?></a></p><?php endif; ?>
   <p class="small muted"><?= te('Emails to the office: a requisition sent to recruiting or published, an applicant to review, a decision. Sent means the mail server accepted it.') ?></p>
   <?php $kinds = ['requisition' => t('Requisition sent to recruiting'), 'published' => t('Requisition published'), 'review' => t('Applicant to review'), 'decision' => t('Decision on an applicant')]; ?>
   <?php if (! $staffMail): ?><p class="muted m0"><?= te('No email to the office yet.') ?></p><?php else: ?>

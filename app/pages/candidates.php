@@ -63,6 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               [$stage, uid(), $cid]);
             q('INSERT INTO candidate_events(candidate_id,user_id,event_type,detail) VALUES (?,?,?,?)',[$cid,uid(),'stage',$stage]);
             log_activity('moved stage', 'candidate', $cid, $cand['full_name'] . ' -> ' . $stage);
+            // P5-M104b: rejecting the person rejects their applications still open, so each is closed the same way
+            // and the applicant is told (after 24 hours) - the same as rejecting the application itself.
+            if ($stage === 'rejected') {
+                foreach (rows("SELECT id FROM applications WHERE candidate_id = ? AND stage IN ('new','screening','interview')", [$cid]) as $open) {
+                    q("UPDATE applications SET stage = 'rejected' WHERE id = ?", [(int) $open['id']]);
+                    q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)', [(int) $open['id'], uid(), 'rejected', t('Rejected from the candidates list.')]);
+                    candidate_follow_application((int) $open['id']);
+                }
+            }
             flash(t(':name moved to :stage.', ['name'=>$cand['full_name'],'stage'=>t($stage)]));
         }
 

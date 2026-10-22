@@ -108,6 +108,33 @@ php_run("q(\"UPDATE candidate_email_log SET send_after = NOW() - INTERVAL 1 MINU
 php_run('require_once "work/test-app/app/candidate-emails.php"; ce_due();')
 check('A rejection undone within 24 hours is never told', 'not_retained' not in mails(a3) and one("SELECT id FROM candidate_email_log WHERE application_id = %d AND status = 'cancelled'" % a3))
 
+# P5-M104b: rejecting the person from the Candidates list rejects their open applications, and they are told.
+a6 = apply('Lea Mail', 'ce-lea@test.invalid')
+c6 = int(one("SELECT candidate_id FROM applications WHERE id = %d" % a6)['candidate_id'])
+owner.post('/candidates', {'do': 'stage', 'candidate_id': c6, 'stage': 'rejected'}, '/candidates')
+check('Rejected from the Candidates list: the open application is rejected too, its refusal waits its 24 hours',
+      one("SELECT stage FROM applications WHERE id = %d" % a6)['stage'] == 'rejected' and one("SELECT id FROM candidate_email_log WHERE application_id = %d AND status = 'scheduled'" % a6))
+
+# P5-M104b: a burst of refusals is held - nothing leaves until the owner decides.
+burst = []
+php_run("""for ($i = 1; $i <= 12; $i++) { q("INSERT INTO candidates (full_name, email, stage) VALUES (?, ?, 'new')", ['Old Applicant ' . $i, 'ce-old' . $i . '@test.invalid']); q('INSERT INTO applications (candidate_id, vacancy_id) VALUES (?, ?)', [(int) db()->lastInsertId(), (int) $argv[1]]); }""", vid)
+for row in json.loads(php_run('echo json_encode(rows($argv[1]));', "SELECT a.id, a.candidate_id FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE c.email LIKE 'ce-old%%'")):
+    owner.post('/candidates/%s' % row['candidate_id'], {'do': 'stage', 'application_id': row['id'], 'stage': 'rejected'}, '/candidates/%s' % row['candidate_id'])
+    burst.append(int(row['id']))
+held = int(one("SELECT COUNT(*) n FROM candidate_email_log WHERE template_key = 'not_retained' AND status = 'held'")['n'])
+check('Twelve rejections at once: the whole burst is held, including the first ones', held >= 12 and not one("SELECT id FROM candidate_email_log WHERE application_id IN (%s) AND status <> 'held'" % ','.join(map(str, burst))), held)
+check('and the owner is told', one("SELECT id FROM notifications WHERE target = '/candidate-emails#held'"))
+php_run("q(\"UPDATE candidate_email_log SET send_after = NOW() - INTERVAL 1 MINUTE WHERE status = 'held'\");")
+php_run('require_once "work/test-app/app/candidate-emails.php"; ce_due();')
+check('Held, nothing leaves even after 24 hours', not one("SELECT id FROM mail_outbox WHERE purpose IN (%s)" % ','.join("'candidate:not_retained:%d'" % b for b in burst)))
+status, body = owner.get('/email-delivery')
+check('Email delivery shows the held refusals', 'id="refusals-held"' in body)
+status, body = owner.get('/candidate-emails')
+check('Emails to applicants asks to decide: do not send them, or send them', 'id="held"' in body and 'data-held-cancel' in body and 'data-held-send' in body)
+owner.post('/candidate-emails', {'do': 'held_cancel'}, '/candidate-emails')
+check('Do not send them: cancelled, never sent', not one("SELECT id FROM candidate_email_log WHERE status = 'held'")
+      and one("SELECT id FROM candidate_email_log WHERE application_id = %d AND status = 'cancelled'" % burst[0]))
+
 # The agency edits, previews, switches off.
 status, body = owner.get('/candidate-emails')
 check('Emails to applicants lists the four, with when each is sent and a preview', status == 200 and all('data-template="%s"' % k in body for k in ('received', 'in_review', 'retained', 'not_retained'))

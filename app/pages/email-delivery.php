@@ -54,4 +54,7 @@ $staffMail = rows("SELECT m.id, m.recipient, m.purpose, m.status, m.attempts, m.
 // P5-M103b: a queue that stops looks like an empty one. The oldest email still waiting, and for how long, says which.
 $waiting = row("SELECT COUNT(*) AS n, MIN(created_at) AS oldest, TIMESTAMPDIFF(MINUTE, MIN(created_at), NOW()) AS minutes
                 FROM mail_outbox WHERE status IN ('pending','sending') AND attempts < 5") ?: ['n' => 0, 'oldest' => null, 'minutes' => null];
-render('email-delivery', compact('messages', 'routing', 'staffMail', 'waiting'));
+// P5-M104b: the refusals not yet in the queue - waiting their 24 hours, or held as a burst.
+require_once __DIR__ . '/../candidate-emails.php';
+$refusals = ['scheduled' => (int) val("SELECT COUNT(*) FROM candidate_email_log WHERE template_key = 'not_retained' AND status = 'scheduled'"), 'held' => ce_held_count()];
+render('email-delivery', compact('messages', 'routing', 'staffMail', 'waiting', 'refusals'));

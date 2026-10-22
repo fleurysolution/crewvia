@@ -18,6 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash(t('Applicant emails are now written in this language.'));
         redirect('/candidate-emails');
     }
+    // P5-M104b: a held burst of refusals - sent (each 24 hours after its rejection) or never sent.
+    if ($do === 'held_send' || $do === 'held_cancel') {
+        $n = ce_release_held($do === 'held_send');
+        log_activity($do === 'held_send' ? 'released held applicant refusals' : 'cancelled held applicant refusals', 'settings', 0, (string) $n);
+        flash($do === 'held_send'
+            ? tn($n, ':n refusal will be sent, 24 hours after its rejection.', ':n refusals will be sent, each 24 hours after its rejection.')
+            : tn($n, ':n refusal will not be sent.', ':n refusals will not be sent.'));
+        redirect('/candidate-emails');
+    }
     $key = (string) ($_POST['template_key'] ?? '');
     if (! in_array($key, CE_KEYS, true)) {
         refuse(422, t('Choose an email.'), '/candidate-emails');
@@ -59,4 +68,5 @@ require_once __DIR__ . '/../mail-routing.php';
 $testMode = mail_test_mode();
 
 $pageTitle = t('Emails to applicants') . ' · ' . $config['app_name'];
-render('candidate-emails', compact('locale', 'templates', 'testMode'));
+$held = ce_held_count();
+render('candidate-emails', compact('locale', 'templates', 'testMode', 'held'));
