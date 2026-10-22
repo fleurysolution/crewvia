@@ -14,15 +14,25 @@ Candidates. The second application did not.
 | The Back button did nothing on the careers page | Careers opens in a new tab, which has no page to go back to. | When there is no page to go back to, Back opens the page the person came from. |
 | Hard to find how to close a requisition | "Close this requisition" was inside the "QR code & more" pop-up. | "Close" (or "Reopen it") is a button on the requisition's row. Closing removes the job from /careers and from the website feed (within 5 minutes on the website). |
 
+## P5-M102b — An old link to a closed position
+
+`/apply?id=` of a closed position used to answer a bare 404 "Vacancy unavailable". The link is still around (a poster, a text message, the agency's website cache), so it now opens a page that:
+
+- says plainly that the position "is no longer open" (status 410) or "is not available" (404, for a link that never existed);
+- shows what is open now: the same positions and terms as `/careers`, each with its own Apply button;
+- links to all open positions;
+- never shows the project's name.
+
 ## Tests
 
-`tests/careers_feed_http.py` now has 17 checks. The new ones cover:
+`tests/careers_feed_http.py` now has 19 checks. The new ones cover:
 
 - the project name stays hidden;
 - the travel terms and the airport question follow the job;
 - no blanket promise and no "near you";
 - a refused application comes back with its entries and the reason (no consent, an expired form, a second application
-  seconds later), then goes through.
+  seconds later), then goes through;
+- an old link to a closed position, and a link that never existed.
 
 ## Deploy
 

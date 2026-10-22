@@ -3,7 +3,7 @@
   - readable from any website (CORS), GET only;
   - pay terms carried, nothing about the client.
 """
-import json, re, urllib.error, urllib.request
+import json, os, re, subprocess, urllib.error, urllib.request
 
 base = 'http://127.0.0.1:8097'
 results = []
@@ -71,6 +71,13 @@ _, form = send('/apply?id=%d' % local['id'])
 token = re.search(r'name="_csrf" value="([a-f0-9]+)"', form)[1]
 status, body = send('/apply', dict(person, vacancy_id=local['id'], _csrf=token, consent='1'))
 check('A second application seconds later is asked to wait, on the form, entries kept', status == 422 and 'id="apply-error"' in body and 'value="Feed Applicant"' in body, body[:300])
+# P5-M102b: an old link to a closed position.
+closed_id = int(subprocess.run([os.environ.get('PHP_BIN', 'php'), '-r', "require 'work/test-app/app/bootstrap.php'; echo val(\"SELECT id FROM vacancies WHERE title = 'Closed welder role'\");"], check=True, capture_output=True, text=True).stdout)
+status, closed_page, _ = fetch('/apply?id=%d' % closed_id)
+check('An old link to a closed position says so (410) and shows what is open now', status == 410 and 'Closed welder role is no longer open' in closed_page
+      and 'id="open-now"' in closed_page and '/apply?id=%d' % job['id'] in closed_page and 'href="/careers"' in closed_page and 'Billing plant' not in closed_page, closed_page[:300])
+status, unknown_page, _ = fetch('/apply?id=999999')
+check('A link that never existed gets the same help (404)', status == 404 and 'This position is not available' in unknown_page and 'id="open-now"' in unknown_page)
 status, _, _ = fetch('/careers-feed', 'POST', b'x')
 check('GET only', status == 405)
 print(f'careers_feed_http: {len(results)} checks passed')

@@ -280,7 +280,7 @@ with tempfile.TemporaryDirectory(prefix='rss-', dir=scratch) as temporary:
                 subprocess.run(command+[str(work/'billing_ledger_db.php')],check=True)
                 subprocess.run(command+[str(work/'reset_login_ip.php')],check=True,capture_output=True)
                 subprocess.run([sys.executable,str(work/'billing_http.py')],cwd=base,env=dict(os.environ,PHP_BIN=php),check=True)
-                subprocess.run([sys.executable,str(work/'careers_feed_http.py')],cwd=base,check=True)
+                subprocess.run([sys.executable,str(work/'careers_feed_http.py')],cwd=base,env=dict(os.environ,PHP_BIN=php),check=True)
                 subprocess.run(command+[str(work/'demo_notice_db.php')],check=True)
                 subprocess.run([sys.executable,str(work/'bank_proof_http.py')],cwd=base,env=dict(os.environ,PHP_BIN=php),check=True)
                 subprocess.run(command+[str(work/'scope_filled_db.php')],check=True)

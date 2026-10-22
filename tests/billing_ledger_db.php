@@ -167,3 +167,5 @@ if (! val("SELECT id FROM users WHERE email = 'wk-hr@test.invalid'")) {
 // P5-M102 (seen by careers_feed_http.py): a job that pays no travel and no hotel.
 q("UPDATE jobs SET travel_provided = 0, lodging_provided = 0, transport_provided = 0 WHERE id = ?", [$plantB]);
 q("INSERT INTO vacancies (job_id, title, description) VALUES (?, 'Local packer', 'Test requisition, no travel')", [$plantB]);
+// P5-M102b (seen by careers_feed_http.py): a closed position whose old link is still around.
+q("INSERT INTO vacancies (job_id, title, description, is_open) VALUES (?, 'Closed welder role', 'Closed test requisition', 0)", [$plantA]);
