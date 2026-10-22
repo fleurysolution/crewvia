@@ -29,6 +29,26 @@ function notify_user(int $userId, string $message, string $target): void
     q('INSERT INTO notifications (user_id, message, target) VALUES (?, ?, ?)', [$userId, mb_substr($message, 0, 250), mb_substr($target, 0, 190)]);
 }
 
+/**
+ * P5-M103: an office colleague told in the app AND by email - for the steps somebody waits on (a requisition sent to
+ * recruiting, a requisition published, an applicant sent for review). The email carries the link; $purpose
+ * ("requisition:12") lets the screen show when it was sent. Returns whether an email was queued.
+ */
+function notify_by_email(int $userId, string $subject, string $message, string $target, string $purpose): bool
+{
+    global $config;
+    notify_user($userId, $message, $target);
+    $u = row('SELECT name, email, is_active FROM users WHERE id = ?', [$userId]);
+    if (! $u || ! (int) $u['is_active'] || notices_cross_demo($userId) || ! filter_var((string) $u['email'], FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    $first = trim((string) strtok((string) $u['name'], ' '));
+    $link = rtrim((string) ($config['app_url'] ?? ''), '/') . $target;
+    $body = implode(PHP_EOL, [t('Hello :name,', ['name' => $first]), '', $message, '', t('Open it in Crewvia:'), $link, '', 'Crewvia']);
+
+    return mail_queue(null, (string) $u['email'], $subject, $body, $purpose);
+}
+
 /** The worker's own account, if their crew file has one. */
 function notify_candidate(int $candidateId, string $message, string $target = '/portal'): bool
 {

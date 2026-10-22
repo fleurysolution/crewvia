@@ -16,3 +16,18 @@
 </form>
 
 <div class="card scroll"><table id="outbox"><tr><th><?= te('Recipient') ?></th><th><?= te('Delivered to') ?></th><th><?= te('Queue status') ?></th><th><?= te('Attempts') ?></th><th><?= te('Created') ?></th><th><?= te('Action') ?></th></tr><?php foreach ($messages as $message): ?><tr><td><?= e($message['recipient']) ?></td><td class="small"><?= $message['route']['redirected'] ? '<span class="tag amber">' . te('test') . '</span> ' . e($message['route']['to']) : '<span class="muted">' . te('the recipient') . '</span>' ?></td><td><?= e($message['status']) ?></td><td><?= (int) $message['attempts'] ?></td><td><?= e($message['created_at']) ?></td><td><?php if ($message['status'] === 'failed' && $message['attempts'] < 5): ?><form method="post"><?= csrf_field() ?><input name="id" type="hidden" value="<?= (int) $message['id'] ?>"><button class="btn ghost sm"><?= te('Retry') ?></button></form><?php endif; ?></td></tr><?php endforeach; ?></table></div>
+
+<section class="card scroll" id="staff-mail">
+  <h2 class="m0"><?= te('Sent emails') ?></h2>
+  <p class="small muted"><?= te('Emails to the office: a requisition sent to recruiting or published, an applicant to review, a decision. Sent means the mail server accepted it.') ?></p>
+  <?php $kinds = ['requisition' => t('Requisition sent to recruiting'), 'published' => t('Requisition published'), 'review' => t('Applicant to review'), 'decision' => t('Decision on an applicant')]; ?>
+  <?php if (! $staffMail): ?><p class="muted m0"><?= te('No email to the office yet.') ?></p><?php else: ?>
+  <table><thead><tr><th><?= te('About') ?></th><th><?= te('To') ?></th><th><?= te('Status') ?></th><th><?= te('Queued') ?></th><th><?= te('Sent') ?></th></tr></thead><tbody>
+  <?php foreach ($staffMail as $m): $kind = strtok((string) $m['purpose'], ':'); ?><tr data-staff-mail="<?= e($m['purpose']) ?>">
+    <td><?= e($kinds[$kind] ?? $kind) ?><?php if (! empty($m['requisition'])): ?><div class="small muted"><?= e($m['requisition']) ?></div><?php endif; ?></td>
+    <td class="small"><?= e($m['recipient']) ?></td>
+    <td><span class="tag <?= $m['status'] === 'sent' ? 'green' : ($m['status'] === 'failed' ? 'red' : 'amber') ?>"><?= e(['sent' => t('Sent'), 'failed' => t('Failed'), 'pending' => t('Waiting to send'), 'sending' => t('Sending')][$m['status']] ?? $m['status']) ?></span></td>
+    <td class="small"><?= e(substr((string) $m['created_at'], 0, 16)) ?></td><td class="small"><?= e($m['sent_at'] ? substr((string) $m['sent_at'], 0, 16) : '—') ?></td>
+  </tr><?php endforeach; ?></tbody></table>
+  <?php endif; ?>
+</section>

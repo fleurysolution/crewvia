@@ -183,13 +183,13 @@ check('Clients shows the clients first; adding one is a button', re.search(r'<de
 # P5-M74: requisitions one per line, the QR code on demand; a form opened by a button has a Cancel.
 status, body = admin.get('/requisitions')
 check('With no requisition yet, the form to create one is open, with Cancel', re.search(r'<details class="card fold" id="new-requisition" data-fold-forget open>', body)
-      and 'data-fold-close' in body and 'Create the requisition' in body)
+      and 'data-fold-close' in body and 'Send to recruiting' in body and 'Create and publish' in body)
 admin.post('/requisitions', {'do': 'create', 'order_line_id': one("SELECT id FROM job_order_lines WHERE job_id = %d AND role_title = 'Pipefitter'" % int(job['id']))['id'],
                              'title': 'P5-M74 Pipefitter', 'discipline': 'mechanical', 'openings': '2', 'description': 'Pipefitters for the plant.'}, '/requisitions')
 status, body = admin.get('/requisitions')
 vac = one("SELECT id FROM vacancies WHERE title = 'P5-M74 Pipefitter'")
 check('A requisition is one line: its trade, its pay, how far it is filled, Copy link and the QR code on demand', vac is not None
-      and re.search(r'<tr data-requisition="%s">' % vac['id'], body) and 'data-copy-link="' in body and '/apply?id=%s"' % vac['id'] in body
+      and re.search(r'<tr data-requisition="%s"' % vac['id'], body) and 'data-copy-link="' in body and '/apply?id=%s"' % vac['id'] in body
       and '<details class="req-more' in body and '<details class="card fold" id="new-requisition" data-fold-forget>' in body, vac)
 for page in ('/job', '/projects', '/clients?id=%d' % cid):
     status, body = admin.get(page)

@@ -34,7 +34,7 @@ function public_openings(int $limit = 100): array
                   JOIN jobs j ON j.id = v.job_id
                   LEFT JOIN job_order_lines l ON l.id = v.order_line_id
                   LEFT JOIN requisition_publication r ON r.vacancy_id = v.id
-                  WHERE v.is_open = 1 AND j.status <> 'closed'
+                  WHERE v.is_open = 1 AND v.posting_status = 'published' AND j.status <> 'closed'
                     AND (r.expires_on IS NULL OR r.expires_on >= CURDATE())
                   GROUP BY v.id
                   ORDER BY v.id DESC

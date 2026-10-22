@@ -5721,3 +5721,35 @@ Position closed	Poste fermé	Puesto cerrado
 This position is not available	Ce poste n’est pas disponible	Este puesto no está disponible
 It has been filled or closed. Here is what is open now.	Il a été pourvu ou fermé. Voici les postes ouverts en ce moment.	Se ha cubierto o cerrado. Estos son los puestos abiertos ahora.
 See all open positions	Voir tous les postes ouverts	Ver todos los puestos abiertos
+Open it in Crewvia:	Ouvrir dans Crewvia :	Ábralo en Crewvia:
+:who sent a requisition to recruiting on :project: :n x :title:start. Complete it and publish it.	:who a envoyé une réquisition au recrutement sur :project : :n x :title:start. Complétez-la et publiez-la.	:who envió una requisición a reclutamiento en :project: :n x :title:start. Complétela y publíquela.
+Requisition to publish: :title	Réquisition à publier : :title	Requisición por publicar: :title
+New requisition: :title	Nouvelle réquisition : :title	Nueva requisición: :title
+Sent to recruiting: :n recruiter was emailed. It is published when a recruiter publishes it.	Envoyée au recrutement : :n recruteur a reçu un e-mail. Elle sera publiée quand un recruteur la publiera.	Enviada a reclutamiento: :n reclutador recibió un correo. Se publicará cuando un reclutador la publique.
+Sent to recruiting: :n recruiters were emailed. It is published when a recruiter publishes it.	Envoyée au recrutement : :n recruteurs ont reçu un e-mail. Elle sera publiée quand un recruteur la publiera.	Enviada a reclutamiento: :n reclutadores recibieron un correo. Se publicará cuando un reclutador la publique.
+That requisition is not waiting to be published on this project.	Cette réquisition n’attend pas de publication sur ce projet.	Esta requisición no espera publicación en este proyecto.
+Published: :title	Publiée : :title	Publicada: :title
+:who published your requisition :title. It is on the careers page and accepts applications.	:who a publié votre réquisition :title. Elle est sur la page carrières et accepte les candidatures.	:who publicó su requisición :title. Está en la página de empleos y acepta solicitudes.
+:title is published: on the careers page, and its link accepts applications.	:title est publiée : sur la page carrières, et son lien accepte les candidatures.	:title está publicada: en la página de empleos, y su enlace acepta solicitudes.
+Requested by :name, :when	Demandée par :name, :when	Solicitada por :name, :when
+emailed to :n recruiter, sent :when	e-mail à :n recruteur, envoyé à :when	correo a :n reclutador, enviado a las :when
+emailed to :n recruiters, sent :when	e-mail à :n recruteurs, envoyé à :when	correo a :n reclutadores, enviado a las :when
+emailed to :sent of :n recruiters, the rest waiting to send	e-mail envoyé à :sent recruteurs sur :n, le reste en attente d’envoi	correo enviado a :sent de :n reclutadores, el resto pendiente de envío
+published by :name, :when	publiée par :name, :when	publicada por :name, :when
+Requested · not published	Demandée · non publiée	Solicitada · no publicada
+Publish	Publier	Publicar
+Send to recruiting	Envoyer au recrutement	Enviar a reclutamiento
+Create and publish	Créer et publier	Crear y publicar
+Send to recruiting: the recruiters are emailed and a recruiter publishes it. Create and publish: it is on the careers page at once.	Envoyer au recrutement : les recruteurs reçoivent un e-mail et l’un d’eux la publie. Créer et publier : elle est aussitôt sur la page carrières.	Enviar a reclutamiento: los reclutadores reciben un correo y uno la publica. Crear y publicar: aparece de inmediato en la página de empleos.
+To review: :name for :role	À examiner : :name pour :role	Para revisar: :name para :role
+:who sent you :name to review for :role.	:who vous a envoyé :name à examiner pour :role.	:who le envió a :name para revisar para :role.
+Decision on :name	Décision sur :name	Decisión sobre :name
+Requisition sent to recruiting	Réquisition envoyée au recrutement	Requisición enviada a reclutamiento
+Requisition published	Réquisition publiée	Requisición publicada
+Applicant to review	Candidat à examiner	Candidato para revisar
+Decision on an applicant	Décision sur un candidat	Decisión sobre un candidato
+Sent emails	E-mails envoyés	Correos enviados
+Emails to the office: a requisition sent to recruiting or published, an applicant to review, a decision. Sent means the mail server accepted it.	E-mails au bureau : réquisition envoyée au recrutement ou publiée, candidat à examiner, décision. « Envoyé » signifie que le serveur de messagerie l’a accepté.	Correos a la oficina: requisición enviada a reclutamiento o publicada, candidato para revisar, decisión. «Enviado» significa que el servidor de correo lo aceptó.
+No email to the office yet.	Aucun e-mail au bureau pour l’instant.	Aún no hay correos a la oficina.
+Queued	Mis en file	En cola
+Waiting to send	En attente d’envoi	Pendiente de envío

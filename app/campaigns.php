@@ -53,13 +53,13 @@ function cm_vacancy(int $id): ?array
     return row("SELECT v.id, v.job_id, v.title, v.discipline, v.shift, v.starts_on, COALESCE(v.pay_rate, l.pay_rate) AS pay_rate, COALESCE(v.per_diem_rate, l.per_diem_rate) AS per_diem_rate,
                        j.title AS project, j.site_city, j.site_state, j.site_zip, j.starts_on AS job_starts
                 FROM vacancies v JOIN jobs j ON j.id = v.job_id LEFT JOIN job_order_lines l ON l.id = v.order_line_id
-                WHERE v.id = ? AND v.is_open = 1 AND j.status <> 'closed'", [$id]) ?: null;
+                WHERE v.id = ? AND v.is_open = 1 AND v.posting_status = 'published' AND j.status <> 'closed'", [$id]) ?: null;
 }
 
 /** @return array<int,array> the open requisitions to choose from */
 function cm_open_vacancies(): array
 {
-    return rows("SELECT v.id, v.title, j.title AS project FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.is_open = 1 AND j.status <> 'closed' ORDER BY j.title, v.title");
+    return rows("SELECT v.id, v.title, j.title AS project FROM vacancies v JOIN jobs j ON j.id = v.job_id WHERE v.is_open = 1 AND v.posting_status = 'published' AND j.status <> 'closed' ORDER BY j.title, v.title");
 }
 
 /** The audience filters, read from a form. */

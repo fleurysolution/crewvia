@@ -421,3 +421,6 @@ main [id] { scroll-margin-top: 72px; }
 /* P5-M100: a printed statement carries the Fleury Solutions letterhead. */
 .print-only { display: none; }
 @media print { .print-only { display: flex !important; } .letterhead { align-items: center; gap: 10px; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 12px; } .letterhead-logo { width: 34px; height: auto; } }
+
+/* P5-M103: the requisition an email links to stands out on the list. */
+tr.row-focus > td { background: #FFF8E6; }

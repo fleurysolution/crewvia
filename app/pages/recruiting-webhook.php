@@ -10,7 +10,7 @@ if(!$valid||$mode==='disabled'){integration_refusal('ats','application',$connect
 try{$event=recruiting_webhook_payload($body);}catch(Throwable $e){integration_refusal('ats','application',$connector,'Not a valid application: '.$e->getMessage());http_response_code(422);echo '{"error":"Invalid application"}';exit;}
 // Sandbox: the partner's event is checked end to end and answered, and nothing is created.
 if($mode==='sandbox'){
- $open=(bool)val("SELECT COUNT(*) FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.id=? AND v.is_open=1 AND j.status<>'closed'",[$event['vacancy_id']]);
+ $open=(bool)val("SELECT COUNT(*) FROM vacancies v JOIN jobs j ON j.id=v.job_id WHERE v.id=? AND v.is_open=1 AND v.posting_status = 'published' AND j.status<>'closed'",[$event['vacancy_id']]);
  integration_event('ats','application','ok',$connector,'Sandbox event '.mb_substr($event['event_id'],0,80).' verified; nothing created'.($open?'':' (its vacancy is closed: live, it would be refused)'));
  connector_sandbox_passed($connector,'Signed sandbox event '.mb_substr($event['event_id'],0,80).' verified');
  http_response_code(202);echo json_encode(['sandbox'=>true,'valid'=>true,'vacancy_open'=>$open,'created'=>false]);exit;
@@ -22,7 +22,7 @@ try {
     $record=row('SELECT * FROM recruiting_inbound_events WHERE event_key=? FOR UPDATE',[$eventKey]);
     if(!hash_equals($record['payload_hash'],$digest)){db()->rollBack();http_response_code(409);echo '{"error":"Event ID conflicts with original payload"}';exit;}
     if($record['application_id']){db()->commit();integration_event('ats','application','duplicate',$connector,'Event '.mb_substr($event['event_id'],0,80).' already received');echo json_encode(['application_id'=>(int)$record['application_id'],'duplicate'=>true]);exit;}
-    $vacancy=row("SELECT v.id FROM vacancies v JOIN jobs j ON j.id=v.job_id LEFT JOIN requisition_publication p ON p.vacancy_id=v.id WHERE v.id=? AND v.is_open=1 AND j.status<>'closed' AND (p.expires_on IS NULL OR p.expires_on>=CURDATE()) FOR UPDATE",[$event['vacancy_id']]);
+    $vacancy=row("SELECT v.id FROM vacancies v JOIN jobs j ON j.id=v.job_id LEFT JOIN requisition_publication p ON p.vacancy_id=v.id WHERE v.id=? AND v.is_open=1 AND v.posting_status = 'published' AND j.status<>'closed' AND (p.expires_on IS NULL OR p.expires_on>=CURDATE()) FOR UPDATE",[$event['vacancy_id']]);
     if(!$vacancy){db()->rollBack();http_response_code(410);echo '{"error":"Vacancy closed or unavailable"}';exit;}
     // Preserve the submitted identity for recruiter review instead of merging unverified email matches.
     q('INSERT INTO candidates(full_name,email,phone,source) VALUES (?,?,?,?)',[trim($event['name']),trim($event['email']),trim($event['phone']),'Partner: '.mb_substr($channel,0,60)]);$cid=(int)db()->lastInsertId();

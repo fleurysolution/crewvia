@@ -22,18 +22,34 @@
         $placed = (int) ($requisition['placed'] ?? 0);
         $link = rtrim((string) ($config['app_url'] ?? ''), '/') . '/apply?id=' . (int) $requisition['id'];
         $where = trim((string) $requisition['site_city'] . ' ' . (string) $requisition['site_state']); ?>
-      <tr data-requisition="<?= (int) $requisition['id'] ?>">
+      <?php $requestedReq = ($requisition['posting_status'] ?? 'published') === 'requested'; ?>
+      <tr data-requisition="<?= (int) $requisition['id'] ?>" id="req-<?= (int) $requisition['id'] ?>"<?= (int) ($_GET['req'] ?? 0) === (int) $requisition['id'] ? ' class="row-focus"' : '' ?>>
         <td><a href="/candidates?vacancy=<?= (int) $requisition['id'] ?>" data-applicants-link><strong><?= e($requisition['title']) ?></strong></a>
           <div class="small muted"><?= te(ucfirst((string) ($requisition['discipline'] ?? 'other'))) ?><?= $where !== '' ? ' &middot; ' . e($where) : '' ?><?= ! empty($requisition['shift']) ? ' &middot; ' . e($requisition['shift']) : '' ?><?= ! empty($requisition['starts_on']) ? ' &middot; ' . te('Starts') . ' ' . e(d($requisition['starts_on'])) : '' ?>
-          <?php if (empty($requisition['line_role'])): ?> &middot; <span class="tag amber"><?= te('Not on the scope of work') ?></span><?php endif; ?></div></td>
+          <?php if (empty($requisition['line_role'])): ?> &middot; <span class="tag amber"><?= te('Not on the scope of work') ?></span><?php endif; ?></div>
+          <?php // P5-M103: the trail - requested by whom, when the emails left, published by whom. ?>
+          <?php if (! empty($requisition['requested_name']) || ! empty($requisition['published_name']) || (int) $requisition['mailed'] > 0): ?>
+          <div class="small muted" data-trail="<?= (int) $requisition['id'] ?>">
+            <?php if (! empty($requisition['requested_name'])): ?><?= te('Requested by :name, :when', ['name' => $requisition['requested_name'], 'when' => d(substr((string) $requisition['requested_at'], 0, 10)) . ' ' . substr((string) $requisition['requested_at'], 11, 5)]) ?><?php endif; ?>
+            <?php if ((int) $requisition['mailed'] > 0): ?> &middot; <span data-mailed="<?= (int) $requisition['mailed_sent'] ?>/<?= (int) $requisition['mailed'] ?>"><?= (int) $requisition['mailed_sent'] === (int) $requisition['mailed'] && $requisition['mailed_at']
+                ? tn((int) $requisition['mailed'], 'emailed to :n recruiter, sent :when', 'emailed to :n recruiters, sent :when', ['when' => substr((string) $requisition['mailed_at'], 11, 5)])
+                : te('emailed to :sent of :n recruiters, the rest waiting to send', ['sent' => (int) $requisition['mailed_sent'], 'n' => (int) $requisition['mailed']]) ?></span><?php endif; ?>
+            <?php if (! empty($requisition['published_name']) && ! empty($requisition['requested_name'])): ?> &middot; <?= te('published by :name, :when', ['name' => $requisition['published_name'], 'when' => d(substr((string) $requisition['published_at'], 0, 10)) . ' ' . substr((string) $requisition['published_at'], 11, 5)]) ?><?php endif; ?>
+          </div>
+          <?php endif; ?></td>
         <td class="nowrap"><strong><?= $rolePay !== null ? e(money((float) $rolePay)) : '&mdash;' ?></strong> <span class="small muted"><?= te('/h') ?></span>
           <?php if ($roleBill !== null): ?><div class="small muted"><?= te('billed :amount', ['amount' => money((float) $roleBill)]) ?></div><?php endif; ?></td>
         <td class="req-fill"><div class="headcount-bar"><span style="width:<?= (int) round(min($placed, $asked) / $asked * 100) ?>%"></span></div>
           <span class="small"><?= te(':placed of :asked placed', ['placed' => $placed, 'asked' => $asked]) ?></span></td>
         <td><?php // P5-M91: the applicants of this requisition, a click away, on Candidates. ?><a class="btn ghost sm" href="/candidates?vacancy=<?= (int) $requisition['id'] ?>" title="<?= te('See the applicants') ?>"><?= (int) $requisition['applications'] ?></a></td>
-        <td><span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>"><?= $requisition['is_open'] ? te('Open') : te('Closed') ?></span></td>
+        <td><?php if ($requestedReq && $requisition['is_open']): ?><span class="tag amber" data-requested><?= te('Requested · not published') ?></span><?php else: ?><span class="tag <?= $requisition['is_open'] ? 'green' : 'grey' ?>"><?= $requisition['is_open'] ? te('Open') : te('Closed') ?></span><?php endif; ?></td>
         <td class="right nowrap">
+          <?php if ($requestedReq): ?>
+          <?php // P5-M103: the recruiter's gesture - publishing creates the public offer and tells whoever requested it. ?>
+          <form method="post" class="inline-block" data-publish-req="<?= (int) $requisition['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="publish"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>"><button class="btn sm" type="submit"><?= te('Publish') ?></button></form>
+          <?php else: ?>
           <button type="button" class="btn ghost sm" data-copy-link="<?= e($link) ?>" data-copied="<?= te('Link copied') ?>"><?= te('Copy link') ?></button>
+          <?php endif; ?>
           <?php // P5-M102: closing a requisition is one click on its row, not inside "QR code & more". It leaves the careers page and the website feed at once. ?>
           <?php if (can('admin')): ?><form method="post" class="inline-block" data-close-req="<?= (int) $requisition['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>"><button class="btn ghost sm" type="submit"><?= $requisition['is_open'] ? te('Close') : te('Reopen it') ?></button></form><?php endif; ?>
           <details class="req-more inline-block"><summary class="btn ghost sm"><?= te('QR code & more') ?></summary>
@@ -229,7 +245,10 @@
         <?= te('Every trade is already on requisitions. When the client asks for more people, edit the line on the scope of work: the change is kept in its history.') ?> <a href="/job#scope"><?= te('Scope of work') ?></a>
       </span>
     <?php else: ?>
-      <button class="btn" type="submit"><?= te('Create the requisition') ?></button>
+      <?php // P5-M103: sent to recruiting, a recruiter publishes it; or published at once. ?>
+      <button class="btn" type="submit" name="send" value="request" data-send-request><?= te('Send to recruiting') ?></button>
+      <button class="btn ghost" type="submit" name="send" value="publish" data-send-publish><?= te('Create and publish') ?></button>
+      <span class="hint d-block mt-xs"><?= te('Send to recruiting: the recruiters are emailed and a recruiter publishes it. Create and publish: it is on the careers page at once.') ?></span>
     <?php endif; ?>
     <button type="button" class="btn ghost" data-fold-close><?= te('Cancel') ?></button>
   </form>

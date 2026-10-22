@@ -99,7 +99,10 @@ function review_request(int $applicationId, int $reviewerId, int $rating, string
     $reviewer = (string) val('SELECT name FROM users WHERE id = ?', [$reviewerId]);
     q('INSERT INTO application_events (application_id, user_id, stage, note) VALUES (?,?,?,?)',
       [$applicationId, $by, $a['stage'], 'Passed to ' . $reviewer . ' for review. Fit ' . $rating . '/5. ' . $recommendation]);
-    review_notify($reviewerId, t(':name to review for :role', ['name' => $a['full_name'], 'role' => $a['title']]), '/reviews?id=' . $id);
+    // P5-M103: the manager is emailed too - the step the recruiter waits on.
+    require_once __DIR__ . '/notices.php';
+    notify_by_email($reviewerId, t('To review: :name for :role', ['name' => $a['full_name'], 'role' => $a['title']]),
+        t(':who sent you :name to review for :role.', ['who' => (string) val('SELECT name FROM users WHERE id = ?', [$by]), 'name' => $a['full_name'], 'role' => $a['title']]), '/reviews?id=' . $id, 'review:' . $id);
     log_activity('passed an applicant to a manager', 'application', $applicationId, $reviewer);
 
     return null;
@@ -146,10 +149,13 @@ function review_decide(int $reviewId, string $decision, string $note, int $by, a
     $a = review_application($applicationId);
     // P5-M84: approved, the applicant goes to HR; the recruiter's part is done.
     $hr = $decision === 'validated' ? review_hand_to_hr($applicationId, $by, ! empty($GLOBALS['review_expedite'])) : null;
-    review_notify((int) $r['requested_by'], $hr
-                      ? t(':name approved by :who and handed to HR (:hr). Nothing more for you.', ['name' => (string) ($a['full_name'] ?? ''), 'who' => $who, 'hr' => $hr])
-                      : t(':name: :decision', ['name' => (string) ($a['full_name'] ?? ''), 'decision' => review_statuses()[$decision]]),
-                  $hr ? '/hiring?v=' . (int) ($a['vacancy_id'] ?? 0) . '&app=' . $applicationId : '/candidates/' . (int) ($a['candidate_id'] ?? 0));
+    // P5-M103: the recruiter learns the decision by email as well.
+    require_once __DIR__ . '/notices.php';
+    $told = $hr
+        ? t(':name approved by :who and handed to HR (:hr). Nothing more for you.', ['name' => (string) ($a['full_name'] ?? ''), 'who' => $who, 'hr' => $hr])
+        : t(':name: :decision', ['name' => (string) ($a['full_name'] ?? ''), 'decision' => review_statuses()[$decision]]);
+    notify_by_email((int) $r['requested_by'], t('Decision on :name', ['name' => (string) ($a['full_name'] ?? '')]), $told,
+        $hr ? '/hiring?v=' . (int) ($a['vacancy_id'] ?? 0) . '&app=' . $applicationId : '/candidates/' . (int) ($a['candidate_id'] ?? 0), 'decision:' . $reviewId);
     log_activity('decided on an applicant', 'application', $applicationId, $decision);
 
     return null;

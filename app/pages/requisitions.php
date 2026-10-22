@@ -19,6 +19,10 @@
 require_role('recruiter');
 require_once __DIR__ . '/../scope.php';
 
+// P5-M103: a link to one requisition (from the email) opens its project.
+if (isset($_GET['req']) && ($reqJob = (int) val('SELECT job_id FROM vacancies WHERE id = ?', [(int) $_GET['req']]))) {
+    $_SESSION['job_id'] = $reqJob;
+}
 $job   = current_job();
 $jobId = (int) ($job['id'] ?? 0);
 
@@ -79,6 +83,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : t(':title is closed. Its link no longer accepts applications; everybody who already applied is kept.', ['title' => $vacancy['title']]));
 
         redirect('/requisitions');
+    }
+
+    // P5-M103: a recruiter takes a requested requisition in hand and publishes it; whoever requested it is told.
+    if ($do === 'publish') {
+        $vacancy = row("SELECT * FROM vacancies WHERE id = ? AND job_id = ? AND posting_status = 'requested'", [(int) ($_POST['vacancy_id'] ?? 0), $jobId]);
+        if (! $vacancy) {
+            refuse(404, t('That requisition is not waiting to be published on this project.'), '/requisitions');
+        }
+        q("UPDATE vacancies SET posting_status = 'published', published_by = ?, published_at = NOW() WHERE id = ?", [uid(), (int) $vacancy['id']]);
+        if (! val('SELECT vacancy_id FROM requisition_publication WHERE vacancy_id = ?', [(int) $vacancy['id']])) {
+            q('INSERT INTO requisition_publication (vacancy_id, published_on, expires_on) VALUES (?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))', [(int) $vacancy['id']]);
+        }
+        log_activity('published requisition', 'vacancy', (int) $vacancy['id'], (string) $vacancy['title']);
+        require_once __DIR__ . '/../notices.php';
+        if (! empty($vacancy['requested_by']) && (int) $vacancy['requested_by'] !== uid()) {
+            notify_by_email((int) $vacancy['requested_by'], t('Published: :title', ['title' => $vacancy['title']]),
+                t(':who published your requisition :title. It is on the careers page and accepts applications.', ['who' => (string) (user()['name'] ?? ''), 'title' => $vacancy['title']]),
+                '/requisitions?req=' . (int) $vacancy['id'] . '#req-' . (int) $vacancy['id'], 'published:' . (int) $vacancy['id']);
+        }
+        flash(t(':title is published: on the careers page, and its link accepts applications.', ['title' => $vacancy['title']]));
+        redirect('/requisitions?req=' . (int) $vacancy['id'] . '#req-' . (int) $vacancy['id']);
     }
 
     // Walkthrough finding: the recruiter was shown this form but refused on
@@ -211,18 +236,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . '/../checklists.php';
     cl_vacancy_save($vacancyId, (array) ($_POST['checklists'] ?? []));
 
-    q('INSERT INTO requisition_publication (vacancy_id, published_on, expires_on)
-       VALUES (?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))', [$vacancyId]);
+    // P5-M103: "Send to recruiting" creates the requisition as REQUESTED - not public, its link closed - until a
+    // recruiter takes it in hand and publishes it. "Create and publish" publishes it at once, as before.
+    $requested = ($_POST['send'] ?? 'publish') === 'request';
+    if ($requested) {
+        q("UPDATE vacancies SET posting_status = 'requested', requested_by = ?, requested_at = NOW() WHERE id = ?", [uid(), $vacancyId]);
+    } else {
+        q("UPDATE vacancies SET published_by = ?, published_at = NOW() WHERE id = ?", [uid(), $vacancyId]);
+        q('INSERT INTO requisition_publication (vacancy_id, published_on, expires_on)
+           VALUES (?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))', [$vacancyId]);
+    }
 
-    log_activity('created requisition', 'vacancy', $vacancyId, $title . ' x' . $openings);
-    // P5-M28: posted, it is every recruiter's to fill; the plant's project manager is told too.
+    log_activity($requested ? 'sent a requisition to recruiting' : 'created requisition', 'vacancy', $vacancyId, $title . ' x' . $openings);
+    // P5-M28: it is every recruiter's to fill; the plant's project manager is told too.
+    // P5-M103: by email as well, so the request is seen outside Crewvia and the screen can show when it left.
     require_once __DIR__ . '/../notices.php';
-    $notice = t('New requisition on :project: :n x :title:start. Find the candidates.', ['project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title,
-                'start' => $startsOn ? ' ' . t('starting :date', ['date' => d($startsOn)]) : '']);
-    notify_desks(['recruiter'], $notice, '/candidates?vacancy=' . $vacancyId, uid());
+    $start = $startsOn ? ' ' . t('starting :date', ['date' => d($startsOn)]) : '';
+    $notice = $requested
+        ? t(':who sent a requisition to recruiting on :project: :n x :title:start. Complete it and publish it.', ['who' => (string) (user()['name'] ?? ''), 'project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title, 'start' => $start])
+        : t('New requisition on :project: :n x :title:start. Find the candidates.', ['project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title, 'start' => $start]);
+    $subject = $requested ? t('Requisition to publish: :title', ['title' => $title]) : t('New requisition: :title', ['title' => $title]);
+    $target = $requested ? '/requisitions?req=' . $vacancyId . '#req-' . $vacancyId : '/candidates?vacancy=' . $vacancyId;
+    $mailed = 0;
+    foreach (rows("SELECT id FROM users WHERE is_active = 1 AND role IN ('recruiter','admin') AND id <> ?", [uid()]) as $r) {
+        $mailed += notify_by_email((int) $r['id'], $subject, $notice, $target, 'requisition:' . $vacancyId) ? 1 : 0;
+    }
     if (! empty($job['project_manager_id']) && (int) $job['project_manager_id'] !== uid()) { notify_user((int) $job['project_manager_id'], $notice, '/my-team'); }
-    flash(t('Requisition created. Share its QR code or public link to start receiving applications.'));
-    redirect('/requisitions');
+    flash($requested
+        ? tn($mailed, 'Sent to recruiting: :n recruiter was emailed. It is published when a recruiter publishes it.', 'Sent to recruiting: :n recruiters were emailed. It is published when a recruiter publishes it.')
+        : t('Requisition created. Share its QR code or public link to start receiving applications.'));
+    redirect('/requisitions?req=' . $vacancyId . '#req-' . $vacancyId);
 }
 
 // The extra columns arrive with a later upgrade. An installation that has not
@@ -255,7 +298,13 @@ $requisitions = rows(
             (SELECT COUNT(*) FROM applications a2
                JOIN placements p ON p.candidate_id = a2.candidate_id AND p.job_id = v.job_id
               WHERE a2.vacancy_id = v.id
-                AND p.status IN (" . DEPLOYED_STATUSES . ")) placed
+                AND p.status IN (" . DEPLOYED_STATUSES . ")) placed,
+            -- P5-M103: the trail Jerry asked to see - who requested it, when the emails left, who published it.
+            (SELECT name FROM users WHERE id = v.requested_by) requested_name,
+            (SELECT name FROM users WHERE id = v.published_by) published_name,
+            (SELECT COUNT(*) FROM mail_outbox m WHERE m.purpose = CONCAT('requisition:', v.id)) mailed,
+            (SELECT COUNT(*) FROM mail_outbox m WHERE m.purpose = CONCAT('requisition:', v.id) AND m.status = 'sent') mailed_sent,
+            (SELECT MAX(m.sent_at) FROM mail_outbox m WHERE m.purpose = CONCAT('requisition:', v.id)) mailed_at
      FROM vacancies v
      JOIN jobs j ON j.id = v.job_id " . $lineJoin . "
      WHERE v.job_id = ? ORDER BY v.id DESC", [$jobId]);

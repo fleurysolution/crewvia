@@ -32,4 +32,9 @@ foreach ($messages as &$message) {
 }
 unset($message);
 $routing = ['test' => mail_test_mode(), 'test_to' => mail_test_pattern(), 'reply_to' => mail_setting('candidate_mail_reply_to', '')];
-render('email-delivery', compact('messages', 'routing'));
+// P5-M103: the emails to office staff - a requisition sent to recruiting or published, an applicant to review, a decision -
+// with when each left: the proof it went, not the promise it will.
+$staffMail = rows("SELECT m.id, m.recipient, m.purpose, m.status, m.attempts, m.created_at, m.sent_at, v.title AS requisition
+                   FROM mail_outbox m LEFT JOIN vacancies v ON v.id = CAST(SUBSTRING_INDEX(m.purpose, ':', -1) AS UNSIGNED) AND SUBSTRING_INDEX(m.purpose, ':', 1) IN ('requisition','published')
+                   WHERE SUBSTRING_INDEX(m.purpose, ':', 1) IN ('requisition','published','review','decision') ORDER BY m.id DESC LIMIT 60");
+render('email-delivery', compact('messages', 'routing', 'staffMail'));

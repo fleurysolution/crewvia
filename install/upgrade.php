@@ -3144,4 +3144,12 @@ if ($billingWarning !== null) {
        . 'The application still refuses changes and the hash chain shows any; grant TRIGGER and run the upgrade again.' . PHP_EOL;
 }
 
+// P5-M103: a requisition can be REQUESTED (sent to recruiting, not public) before a recruiter publishes it.
+// Existing requisitions were public from creation, so they stay published.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'vacancies' AND column_name = 'posting_status'")) {
+    q("ALTER TABLE vacancies ADD COLUMN posting_status VARCHAR(16) NOT NULL DEFAULT 'published',
+       ADD COLUMN requested_by INT UNSIGNED NULL, ADD COLUMN requested_at DATETIME NULL,
+       ADD COLUMN published_by INT UNSIGNED NULL, ADD COLUMN published_at DATETIME NULL");
+    echo 'Requisitions: a requisition can be sent to recruiting before it is published; a recruiter publishes it.' . PHP_EOL;
+}
 echo "Upgrade complete. Existing records preserved.\n";

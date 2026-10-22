@@ -43,7 +43,7 @@ function jm_open_jobs(?int $vacancyId = null): array
                  JOIN jobs j ON j.id = v.job_id
                  LEFT JOIN job_order_lines l ON l.id = v.order_line_id
                  LEFT JOIN requisition_publication r ON r.vacancy_id = v.id
-                 WHERE v.is_open = 1 AND j.status <> 'closed' AND (r.expires_on IS NULL OR r.expires_on >= CURDATE())"
+                 WHERE v.is_open = 1 AND v.posting_status = 'published' AND j.status <> 'closed' AND (r.expires_on IS NULL OR r.expires_on >= CURDATE())"
                  . ($vacancyId ? ' AND v.id = ' . (int) $vacancyId : '') . '
                  GROUP BY v.id ORDER BY COALESCE(v.starts_on, j.starts_on) IS NULL, COALESCE(v.starts_on, j.starts_on), v.id DESC LIMIT 200');
 }
