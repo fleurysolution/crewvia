@@ -8,9 +8,9 @@
  * project-level rows of their applications, and the REAL people placed on that project - to a real project.
  *
  *   php install/demo-separate.php --from=6 --to=1 --vacancies=23,24,25,26 --expect-applications=431
- *       dry run: shows everything, changes nothing
+ *       dry run: shows everything, does the move and every check below in a transaction, then rolls it back; changes nothing
  *   ... --execute
- *       does it, in one transaction
+ *       does it, in one transaction, and keeps it
  *
  * Take a backup first, and prove it restores (install/restore.php --drill). In one transaction; ROLLED BACK if any
  * count differs from what was announced, if --expect-applications does not match, or if, read again afterwards, a
@@ -46,8 +46,11 @@ $demoPeople = $demoIds('candidates');
 $apps = array_map('intval', array_column(rows('SELECT id FROM applications WHERE vacancy_id IN (' . $in($vacancies) . ')'), 'id'));
 $perReq = rows('SELECT v.id, v.title, (SELECT COUNT(*) FROM applications a WHERE a.vacancy_id = v.id) AS apps FROM vacancies v WHERE v.id IN (' . $in($vacancies) . ') ORDER BY v.id');
 $realPlacements = array_map('intval', array_column(rows('SELECT id FROM placements WHERE job_id = ? AND candidate_id NOT IN (' . $in($demoPeople) . ')', [$from]), 'id'));
-$lines = array_map('intval', array_column(rows('SELECT DISTINCT order_line_id FROM vacancies WHERE id IN (' . $in($vacancies) . ') AND order_line_id IS NOT NULL'), 'order_line_id'));
-$shared = $lines ? array_map('intval', array_column(rows('SELECT DISTINCT order_line_id FROM vacancies WHERE order_line_id IN (' . $in($lines) . ') AND id NOT IN (' . $in($vacancies) . ')'), 'order_line_id')) : [];
+// The scope lines of what moves: the requisitions' and the real placements' (a placement keeps its own order_line_id).
+$lines = array_map('intval', array_column(rows('SELECT order_line_id FROM vacancies WHERE id IN (' . $in($vacancies) . ') AND order_line_id IS NOT NULL
+    UNION SELECT order_line_id FROM placements WHERE id IN (' . $in($realPlacements) . ') AND order_line_id IS NOT NULL'), 'order_line_id'));
+$shared = $lines ? array_map('intval', array_column(rows('SELECT order_line_id FROM vacancies WHERE order_line_id IN (' . $in($lines) . ') AND id NOT IN (' . $in($vacancies) . ')
+    UNION SELECT order_line_id FROM placements WHERE order_line_id IN (' . $in($lines) . ') AND id NOT IN (' . $in($realPlacements) . ')'), 'order_line_id')) : [];
 $ownLines = array_values(array_diff($lines, $shared));
 
 $say('From "' . $fromJob['title'] . '" (#' . $from . ', demonstration) to "' . $toJob['title'] . '" (#' . $to . ', real).');
@@ -82,21 +85,30 @@ if ($shared) { $say('  ' . str_pad('job_order_lines (copied)', 32) . count($shar
 $before = demo_real_at_risk(demo_plan());
 $say('');
 $say('A flush TODAY would remove these records of real people: ' . ($before ? json_encode($before) : 'none'));
-if (! $execute) {
-    $say('Dry run: nothing changed. Add --execute to move (after a backup proven by install/restore.php --drill).');
-    exit(0);
-}
 
+// The dry run does the whole move too, with every check, and rolls it back: what it says is what --execute will do.
 db()->beginTransaction();
 try {
-    // A line a demo requisition also uses is copied to the real project; the moved requisitions point at the copy.
+    // A line the demonstration also uses is copied to the real project; every moved row that names it - the
+    // requisitions, the real placements, the rows of their applications - points at the copy.
     $lineCols = array_values(array_filter($schema['job_order_lines']['columns'] ?? [], fn($c) => $c !== 'id'));
+    $lineUsers = ['vacancies' => 'id IN (' . $in($vacancies) . ')', 'placements' => 'id IN (' . $in($realPlacements) . ')'];
+    foreach ($schema as $table => $info) {
+        if (isset($lineUsers[$table]) || ! in_array('order_line_id', $info['columns'], true)) { continue; }
+        $own = [];
+        if (in_array('vacancy_id', $info['columns'], true)) { $own[] = 'vacancy_id IN (' . $in($vacancies) . ')'; }
+        if (in_array('application_id', $info['columns'], true)) { $own[] = 'application_id IN (' . $in($apps) . ')'; }
+        if (in_array('placement_id', $info['columns'], true)) { $own[] = 'placement_id IN (' . $in($realPlacements) . ')'; }
+        if ($own) { $lineUsers[$table] = '(' . implode(' OR ', $own) . ')'; }
+    }
     foreach ($shared as $lineId) {
         $cols = implode(',', array_map(fn($c) => '`' . $c . '`', $lineCols));
         $sel = implode(',', array_map(fn($c) => $c === 'job_id' ? (string) $to : '`' . $c . '`', $lineCols));
         q('INSERT INTO job_order_lines (' . $cols . ') SELECT ' . $sel . ' FROM job_order_lines WHERE id = ?', [$lineId]);
         $copy = (int) db()->lastInsertId();
-        q('UPDATE vacancies SET order_line_id = ? WHERE order_line_id = ? AND id IN (' . $in($vacancies) . ')', [$copy, $lineId]);
+        foreach ($lineUsers as $table => $where) {
+            q('UPDATE `' . $table . '` SET order_line_id = ? WHERE order_line_id = ? AND ' . $where, [$copy, $lineId]);
+        }
     }
     foreach ($moves as $table => [$where, $n]) {
         $done = q('UPDATE `' . $table . '` SET job_id = ? WHERE ' . $where, [$to])->rowCount();
@@ -111,12 +123,22 @@ try {
     }
     $plan = demo_plan();
     $planIds = static fn(string $t): array => array_map(fn($r) => (int) $r['id'], $plan[$t] ?? []);
-    $leak = count(array_intersect($planIds('vacancies'), $vacancies)) + count(array_intersect($planIds('applications'), $apps)) + count(array_intersect($planIds('placements'), $realPlacements));
-    if ($leak) { throw new RuntimeException('a flush would still remove ' . $leak . ' of the moved records'); }
+    $leak = array_filter([
+        'vacancies' => array_values(array_intersect($planIds('vacancies'), $vacancies)),
+        'applications' => array_values(array_intersect($planIds('applications'), $apps)),
+        'placements' => array_values(array_intersect($planIds('placements'), $realPlacements)),
+    ]);
+    if ($leak) { throw new RuntimeException('a flush would still remove these moved records: ' . json_encode($leak)); }
+    if (! $execute) {
+        db()->rollBack();
+        $say('Dry run: the move was done and checked inside a transaction, then rolled back. Nothing changed.');
+        $say('Add --execute to move (after a backup proven by install/restore.php --drill).');
+        exit(0);
+    }
     db()->commit();
 } catch (Throwable $e) {
     if (db()->inTransaction()) { db()->rollBack(); }
-    $say('ROLLED BACK, nothing changed: ' . $e->getMessage());
+    $say(($execute ? 'ROLLED BACK' : 'Dry run FAILED') . ', nothing changed: ' . $e->getMessage());
     exit(1);
 }
 log_activity('separated real records from the demonstration', 'job', $to, implode(',', $vacancies) . ' from #' . $from . ', ' . count($apps) . ' applications');

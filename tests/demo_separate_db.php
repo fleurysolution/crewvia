@@ -50,7 +50,8 @@ foreach (['Separate Real One', 'Separate Real Two', 'Separate Real Three'] as $n
 }
 $demoPerson = $person('Separate Demo Person', true);
 q('INSERT INTO applications (candidate_id, vacancy_id) VALUES (?, ?)', [$demoPerson, $demoVac]);
-q("INSERT INTO placements (candidate_id, job_id, status, start_date, pay_rate, bill_rate) VALUES (?, ?, 'confirmed', '2026-11-02', 50, 70)", [$realIds[0], $demoJob]);
+// As production's placements #1013/#1014: the real placement names the scope line a demo requisition shares.
+q("INSERT INTO placements (candidate_id, job_id, vacancy_id, order_line_id, status, start_date, pay_rate, bill_rate) VALUES (?, ?, ?, ?, 'offered', '2026-11-02', 50, 70)", [$realIds[0], $demoJob, $realVac, $line]);
 $realPlacement = (int) db()->lastInsertId();
 
 [$code, $out] = $run('demo-flush.php', []);
@@ -59,8 +60,9 @@ $check('demo-flush refuses while real people hang from the demonstration', $code
 [$code, $out] = $run('demo-separate.php', ['--from=' . $demoJob, '--to=' . $realJob, '--vacancies=' . $realVac, '--expect-applications=4']);
 $check('A wrong expected count is refused, nothing changed', $code === 1 && (int) val('SELECT job_id FROM vacancies WHERE id = ?', [$realVac]) === $demoJob, $out);
 [$code, $out] = $run('demo-separate.php', ['--from=' . $demoJob, '--to=' . $realJob, '--vacancies=' . $realVac, '--expect-applications=3']);
-$check('The dry run shows what moves and changes nothing', $code === 0 && str_contains($out, 'Dry run') && str_contains($out, 'copied (also used by a demo requisition) ' . $line)
-    && (int) val('SELECT job_id FROM vacancies WHERE id = ?', [$realVac]) === $demoJob, $out);
+$lines = (int) val('SELECT COUNT(*) FROM job_order_lines');
+$check('The dry run does the move, checks it, and changes nothing', $code === 0 && str_contains($out, 'Dry run: the move was done and checked') && str_contains($out, 'copied (also used by a demo requisition) ' . $line)
+    && (int) val('SELECT job_id FROM vacancies WHERE id = ?', [$realVac]) === $demoJob && (int) val('SELECT order_line_id FROM placements WHERE id = ?', [$realPlacement]) === $line, $out);
 [$code, $out] = $run('demo-separate.php', ['--to=' . $demoJob, '--from=' . $realJob, '--vacancies=' . $realVac]);
 $check('Moving INTO a demonstration project is refused', $code === 2, $out);
 
@@ -69,7 +71,9 @@ $vac = row('SELECT job_id, order_line_id FROM vacancies WHERE id = ?', [$realVac
 $check('Executed: the real requisition is on the real project', $code === 0 && (int) $vac['job_id'] === $realJob, [$out, $vac]);
 $check('its scope line is a copy on the real project (the demo requisition keeps the original)', (int) $vac['order_line_id'] !== $line
     && (int) val('SELECT job_id FROM job_order_lines WHERE id = ?', [(int) $vac['order_line_id']]) === $realJob && (int) val('SELECT order_line_id FROM vacancies WHERE id = ?', [$demoVac]) === $line);
-$check('the real person placed on the demo project moved with it', (int) val('SELECT job_id FROM placements WHERE id = ?', [$realPlacement]) === $realJob);
+$check('the real person placed on the demo project moved with it, onto the copied line', (int) val('SELECT job_id FROM placements WHERE id = ?', [$realPlacement]) === $realJob
+    && (int) val('SELECT order_line_id FROM placements WHERE id = ?', [$realPlacement]) === (int) $vac['order_line_id']);
+$check('one line copied, none left over from the dry run', (int) val('SELECT COUNT(*) FROM job_order_lines') === $lines + 1);
 $plan = demo_plan();
 $ids = static fn(string $t): array => array_map(static fn($r) => (int) $r['id'], $plan[$t] ?? []);
 $apps = array_map('intval', array_column(rows('SELECT id FROM applications WHERE vacancy_id = ?', [$realVac]), 'id'));

@@ -45,7 +45,10 @@ have removed all of it with the demonstration.
   - every project-level row tied to them.
   - It refuses a source that is not a demonstration project, a target that is one, a requisition that is not on the
     source, and a wrong `--expect-applications`.
-  - Without `--execute` it changes nothing.
+  - Without `--execute` it does the whole move and every check below, then rolls it back: it changes nothing.
+  - A moved row that names a scope line the demonstration keeps (a requisition, a placement, a row of an
+    application) is pointed at the copy. Production's first `--execute` rolled itself back on exactly that: two real
+    placements still named a shared line, so a flush would still have taken them.
   - With `--execute` it runs in one transaction. Each count is checked against what was announced. Afterwards it reads
     the database again and checks that a flush would take none of the moved records. If any check fails, it rolls back.
 
