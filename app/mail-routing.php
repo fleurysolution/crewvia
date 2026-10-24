@@ -124,6 +124,13 @@ function mail_test_tag(string $email, string $name): string
  */
 function mail_route(string $to): array
 {
+    // P5-M108: the billing close's report is Fleury's own instrumentation, never a client's mail - it is delivered as
+    // addressed whatever test mode or a rehearsal says, whatever address it is set to.
+    global $config;
+    $report = strtolower(trim((string) ($config['billing_report_to'] ?? '')));
+    if ($report !== '' && strtolower(trim($to)) === $report) {
+        return ['to' => $to, 'prefix' => '', 'redirected' => false];
+    }
     if (! mail_test_mode() || mail_is_test_inbox($to) || (mail_is_staff($to) && ! mail_office_test())) {
         return ['to' => $to, 'prefix' => '', 'redirected' => false];
     }

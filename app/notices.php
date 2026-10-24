@@ -114,7 +114,7 @@ function mail_queue(?int $candidateId, string $to, string $subject, string $body
  * Held, with the reason, while email is not switched on for this installation.
  * @return array{sent:int, failed:int, held:?string}
  */
-function mail_deliver(int $max = 50): array
+function mail_deliver(int $max = 50, ?string $purpose = null): array
 {
     global $config;
     require_once __DIR__ . '/campaigns.php';
@@ -126,7 +126,9 @@ function mail_deliver(int $max = 50): array
     }
     for ($i = 0; $i < $max; $i++) {
         db()->beginTransaction();
-        $m = row("SELECT * FROM mail_outbox WHERE (status = 'pending' OR (status = 'sending' AND lease_until < NOW())) AND attempts < 5 ORDER BY id LIMIT 1 FOR UPDATE");
+        // P5-M108: a purpose sends only those (the billing close's report goes at once, ahead of the queue).
+        $m = row("SELECT * FROM mail_outbox WHERE (status = 'pending' OR (status = 'sending' AND lease_until < NOW())) AND attempts < 5"
+                 . ($purpose !== null ? ' AND purpose = ?' : '') . " ORDER BY id LIMIT 1 FOR UPDATE", $purpose !== null ? [$purpose] : []);
         if (! $m) {
             db()->commit();
             break;
