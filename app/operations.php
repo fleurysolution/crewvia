@@ -282,6 +282,16 @@ function ops_health(bool $deep = true): array
             : [$run['status'] !== 'ok' ? 'fail' : (strtotime((string) $run['finished_at']) < time() - $hours * 3600 ? 'warn' : 'ok'), 'last ' . $run['finished_at'] . ' (' . $run['status'] . ')'];
     }
 
+    // P5-M105b: a rehearsal left on silently stops the office's emails and notices.
+    require_once __DIR__ . '/mail-routing.php';
+    $since = mail_office_test_since();
+    $checks['rehearsal'] = $since === '' ? ['ok', 'off']
+        : [strtotime($since) < time() - 86400 ? 'fail' : 'warn', 'on since ' . $since . ': office emails and notices go to the test inbox'];
+    // P5-M103b: a queue that stops looks like an empty one.
+    $oldest = val("SELECT TIMESTAMPDIFF(MINUTE, MIN(created_at), NOW()) FROM mail_outbox WHERE status IN ('pending','sending') AND attempts < 5");
+    $checks['mail_queue'] = $oldest === null ? ['ok', 'nothing waiting']
+        : [(int) $oldest >= 60 ? 'fail' : ((int) $oldest >= 15 ? 'warn' : 'ok'), 'oldest email waiting ' . (int) $oldest . ' min: is install/deliver-mail.php on cron?'];
+
     $errors = ops_recent_errors(2);
     $day = array_filter($errors, fn($e) => strtotime((string) ($e['at'] ?? '')) >= time() - 86400);
     $checks['errors'] = [count($day) === 0 ? 'ok' : (count($day) >= 50 ? 'fail' : 'warn'), count($day) . ' in the last 24 hours'];

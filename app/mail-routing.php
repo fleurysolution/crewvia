@@ -39,6 +39,35 @@ function mail_test_mode(): bool
     return mail_setting('candidate_mail_test', '0') === '1';
 }
 
+/**
+ * P5-M105b: a rehearsal - the office's emails go to the test inbox too, so a run-through on the live workspace emails
+ * no real colleague. Only while test mode is on.
+ */
+function mail_office_test(): bool
+{
+    return mail_test_mode() && mail_setting('office_mail_test', '0') === '1';
+}
+
+/** P5-M105b: during a rehearsal, the in-app notices too go only to the test accounts (when the agency asks). */
+function mail_notice_test(): bool
+{
+    return mail_office_test() && mail_setting('office_notice_test', '0') === '1';
+}
+
+/** Since when a rehearsal is on ('' when it is off). */
+function mail_office_test_since(): string
+{
+    return mail_office_test() ? mail_setting('office_mail_test_since', '') : '';
+}
+
+/** An address that already is the test inbox (solutionsfleury+anything@gmail.com) is delivered as it is. */
+function mail_is_test_inbox(string $email): bool
+{
+    [$before, $after] = array_pad(explode('{first}', mail_test_pattern(), 2), 2, '');
+
+    return $before !== '' && str_starts_with(strtolower(trim($email)), strtolower($before)) && str_ends_with(strtolower(trim($email)), strtolower($after));
+}
+
 /** The test inbox, with {first} for the candidate's first name. */
 function mail_test_pattern(): string
 {
@@ -95,7 +124,7 @@ function mail_test_tag(string $email, string $name): string
  */
 function mail_route(string $to): array
 {
-    if (! mail_test_mode() || mail_is_staff($to)) {
+    if (! mail_test_mode() || mail_is_test_inbox($to) || (mail_is_staff($to) && ! mail_office_test())) {
         return ['to' => $to, 'prefix' => '', 'redirected' => false];
     }
     $name = mail_name_for($to);

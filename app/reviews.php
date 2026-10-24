@@ -270,6 +270,11 @@ function review_hand_to_hr(int $applicationId, int $by, bool $expedite = false):
                          AND NOT EXISTS (SELECT 1 FROM worker_accounts w WHERE w.user_id = u.id)
                          ORDER BY u.role <> 'hr', u.role = 'admin', (SELECT COUNT(*) FROM project_tasks t WHERE t.assignee_id = u.id AND t.status IN ('todo','in_progress','blocked')), u.id LIMIT 1", [$by]);
     }
+    // P5-M105b: during a rehearsal, the onboarding task goes to nobody real - unassigned unless HR is a test account.
+    require_once __DIR__ . '/mail-routing.php';
+    if ($hr && mail_notice_test() && ! mail_is_test_inbox((string) val('SELECT email FROM users WHERE id = ?', [$hr]))) {
+        $hr = 0;
+    }
     $name = $hr ? (string) val('SELECT name FROM users WHERE id = ?', [$hr]) : '';
     q("UPDATE candidates SET stage = 'offered' WHERE id = ? AND stage IN ('new','contacted','screening')", [(int) $a['candidate_id']]);
     require_once __DIR__ . '/project-tasks.php';

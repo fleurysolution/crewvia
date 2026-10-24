@@ -85,6 +85,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/requisitions');
     }
 
+    // P5-M105: the recruiter completes a requisition - the detail candidates need - before or after publishing it.
+    // The agreed rates are not here: they stay on the scope line (and the administrator's override).
+    if ($do === 'edit') {
+        $vacancy = row('SELECT * FROM vacancies WHERE id = ? AND job_id = ?', [(int) ($_POST['vacancy_id'] ?? 0), $jobId]);
+        if (! $vacancy) {
+            refuse(404, t('That requisition is not on this project.'), '/requisitions');
+        }
+        $back = '/requisitions?req=' . (int) $vacancy['id'] . '#req-' . (int) $vacancy['id'];
+        $title = trim((string) ($_POST['title'] ?? ''));
+        $description = trim((string) ($_POST['description'] ?? ''));
+        $openings = (int) ($_POST['openings'] ?? 0);
+        $years = trim((string) ($_POST['years_experience'] ?? ''));
+        $startsOn = trim((string) ($_POST['starts_on'] ?? ''));
+        if ($title === '' || $description === '' || mb_strlen($title) > 190 || mb_strlen($description) > 10000) {
+            refuse(422, t('Enter the role and its description.'), $back);
+        }
+        if ($openings < 1 || $openings > 9999) {
+            refuse(422, t('Enter how many people are needed, between 1 and 9999.'), $back);
+        }
+        if ($years !== '' && (! ctype_digit($years) || (int) $years > 60)) {
+            refuse(422, t('Years of experience: a number from 0 to 60.'), $back);
+        }
+        if ($startsOn !== '' && ! valid_date($startsOn)) {
+            refuse(422, t('Choose a valid start date.'), $back);
+        }
+        // More people than the agreement's line still allows is refused, as when it was raised.
+        if ($hasScope && ! empty($vacancy['order_line_id'])) {
+            $line = scope_line((int) $vacancy['order_line_id'], $jobId);
+            $others = (int) val('SELECT COALESCE(SUM(openings), 0) FROM vacancies WHERE order_line_id = ? AND id <> ?', [(int) $vacancy['order_line_id'], (int) $vacancy['id']]);
+            if ($line && $openings > (int) $line['quantity'] - $others) {
+                refuse(422, t('The agreement covers :asked :role; only :left can be on this requisition.', ['asked' => (int) $line['quantity'], 'role' => $line['role_title'], 'left' => max(0, (int) $line['quantity'] - $others)]), $back);
+            }
+        }
+        $discipline = array_key_exists((string) ($_POST['discipline'] ?? ''), disciplines()) ? (string) $_POST['discipline'] : (string) ($vacancy['discipline'] ?? 'other');
+        q('UPDATE vacancies SET title = ?, description = ?, discipline = ?, openings = ?, shift = ?, requirements = ?, degree = ?, years_experience = ?, starts_on = ? WHERE id = ?',
+          [$title, $description, $discipline, $openings,
+           mb_substr(trim((string) ($_POST['shift'] ?? '')), 0, 60) ?: null,
+           mb_substr(trim((string) ($_POST['requirements'] ?? '')), 0, 4000) ?: null,
+           mb_substr(trim((string) ($_POST['degree'] ?? '')), 0, 190) ?: null,
+           $years === '' ? null : (int) $years, $startsOn ?: null, (int) $vacancy['id']]);
+        log_activity('edited requisition', 'vacancy', (int) $vacancy['id'], $title);
+        flash(t(':title is updated.', ['title' => $title]));
+        redirect($back);
+    }
+
     // P5-M103: a recruiter takes a requested requisition in hand and publishes it; whoever requested it is told.
     if ($do === 'publish') {
         $vacancy = row("SELECT * FROM vacancies WHERE id = ? AND job_id = ? AND posting_status = 'requested'", [(int) ($_POST['vacancy_id'] ?? 0), $jobId]);

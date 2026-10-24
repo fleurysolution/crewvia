@@ -33,7 +33,9 @@
             <?php if (! empty($requisition['requested_name'])): ?><?= te('Requested by :name, :when', ['name' => $requisition['requested_name'], 'when' => d(substr((string) $requisition['requested_at'], 0, 10)) . ' ' . substr((string) $requisition['requested_at'], 11, 5)]) ?><?php endif; ?>
             <?php if ((int) $requisition['mailed'] > 0): ?> &middot; <span data-mailed="<?= (int) $requisition['mailed_sent'] ?>/<?= (int) $requisition['mailed'] ?>"><?= (int) $requisition['mailed_sent'] === (int) $requisition['mailed'] && $requisition['mailed_at']
                 ? tn((int) $requisition['mailed'], 'emailed to :n recruiter, sent :when', 'emailed to :n recruiters, sent :when', ['when' => substr((string) $requisition['mailed_at'], 11, 5)])
-                : te('emailed to :sent of :n recruiters, the rest waiting to send', ['sent' => (int) $requisition['mailed_sent'], 'n' => (int) $requisition['mailed']]) ?></span><?php endif; ?>
+                : ((int) $requisition['mailed_sent'] === 0
+                    ? tn((int) $requisition['mailed'], 'email to :n recruiter waiting to send', 'emails to :n recruiters waiting to send')
+                    : te('emailed to :sent of :n recruiters, the rest waiting to send', ['sent' => (int) $requisition['mailed_sent'], 'n' => (int) $requisition['mailed']])) ?></span><?php endif; ?>
             <?php if (! empty($requisition['published_name']) && ! empty($requisition['requested_name'])): ?> &middot; <?= te('published by :name, :when', ['name' => $requisition['published_name'], 'when' => d(substr((string) $requisition['published_at'], 0, 10)) . ' ' . substr((string) $requisition['published_at'], 11, 5)]) ?><?php endif; ?>
           </div>
           <?php endif; ?></td>
@@ -52,6 +54,28 @@
           <?php endif; ?>
           <?php // P5-M102: closing a requisition is one click on its row, not inside "QR code & more". It leaves the careers page and the website feed at once. ?>
           <?php if (can('admin')): ?><form method="post" class="inline-block" data-close-req="<?= (int) $requisition['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $requisition['is_open'] ? 'close' : 'reopen' ?>"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>"><button class="btn ghost sm" type="submit"><?= $requisition['is_open'] ? te('Close') : te('Reopen it') ?></button></form><?php endif; ?>
+          <?php // P5-M105: the recruiter completes the requisition - the detail candidates read. A dialog sits above the page, ?>
+          <?php // whatever the table's scrolling, and opens by itself when the recruiter arrives from the email. ?>
+          <button type="button" class="btn ghost sm" data-edit-open="<?= (int) $requisition['id'] ?>" onclick="document.getElementById('req-edit-<?= (int) $requisition['id'] ?>').showModal()"><?= te('Edit') ?></button>
+          <dialog class="req-edit" id="req-edit-<?= (int) $requisition['id'] ?>" data-edit-req="<?= (int) $requisition['id'] ?>"<?= $requestedReq && (int) ($_GET['req'] ?? 0) === (int) $requisition['id'] ? ' data-open-now' : '' ?> aria-label="<?= te('Edit the requisition') ?>">
+            <h2 class="m0 mb-s"><?= te('Edit the requisition') ?></h2>
+              <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="edit"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
+                <label for="re-t-<?= (int) $requisition['id'] ?>"><?= te('Role / trade') ?></label><input id="re-t-<?= (int) $requisition['id'] ?>" name="title" required maxlength="190" value="<?= e($requisition['title']) ?>">
+                <div class="row mt-s">
+                  <div><label for="re-d-<?= (int) $requisition['id'] ?>"><?= te('Discipline') ?></label><select id="re-d-<?= (int) $requisition['id'] ?>" name="discipline"><?php foreach (disciplines() as $k => $v): ?><option value="<?= e($k) ?>"<?= ($requisition['discipline'] ?? '') === $k ? ' selected' : '' ?>><?= te($v) ?></option><?php endforeach; ?></select></div>
+                  <div><label for="re-o-<?= (int) $requisition['id'] ?>"><?= te('How many needed') ?></label><input id="re-o-<?= (int) $requisition['id'] ?>" name="openings" type="number" min="1" max="9999" required value="<?= (int) $requisition['openings'] ?>"></div>
+                  <div><label for="re-s-<?= (int) $requisition['id'] ?>"><?= te('Starts') ?></label><input id="re-s-<?= (int) $requisition['id'] ?>" type="date" name="starts_on" value="<?= e((string) ($requisition['starts_on'] ?? '')) ?>"></div>
+                </div>
+                <div class="row mt-s">
+                  <div class="f2"><label for="re-sh-<?= (int) $requisition['id'] ?>"><?= te('Shift') ?></label><input id="re-sh-<?= (int) $requisition['id'] ?>" name="shift" maxlength="60" value="<?= e((string) ($requisition['shift'] ?? '')) ?>"></div>
+                  <div><label for="re-y-<?= (int) $requisition['id'] ?>"><?= te('Years of experience') ?></label><input id="re-y-<?= (int) $requisition['id'] ?>" name="years_experience" type="number" min="0" max="60" value="<?= e((string) ($requisition['years_experience'] ?? '')) ?>"></div>
+                </div>
+                <label class="mt-s" for="re-dg-<?= (int) $requisition['id'] ?>"><?= te('Degree required') ?></label><input id="re-dg-<?= (int) $requisition['id'] ?>" name="degree" maxlength="190" value="<?= e((string) ($requisition['degree'] ?? '')) ?>">
+                <label class="mt-s" for="re-de-<?= (int) $requisition['id'] ?>"><?= te('Description') ?></label><textarea id="re-de-<?= (int) $requisition['id'] ?>" name="description" rows="6" maxlength="10000" required><?= e((string) $requisition['description']) ?></textarea>
+                <label class="mt-s" for="re-r-<?= (int) $requisition['id'] ?>"><?= te('Must-haves') ?></label><textarea id="re-r-<?= (int) $requisition['id'] ?>" name="requirements" rows="3" maxlength="4000"><?= e((string) ($requisition['requirements'] ?? '')) ?></textarea>
+                <div class="actions mt-s"><button class="btn sm" data-edit-save><?= te('Save') ?></button> <button type="button" class="btn ghost sm" onclick="this.closest('dialog').close()"><?= te('Cancel') ?></button></div>
+              </form>
+          </dialog>
           <details class="req-more inline-block"><summary class="btn ghost sm"><?= te('QR code & more') ?></summary>
             <div class="req-pop">
               <div class="application-qr qr-box" data-vacancy="<?= (int) $requisition['id'] ?>"></div>
@@ -268,4 +292,5 @@
 <script src="/assets/qrcode.min.js"></script>
 <?php // P5-M46: the site's configured address, not the one the office browses from, so a QR code always opens the real page. ?>
 <script>document.querySelectorAll('.application-qr').forEach(el=>new QRCode(el,{text:<?= json_encode(rtrim((string) ($config['app_url'] ?? ''), '/'), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) ?>+'/apply?id='+el.dataset.vacancy,width:192,height:192,correctLevel:QRCode.CorrectLevel.M}));</script>
-<script src="/assets/fold.js"></script>
+<script src="/assets/fold.js?v=105"></script>
+<script>document.querySelectorAll('dialog.req-edit[data-open-now]').forEach(function (d) { d.showModal(); });</script>

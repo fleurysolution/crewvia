@@ -106,9 +106,19 @@ check('After delivery, the owner sees on the row that the emails were sent, and 
 rec = Client(); rec.login('wk-rec@test.invalid')
 status, body = rec.get('/requisitions?req=%d' % vid)
 check('The recruiter\'s link opens the requisition\'s project, the row stands out, with Publish', status == 200 and 'id="req-%d" class="row-focus"' % vid in body and 'data-publish-req="%d"' % vid in body)
+check('The requisition opens with its Edit dialog shown for the recruiter', 'data-edit-req="%d" data-open-now' % vid in body and 'data-edit-open="%d"' % vid in body)
+rec.post('/requisitions', {'do': 'edit', 'vacancy_id': vid, 'title': 'Loop Test 1', 'discipline': 'mechanical', 'openings': '3', 'starts_on': '2026-11-16',
+                           'shift': 'Days, 12 hours', 'years_experience': '4', 'degree': '', 'description': 'Maintain pumps and compressors on a live plant.',
+                           'requirements': 'OSHA 10'}, '/requisitions?req=%d' % vid)
+edited = one("SELECT description, shift, openings, years_experience, requirements, starts_on FROM vacancies WHERE id = %d" % vid)
+check('The recruiter completes the requisition: description, shift, how many, experience, must-haves, start', edited['description'] == 'Maintain pumps and compressors on a live plant.'
+      and edited['shift'] == 'Days, 12 hours' and int(edited['openings']) == 3 and int(edited['years_experience']) == 4 and edited['requirements'] == 'OSHA 10' and edited['starts_on'] == '2026-11-16', edited)
+status, body = rec.post('/requisitions', {'do': 'edit', 'vacancy_id': vid, 'title': '', 'description': '', 'openings': '3'}, '/requisitions?req=%d' % vid)
+check('An edit without a role or description is refused, nothing changed', one("SELECT title FROM vacancies WHERE id = %d" % vid)['title'] == 'Loop Test 1')
 status, body = rec.post('/requisitions', {'do': 'publish', 'vacancy_id': vid}, '/requisitions?req=%d' % vid)
 vac = one("SELECT posting_status, published_by FROM vacancies WHERE id = %d" % vid)
 check('The recruiter publishes it: it is published, by the recruiter', vac['posting_status'] == 'published' and vac['published_by'])
+check('Published, the careers page shows the completed description', 'Maintain pumps and compressors on a live plant.' in public.get('/careers')[1])
 check('Published, it is on the careers page and in the feed', 'Loop Test 1' in public.get('/careers')[1] and vid in [j['id'] for j in json.loads(public.get('/careers-feed')[1])['jobs']])
 check('The owner is emailed that it is published', one("SELECT m.id FROM mail_outbox m WHERE m.purpose = 'published:%d' AND m.recipient = 'wk-admin@test.invalid'" % vid))
 status, body = jerry.get('/requisitions')

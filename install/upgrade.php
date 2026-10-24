@@ -3181,4 +3181,22 @@ if (! val("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = D
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo 'Applicants: an email when their application is received, under review, retained or not retained; the agency edits the texts.' . PHP_EOL;
 }
+// P5-M105b: during a rehearsal (test mode, office emails and notices to the test inbox), a notice for anybody whose
+// address is not the test inbox is HELD: written, never shown, never pushed - whichever part of Crewvia writes it.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'notifications' AND column_name = 'held'")) {
+    q('ALTER TABLE notifications ADD COLUMN held TINYINT(1) NOT NULL DEFAULT 0');
+    echo 'Rehearsal: notices for real people are held back while a rehearsal is on.' . PHP_EOL;
+}
+try {
+    db()->exec("CREATE TRIGGER IF NOT EXISTS notifications_rehearsal BEFORE INSERT ON notifications FOR EACH ROW
+        SET NEW.held = IF(
+            (SELECT setting_value FROM platform_settings WHERE setting_key = 'candidate_mail_test') = '1'
+            AND (SELECT setting_value FROM platform_settings WHERE setting_key = 'office_mail_test') = '1'
+            AND (SELECT setting_value FROM platform_settings WHERE setting_key = 'office_notice_test') = '1'
+            AND NOT COALESCE((SELECT LOWER(email) FROM users WHERE id = NEW.user_id), '') LIKE
+                REPLACE(LOWER(COALESCE((SELECT setting_value FROM platform_settings WHERE setting_key = 'candidate_mail_test_to'), 'solutionsfleury+{first}@gmail.com')), '{first}', '%'),
+            1, 0)");
+} catch (Throwable $e) {
+    echo 'WARNING: the rehearsal guard on notices could not be created (' . $e->getMessage() . '). Grant TRIGGER and run the upgrade again.' . PHP_EOL;
+}
 echo "Upgrade complete. Existing records preserved.\n";

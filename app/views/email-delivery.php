@@ -12,6 +12,10 @@
     <div class="f2"><label for="md-reply"><?= te('Replies go to') ?></label><input id="md-reply" type="email" name="reply_to" maxlength="190" value="<?= e($routing['reply_to']) ?>"><span class="hint"><?= te('The recruiting lead who answers candidates. A campaign answers to the recruiter who sent it.') ?></span></div>
   </div>
   <label class="own-room mt"><input type="checkbox" name="test_mode" value="1"<?= $routing['test'] ? ' checked' : '' ?>> <?= te('Test mode: send candidates\' emails to the test inbox') ?></label>
+  <?php // P5-M105b: a rehearsal on the live workspace emails no real colleague. ?>
+  <label class="own-room"><input type="checkbox" name="office_mail_test" value="1"<?= $routing['office'] ? ' checked' : '' ?>> <?= te('Rehearsal: the office\'s emails to the test inbox as well') ?></label>
+  <label class="own-room"><input type="checkbox" name="office_notice_test" value="1"<?= $routing['notices'] ? ' checked' : '' ?>> <?= te('Rehearsal: the in-app notices only to the test accounts as well') ?></label>
+  <?php if ($routing['office']): ?><p class="m0 mt-xs"><span class="tag amber" id="office-mode"><?= te('Rehearsal') ?></span> <?= te('Every email - candidates and office staff - goes to the test inbox. Switch it off after the run-through, or your colleagues receive nothing.') ?></p><?php endif; ?>
   <div class="actions mt"><button class="btn"><?= te('Save') ?></button></div>
 </form>
 
@@ -41,3 +45,15 @@
   </tr><?php endforeach; ?></tbody></table>
   <?php endif; ?>
 </section>
+
+<?php if ($held['window']): ?>
+<section class="card" id="rehearsal-held">
+  <h2 class="m0"><?= $held['window'][2] ? te('Kept from real people during this rehearsal') : te('Kept from real people during the last rehearsal') ?></h2>
+  <p class="small muted"><?= te('From :from to :to. Notices held back are never shown or pushed; emails went to the test inbox instead of their recipient.', ['from' => substr($held['window'][0], 0, 16), 'to' => substr($held['window'][1], 0, 16)]) ?></p>
+  <p class="m0" data-held-notices="<?= count($held['notices']) ?>" data-held-emails="<?= count($held['emails']) ?>"><strong><?= tn(count($held['notices']), ':n notice held back', ':n notices held back') ?></strong> &middot; <strong><?= tn(count($held['emails']), ':n email sent to the test inbox instead', ':n emails sent to the test inbox instead') ?></strong></p>
+  <?php if ($held['notices'] || $held['emails']): ?><div class="scroll"><table class="mt-s"><thead><tr><th><?= te('When') ?></th><th><?= te('For') ?></th><th><?= te('What') ?></th></tr></thead><tbody>
+  <?php foreach ($held['notices'] as $n): ?><tr><td class="small"><?= e(substr((string) $n['created_at'], 0, 16)) ?></td><td class="small"><?= e($n['name']) ?></td><td class="small"><span class="tag grey"><?= te('Notice') ?></span> <?= e($n['message']) ?></td></tr><?php endforeach; ?>
+  <?php foreach ($held['emails'] as $m): ?><tr><td class="small"><?= e(substr((string) $m['created_at'], 0, 16)) ?></td><td class="small"><?= e($m['recipient']) ?></td><td class="small"><span class="tag grey"><?= te('Email') ?></span> <?= e($m['purpose']) ?></td></tr><?php endforeach; ?>
+  </tbody></table></div><?php endif; ?>
+</section>
+<?php endif; ?>

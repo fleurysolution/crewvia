@@ -289,7 +289,7 @@ function push_dispatch(): array
         return $out;
     }
     $cursor = (int) val("SELECT setting_value FROM platform_settings WHERE setting_key = 'push_cursor'");
-    $new = rows('SELECT id, user_id, target FROM notifications WHERE id > ? ORDER BY id LIMIT 5000', [$cursor]);
+    $new = rows('SELECT id, user_id, target FROM notifications WHERE id > ? AND held = 0 ORDER BY id LIMIT 5000', [$cursor]);
     if (! $new) {
         return $out;
     }

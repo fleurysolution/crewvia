@@ -424,3 +424,8 @@ main [id] { scroll-margin-top: 72px; }
 
 /* P5-M103: the requisition an email links to stands out on the list. */
 tr.row-focus > td { background: #FFF8E6; }
+
+/* P5-M105: editing a requisition - a dialog above the page, wide enough for its form, scrolling inside if the screen is short. */
+dialog.req-edit { width: min(640px, calc(100vw - 16px)); max-height: calc(100vh - 48px); overflow: auto; border: 1px solid var(--line, #e9ecef); border-radius: 12px; padding: 18px; text-align: left; white-space: normal; }
+dialog.req-edit::backdrop { background: rgba(13,33,55,.35); }
+dialog.req-edit textarea, dialog.req-edit input:not([type=checkbox]), dialog.req-edit select { width: 100%; }

@@ -30,7 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             refuse(422, t('The reply address is not a valid email address.'), '/email-delivery');
         }
         $test = isset($_POST['test_mode']) ? '1' : '0';
-        foreach (['candidate_mail_test' => $test, 'candidate_mail_test_to' => $pattern, 'candidate_mail_reply_to' => $reply] as $k => $v) {
+        // P5-M105b: a rehearsal - the office's emails to the test inbox as well (only meaningful with test mode on).
+        $office = $test === '1' && isset($_POST['office_mail_test']) ? '1' : '0';
+        $notices = $office === '1' && isset($_POST['office_notice_test']) ? '1' : '0';
+        // When the rehearsal began, so a rehearsal left on is called out.
+        $wasOn = mail_office_test_since();
+        $since = $office === '1' ? ($wasOn ?: date('Y-m-d H:i:s')) : '';
+        // P5-M105b: the rehearsal's window is kept when it ends, so what it held back can be read.
+        if ($wasOn !== '' && $office === '0') {
+            q("INSERT INTO platform_settings (setting_key, setting_value) VALUES ('office_mail_test_last', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)", [$wasOn . '|' . date('Y-m-d H:i:s')]);
+        }
+        foreach (['candidate_mail_test' => $test, 'candidate_mail_test_to' => $pattern, 'candidate_mail_reply_to' => $reply, 'office_mail_test' => $office,
+                  'office_notice_test' => $notices, 'office_mail_test_since' => $since] as $k => $v) {
             q('INSERT INTO platform_settings (setting_key, setting_value) VALUES (?,?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)', [$k, $v]);
         }
         log_activity($test === '1' ? 'kept candidate emails in test mode' : 'sent candidate emails to the candidates themselves', 'settings', 0, $pattern . ' · reply to ' . ($reply ?: 'nobody'));
@@ -45,7 +56,7 @@ foreach ($messages as &$message) {
     $message['route'] = mail_route((string) $message['recipient']);
 }
 unset($message);
-$routing = ['test' => mail_test_mode(), 'test_to' => mail_test_pattern(), 'reply_to' => mail_setting('candidate_mail_reply_to', '')];
+$routing = ['test' => mail_test_mode(), 'test_to' => mail_test_pattern(), 'reply_to' => mail_setting('candidate_mail_reply_to', ''), 'office' => mail_office_test(), 'notices' => mail_notice_test()];
 // P5-M103: the emails to office staff - a requisition sent to recruiting or published, an applicant to review, a decision -
 // with when each left: the proof it went, not the promise it will.
 $staffMail = rows("SELECT m.id, m.recipient, m.purpose, m.status, m.attempts, m.created_at, m.sent_at, v.title AS requisition
@@ -54,7 +65,25 @@ $staffMail = rows("SELECT m.id, m.recipient, m.purpose, m.status, m.attempts, m.
 // P5-M103b: a queue that stops looks like an empty one. The oldest email still waiting, and for how long, says which.
 $waiting = row("SELECT COUNT(*) AS n, MIN(created_at) AS oldest, TIMESTAMPDIFF(MINUTE, MIN(created_at), NOW()) AS minutes
                 FROM mail_outbox WHERE status IN ('pending','sending') AND attempts < 5") ?: ['n' => 0, 'oldest' => null, 'minutes' => null];
+// P5-M105b: what the last rehearsal (or the one going on) kept from real people - notices held back, and the emails
+// that went to the test inbox instead of their recipient.
+$window = mail_office_test_since() !== '' ? [mail_office_test_since(), date('Y-m-d H:i:s'), true] : null;
+if (! $window && ($last = mail_setting('office_mail_test_last', '')) !== '' && str_contains($last, '|')) {
+    [$from, $to] = explode('|', $last, 2);
+    $window = [$from, $to, false];
+}
+$held = ['notices' => [], 'emails' => [], 'window' => $window];
+if ($window) {
+    $held['notices'] = rows("SELECT n.created_at, n.message, u.name, u.email FROM notifications n JOIN users u ON u.id = n.user_id
+                             WHERE n.held = 1 AND n.created_at BETWEEN ? AND ? ORDER BY n.id DESC LIMIT 200", [$window[0], $window[1]]);
+    foreach (rows("SELECT created_at, recipient, purpose FROM mail_outbox WHERE created_at BETWEEN ? AND ? ORDER BY id DESC LIMIT 500", [$window[0], $window[1]]) as $m) {
+        if (! mail_is_test_inbox((string) $m['recipient'])) {
+            $held['emails'][] = $m;
+        }
+    }
+}
+
 // P5-M104b: the refusals not yet in the queue - waiting their 24 hours, or held as a burst.
 require_once __DIR__ . '/../candidate-emails.php';
 $refusals = ['scheduled' => (int) val("SELECT COUNT(*) FROM candidate_email_log WHERE template_key = 'not_retained' AND status = 'scheduled'"), 'held' => ce_held_count()];
-render('email-delivery', compact('messages', 'routing', 'staffMail', 'waiting', 'refusals'));
+render('email-delivery', compact('messages', 'routing', 'staffMail', 'waiting', 'refusals', 'held'));

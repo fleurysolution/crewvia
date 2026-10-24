@@ -25,7 +25,7 @@ $filled = $job
     : 0;
 
 $recent = rows('SELECT message, target, created_at, read_at
-                FROM notifications WHERE user_id = ?
+                FROM notifications WHERE user_id = ? AND held = 0
                 ORDER BY id DESC LIMIT 12', [uid()]);
 
 // The workforce at a glance, for staff on the working project.

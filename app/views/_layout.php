@@ -613,7 +613,7 @@ input,select,textarea{border-color:#8a96a6}
   .js .top.nav-open .nav .nav-daily,.js .top.nav-open .nav .nav-more{width:100%;flex-direction:column}
 }
 </style>
-<link rel="stylesheet" href="/assets/crewvia-ui.css?v=18">
+<link rel="stylesheet" href="/assets/crewvia-ui.css?v=20">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -712,7 +712,7 @@ input,select,textarea{border-color:#8a96a6}
   <?php
   // One place for who is signed in: the notifications bell and the account
   // menu (account, language, sign out), as on any professional workspace.
-  $hdrUnread = $u ? (int) val('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL', [uid()]) : 0;
+  $hdrUnread = $u ? (int) val('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL AND held = 0', [uid()]) : 0;
   $hdrInitials = strtoupper(implode('', array_map(static fn($w) => mb_substr($w, 0, 1), array_slice(preg_split('/\s+/', trim((string) ($u['name'] ?? ''))) ?: [], 0, 2))));
   ?>
   <div class="top-actions">
@@ -751,7 +751,7 @@ input,select,textarea{border-color:#8a96a6}
 <?php
 $working = $u ? current_job() : null;
 $unread  = $u ? (int) val('SELECT COUNT(*) FROM notifications
-                           WHERE user_id = ? AND read_at IS NULL', [uid()]) : 0;
+                           WHERE user_id = ? AND read_at IS NULL AND held = 0', [uid()]) : 0;
 $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
 ?>
 <?php $onProject = $atADesk && workspace_project_page($here); ?>
@@ -791,6 +791,10 @@ $atADesk = $u && ! in_array($u['role'] ?? '', ['worker', 'client'], true);
   <?php if ($f): ?>
     <div class="flash <?= $f['kind'] === 'err' ? 'err' : 'ok' ?>" role="<?= $f['kind'] === 'err' ? 'alert' : 'status' ?>"><?= e($f['msg']) ?></div>
   <?php endif; ?>
+  <?php // P5-M105b: a rehearsal left on silently stops the office's emails - it is said on every page, red after a day. ?>
+  <?php if ($u && can('admin')): require_once __DIR__ . '/../mail-routing.php'; $rehearsal = mail_office_test_since(); if ($rehearsal !== ''): $long = strtotime($rehearsal) < time() - 86400; ?>
+    <div class="flash <?= $long ? 'err' : 'ok' ?>" id="rehearsal-on" role="status"><?= $long ? te('A rehearsal has been on since :when: the office receives none of its emails.', ['when' => substr($rehearsal, 0, 16)]) : te('Rehearsal on: every email goes to the test inbox.') ?> <a href="/email-delivery#candidate-mail"><?= te('Switch it off') ?></a></div>
+  <?php endif; endif; ?>
   <?php
   // Every page says which part of Crewvia it belongs to, above its title,
   // unless the page names its own context there already.

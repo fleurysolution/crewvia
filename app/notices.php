@@ -26,6 +26,7 @@ function notify_user(int $userId, string $message, string $target): void
     if ($userId <= 0 || notices_cross_demo($userId)) {
         return;
     }
+    // P5-M105b: during a rehearsal the database holds back a notice for a real person (notifications.held).
     q('INSERT INTO notifications (user_id, message, target) VALUES (?, ?, ?)', [$userId, mb_substr($message, 0, 250), mb_substr($target, 0, 190)]);
 }
 

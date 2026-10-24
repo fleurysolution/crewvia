@@ -217,7 +217,7 @@ function activity_items(): array
     }
 
     // Notifications are messages, not work, so they come last.
-    $add($count('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL', [uid()]),
+    $add($count('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL AND held = 0', [uid()]),
          'Unread notification', '/notifications', 'grey',
              'Notifications sent to you and not yet opened');
 

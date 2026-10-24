@@ -5800,3 +5800,26 @@ Sent, each leaves 24 hours after its rejection. For a clean-up of old applicatio
 :n refusals to applicants are held: nothing leaves until you decide.	:n refus à des candidats sont retenus : rien ne part tant que vous n’avez pas décidé.	:n rechazos a candidatos están retenidos: no sale nada hasta que decida.
 :n refusal to an applicant leaves within 24 hours.	:n refus à un candidat part dans les 24 heures.	:n rechazo a un candidato sale en las próximas 24 horas.
 :n refusals to applicants leave within 24 hours.	:n refus à des candidats partent dans les 24 heures.	:n rechazos a candidatos salen en las próximas 24 horas.
+email to :n recruiter waiting to send	e-mail à :n recruteur en attente d’envoi	correo a :n reclutador pendiente de envío
+emails to :n recruiters waiting to send	e-mails à :n recruteurs en attente d’envoi	correos a :n reclutadores pendientes de envío
+Edit the requisition	Modifier la réquisition	Editar la requisición
+Enter the role and its description.	Indiquez le poste et sa description.	Indique el puesto y su descripción.
+Years of experience: a number from 0 to 60.	Années d’expérience : un nombre de 0 à 60.	Años de experiencia: un número de 0 a 60.
+Choose a valid start date.	Choisissez une date de début valide.	Elija una fecha de inicio válida.
+The agreement covers :asked :role; only :left can be on this requisition.	L’accord couvre :asked :role ; seulement :left peuvent figurer sur cette réquisition.	El acuerdo cubre :asked :role; solo :left pueden estar en esta requisición.
+:title is updated.	:title est mise à jour.	:title está actualizada.
+Rehearsal: the office's emails to the test inbox as well	Répétition : les e-mails du bureau aussi vers la boîte de test	Ensayo: los correos de la oficina también a la bandeja de prueba
+Rehearsal	Répétition	Ensayo
+Every email - candidates and office staff - goes to the test inbox. Switch it off after the run-through, or your colleagues receive nothing.	Tous les e-mails, candidats et bureau, partent vers la boîte de test. Désactivez-la après la répétition, sinon vos collègues ne reçoivent rien.	Todos los correos, candidatos y oficina, van a la bandeja de prueba. Desactívelo después del ensayo o sus colegas no recibirán nada.
+Rehearsal: the in-app notices only to the test accounts as well	Répétition : les notifications de l’application aussi, seulement vers les comptes de test	Ensayo: las notificaciones de la aplicación también, solo a las cuentas de prueba
+A rehearsal has been on since :when: the office receives none of its emails.	Une répétition est active depuis :when : le bureau ne reçoit aucun de ses e-mails.	Un ensayo está activo desde :when: la oficina no recibe ninguno de sus correos.
+Rehearsal on: every email goes to the test inbox.	Répétition active : tous les e-mails partent vers la boîte de test.	Ensayo activo: todos los correos van a la bandeja de prueba.
+Switch it off	Le désactiver	Desactivarlo
+Kept from real people during this rehearsal	Retenu pour les vraies personnes pendant cette répétition	Retenido para las personas reales durante este ensayo
+Kept from real people during the last rehearsal	Retenu pour les vraies personnes pendant la dernière répétition	Retenido para las personas reales durante el último ensayo
+From :from to :to. Notices held back are never shown or pushed; emails went to the test inbox instead of their recipient.	Du :from au :to. Les notifications retenues ne sont jamais affichées ni envoyées sur téléphone ; les e-mails sont partis vers la boîte de test au lieu de leur destinataire.	Del :from al :to. Las notificaciones retenidas nunca se muestran ni se envían al teléfono; los correos fueron a la bandeja de prueba en lugar de a su destinatario.
+:n notice held back	:n notification retenue	:n notificación retenida
+:n notices held back	:n notifications retenues	:n notificaciones retenidas
+:n email sent to the test inbox instead	:n e-mail envoyé à la boîte de test à la place	:n correo enviado a la bandeja de prueba en su lugar
+:n emails sent to the test inbox instead	:n e-mails envoyés à la boîte de test à la place	:n correos enviados a la bandeja de prueba en su lugar
+Notice	Notification	Notificación

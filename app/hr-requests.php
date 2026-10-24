@@ -222,6 +222,6 @@ function self_service_home(int $cid): array
         'to_ack'     => $safe(fn() => $count("SELECT COUNT(*) FROM disciplinary_cases WHERE candidate_id = ? AND status = 'decided' AND acknowledged_at IS NULL", [$cid]), 0),
         'answered'   => $count("SELECT COUNT(*) FROM hr_requests WHERE candidate_id = ? AND status = 'answered'", [$cid]),
         'requests'   => rows("SELECT * FROM hr_requests WHERE candidate_id = ? ORDER BY FIELD(status,'answered','open','closed','withdrawn'), id DESC LIMIT 20", [$cid]),
-        'unread'     => $count('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL', [$uidW]),
+        'unread'     => $count('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL AND held = 0', [$uidW]),
     ];
 }
