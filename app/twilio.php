@@ -75,6 +75,9 @@ function tw_credentials(): ?array
 
 function tw_configured(): bool
 {
+    if (outbound_disabled()) {
+        return false;   // P5-M107: this installation sends nothing
+    }
     return tw_credentials() !== null;
 }
 
@@ -218,7 +221,7 @@ function tw_send_text(int $candidateId, int $templateId, string $body, int $by):
 function tw_call(int $candidateId, int $by): array
 {
     $mode = tw_mode();
-    $cred = tw_credentials();
+    $cred = outbound_disabled() ? null : tw_credentials();
     if ($mode === 'disabled' || ! $cred) { return [t('Calling through Crewvia is not set up.'), '']; }
     if (empty($cred['from_number'])) { return [t('Calls need the Twilio number, not only a messaging service.'), '']; }
     $c = row('SELECT id, phone FROM candidates WHERE id = ?', [$candidateId]);

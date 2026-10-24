@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 if(PHP_SAPI!=='cli')exit('CLI only');
-require __DIR__.'/../app/bootstrap.php';require_once __DIR__.'/../app/gmail.php';
+require __DIR__.'/../app/bootstrap.php';
+if (outbound_disabled()) { exit(0); }   // P5-M107: this installation sends nothingrequire_once __DIR__.'/../app/gmail.php';
 if(empty($config['email_delivery_enabled'])||!filter_var($config['email_from']??'',FILTER_VALIDATE_EMAIL))exit("Configure the approved email relay first.\n");
 for($i=0;$i<50;$i++) {
     db()->beginTransaction();

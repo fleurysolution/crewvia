@@ -238,6 +238,9 @@ function push_vapid(string $endpoint): string
 /** One empty push. Returns the push service's status, or 0 when it could not be reached. */
 function push_send(array $sub): array
 {
+    if (outbound_disabled()) {
+        return [0, 'outbound disabled on this installation'];
+    }
     $ctx = stream_context_create(['http' => ['method' => 'POST', 'timeout' => 10, 'ignore_errors' => true, 'follow_location' => 0,
         'header' => "TTL: 86400\r\nUrgency: normal\r\nContent-Length: 0\r\nAuthorization: " . push_vapid((string) $sub['endpoint']) . "\r\n", 'content' => '']]);
     $http_response_header = [];

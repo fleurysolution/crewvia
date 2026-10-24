@@ -287,6 +287,19 @@ function ops_health(bool $deep = true): array
     $since = mail_office_test_since();
     $checks['rehearsal'] = $since === '' ? ['ok', 'off']
         : [strtotime($since) < time() - 86400 ? 'fail' : 'warn', 'on since ' . $since . ': office emails and notices go to the test inbox'];
+    // P5-M107: a staging copy of this workspace (for the demonstration films) is watched from here: it must be gone by
+    // its deletion date. Server config: 'staging_watch' => ['path' => '/home/veloraweb/public_html/crewvia-staging', 'delete_by' => 'YYYY-MM-DD'].
+    if (! empty($config['staging_watch']['path'])) {
+        $path = (string) $config['staging_watch']['path'];
+        $by = (string) ($config['staging_watch']['delete_by'] ?? '');
+        if (! is_dir($path)) {
+            $checks['staging_copy'] = ['ok', 'no staging copy at ' . $path];
+        } elseif ($by === '' || strtotime($by . ' 23:59:59') < time()) {
+            $checks['staging_copy'] = ['fail', 'the staging copy at ' . $path . ' is past its deletion date (' . ($by ?: 'none set') . '): it holds a copy of personal data - delete it'];
+        } else {
+            $checks['staging_copy'] = ['warn', 'a staging copy exists at ' . $path . ': delete it by ' . $by];
+        }
+    }
     // P5-M103b: a queue that stops looks like an empty one.
     $oldest = val("SELECT TIMESTAMPDIFF(MINUTE, MIN(created_at), NOW()) FROM mail_outbox WHERE status IN ('pending','sending') AND attempts < 5");
     $checks['mail_queue'] = $oldest === null ? ['ok', 'nothing waiting']

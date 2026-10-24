@@ -180,4 +180,10 @@ check('Rehearsal off: office staff get their own emails again', not route['redir
 status, body = owner.get('/email-delivery')
 check('Switched off, Email delivery shows what the rehearsal kept from real people', 'id="rehearsal-held"' in body and re.search(r'data-held-notices="[1-9]', body) and 'Rehearsal notice' in body)
 php_run("q(\"UPDATE notifications SET held = 0 WHERE held = 1\");")
+# P5-M107: a staging copy past its deletion date fails System health; before it, a warning; gone, ok.
+watch = json.loads(php_run('require_once "work/test-app/app/operations.php"; $d = sys_get_temp_dir() . "/crewvia-staging-watch-test"; @mkdir($d); $out = []; foreach (["2000-01-01", "2999-01-01"] as $by) { $GLOBALS["config"]["staging_watch"] = ["path" => $d, "delete_by" => $by]; $out[] = ops_health(true)["staging_copy"][0]; } rmdir($d); $out[] = ops_health(true)["staging_copy"][0]; echo json_encode($out);'))
+check('A staging copy past its deletion date fails System health, warns before, is ok once gone', watch == ['fail', 'warn', 'ok'], watch)
+# P5-M107: an installation with outbound_disabled sends nothing - no email, no text, no phone notification.
+out = json.loads(php_run('require_once "work/test-app/app/campaigns.php"; require_once "work/test-app/app/twilio.php"; require_once "work/test-app/app/push.php"; $GLOBALS["config"]["outbound_disabled"] = true; echo json_encode([cm_mail("x@test.invalid", "s", "b", []), tw_configured(), push_send(["endpoint" => "https://example.invalid/x", "id" => 0])[0]]);'))
+check('outbound_disabled: no email, no text, no phone notification can leave', out == [False, False, 0], out)
 print(f'candidate_emails_http: {len(results)} checks passed')

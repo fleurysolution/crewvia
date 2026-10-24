@@ -236,6 +236,9 @@ function cm_render(array $campaign, array $vacancy, array $person, string $token
  */
 function cm_mail(string $to, string $subject, string $body, array $headers): bool
 {
+    if (outbound_disabled()) {
+        return false;   // P5-M107: this installation sends nothing
+    }
     // P5-M47: in test mode a candidate's email goes to the test inbox; candidates' emails answer to the recruiting lead.
     require_once __DIR__ . '/mail-routing.php';
     $headers = mail_candidate_headers($headers, $to);

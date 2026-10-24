@@ -349,6 +349,18 @@ function refuse_origin(): string
  * P5-M48: the employer as candidates see it (Settings, "Agency name"): the
  * emails to candidates and the job posters. Falls back to the platform name.
  */
+/**
+ * P5-M107: an installation that must never send anything - the staging copy used for the demonstration films. Set
+ * 'outbound_disabled' => true in its config: no email, no text, no call, no phone notification leaves, whatever the
+ * screens or the settings in its database say.
+ */
+function outbound_disabled(): bool
+{
+    global $config;
+
+    return ! empty($config['outbound_disabled']);
+}
+
 function agency_name(): string
 {
     global $config;
