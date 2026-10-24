@@ -133,6 +133,11 @@ function db(): PDO
             PDO::ATTR_EMULATE_PREPARES   => false,
             PDO::ATTR_TIMEOUT => 5,
         ]);
+        // P5-M109: the database's clock follows the application's (Eastern), so NOW() in SQL and date() in PHP agree.
+        // On the server MySQL ran an hour apart: an email "queued 10:57, sent 11:57", an applicant "applied 1 hour ago"
+        // minutes after applying. An offset, not a zone name, so it needs no time-zone tables; it is set per connection,
+        // so it follows daylight saving.
+        $pdo->exec("SET time_zone = '" . (new DateTimeImmutable())->format('P') . "'");
     } catch (PDOException $e) {
         error_log('[rss-ops] database: ' . $e->getMessage());
         // The operator's log says the database was down, not how to reach it.

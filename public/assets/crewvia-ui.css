@@ -210,7 +210,8 @@ main { min-width: 0; }
 .overview-figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .overview-figures .n{font-size:24px;font-weight:700;line-height:1.1}
 .overview-figures .l{font-size:12px;color:var(--ui-muted,#5b6b7f);margin-top:2px}
-.overview-figures.money .n{font-size:20px;overflow-wrap:anywhere}
+/* P5-M109: a sum never breaks in the middle ("$2,100,3" / "45"): it shrinks to fit its column instead. */
+.overview-figures.money .n{font-size:clamp(14px,1.35vw,20px);white-space:nowrap}
 .overview-sub{margin-top:10px;font-size:13px}
 .attention-list{list-style:none;margin:0;padding:0}
 .attention-list li{padding:5px 0;border-bottom:1px solid var(--ui-line,#e3e8ef);font-size:13px}
@@ -429,3 +430,6 @@ tr.row-focus > td { background: #FFF8E6; }
 dialog.req-edit { width: min(640px, calc(100vw - 16px)); max-height: calc(100vh - 48px); overflow: auto; border: 1px solid var(--line, #e9ecef); border-radius: 12px; padding: 18px; text-align: left; white-space: normal; }
 dialog.req-edit::backdrop { background: rgba(13,33,55,.35); }
 dialog.req-edit textarea, dialog.req-edit input:not([type=checkbox]), dialog.req-edit select { width: 100%; }
+
+/* P5-M109: the careers page QR code, shown on a phone held out to someone. */
+.careers-qr-code { width: 200px; height: 200px; }

@@ -151,6 +151,42 @@ function demo_plan(): array
     return $remove;
 }
 
+/**
+ * P5-M109: the real records a flush would take with it - rows of the plan that belong to a person who is NOT a
+ * demonstration record (an application, a placement, a call, a document...). A flush is refused while there is one:
+ * real requisitions raised on a demonstration project (RSS's live jobs on "Plant 1") were found that way.
+ * Returns [table => rows], only the tables with some.
+ */
+function demo_real_at_risk(array $plan): array
+{
+    $schema = demo_schema();
+    $demoPeople = array_map('intval', array_column(rows("SELECT record_id FROM demo_records WHERE table_name = 'candidates'"), 'record_id'));
+    $out = [];
+    foreach ($plan as $table => $planRows) {
+        if (($schema[$table]['pk'] ?? []) !== ['id'] || ! $planRows) {
+            continue;
+        }
+        $ids = implode(',', array_map(static fn($r) => (int) $r['id'], $planRows));
+        $cols = $schema[$table]['columns'];
+        if ($table === 'candidates') {
+            $n = (int) val('SELECT COUNT(*) FROM candidates WHERE id IN (' . $ids . ')' . ($demoPeople ? ' AND id NOT IN (' . implode(',', $demoPeople) . ')' : ''));
+        } elseif (in_array('candidate_id', $cols, true)) {
+            $n = (int) val('SELECT COUNT(*) FROM `' . $table . '` WHERE id IN (' . $ids . ') AND candidate_id IS NOT NULL' . ($demoPeople ? ' AND candidate_id NOT IN (' . implode(',', $demoPeople) . ')' : ''));
+        } elseif (in_array('application_id', $cols, true)) {
+            $n = (int) val('SELECT COUNT(*) FROM `' . $table . '` t JOIN applications a ON a.id = t.application_id WHERE t.id IN (' . $ids . ')' . ($demoPeople ? ' AND a.candidate_id NOT IN (' . implode(',', $demoPeople) . ')' : ''));
+        } elseif (in_array('placement_id', $cols, true)) {
+            $n = (int) val('SELECT COUNT(*) FROM `' . $table . '` t JOIN placements p ON p.id = t.placement_id WHERE t.id IN (' . $ids . ')' . ($demoPeople ? ' AND p.candidate_id NOT IN (' . implode(',', $demoPeople) . ')' : ''));
+        } else {
+            continue;
+        }
+        if ($n) {
+            $out[$table] = $n;
+        }
+    }
+
+    return $out;
+}
+
 /** Removes what the plan found, in one transaction, then the registry. Returns rows removed per table. */
 function demo_flush(array $plan): array
 {

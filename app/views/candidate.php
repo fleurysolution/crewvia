@@ -139,7 +139,10 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <?php endforeach; ?>
   </ol>
 
-  <?php if ($nextStep): ?>
+  <?php // P5-M109: one next step on the page. While the "Send for review" card shows, that is the next step. ?>
+  <?php if (! $pendingReview && ! in_array($c['stage'], ['accepted', 'placed', 'rejected', 'declined'], true)): ?>
+    <p class="next-step"><strong><?= te('Next:') ?></strong> <?= te('Send for review') ?> &middot; <a href="#send-review"><?= te('go there') ?></a></p>
+  <?php elseif ($nextStep): ?>
     <p class="next-step">
       <strong><?= te('Next:') ?></strong> <?= te($nextStep['label']) ?>
       <?php if (str_starts_with((string) $nextStep['where'], '/')): ?>
@@ -168,7 +171,10 @@ $isBlocked   = in_array($standingNow, rehire_blocked(), true);
     <div><label><?= te('Who decides') ?></label><p class="small m0"><?= te('The hiring managers of the requisition: any of them reviews and approves.') ?></p></div>
     <div><label for="sr-fit"><?= te('Fit') ?></label><select id="sr-fit" name="rating" required><?php foreach ([5, 4, 3, 2, 1] as $r): ?><option value="<?= $r ?>"<?= $r === 4 ? ' selected' : '' ?>><?= $r ?>/5</option><?php endforeach; ?></select></div>
     <div><label for="sr-why"><?= te('Your recommendation') ?></label><input id="sr-why" name="recommendation" required maxlength="4000" placeholder="<?= te('Why this person, and anything to watch') ?>"></div>
-    <div><button class="btn"><?= te('Send for review') ?></button></div>
+    <?php // P5-M109: a checklist still open blocks the send - said here, before the recommendation is typed and lost. ?>
+    <?php $clLeft = 0; foreach ($checklists as $cl) { $clLeft += max(0, (int) $cl['total'] - (int) $cl['answered']); } ?>
+    <div><?php if ($clLeft > 0): ?><p class="small m0" data-checklist-first><?= tn($clLeft, 'Answer the checklist first: :n question left.', 'Answer the checklist first: :n questions left.') ?> <a href="#checklist"><?= te('Checklist') ?></a></p>
+      <button class="btn" disabled><?= te('Send for review') ?></button><?php else: ?><button class="btn"><?= te('Send for review') ?></button><?php endif; ?></div>
   </form>
 </details>
 <?php endif; ?>

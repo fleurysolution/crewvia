@@ -301,7 +301,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? t(':who sent a requisition to recruiting on :project: :n x :title:start. Complete it and publish it.', ['who' => (string) (user()['name'] ?? ''), 'project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title, 'start' => $start])
         : t('New requisition on :project: :n x :title:start. Find the candidates.', ['project' => (string) ($job['title'] ?? ''), 'n' => $openings, 'title' => $title, 'start' => $start]);
     $subject = $requested ? t('Requisition to publish: :title', ['title' => $title]) : t('New requisition: :title', ['title' => $title]);
-    $target = $requested ? '/requisitions?req=' . $vacancyId . '#req-' . $vacancyId : '/candidates?vacancy=' . $vacancyId;
+    // P5-M109: the recruiter's link opens the edit dialog (open=edit); the requester's own page does not.
+    $target = $requested ? '/requisitions?req=' . $vacancyId . '&open=edit#req-' . $vacancyId : '/candidates?vacancy=' . $vacancyId;
     $mailed = 0;
     foreach (rows("SELECT id FROM users WHERE is_active = 1 AND role IN ('recruiter','admin') AND id <> ?", [uid()]) as $r) {
         $mailed += notify_by_email((int) $r['id'], $subject, $notice, $target, 'requisition:' . $vacancyId) ? 1 : 0;

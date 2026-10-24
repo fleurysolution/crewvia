@@ -84,7 +84,8 @@ mails = int(one("SELECT COUNT(*) n FROM mail_outbox WHERE purpose = 'requisition
 rec_mail = one("SELECT m.id FROM mail_outbox m JOIN users u ON u.email = m.recipient WHERE m.purpose = 'requisition:%d' AND u.email = 'wk-rec@test.invalid'" % vid)
 check('Every recruiter is emailed (the owner who sent it is not)', mails >= 1 and rec_mail is not None
       and not one("SELECT id FROM mail_outbox WHERE purpose = 'requisition:%d' AND recipient = 'wk-admin@test.invalid'" % vid), mails)
-status, body = jerry.get('/requisitions')
+status, body = jerry.get('/requisitions?req=%d' % vid)
+check("The requester's own page does not open the edit dialog", 'data-edit-req="%d" data-open-now' % vid not in body)
 check('Before delivery, the row says the emails are waiting', 'data-requested' in body and re.search(r'data-mailed="0/%d"' % mails, body) and 'Requested by' in body)
 status, body = jerry.get('/email-delivery')
 check('Email delivery says emails are waiting, with Send now', re.search(r'id="mail-waiting" data-waiting="[1-9]', body) and 'data-send-now' in body)
@@ -99,12 +100,12 @@ for _ in range(200):
 check('Send now empties the queue at once', 'data-waiting="0"' in body and 'Nothing waiting' in body)
 sent = [json.loads(l) for l in open(capture, encoding='utf-8')] if os.path.exists(capture) else []
 to_rec = [m for m in sent if 'wk-rec@test.invalid' in json.dumps(m) and 'Loop Test 1' in json.dumps(m)]
-check('The email leaves, to the recruiter, with the requisition and its link', to_rec and '/requisitions?req=%d' % vid in json.dumps(to_rec[0]), sent[:2])
+check('The email leaves, to the recruiter, with the requisition and its link (opening its edit dialog)', to_rec and '/requisitions?req=%d&open=edit' % vid in json.dumps(to_rec[0]), sent[:2])
 status, body = jerry.get('/requisitions')
 check('After delivery, the owner sees on the row that the emails were sent, and when', re.search(r'data-mailed="%d/%d"' % (mails, mails), body) and 'sent ' in body)
 
 rec = Client(); rec.login('wk-rec@test.invalid')
-status, body = rec.get('/requisitions?req=%d' % vid)
+status, body = rec.get('/requisitions?req=%d&open=edit' % vid)
 check('The recruiter\'s link opens the requisition\'s project, the row stands out, with Publish', status == 200 and 'id="req-%d" class="row-focus"' % vid in body and 'data-publish-req="%d"' % vid in body)
 check('The requisition opens with its Edit dialog shown for the recruiter', 'data-edit-req="%d" data-open-now' % vid in body and 'data-edit-open="%d"' % vid in body)
 rec.post('/requisitions', {'do': 'edit', 'vacancy_id': vid, 'title': 'Loop Test 1', 'discipline': 'mechanical', 'openings': '3', 'starts_on': '2026-11-16',
@@ -129,12 +130,21 @@ status, body = rec.post('/requisitions', {'do': 'create', 'send': 'publish', 'ti
 direct = one("SELECT posting_status FROM vacancies WHERE title = 'Loop Direct 2'")
 check('Create and publish still publishes at once', direct and direct['posting_status'] == 'published' and 'Loop Direct 2' in public.get('/careers')[1])
 
+# P5-M109: what the client is billed is the owner's, not the recruiter's.
+php_run('q("UPDATE vacancies SET pay_rate = 40, bill_rate = 60 WHERE id = ?", [(int) $argv[1]]);', vid)
+check("The recruiter does not see the client's bill rate; the owner does", 'billed $' not in rec.get('/requisitions?req=%d' % vid)[1] and 'billed $' in jerry.get('/requisitions?req=%d' % vid)[1])
+# P5-M109: a notice followed is a notice read.
+status, body = rec.get('/notifications')
+nid = re.search(r'href="/notifications\?open=(\d+)"', body)
+rec.get('/notifications?open=%s' % (nid[1] if nid else '0'))
+check('Following a notice marks it read', nid and one("SELECT read_at FROM notifications WHERE id = %s" % nid[1])['read_at'] is not None, nid)
 # An applicant through the public link lands on that requisition.
 status, form = public.get('/apply?id=%d' % vid)
 public.open(urllib.request.Request(base + '/apply', urllib.parse.urlencode({'_csrf': public.token, 'vacancy_id': vid, 'name': 'Loop Applicant', 'email': 'loop-applicant@test.invalid',
                                                                             'phone': '555-010-3030', 'consent': '1'}).encode(), {'Accept': 'text/html'}))
 app = one("SELECT a.id, a.vacancy_id FROM applications a JOIN candidates c ON c.id = a.candidate_id WHERE c.email = 'loop-applicant@test.invalid'")
 check('An applicant through the public link lands on that requisition', app and int(app['vacancy_id']) == vid, app)
+check('and the application says it came through the link', one("SELECT source FROM applications WHERE id = %d" % int(app['id']))['source'] == 'Apply link')
 status, body = rec.get('/candidates?vacancy=%d' % vid)
 check('and the recruiter sees them on Candidates for that requisition', 'Loop Applicant' in body)
 

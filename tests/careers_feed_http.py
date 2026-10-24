@@ -78,6 +78,9 @@ check('An old link to a closed position says so (410) and shows what is open now
       and 'id="open-now"' in closed_page and '/apply?id=%d' % job['id'] in closed_page and 'href="/careers"' in closed_page and 'Billing plant' not in closed_page, closed_page[:300])
 status, unknown_page, _ = fetch('/apply?id=999999')
 check('A link that never existed gets the same help (404)', status == 404 and 'This position is not available' in unknown_page and 'id="open-now"' in unknown_page)
+# P5-M109: the careers page carries a QR code of its own address - the workspace's, not the host it was opened on.
+check('The careers page shows a QR code of the careers address, taken from the workspace address', 'id="careers-qr"' in page
+      and 'data-url="http://127.0.0.1:8097/careers"' in page and '/assets/qrcode.min.js' in page)
 status, _, _ = fetch('/careers-feed', 'POST', b'x')
 check('GET only', status == 405)
 print(f'careers_feed_http: {len(results)} checks passed')

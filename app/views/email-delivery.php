@@ -39,7 +39,9 @@
   <table><thead><tr><th><?= te('About') ?></th><th><?= te('To') ?></th><th><?= te('Status') ?></th><th><?= te('Queued') ?></th><th><?= te('Sent') ?></th></tr></thead><tbody>
   <?php foreach ($staffMail as $m): $kind = strtok((string) $m['purpose'], ':'); ?><tr data-staff-mail="<?= e($m['purpose']) ?>">
     <td><?= e($kinds[$kind] ?? $kind) ?><?php if (! empty($m['requisition'])): ?><div class="small muted"><?= e($m['requisition']) ?></div><?php endif; ?></td>
-    <td class="small"><?= e($m['recipient']) ?></td>
+    <?php // P5-M109: during a rehearsal the office's emails went to the test inbox - said on the row, not only in the summary. ?>
+    <?php $diverted = $held['window'] && (string) $m['created_at'] >= $held['window'][0] && (string) $m['created_at'] <= $held['window'][1] && ! mail_is_test_inbox((string) $m['recipient']); ?>
+    <td class="small"><?= e($m['recipient']) ?><?php if ($diverted): ?><div><span class="tag amber"><?= te('to the test inbox (rehearsal)') ?></span></div><?php endif; ?></td>
     <td><span class="tag <?= $m['status'] === 'sent' ? 'green' : ($m['status'] === 'failed' ? 'red' : 'amber') ?>"><?= e(['sent' => t('Sent'), 'failed' => t('Failed'), 'pending' => t('Waiting to send'), 'sending' => t('Sending')][$m['status']] ?? $m['status']) ?></span></td>
     <td class="small"><?= e(substr((string) $m['created_at'], 0, 16)) ?></td><td class="small"><?= e($m['sent_at'] ? substr((string) $m['sent_at'], 0, 16) : '—') ?></td>
   </tr><?php endforeach; ?></tbody></table>

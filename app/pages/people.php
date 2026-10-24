@@ -91,7 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             log_activity($on ? 'made a hiring manager' : 'removed a hiring manager', 'user', $uid);
             flash($on ? t(':name is a hiring manager.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [$uid])]) : t(':name is no longer a hiring manager.', ['name' => (string) val('SELECT name FROM users WHERE id = ?', [$uid])]));
         }
-        redirect('/people');
+        // P5-M109: back to the list as it was - the search kept.
+        $q = trim((string) ($_POST['q'] ?? ''));
+        redirect('/people' . ($q !== '' ? '?q=' . rawurlencode($q) : ''));
     }
 
     if ($do === 'toggle') {

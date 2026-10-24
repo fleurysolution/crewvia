@@ -40,7 +40,7 @@
           </div>
           <?php endif; ?></td>
         <td class="nowrap"><strong><?= $rolePay !== null ? e(money((float) $rolePay)) : '&mdash;' ?></strong> <span class="small muted"><?= te('/h') ?></span>
-          <?php if ($roleBill !== null): ?><div class="small muted"><?= te('billed :amount', ['amount' => money((float) $roleBill)]) ?></div><?php endif; ?></td>
+          <?php // P5-M109: what the client is billed (the agency's margin) is the owner's to see, not the recruiter's. ?><?php if ($roleBill !== null && can('admin')): ?><div class="small muted"><?= te('billed :amount', ['amount' => money((float) $roleBill)]) ?></div><?php endif; ?></td>
         <td class="req-fill"><div class="headcount-bar"><span style="width:<?= (int) round(min($placed, $asked) / $asked * 100) ?>%"></span></div>
           <span class="small"><?= te(':placed of :asked placed', ['placed' => $placed, 'asked' => $asked]) ?></span></td>
         <td><?php // P5-M91: the applicants of this requisition, a click away, on Candidates. ?><a class="btn ghost sm" href="/candidates?vacancy=<?= (int) $requisition['id'] ?>" title="<?= te('See the applicants') ?>"><?= (int) $requisition['applications'] ?></a></td>
@@ -57,7 +57,7 @@
           <?php // P5-M105: the recruiter completes the requisition - the detail candidates read. A dialog sits above the page, ?>
           <?php // whatever the table's scrolling, and opens by itself when the recruiter arrives from the email. ?>
           <button type="button" class="btn ghost sm" data-edit-open="<?= (int) $requisition['id'] ?>" onclick="document.getElementById('req-edit-<?= (int) $requisition['id'] ?>').showModal()"><?= te('Edit') ?></button>
-          <dialog class="req-edit" id="req-edit-<?= (int) $requisition['id'] ?>" data-edit-req="<?= (int) $requisition['id'] ?>"<?= $requestedReq && (int) ($_GET['req'] ?? 0) === (int) $requisition['id'] ? ' data-open-now' : '' ?> aria-label="<?= te('Edit the requisition') ?>">
+          <dialog class="req-edit" id="req-edit-<?= (int) $requisition['id'] ?>" data-edit-req="<?= (int) $requisition['id'] ?>"<?= $requestedReq && (int) ($_GET['req'] ?? 0) === (int) $requisition['id'] && ($_GET['open'] ?? '') === 'edit' ? ' data-open-now' : '' ?> aria-label="<?= te('Edit the requisition') ?>">
             <h2 class="m0 mb-s"><?= te('Edit the requisition') ?></h2>
               <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="edit"><input type="hidden" name="vacancy_id" value="<?= (int) $requisition['id'] ?>">
                 <label for="re-t-<?= (int) $requisition['id'] ?>"><?= te('Role / trade') ?></label><input id="re-t-<?= (int) $requisition['id'] ?>" name="title" required maxlength="190" value="<?= e($requisition['title']) ?>">

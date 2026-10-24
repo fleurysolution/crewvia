@@ -123,3 +123,23 @@
     <li><?= te('Transport runs from the airport, to the site, and for food and errands.') ?></li>
   </ol>
 </section>
+
+<?php // P5-M109: a phone held out to a colleague - they scan it and land on the open positions. The address is the
+      // workspace's own (app_url), never the host this page was opened on; no address configured, no code. ?>
+<?php $careersUrl = rtrim((string) ($config['app_url'] ?? ''), '/'); ?>
+<?php if ($careersUrl !== ''): $careersUrl .= '/careers'; ?>
+<section class="card" id="careers-qr">
+  <h2><?= te('Show this page to someone') ?></h2>
+  <p class="small muted m0"><?= te('They scan the code with their phone camera and see every open position.') ?></p>
+  <div class="mt-s" id="careers-qr-code" class="careers-qr-code" data-url="<?= e($careersUrl) ?>"></div>
+  <p class="small mt-xs m0"><?= e($careersUrl) ?></p>
+</section>
+<script src="/assets/qrcode.min.js"></script>
+<script>
+  (function () {
+    var box = document.getElementById('careers-qr-code');
+    if (!box || typeof QRCode === 'undefined') { return; }
+    new QRCode(box, { text: box.dataset.url, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+  })();
+</script>
+<?php endif; ?>

@@ -68,7 +68,8 @@ function intake_receive(?int $vacancyId=null): void
         $applicationId = null;
 
         if ($vacancyId) {
-            q('INSERT INTO applications(candidate_id,vacancy_id) VALUES (?,?)', [$cid, $vacancyId]);
+            // P5-M109: it came through the requisition's own link (careers page, a job board, a flyer).
+            q('INSERT INTO applications(candidate_id,vacancy_id,source) VALUES (?,?,?)', [$cid, $vacancyId, 'Apply link']);
             $applicationId = (int) db()->lastInsertId();
         }
         if($resume)q('INSERT INTO candidate_resumes(candidate_id,storage_name,file_hash,extension,original_name) VALUES (?,?,?,?,?)',[$cid,$resume['storage_name'],$resume['file_hash'],$resume['extension'],$resume['original_name']]);

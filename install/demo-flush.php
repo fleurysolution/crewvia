@@ -55,6 +55,16 @@ if ($users) {
         }
     }
 }
+// P5-M109: never with real records inside - separate them first (install/demo-separate.php).
+$real = demo_real_at_risk($plan);
+if ($real) {
+    echo "REFUSED: the flush would also remove records of real people:\n";
+    foreach ($real as $t => $n) {
+        printf("  %-40s %7d\n", $t, $n);
+    }
+    echo "Move them out of the demonstration first (php install/demo-separate.php). Nothing was removed.\n";
+    exit(1);
+}
 if (! $execute) {
     echo "Nothing was removed. Run again with --execute to remove these rows.\n";
     exit(0);
