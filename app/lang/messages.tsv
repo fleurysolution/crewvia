@@ -5830,3 +5830,45 @@ What happened that concerns you. Opening one marks it read.	Ce qui vous concerne
 Answer the checklist first: :n question left.	Répondez d’abord à la checklist : :n question restante.	Responda primero la lista de control: queda :n pregunta.
 Answer the checklist first: :n questions left.	Répondez d’abord à la checklist : :n questions restantes.	Responda primero la lista de control: quedan :n preguntas.
 Checklist	Checklist	Lista de control
+Baggage	Bagage	Equipaje
+Ground transport	Transport terrestre	Transporte terrestre
+Approved, to pay	Approuvée, à payer	Aprobada, por pagar
+Not approved	Non approuvée	No aprobada
+On the pay	Sur la paie	En la nómina
+Direct deposit	Virement	Depósito directo
+Only an approved reimbursement is paid, and only once.	Seul un remboursement approuvé est payé, et une seule fois.	Solo se paga un reembolso aprobado, y una sola vez.
+Reimbursement: :what (claim #:id)	Remboursement : :what (note n° :id)	Reembolso: :what (solicitud n.º :id)
+Your reimbursement of :amount (:what) is paid with the week ending :date.	Votre remboursement de :amount (:what) est payé avec la semaine se terminant le :date.	Su reembolso de :amount (:what) se paga con la semana que termina el :date.
+Give the payment reference: the deposit, check or receipt number.	Indiquez la référence du paiement : numéro du virement, du chèque ou du reçu.	Indique la referencia del pago: número del depósito, del cheque o del recibo.
+That receipt is already on another claim.	Ce reçu figure déjà sur une autre note.	Ese recibo ya está en otra solicitud.
+Claim sent. Payroll reviews it; you are told when it is paid.	Note envoyée. La paie l'examine ; vous êtes prévenu quand elle est payée.	Solicitud enviada. Nómina la revisa; se le avisa cuando se pague.
+Only a claim waiting for review is decided, and never by the person who filed it.	Seule une note en attente est décidée, et jamais par la personne qui l'a déposée.	Solo se decide una solicitud pendiente, y nunca la persona que la presentó.
+Approved. Pay it on the next pay, or record a separate payment.	Approuvée. Payez-la sur la prochaine paie, ou enregistrez un paiement à part.	Aprobada. Páguela en la próxima nómina o registre un pago aparte.
+Not approved.	Non approuvée.	No aprobada.
+Added to the pay period as a reimbursement. The claim is paid.	Ajoutée à la période de paie comme remboursement. La note est payée.	Añadida al período de pago como reembolso. La solicitud está pagada.
+Payment recorded. The claim is paid.	Paiement enregistré. La note est payée.	Pago registrado. La solicitud está pagada.
+What you paid yourself for the job: a bag at the airport, a taxi, a screening. Keep the receipt; you are paid back on your next pay.	Ce que vous avez payé vous-même pour le travail : un bagage à l'aéroport, un taxi, un dépistage. Gardez le reçu ; vous êtes remboursé sur votre prochaine paie.	Lo que pagó usted mismo por el trabajo: una maleta en el aeropuerto, un taxi, una prueba. Guarde el recibo; se le reembolsa en su próxima nómina.
+Claims filed by workers with their receipt. Approve, then pay on the next pay or record a separate payment.	Notes déposées par les ouvriers avec leur reçu. Approuvez, puis payez sur la prochaine paie ou enregistrez un paiement à part.	Solicitudes presentadas por los trabajadores con su recibo. Apruebe y luego pague en la próxima nómina o registre un pago aparte.
+Claim a reimbursement	Demander un remboursement	Solicitar un reembolso
+A claim is filed for an assignment. You have none yet.	Une note se dépose pour une affectation. Vous n'en avez pas encore.	Una solicitud se presenta para una asignación. Aún no tiene ninguna.
+Receipt: take a photo or choose the file	Reçu : prenez une photo ou choisissez le fichier	Recibo: tome una foto o elija el archivo
+or one already uploaded	ou un reçu déjà envoyé	o uno ya enviado
+Details (optional)	Détails (facultatif)	Detalles (opcional)
+Send the claim	Envoyer la note	Enviar la solicitud
+No claim yet.	Aucune note pour l'instant.	Aún no hay solicitudes.
+claim #:id, filed :date	note n° :id, déposée le :date	solicitud n.º :id, presentada el :date
+Receipt	Reçu	Recibo
+Paid on the pay of the week ending :date.	Payée sur la paie de la semaine se terminant le :date.	Pagada en la nómina de la semana que termina el :date.
+Paid by :method on :date.	Payée par :method le :date.	Pagada por :method el :date.
+Reviewed by :name	Examinée par :name	Revisada por :name
+Your own claim: another person in payroll reviews it.	Votre propre note : une autre personne de la paie l'examine.	Su propia solicitud: otra persona de nómina la revisa.
+Do not approve	Ne pas approuver	No aprobar
+Pay on the pay of the week ending	Payer sur la paie de la semaine se terminant le	Pagar en la nómina de la semana que termina el
+Pay on the pay	Payer sur la paie	Pagar en la nómina
+To pay it on the pay, open the week on	Pour la payer sur la paie, ouvrez la semaine dans	Para pagarla en la nómina, abra la semana en
+Paid another way	Payée autrement	Pagada de otra forma
+Claim	Note	Solicitud
+Reimbursements to pay	Remboursements à payer	Reembolsos por pagar
+Approved under Reimbursements, with their receipt. Paying one adds it to this period as a reimbursement, not taxed as wages.	Approuvés dans Remboursements, avec leur reçu. En payer un l'ajoute à cette période comme remboursement, non imposé comme salaire.	Aprobados en Reembolsos, con su recibo. Pagar uno lo añade a este período como reembolso, sin gravarlo como salario.
+Reimbursement paid in this period.	Remboursement payé dans cette période.	Reembolso pagado en este período.
+This person has an approved reimbursement waiting. Pay it from the list above, with its receipt; type a reimbursement here only for something without a claim.	Cette personne a un remboursement approuvé en attente. Payez-le depuis la liste ci-dessus, avec son reçu ; ne saisissez ici un remboursement que pour une dépense sans note.	Esta persona tiene un reembolso aprobado pendiente. Páguelo desde la lista de arriba, con su recibo; escriba aquí un reembolso solo para algo sin solicitud.

@@ -3199,4 +3199,39 @@ try {
 } catch (Throwable $e) {
     echo 'WARNING: the rehearsal guard on notices could not be created (' . $e->getMessage() . '). Grant TRIGGER and run the upgrade again.' . PHP_EOL;
 }
+// P5-M110: a reimbursement claim is paid on the worker's next pay (a payroll adjustment tied to the claim) or separately,
+// never both and never neither; a "Baggage" category.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'payroll_adjustments' AND column_name = 'expense_claim_id'")) {
+    q('ALTER TABLE payroll_adjustments ADD COLUMN expense_claim_id INT UNSIGNED NULL, ADD UNIQUE KEY uq_adjustment_claim (expense_claim_id)');
+    q("ALTER TABLE expense_claims MODIFY category ENUM('flight','baggage','hotel','screening','transport','other') NOT NULL,
+       MODIFY payment_method ENUM('payroll','direct_deposit','check','cash') NULL");
+    echo 'Reimbursements: an approved claim is paid on the next pay or separately, once; a Baggage category.' . PHP_EOL;
+}
+try {
+    db()->exec("CREATE TRIGGER IF NOT EXISTS expense_claims_paid_one_way BEFORE UPDATE ON expense_claims FOR EACH ROW
+        BEGIN
+            IF OLD.status = 'paid' AND (NEW.status <> 'paid' OR NOT (NEW.payment_method <=> OLD.payment_method) OR NEW.amount <> OLD.amount) THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A paid reimbursement stays as it was paid';
+            END IF;
+            IF NEW.status = 'paid' AND OLD.status <> 'paid' THEN
+                IF NEW.payment_method IS NULL THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A paid reimbursement says how it was paid';
+                ELSEIF NEW.payment_method = 'payroll' AND NOT EXISTS (SELECT 1 FROM payroll_adjustments WHERE expense_claim_id = NEW.id) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A reimbursement paid on the pay has its payroll adjustment';
+                ELSEIF NEW.payment_method <> 'payroll' AND (COALESCE(TRIM(NEW.payment_reference), '') = '' OR EXISTS (SELECT 1 FROM payroll_adjustments WHERE expense_claim_id = NEW.id)) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A reimbursement paid separately has its reference and no payroll adjustment';
+                END IF;
+            END IF;
+        END");
+    db()->exec("CREATE TRIGGER IF NOT EXISTS payroll_adjustments_claim_approved BEFORE INSERT ON payroll_adjustments FOR EACH ROW
+        BEGIN
+            IF NEW.expense_claim_id IS NOT NULL AND (NEW.kind <> 'reimbursement' OR NOT EXISTS (
+                SELECT 1 FROM expense_claims e JOIN placements p ON p.id = e.placement_id
+                WHERE e.id = NEW.expense_claim_id AND e.status = 'approved' AND p.candidate_id = NEW.candidate_id AND e.amount = NEW.amount)) THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'A claim is paid on the pay once, approved, to its worker, for its amount';
+            END IF;
+        END");
+} catch (Throwable $e) {
+    echo 'WARNING: the guards on reimbursements could not be created (' . $e->getMessage() . '). Grant TRIGGER and run the upgrade again.' . PHP_EOL;
+}
 echo "Upgrade complete. Existing records preserved.\n";

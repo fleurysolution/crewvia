@@ -287,6 +287,11 @@ function ops_health(bool $deep = true): array
     $since = mail_office_test_since();
     $checks['rehearsal'] = $since === '' ? ['ok', 'off']
         : [strtotime($since) < time() - 86400 ? 'fail' : 'warn', 'on since ' . $since . ': office emails and notices go to the test inbox'];
+    // P5-M110: a reimbursement is paid one way, once (the database refuses otherwise; rows from before are found here).
+    require_once __DIR__ . '/expense-claims.php';
+    $odd = expense_claims_inconsistent();
+    $checks['reimbursements'] = $odd ? ['warn', $odd . ' reimbursement claim(s) paid with no trace, or both on the pay and separately: see Reimbursements']
+        : ['ok', 'every paid claim is paid one way'];
     // P5-M107: a staging copy of this workspace (for the demonstration films) is watched from here: it must be gone by
     // its deletion date. Server config: 'staging_watch' => ['path' => '/home/veloraweb/public_html/crewvia-staging', 'delete_by' => 'YYYY-MM-DD'].
     if (! empty($config['staging_watch']['path'])) {

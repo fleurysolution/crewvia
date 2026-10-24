@@ -22,6 +22,8 @@ $run = static function (string $script, array $args) : array {
     return [$code, implode("\n", $out)];
 };
 demo_registry_ready();
+// This test ends with a real flush: the registry must hold nothing but what it creates.
+$check('The demonstration registry is empty before this test', (int) val('SELECT COUNT(*) FROM demo_records') === 0);
 
 q("INSERT INTO clients (name) VALUES ('Separate demo client')");
 $demoClient = (int) db()->lastInsertId(); demo_mark('clients', $demoClient);
@@ -53,6 +55,17 @@ q('INSERT INTO applications (candidate_id, vacancy_id) VALUES (?, ?)', [$demoPer
 // As production's placements #1013/#1014: the real placement names the scope line a demo requisition shares.
 q("INSERT INTO placements (candidate_id, job_id, vacancy_id, order_line_id, status, start_date, pay_rate, bill_rate) VALUES (?, ?, ?, ?, 'offered', '2026-11-02', 50, 70)", [$realIds[0], $demoJob, $realVac, $line]);
 $realPlacement = (int) db()->lastInsertId();
+// As production's "Owner Number 1": a demonstration account used to work on real applicants.
+q("INSERT INTO users (name, email, password_hash, role, must_change_pw) VALUES ('Separate Owner Demo', 'separate-owner@test.invalid', 'x', 'admin', 0)");
+$demoUser = (int) db()->lastInsertId(); demo_mark('users', $demoUser);
+q("INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?, ?, 'note', 'about a real person')", [$realIds[1], $demoUser]);
+$realEvent = (int) db()->lastInsertId();
+q("INSERT INTO candidate_calls (candidate_id, user_id, outcome, note) VALUES (?, ?, 'reached', 'real call')", [$realIds[1], $demoUser]);
+$realCall = (int) db()->lastInsertId();
+q("INSERT INTO candidate_events (candidate_id, user_id, event_type, detail) VALUES (?, ?, 'note', 'about the demo person')", [$demoPerson, $demoUser]);
+$demoEvent = (int) db()->lastInsertId();
+q("INSERT INTO notifications (user_id, message, target) VALUES (?, 'demo notice', '/')", [$demoUser]);
+$demoNotice = (int) db()->lastInsertId();
 
 [$code, $out] = $run('demo-flush.php', []);
 $check('demo-flush refuses while real people hang from the demonstration', $code === 1 && str_contains($out, 'REFUSED') && str_contains($out, 'applications'), $out);
@@ -80,5 +93,20 @@ $apps = array_map('intval', array_column(rows('SELECT id FROM applications WHERE
 $check('A flush now takes none of the real requisition, its 3 applications or the placement', ! in_array($realVac, $ids('vacancies'), true)
     && ! array_intersect($apps, $ids('applications')) && ! in_array($realPlacement, $ids('placements'), true) && count($apps) === 3);
 $check('and still takes the demonstration (its requisition and its person)', in_array($demoVac, $ids('vacancies'), true) && in_array($demoPerson, $ids('candidates'), true));
-// Leave the test database as it was for the tests that follow: the demonstration registry entries of this test go.
-q("DELETE FROM demo_records WHERE (table_name = 'jobs' AND record_id = ?) OR (table_name = 'clients' AND record_id = ?) OR (table_name = 'candidates' AND record_id = ?)", [$demoJob, $demoClient, $demoPerson]);
+$check("What a demonstration account wrote about a real person stays out of it; what it wrote about the demonstration goes",
+    ! in_array($realEvent, $ids('candidate_events'), true) && ! in_array($realCall, $ids('candidate_calls'), true)
+    && in_array($demoEvent, $ids('candidate_events'), true) && in_array($demoNotice, $ids('notifications'), true));
+$check('That account is kept, not removed', ! in_array($demoUser, $ids('users'), true) && demo_users_kept($plan) === [$demoUser]);
+$check('Nothing of a real person is left in the flush', demo_real_at_risk($plan) === [], demo_real_at_risk($plan));
+
+[$code, $out] = $run('demo-flush.php', []);
+$check('The flush dry run names the account it will retire', $code === 0 && str_contains($out, 'kept and retired') && str_contains($out, 'separate-owner@test.invalid'), $out);
+[$code, $out] = $run('demo-flush.php', ['--execute']);
+$u = row('SELECT name, email, is_active FROM users WHERE id = ?', [$demoUser]);
+$check('Flushed: the demonstration is gone', $code === 0 && ! val('SELECT COUNT(*) FROM vacancies WHERE id = ?', [$demoVac]) && ! val('SELECT COUNT(*) FROM candidates WHERE id = ?', [$demoPerson])
+    && ! val('SELECT COUNT(*) FROM notifications WHERE id = ?', [$demoNotice]) && ! val('SELECT COUNT(*) FROM demo_records'), $out);
+$check('the real requisition, its applications, the placement, the real trail are all there',
+    (int) val('SELECT COUNT(*) FROM applications WHERE vacancy_id = ?', [$realVac]) === 3 && val('SELECT COUNT(*) FROM placements WHERE id = ?', [$realPlacement])
+    && val('SELECT COUNT(*) FROM candidate_events WHERE id = ?', [$realEvent]) && val('SELECT COUNT(*) FROM candidate_calls WHERE id = ?', [$realCall]));
+$check('and the account that wrote it is retired: its name readable, no sign-in, no mail', $u && str_contains($u['name'], 'Separate Owner Demo') && str_contains($u['name'], 'retired')
+    && (int) $u['is_active'] === 0 && str_ends_with($u['email'], '@retired.invalid'), $u);

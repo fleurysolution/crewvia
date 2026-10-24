@@ -152,7 +152,7 @@ function project_costs(int $jobId): array
     // ── claims the agency pays, by what they were for ──
     foreach (rows("SELECT e.category, SUM(e.amount) AS total FROM expense_claims e JOIN placements p ON p.id = e.placement_id
                    WHERE p.job_id = ? AND e.status IN ('approved','paid') AND e.payer = 'agency' GROUP BY e.category", [$jobId]) as $c) {
-        $cat = ['hotel' => 'hotels', 'flight' => 'transportation', 'transport' => 'transportation'][$c['category']] ?? 'other';
+        $cat = ['hotel' => 'hotels', 'flight' => 'transportation', 'baggage' => 'transportation', 'transport' => 'transportation'][$c['category']] ?? 'other';
         $add($cat, t('Reimbursed claims'), (float) $c['total']);
     }
 

@@ -115,7 +115,7 @@ function demo_plan(): array
                 continue;
             }
             $where = [];
-            $args = [];
+            $byWho = [];
             // The table's own rows, when it is one of the sets (by its id).
             if (isset(DEMO_KEYS[$table]) && ! empty($sets[$table]) && $info['pk'] === ['id']) {
                 $ids = array_keys($sets[$table]);
@@ -125,14 +125,22 @@ function demo_plan(): array
                 $target = $columnSet[$c] ?? null;
                 // jobs.client_id, vacancies.job_id... and a table's own id column is never a pointer.
                 if ($target !== null && ! empty($sets[$target]) && ! ($target === $table && $c === 'id')) {
-                    $where[] = '`' . $c . '` IN (' . implode(',', array_map('intval', array_keys($sets[$target]))) . ')';
+                    $in = '`' . $c . '` IN (' . implode(',', array_map('intval', array_keys($sets[$target]))) . ')';
+                    // P5-M109: user_id says who DID it. A row about a real person (a note, a call, who opened their bank
+                    // details) written by a demonstration account is that person's record and audit trail: it stays.
+                    if ($target === 'users' && $table !== 'users' && ($real = demo_names_real_person($info['columns'], $sets['candidates'] ?? [])) !== null) {
+                        $byWho[] = '(' . $in . ' AND NOT COALESCE(' . $real . ', 0))';
+                    } else {
+                        $where[] = $in;
+                    }
                 }
             }
+            $where = array_merge($where, $byWho);
             if (! $where) {
                 continue;
             }
             $pk = $info['pk'];
-            foreach (rows('SELECT ' . implode(',', array_map(fn($c) => '`' . $c . '`', $pk)) . ' FROM `' . $table . '` WHERE ' . implode(' OR ', $where), $args) as $row) {
+            foreach (rows('SELECT ' . implode(',', array_map(fn($c) => '`' . $c . '`', $pk)) . ' FROM `' . $table . '` WHERE ' . implode(' OR ', $where)) as $row) {
                 $key = implode("\x1f", array_map('strval', array_values($row)));
                 if (! isset($remove[$table][$key])) {
                     $remove[$table][$key] = $row;
@@ -147,8 +155,62 @@ function demo_plan(): array
             break;
         }
     }
+    // A demonstration account named by a row that stays is kept - retired by the flush, not removed - so the trail
+    // still says who did it.
+    foreach (demo_users_kept($remove) as $id) {
+        unset($remove['users'][(string) $id]);
+    }
+    if (isset($remove['users']) && ! $remove['users']) {
+        unset($remove['users']);
+    }
 
     return $remove;
+}
+
+/**
+ * P5-M109: the SQL condition "this row is about a real person" for a table with these columns - its candidate, or
+ * the candidate of its application or placement, is not in the demonstration. Null when the table names nobody.
+ */
+function demo_names_real_person(array $columns, array $demoPeople): ?string
+{
+    $not = $demoPeople ? ' NOT IN (' . implode(',', array_map('intval', array_keys($demoPeople))) . ')' : ' IS NOT NULL';
+    if (in_array('candidate_id', $columns, true)) {
+        return '(`candidate_id` IS NOT NULL AND `candidate_id`' . $not . ')';
+    }
+    if (in_array('application_id', $columns, true)) {
+        return '(`application_id` IS NOT NULL AND `application_id` IN (SELECT id FROM applications WHERE candidate_id' . $not . '))';
+    }
+    if (in_array('placement_id', $columns, true)) {
+        return '(`placement_id` IS NOT NULL AND `placement_id` IN (SELECT id FROM placements WHERE candidate_id' . $not . '))';
+    }
+
+    return null;
+}
+
+/**
+ * Demonstration accounts that wrote a row about a real person (user_id, and the row's candidate is not in the
+ * demonstration): that row stays, so the account is retired, not removed. Other rows naming them (their sign-ins in
+ * the append-only audit log...) do not keep an account.
+ */
+function demo_users_kept(array $plan): array
+{
+    $users = array_map('intval', array_column(rows("SELECT record_id FROM demo_records WHERE table_name = 'users'"), 'record_id'));
+    if (! $users) {
+        return [];
+    }
+    $people = array_flip(array_map('intval', array_column(rows("SELECT record_id FROM demo_records WHERE table_name = 'candidates'"), 'record_id')));
+    $kept = [];
+    foreach (demo_schema() as $table => $info) {
+        if (in_array($table, ['users', 'demo_records'], true) || ! in_array('user_id', $info['columns'], true)
+            || ($real = demo_names_real_person($info['columns'], $people)) === null) {
+            continue;
+        }
+        foreach (rows('SELECT DISTINCT user_id FROM `' . $table . '` WHERE user_id IN (' . implode(',', $users) . ') AND COALESCE(' . $real . ', 0)') as $r) {
+            $kept[(int) $r['user_id']] = true;
+        }
+    }
+
+    return array_keys($kept);
 }
 
 /**
@@ -208,6 +270,12 @@ function demo_flush(array $plan): array
                 }
             }
             $done[$table] = $n;
+        }
+        // The accounts the kept rows name: they can no longer sign in or receive mail; their name stays readable.
+        foreach (demo_users_kept($plan) as $id) {
+            q("UPDATE users SET name = CONCAT(LEFT(name, 95), ' (demo, retired)'), email = CONCAT('retired-demo-', id, '@retired.invalid'),
+               password_hash = ?, is_active = 0 WHERE id = ?", [password_hash(bin2hex(random_bytes(24)), PASSWORD_DEFAULT), $id]);
+            $done['users retired'] = ($done['users retired'] ?? 0) + 1;
         }
         q('DELETE FROM demo_records');
         db()->exec('SET FOREIGN_KEY_CHECKS = 1');

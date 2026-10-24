@@ -10,19 +10,11 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if(!$configured) { refuse(503, t('Secure document storage is not configured or account is not a worker.')); }
   $uploadCandidate=$isWorker?(int)$candidate['candidate_id']:(int)($_POST['candidate_id'] ?? 0);
   if(!row('SELECT id FROM candidates WHERE id=?',[$uploadCandidate])) { refuse(422, t('Select an existing candidate.')); }
-  $file=$_FILES['proof'] ?? null;$type=trim((string)($_POST['document_type'] ?? ''));
-  if(!$file || $file['error']!==UPLOAD_ERR_OK || $file['size']>10*1024*1024 || !$type || strlen($type)>120) { refuse(422, t('Choose a document type and a file up to 10 MB.')); }
+  $type=trim((string)($_POST['document_type'] ?? ''));
   if(!$isWorker && !can('recruiter') && !in_array($type,['W4','payroll_authorization','Receipt'],true)) { refuse(403, t('Payroll can upload payroll forms and receipts only.')); }
-  $mime=(new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-  if(!in_array($mime,['application/pdf','image/jpeg','image/png'],true)) { refuse(422, t('Only PDF, JPEG and PNG documents are accepted.')); }
-  $content=file_get_contents($file['tmp_name']);$iv=random_bytes(12);$tag='';$encrypted=openssl_encrypt($content,'aes-256-gcm',$key,OPENSSL_RAW_DATA,$iv,$tag);
-  if($encrypted===false) throw new RuntimeException(t('Encryption failed.'));
-  if(!is_dir($storage)) mkdir($storage,0700,true);$name=bin2hex(random_bytes(32));$path=$storage.'/'.$name;
-  if(file_put_contents($path,$iv.$tag.$encrypted,LOCK_EX)===false) throw new RuntimeException(t('Document storage unavailable.'));
-  // P5-M33: a document proving who someone is is restricted once it is validated.
-  try { q('INSERT INTO worker_documents(candidate_id,uploaded_by,document_type,restricted,original_name,storage_name,mime_type,file_hash) VALUES (?,?,?,?,?,?,?,?)',[$uploadCandidate,uid(),$type,doc_is_identity($type)?1:0,mb_substr(basename($file['name']),0,190),$name,$mime,hash('sha256',$content)]); }
-  catch(Throwable $e) { unlink($path);throw $e; }
-  log_activity('uploaded proof','document',(int)db()->lastInsertId());
+  $stored=worker_document_store($uploadCandidate,$_FILES['proof'] ?? null,$type);
+  if(is_string($stored)) { refuse(422,$stored); }
+  log_activity('uploaded proof','document',$stored);
  }
  // P5-M33: an administrator authorizes who else may open validated identity documents.
  if($do==='identity_reader') {

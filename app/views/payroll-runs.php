@@ -71,10 +71,10 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
   <p class="small muted"><?= te('Employer contributions this week: :amount. Taxes are withheld by the payroll provider and are not in these figures.', ['amount' => money($summary['totals']['employer'])]) ?></p>
   <?php endif; ?>
 
-  <h3 class="m0 mt mb-s"><?= te('Adjustments in this period') ?></h3>
+  <h3 class="m0 mt mb-s" id="adjustments"><?= te('Adjustments in this period') ?></h3>
   <?php if (! $adjustments): ?><p class="muted"><?= te('None.') ?></p><?php endif; ?>
   <?php foreach ($adjustments as $a): ?>
-    <div class="small" data-adjustment="<?= (int) $a['id'] ?>"><?= e($a['full_name']) ?> · <?= e($kinds[$a['kind']] ?? $a['kind']) ?> · <span class="mono"><?= e(money($a['amount'])) ?></span><?= $a['corrects'] ? ' · ' . te('corrects the week ending :date', ['date' => d($a['corrects'])]) : '' ?> · <?= e($a['reason']) ?> · <?= e($a['by_name'] ?? '') ?></div>
+    <div class="small" data-adjustment="<?= (int) $a['id'] ?>"><?= e($a['full_name']) ?> · <?= e($kinds[$a['kind']] ?? $a['kind']) ?> · <span class="mono"><?= e(money($a['amount'])) ?></span><?= $a['corrects'] ? ' · ' . te('corrects the week ending :date', ['date' => d($a['corrects'])]) : '' ?> · <?= e($a['reason']) ?><?php if ($a['expense_claim_id']): ?> · <a href="/expenses#claim-<?= (int) $a['expense_claim_id'] ?>"><?= te('Claim') ?></a><?php if ($a['receipt_document_id']): ?> · <a href="/proofs?download=<?= (int) $a['receipt_document_id'] ?>"><?= te('Receipt') ?></a><?php endif; ?><?php endif; ?> · <?= e($a['by_name'] ?? '') ?></div>
   <?php endforeach; ?>
 
   <?php if ($run['status'] === 'open'): ?>
@@ -89,6 +89,15 @@ $eventWords = ['open' => t('Opened'), 'submit' => t('Submitted'), 'approve' => t
         <input name="amount" type="number" min="0.01" step="0.01" required value="<?= e((string) $amt) ?>" class="in-s" aria-label="<?= te('Amount') ?>">
         <input name="reason" required minlength="3" maxlength="500" value="<?= e(t('Attendance corrected after the week was paid')) ?>" aria-label="<?= te('Reason') ?>">
         <button class="btn sm"><?= $diff > 0 ? te('Pay the difference') : te('Recover the difference') ?></button></form>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if ($claimsToPay): ?>
+    <h3 class="m0 mt mb-s"><?= te('Reimbursements to pay') ?></h3>
+    <p class="small muted"><?= te('Approved under Reimbursements, with their receipt. Paying one adds it to this period as a reimbursement, not taxed as wages.') ?></p>
+    <?php foreach ($claimsToPay as $cl): ?>
+      <form method="post" class="row" data-claim-to-pay="<?= (int) $cl['id'] ?>"><?= csrf_field() ?><input type="hidden" name="do" value="pay_claim"><input type="hidden" name="run_id" value="<?= (int) $run['id'] ?>"><input type="hidden" name="claim_id" value="<?= (int) $cl['id'] ?>">
+        <span class="small"><?= e($cl['full_name'] . ' · ' . (expense_categories()[$cl['category']] ?? $cl['category']) . ' · ' . $cl['project']) ?> · <span class="mono"><?= e(money($cl['amount'])) ?></span> · <a href="/expenses#claim-<?= (int) $cl['id'] ?>"><?= te('Claim') ?></a></span> <button class="btn sm"><?= te('Pay in this period') ?></button></form>
     <?php endforeach; ?>
     <?php endif; ?>
 

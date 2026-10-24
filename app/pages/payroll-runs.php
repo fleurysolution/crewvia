@@ -81,6 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/payroll-runs?id=' . (int) $run['id']);
     }
 
+    if ($do === 'pay_claim') {
+        require_once __DIR__ . '/../expense-claims.php';
+        if ($why = expense_pay_in_run((int) $run['id'], (int) ($_POST['claim_id'] ?? 0), uid())) {
+            refuse(422, $why);
+        }
+
+        flash(t('Reimbursement paid in this period.'));
+        redirect('/payroll-runs?id=' . (int) $run['id'] . '#adjustments');
+    }
+
     if ($do === 'pay_reward') {
         require_once __DIR__ . '/../engagement.php';
         $refusal = eng_reward_pay((int) $run['id'], (int) ($_POST['redemption_id'] ?? 0), uid());
@@ -99,20 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $runs = rows('SELECT r.*, (SELECT COUNT(*) FROM payroll_adjustments a WHERE a.run_id = r.id) AS adjustments
               FROM payroll_runs r ORDER BY r.week_ending DESC LIMIT 26');
 $run = payroll_run((int) ($_GET['id'] ?? 0)) ?? ($runs[0] ?? null);
-$summary = $blockers = $adjustments = $events = $differences = $people = $cashRewards = [];
+$summary = $blockers = $adjustments = $events = $differences = $people = $cashRewards = $claimsToPay = [];
 
 if ($run) {
     $summary = payroll_run_summary($run);
     $blockers = $run['status'] === 'open' ? payroll_run_blockers((string) $run['week_ending']) : [];
-    $adjustments = rows('SELECT a.*, c.full_name, t.week_ending AS corrects, u.name AS by_name FROM payroll_adjustments a
+    $adjustments = rows('SELECT a.*, c.full_name, t.week_ending AS corrects, u.name AS by_name, x.receipt_document_id FROM payroll_adjustments a
                          JOIN candidates c ON c.id = a.candidate_id LEFT JOIN timesheets t ON t.id = a.timesheet_id
-                         LEFT JOIN users u ON u.id = a.created_by WHERE a.run_id = ? ORDER BY a.id', [(int) $run['id']]);
+                         LEFT JOIN users u ON u.id = a.created_by LEFT JOIN expense_claims x ON x.id = a.expense_claim_id
+                         WHERE a.run_id = ? ORDER BY a.id', [(int) $run['id']]);
     $events = rows('SELECT e.*, u.name FROM payroll_run_events e LEFT JOIN users u ON u.id = e.user_id
                     WHERE e.run_id = ? ORDER BY e.id DESC', [(int) $run['id']]);
 
     if ($run['status'] === 'open') {
         require_once __DIR__ . '/../engagement.php';
         $cashRewards = eng_cash_rewards_to_pay();
+        require_once __DIR__ . '/../expense-claims.php';
+        $claimsToPay = expense_claims_to_pay();
         $differences = array_values(array_filter(payroll_open_differences(),
             fn($d) => (int) $d['adjusted'] === 0 && $d['week_ending'] < $run['week_ending']));
         $people = rows("SELECT DISTINCT c.id, c.full_name FROM candidates c JOIN placements p ON p.candidate_id = c.id
@@ -126,4 +139,4 @@ $statuses = payroll_run_statuses();
 $kinds = payroll_adjustment_kinds();
 
 $pageTitle = t('Pay periods') . ' · ' . $config['app_name'];
-render('payroll-runs', compact('runs', 'run', 'summary', 'blockers', 'adjustments', 'events', 'differences', 'people', 'statuses', 'kinds', 'cashRewards'));
+render('payroll-runs', compact('runs', 'run', 'summary', 'blockers', 'adjustments', 'events', 'differences', 'people', 'statuses', 'kinds', 'cashRewards', 'claimsToPay'));

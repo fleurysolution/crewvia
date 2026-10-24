@@ -55,6 +55,12 @@ if ($users) {
         }
     }
 }
+// P5-M109: what a demonstration account wrote about real people stays (their record, their audit trail); the account
+// that wrote it is retired - no sign-in, no mail, its name kept - instead of removed.
+foreach (demo_users_kept($plan) as $id) {
+    $u = row('SELECT name, email FROM users WHERE id = ?', [$id]);
+    printf("  kept and retired, it wrote about real people: account #%d %s <%s>\n", $id, $u['name'] ?? '?', $u['email'] ?? '?');
+}
 // P5-M109: never with real records inside - separate them first (install/demo-separate.php).
 $real = demo_real_at_risk($plan);
 if ($real) {

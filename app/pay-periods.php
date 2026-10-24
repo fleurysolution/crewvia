@@ -149,6 +149,12 @@ function payroll_adjustment_add(array $run, int $candidateId, ?int $timesheetId,
         return t('Choose what kind of adjustment this is.');
     }
 
+    // P5-M110: an approved claim is paid from its claim, never typed in a second time.
+    if ($kind === 'reimbursement' && (int) val("SELECT COUNT(*) FROM expense_claims e JOIN placements p ON p.id = e.placement_id
+                                                WHERE p.candidate_id = ? AND e.status = 'approved'", [$candidateId])) {
+        return t('This person has an approved reimbursement waiting. Pay it from the list above, with its receipt; type a reimbursement here only for something without a claim.');
+    }
+
     if (! is_numeric($amount) || (float) $amount <= 0 || (float) $amount > 100000) {
         return t('An adjustment is an amount above 0 and at most 100,000; a recovery is entered positive and taken back.');
     }

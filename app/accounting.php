@@ -63,7 +63,7 @@ function accounting_payroll_enabled(): bool
 function accounting_cost_account(string $category): string
 {
     return ['hotel' => 'hotels_expense', 'hotels' => 'hotels_expense', 'lodging' => 'hotels_expense',
-            'flight' => 'transportation_expense', 'transport' => 'transportation_expense', 'vehicle' => 'transportation_expense',
+            'flight' => 'transportation_expense', 'baggage' => 'transportation_expense', 'transport' => 'transportation_expense', 'vehicle' => 'transportation_expense',
             'safety_equipment' => 'equipment_expense'][$category] ?? 'other_expense';
 }
 
@@ -173,7 +173,8 @@ function accounting_entries(string $through, bool $payroll): array
     }
 
     foreach (rows("SELECT e.*, j.title FROM expense_claims e JOIN placements p ON p.id = e.placement_id JOIN jobs j ON j.id = p.job_id
-                   WHERE e.status = 'paid' AND e.payer = 'agency' AND e.paid_at IS NOT NULL") as $e) {
+                   WHERE e.status = 'paid' AND e.payer = 'agency' AND e.paid_at IS NOT NULL AND COALESCE(e.payment_method, '') <> 'payroll'") as $e) {
+        // P5-M110: a claim paid on the pay is in the pay period's journal (its reimbursement adjustment), not twice.
         $amount = (float) $e['amount'];
         // A worker's name is not sent to QuickBooks: the claim number is enough to find it here.
         $push('expense_claim:' . $e['id'] . ':paid', substr((string) $e['paid_at'], 0, 10), 'Expense claim #' . $e['id'] . ' ' . $e['category'],
@@ -209,8 +210,11 @@ function accounting_payroll_lines(array $run, callable $line): array
         }
         unset($b);
     }
-    foreach (rows("SELECT a.kind, a.amount, j.title FROM payroll_adjustments a LEFT JOIN timesheets t ON t.id = a.timesheet_id
-                   LEFT JOIN placements p ON p.id = t.placement_id LEFT JOIN jobs j ON j.id = p.job_id WHERE a.run_id = ?", [(int) $run['id']]) as $a) {
+    // A reimbursement paid from a claim (P5-M110) has no sheet: it goes to the claim's project.
+    foreach (rows("SELECT a.kind, a.amount, COALESCE(j.title, xj.title) AS title FROM payroll_adjustments a LEFT JOIN timesheets t ON t.id = a.timesheet_id
+                   LEFT JOIN placements p ON p.id = t.placement_id LEFT JOIN jobs j ON j.id = p.job_id
+                   LEFT JOIN expense_claims x ON x.id = a.expense_claim_id LEFT JOIN placements xp ON xp.id = x.placement_id LEFT JOIN jobs xj ON xj.id = xp.job_id
+                   WHERE a.run_id = ?", [(int) $run['id']]) as $a) {
         $b = &$byProject[$a['title'] ?? ''];
         $b ??= ['gross' => 0.0, 'deductions' => 0.0, 'employer' => 0.0, 'reimbursed' => 0.0, 'net' => 0.0, 'adjust_wages' => 0.0, 'adjust_reimbursed' => 0.0];
         $b[$a['kind'] === 'reimbursement' ? 'adjust_reimbursed' : 'adjust_wages'] += (float) $a['amount'];

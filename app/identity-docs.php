@@ -120,3 +120,49 @@ function signing_code_use(int $candidateId, string $code, int $documentId, bool 
 
     return null;
 }
+
+/**
+ * Stores one uploaded file as a worker's document, encrypted at rest. Returns the refusal, or the new document id.
+ * Used by Proof uploads and by a reimbursement claim's receipt (P5-M110).
+ */
+function worker_document_store(int $candidateId, ?array $file, string $type): string|int
+{
+    global $config;
+    $key = base64_decode($config['encryption_key'] ?? '', true);
+    if (! $key || strlen($key) !== 32) {
+        return t('Secure document storage is not configured.');
+    }
+    if (! $file || $file['error'] !== UPLOAD_ERR_OK || $file['size'] > 10 * 1024 * 1024 || $type === '' || strlen($type) > 120) {
+        return t('Choose a document type and a file up to 10 MB.');
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (! in_array($mime, ['application/pdf', 'image/jpeg', 'image/png'], true)) {
+        return t('Only PDF, JPEG and PNG documents are accepted.');
+    }
+    $content = file_get_contents($file['tmp_name']);
+    $iv = random_bytes(12);
+    $tag = '';
+    $encrypted = openssl_encrypt($content, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+    if ($encrypted === false) {
+        throw new RuntimeException(t('Encryption failed.'));
+    }
+    $storage = workforce_storage_path($config) . '/documents';
+    if (! is_dir($storage)) {
+        mkdir($storage, 0700, true);
+    }
+    $name = bin2hex(random_bytes(32));
+    $path = $storage . '/' . $name;
+    if (file_put_contents($path, $iv . $tag . $encrypted, LOCK_EX) === false) {
+        throw new RuntimeException(t('Document storage unavailable.'));
+    }
+    // P5-M33: a document proving who someone is is restricted once it is validated.
+    try {
+        q('INSERT INTO worker_documents (candidate_id, uploaded_by, document_type, restricted, original_name, storage_name, mime_type, file_hash) VALUES (?,?,?,?,?,?,?,?)',
+          [$candidateId, uid(), $type, doc_is_identity($type) ? 1 : 0, mb_substr(basename((string) $file['name']), 0, 190), $name, $mime, hash('sha256', $content)]);
+    } catch (Throwable $e) {
+        unlink($path);
+        throw $e;
+    }
+
+    return (int) db()->lastInsertId();
+}
