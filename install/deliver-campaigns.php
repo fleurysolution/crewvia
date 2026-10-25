@@ -7,7 +7,7 @@
  *
  * Nothing is sent while email is switched off or the agency's postal address
  * is missing; the run says so. --quiet prints only when something went out
- * or failed.
+ * or failed, or, once an hour, when emails wait behind a hold.
  */
 
 declare(strict_types=1);
@@ -23,7 +23,11 @@ require_once __DIR__ . '/../app/campaigns.php';
 $quiet = in_array('--quiet', $argv, true);
 $done = cm_deliver();
 if ($done['held'] !== null) {
-    if (! $quiet || ! str_starts_with($done['held'], 'daily limit')) {
+    // P5-M110b: cron mails whatever --quiet prints. A hold with nothing waiting is not news, and one waiting is said
+    // once an hour (the first run of the hour), not every 5 minutes.
+    $waiting = (int) val("SELECT COUNT(*) FROM email_campaign_recipients r JOIN email_campaigns m ON m.id = r.campaign_id
+                          WHERE r.status = 'queued' AND m.status = 'sending' AND m.channel = 'email'");
+    if (! $quiet || ($waiting && ! str_starts_with($done['held'], 'daily limit') && (int) date('i') < 5)) {
         echo 'Campaign email held: ' . $done['held'] . PHP_EOL;
     }
     // P5-M29: texts may have gone while email was held.

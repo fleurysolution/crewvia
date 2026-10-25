@@ -1,7 +1,8 @@
 <?php
 if(PHP_SAPI!=='cli') exit('CLI only');
 require __DIR__.'/../app/bootstrap.php';
-if (outbound_disabled()) { exit(0); }   // P5-M107: this installation sends nothingrequire __DIR__.'/../app/gmail.php';
+if (outbound_disabled()) { exit(0); }   // P5-M107: this installation sends nothing
+require __DIR__.'/../app/gmail.php';
 if(empty($config['email_delivery_enabled']) || !filter_var($config['email_from'] ?? '',FILTER_VALIDATE_EMAIL)) exit("Configure an approved PHP mail relay and email_from before delivery. No messages sent.\n");
 for($i=0;$i<50;$i++) {
     db()->beginTransaction();
