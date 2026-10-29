@@ -49,3 +49,9 @@ countersignature and the employee menu after.
 - /onboarding "Who" lists 500 people over every candidate; it should list the project's people, with search.
 - Retrying an expired invitation should issue a new token and expiry.
 - Sending the travel details does not close the "Travel details" task.
+
+## P5-M111b — checked on production after the deploy
+
+Sample's portal: the candidate menu, no onboarding task, no headcount on Activity. The empty Activity told a worker
+"When an application arrives, a contract needs approving or a timesheet needs a decision…", the office's wording; a
+worker or a client now reads "When something needs you, it appears here."

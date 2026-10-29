@@ -59,7 +59,11 @@ $progress  = $target > 0 ? min(100, (int) round($filled / $target * 100)) : 0;
 <?php if (! $items): ?>
   <div class="card">
     <div class="empty">
+      <?php if (in_array(user()['role'] ?? '', ['worker', 'client'], true)): ?>
+      <?= te('When something needs you, it appears here.') ?>
+      <?php else: ?>
       <?= te('Your queue is empty. When an application arrives, a contract needs approving or a timesheet needs a decision, it appears here.') ?>
+      <?php endif; ?>
     </div>
   </div>
 <?php else: ?>
