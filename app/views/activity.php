@@ -20,7 +20,11 @@ $progress  = $target > 0 ? min(100, (int) round($filled / $target * 100)) : 0;
       <?php endif; ?>
     </h1>
     <p class="sub">
+      <?php if (in_array(user()['role'] ?? '', ['worker', 'client'], true)): ?>
+      <?= te('What needs you. Each line opens the screen where you do it.') ?>
+      <?php else: ?>
       <?= te('Only what your desk can act on. Every number is a count of real records in a state that needs a person — the line under it says which. Each one opens the screen that clears it, and the number falls when the work is done, never because it was dismissed here.') ?>
+      <?php endif; ?>
     </p>
   </div>
 </div>

@@ -63,7 +63,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 if($jobId) onboarding_sync('p.job_id = ?',[$jobId]);
 if($jobId){require_once __DIR__.'/../deployment.php';deployment_ready_notice(null,$jobId);}
 $requirements=rows('SELECT * FROM onboarding_requirements WHERE job_id=?',[$jobId]);
-$tasks=rows('SELECT t.*,c.full_name,r.title,r.form_kind FROM onboarding_tasks t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN onboarding_requirements r ON r.id=t.requirement_id WHERE p.job_id=? ORDER BY c.full_name,r.id',[$jobId]);
+$tasks=rows('SELECT t.*,c.full_name,r.title,r.form_kind FROM onboarding_tasks t JOIN placements p ON p.id=t.placement_id JOIN candidates c ON c.id=p.candidate_id JOIN onboarding_requirements r ON r.id=t.requirement_id WHERE p.job_id=? AND '.placement_hired_sql().' ORDER BY c.full_name,r.id',[$jobId]);
 $vacancies=rows('SELECT * FROM vacancies WHERE job_id=?',[$jobId]);
 $applications=rows('SELECT a.*,c.full_name,v.title FROM applications a JOIN candidates c ON c.id=a.candidate_id JOIN vacancies v ON v.id=a.vacancy_id WHERE v.job_id=? ORDER BY a.id DESC',[$jobId]);
 

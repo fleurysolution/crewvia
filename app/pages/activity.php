@@ -17,7 +17,8 @@ $job = current_job();
 
 // The countdown Jerry asked for: how many of the promised headcount are
 // actually on the job, and how many are left to place.
-$target = (int) ($job['headcount_target'] ?? 0);
+// P5-M111: the office's countdown; a worker or a client never sees the project's headcount.
+$target = in_array(user()['role'] ?? '', ['worker', 'client'], true) ? 0 : (int) ($job['headcount_target'] ?? 0);
 $filled = $job
     ? (int) val("SELECT COUNT(*) FROM placements
                  WHERE job_id = ? AND status IN ('confirmed','travelling','on_site')",

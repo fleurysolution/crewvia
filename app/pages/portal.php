@@ -61,15 +61,16 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
  }
  $response=trim((string)($_POST['response'] ?? ''));
  if(strlen($response)>2000) { refuse(422, t('Response too long.')); }
- q("UPDATE onboarding_tasks t JOIN placements p ON p.id=t.placement_id JOIN onboarding_requirements r ON r.id=t.requirement_id SET t.response=?,t.status='submitted' WHERE t.id=? AND p.candidate_id=? AND t.status IN ('pending','rejected') AND r.form_kind IS NULL",[$response,(int)($_POST['task_id'] ?? 0),$worker['id']]);
+ q("UPDATE onboarding_tasks t JOIN placements p ON p.id=t.placement_id JOIN onboarding_requirements r ON r.id=t.requirement_id SET t.response=?,t.status='submitted' WHERE t.id=? AND p.candidate_id=? AND t.status IN ('pending','rejected') AND r.form_kind IS NULL AND ".placement_hired_sql(),[$response,(int)($_POST['task_id'] ?? 0),$worker['id']]);
  log_activity('submitted onboarding','task',(int)($_POST['task_id'] ?? 0)); redirect('/portal');
 }
-$tasks=rows('SELECT t.*,r.title,r.instructions,r.form_kind,j.title project FROM onboarding_tasks t JOIN onboarding_requirements r ON r.id=t.requirement_id JOIN placements p ON p.id=t.placement_id JOIN jobs j ON j.id=p.job_id WHERE p.candidate_id=?',[$worker['id']]);
+$tasks=rows('SELECT t.*,r.title,r.instructions,r.form_kind,j.title project FROM onboarding_tasks t JOIN onboarding_requirements r ON r.id=t.requirement_id JOIN placements p ON p.id=t.placement_id JOIN jobs j ON j.id=p.job_id WHERE p.candidate_id=? AND '.placement_hired_sql(),[$worker['id']]);
 // P5-M64: the forms the tasks hold - the W-4 and the I-9 where they are, the bank details in use or the last sent.
 require_once __DIR__.'/../tax-forms.php';
 $taskForms=['w4'=>tf_history((int)$worker['id'],'w4')[0]??null,'i9'=>tf_history((int)$worker['id'],'i9')[0]??null];
 $taskBank=['in_use'=>row("SELECT bank_label,last_four FROM worker_bank_details WHERE candidate_id=? AND status='verified'",[$worker['id']]),'last'=>row('SELECT status,last_four,bank_label,review_note,submitted_at FROM worker_bank_change_requests WHERE candidate_id=? ORDER BY id DESC LIMIT 1',[$worker['id']])];
-$assignments=rows('SELECT p.*,j.title FROM placements p JOIN jobs j ON j.id=p.job_id WHERE p.candidate_id=? ORDER BY p.id DESC',[$worker['id']]);
+// P5-M111: a seat reserved before the offer is not an assignment yet; the offer is under Your applications.
+$assignments=rows('SELECT p.*,j.title FROM placements p JOIN jobs j ON j.id=p.job_id WHERE p.candidate_id=? AND '.placement_hired_sql().' ORDER BY p.id DESC',[$worker['id']]);
 $lodging=rows("SELECT h.name,l.room_number,l.check_in,l.check_out FROM lodging l JOIN hotels h ON h.id=l.hotel_id JOIN placements p ON p.id=l.placement_id WHERE p.candidate_id=? AND l.status NOT IN ('cancelled','checked_out')",[$worker['id']]);
 $travel=rows("SELECT t.*,p.job_id FROM travel t JOIN placements p ON p.id=t.placement_id WHERE p.candidate_id=? AND t.status<>'cancelled' ORDER BY t.direction,t.depart_time",[$worker['id']]);
 // P5-M30: the itinerary in words, the advice for travellers, and the details form while a trip is ahead.

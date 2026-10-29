@@ -65,8 +65,8 @@ function activity_items(): array
 
         $add($count("SELECT COUNT(*) FROM onboarding_tasks t
                      JOIN placements p ON p.id = t.placement_id
-                     WHERE p.candidate_id = ? AND t.status IN ('pending','rejected')", [$me]),
-             'Onboarding task to complete', '/portal', 'amber',
+                     WHERE p.candidate_id = ? AND t.status IN ('pending','rejected') AND " . placement_hired_sql(), [$me]),
+             'Onboarding task to complete', '/portal#onboarding', 'amber',
              'Onboarding tasks on your assignment, not yet done');
 
         $add($count("SELECT COUNT(*) FROM worker_documents
@@ -105,7 +105,7 @@ function activity_items(): array
 
         $add($count("SELECT COUNT(*) FROM onboarding_tasks t
                      JOIN placements p ON p.id = t.placement_id
-                     WHERE p.job_id = ? AND t.status = 'submitted'", [$job]),
+                     WHERE p.job_id = ? AND t.status = 'submitted' AND " . placement_hired_sql(), [$job]),
              'Onboarding task to review', '/onboarding', 'amber',
              'Onboarding tasks a worker has submitted');
 

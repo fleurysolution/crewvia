@@ -16,7 +16,8 @@ declare(strict_types=1);
 /** The placements a requirement r asks, for a query joining placements p and onboarding_requirements r. */
 function onboarding_scope_sql(): string
 {
-    return "(p.status IN ('offered','confirmed','travelling') OR (r.for_crew = 1 AND p.status = 'on_site'))";
+    // P5-M111: a seat reserved before the offer is not a hire; its tasks wait for the countersignature.
+    return "((p.status IN ('offered','confirmed','travelling') OR (r.for_crew = 1 AND p.status = 'on_site')) AND " . placement_hired_sql() . ')';
 }
 
 /**

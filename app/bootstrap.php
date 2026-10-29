@@ -608,10 +608,26 @@ function worker_is_candidate(?array $u): bool
     return $known[$id] ??= ! candidate_is_employee((int) val('SELECT candidate_id FROM worker_accounts WHERE user_id = ?', [$id]));
 }
 
-/** P5-M54: an employee is somebody placed, or on the employee register with a number (an import, a hire before Crewvia). */
+/**
+ * P5-M111: whether placement $p is a hire, as SQL. The hiring manager's approval reserves the seat with an offered
+ * placement on the requisition applied to (P5-M87); that person is not hired until the offer is signed and
+ * countersigned (the application at accepted). Only that reservation is held back: an offered placement the approval
+ * did not make (a hire before the offer flow, an import, a transfer) stays a hire, whatever stage an old application
+ * shows. Walk of 29 Oct 2026: Sample Applicant, approved but never offered, had the employee portal, the W-4, the I-9
+ * and the direct deposit.
+ */
+function placement_hired_sql(string $p = 'p'): string
+{
+    return "($p.status <> 'offered' OR $p.vacancy_id IS NULL
+             OR NOT EXISTS (SELECT 1 FROM applications ha JOIN application_reviews hr ON hr.application_id = ha.id
+                            WHERE ha.candidate_id = $p.candidate_id AND ha.vacancy_id = $p.vacancy_id
+                              AND hr.status = 'validated' AND ha.stage <> 'accepted'))";
+}
+
+/** P5-M54: an employee is somebody hired (P5-M111: not a seat reserved before the offer), or on the employee register with a number (an import, a hire before Crewvia). */
 function candidate_is_employee(int $candidateId): bool
 {
-    return $candidateId > 0 && (bool) val('SELECT (SELECT COUNT(*) FROM placements WHERE candidate_id = ?)
+    return $candidateId > 0 && (bool) val('SELECT (SELECT COUNT(*) FROM placements p WHERE p.candidate_id = ? AND ' . placement_hired_sql() . ')
                                                 + (SELECT COUNT(*) FROM employee_profiles WHERE candidate_id = ? AND employee_number IS NOT NULL AND employee_number <> \'\')', [$candidateId, $candidateId]);
 }
 
