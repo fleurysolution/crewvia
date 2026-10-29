@@ -434,6 +434,14 @@ check('Hiring shows an approved person\'s steps to the first day', status == 200
       and all('data-step="%s"' % k in body for k in ('approved', 'assigned', 'hr', 'portal', 'drug', 'background', 'w4', 'i9', 'travel', 'arrived')))
 check('and none of the recruiting: no review, interviews, screener questions or stage moves', 'id="pass-to-manager"' not in body and 'id="schedule-interview"' not in body
       and 'id="manager-review"' not in body and 'id="interviews"' not in body and 'id="screener"' not in body and 'id="move-form"' not in body)
+# P5-M112: approved is a reserved seat, not a hire: the offer is made from the steps, the W-4 and I-9 wait for the hire.
+check('Approved, the offer is made from the steps (walk of 29 Oct 2026: there was nowhere to make it)',
+      'data-step="offer"' in body and 'Not made yet' in body and 'id="make-offer-form"' in body and 'name="stage" value="offered"' in body)
+check('and the W-4 and the I-9 wait for the hire', body.count('After the hire') == 2 and 'data-step-open="w4"' not in body and 'data-step-open="i9"' not in body)
+status, body = admin.post('/hiring', {'do': 'move', 'application_id': op['aid'], 'stage': 'offered', 'note': ' ',
+      'back': '/hiring?v=%d&app=%s' % (vac_id, op['aid'])}, '/hiring?v=%d&app=%s' % (vac_id, op['aid']))
+check('An offer without its terms is refused', 'Enter the complete offer terms' in body
+      and one('SELECT stage FROM applications WHERE id = %s' % op['aid'])['stage'] != 'offered', status)
 status, body = admin.get('/hiring?v=%d&app=%s&go=checks' % (vac_id, op['aid']))
 check('A step opens its screen on the requisition\'s project', status == 200 and admin.url.endswith('/checks'), admin.url)
 # P5-M95: To onboard stands out on the requisition list - amber while waiting, red once an HR task is late.

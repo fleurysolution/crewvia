@@ -175,6 +175,14 @@ $hwScore = static function (?string $s): string {
           <?php elseif ($st['go']): ?><a class="btn ghost sm" href="<?= e($goBase . $st['go']) ?>" data-step-open="<?= e($st['key']) ?>"><?= te('Open') ?></a><?php endif; ?>
         </td>
       </tr><?php endforeach; ?></tbody></table>
+      <?php if (array_filter($a['progress'], static fn($st) => ! empty($st['make_offer']))): ?>
+      <?php // P5-M112: the offer is made here; the candidate signs it in the portal, the office countersigns it above. ?>
+      <form method="post" action="/hiring" class="mt-s" id="make-offer-form"><?= csrf_field() ?><input type="hidden" name="do" value="move"><input type="hidden" name="stage" value="offered"><input type="hidden" name="application_id" value="<?= (int) $a['id'] ?>"><input type="hidden" name="back" value="<?= e($hwSelf . '&app=' . (int) $a['id']) ?>">
+        <label><?= te('Offer terms') ?><textarea name="note" required maxlength="2000" rows="3" placeholder="<?= te('Pay, per diem, hours, start date, travel and lodging') ?>"></textarea></label>
+        <button class="btn"><?= te('Make the offer') ?></button>
+        <p class="small muted m0 mt-s"><?= te('The candidate reads it in their portal with the job and the general conditions, and signs it there. They are hired once you countersign it.') ?></p>
+      </form>
+      <?php endif; ?>
     </div>
     <?php endif; ?>
     <?php if (! empty($a['approved'])): ?>

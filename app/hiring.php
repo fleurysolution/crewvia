@@ -509,6 +509,15 @@ function hw_progress(array $a, int $jobId): array
                 'state' => $review ? t(':who, :date', ['who' => (string) ($review['name'] ?? ''), 'date' => d(substr((string) $review['decided_at'], 0, 10))]) . ($handoff && (int) $handoff['expedited'] ? ' · ' . t('Expedited') : '') : t('Offer made'),
                 'tone' => 'green', 'owner' => null, 'go' => null];
 
+    // P5-M112: the approval reserves the seat; the hire is the offer signed and countersigned (P5-M53, P5-M111).
+    $signed = row('SELECT signed_at, countersigned_at FROM offer_acceptances WHERE application_id = ?', [(int) $a['id']]);
+    $hired = $a['stage'] === 'accepted';
+    [$offerState, $offerTone] = $hired || ($signed && $signed['countersigned_at']) ? [t('Signed and countersigned'), 'green']
+        : ($signed ? [t('Signed: to countersign'), 'amber']
+        : ($a['stage'] === 'offered' ? [t('Sent, waiting for their signature'), 'blue'] : [t('Not made yet'), 'amber']));
+    $steps[] = ['key' => 'offer', 'label' => t('Offer'), 'state' => $offerState, 'tone' => $offerTone, 'owner' => null, 'go' => null,
+                'make_offer' => ! $hired && ! $signed && in_array($a['stage'], ['new', 'screening', 'interview'], true)];
+
     $placement = row("SELECT id, status, start_date FROM placements WHERE candidate_id = ? AND job_id = ? AND status NOT IN ('cancelled') ORDER BY id DESC LIMIT 1", [(int) $a['candidate_id'], $jobId]);
     $steps[] = ['key' => 'assigned', 'label' => t('Assigned to the job'),
                 'state' => $placement ? ($placement['start_date'] ? t('Starts :date', ['date' => d((string) $placement['start_date'])]) : t('Start date to set')) : t('Not assigned yet'),
@@ -546,8 +555,9 @@ function hw_progress(array $a, int $jobId): array
     foreach (['w4' => 'W-4', 'i9' => 'I-9'] as $form => $label) {
         $f = row('SELECT status FROM worker_tax_forms WHERE candidate_id = ? AND form = ? ORDER BY id DESC LIMIT 1', [(int) $a['candidate_id'], $form]);
         $words = ['submitted' => t('Filled in, to sign in person'), 'accepted' => t('Signed and accepted'), 'returned' => t('Sent back to correct'), 'replaced' => t('Replaced')];
-        $steps[] = ['key' => $form, 'label' => $label, 'state' => $f ? ($words[$f['status']] ?? $f['status']) : t('Not filled in yet'),
-                    'tone' => $f ? (['accepted' => 'green', 'returned' => 'red'][$f['status']] ?? 'blue') : 'amber', 'owner' => $hr['assignee'] ?? null, 'go' => 'forms'];
+        // P5-M112: the candidate gets the W-4 and the I-9 once hired.
+        $steps[] = ['key' => $form, 'label' => $label, 'state' => $f ? ($words[$f['status']] ?? $f['status']) : ($hired ? t('Not filled in yet') : t('After the hire')),
+                    'tone' => $f ? (['accepted' => 'green', 'returned' => 'red'][$f['status']] ?? 'blue') : ($hired ? 'amber' : 'grey'), 'owner' => $hr['assignee'] ?? null, 'go' => $f || $hired ? 'forms' : null];
     }
 
     $travelTask = $task($handoff && $handoff['travel_task_id'] ? (int) $handoff['travel_task_id'] : null);
