@@ -12,7 +12,7 @@ back in sandbox; disabled; translations.
 import base64, hashlib, hmac, http.cookiejar, http.server, json, os, re, subprocess, threading, urllib.error, urllib.parse, urllib.request
 
 base = 'http://127.0.0.1:8097'
-STUB = 'http://127.0.0.1:8094'
+STUB = None  # set below, once the stand-in has a free port (8094 may belong to someone else's server)
 fx = json.load(open('work/twilio.json'))
 php = os.environ.get('PHP_BIN', 'php')
 IDS, CANDS, PLACES = fx['ids'], fx['cands'], fx['places']
@@ -55,7 +55,8 @@ class Stub(http.server.BaseHTTPRequestHandler):
         pass
 
 
-stub = http.server.ThreadingHTTPServer(('127.0.0.1', 8094), Stub)
+stub = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Stub)
+STUB = 'http://127.0.0.1:%d' % stub.server_address[1]
 threading.Thread(target=stub.serve_forever, daemon=True).start()
 
 

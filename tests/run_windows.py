@@ -29,6 +29,8 @@ with tempfile.TemporaryDirectory(prefix='rss-', dir=scratch) as temporary:
             cli=[str(mysql_dir/'mysql.exe'),'--host=127.0.0.1','--port=3308','--user=root']
             subprocess.run(cli+['-e','CREATE DATABASE rss_ops_test CHARACTER SET utf8mb4'],check=True,capture_output=True)
             command=[php,'-d','session.save_path='+str(work/'sessions')]
+            # Every milestone that changes the code has its report (docs/implementation), read from the git history.
+            subprocess.run([sys.executable,str(source/'tests'/'reports_check.py'),str(source)],check=True)
             subprocess.run(command+[str(work/'saas_unit.php')],check=True)
             subprocess.run(command+[str(work/'recruiting_unit.php')],check=True)
             for locale in ['en','fr','es']:subprocess.run(command+[str(work/'i18n_unit.php'),locale],check=True,capture_output=True)
