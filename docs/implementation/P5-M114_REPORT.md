@@ -76,3 +76,12 @@
   - the yearly reminder: once, never for a monthly or cancelled plan, and inside the window;
   - a subscription deleted.
 - Full suite with `SKIP_BROWSER=1`: 4329 PASS, exit 0.
+
+## P5-M114b — the shared Stripe account (20 Nov)
+
+Firmin decided that Crewvia bills under Fleury Solutions' own Stripe account, the same one VeloraWeb and BPMS247 use, so the webhook sees other products' events.
+- **The problem before this fix.** An event Crewvia acts on (checkout, `customer.subscription.*`, `invoice.*`) that came from another product with no `workspace_id` metadata answered 503. Stripe would have resent it for days, then disabled the endpoint.
+- **What happens now.** If such an event names neither this workspace, nor its customer, nor its subscription, it answers 200 "ignored" and is logged under "another product on the account". Nothing is recorded or emailed.
+- **What stays strict.** An event that is ours but inconsistent still answers 503.
+- **Tests:** in `tests/saas_renewal_db.php`, with a subscription, a checkout and a failed invoice shaped like VeloraWeb's.
+- **What this does not change.** Using the shared account does not turn the RSS installation into a subscription. Its config gets no key and no `commercial_mode 'subscription'` unless Firmin names the tenant and the price.

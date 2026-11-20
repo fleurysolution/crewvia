@@ -226,6 +226,18 @@ $reset(); $reply('api.stripe.com/v1/subscriptions/sub_r1', 200, $remote('cancele
 check('A subscription deleted at the end of its period is recorded as ended', stripe_webhook_handle($p, $h, $secrets)[0] === 200 && val('SELECT status FROM saas_subscription WHERE id = 1') === 'canceled');
 check('and gets no reminder', saas_renewal_reminders(time()) === 0);
 
+// ── the shared Stripe account: other products' events ────────────────────
+$reset(); $before = (int) val('SELECT COUNT(*) FROM saas_webhook_events');
+[$p, $h] = $stripe(['id' => 'evt_r7', 'type' => 'customer.subscription.updated', 'data' => ['object' => ['id' => 'sub_velora', 'customer' => 'cus_velora', 'metadata' => []]]]);
+$res = stripe_webhook_handle($p, $h, $secrets);
+check('Another product\'s subscription event, with no workspace, is answered 200 and ignored, not 503', $res[0] === 200 && $res[1] === '{"received":true,"ignored":true}' && ! $calls, json_encode($res));
+[$p, $h] = $stripe(['id' => 'evt_r8', 'type' => 'checkout.session.completed', 'data' => ['object' => ['id' => 'cs_velora', 'customer' => 'cus_velora', 'mode' => 'subscription']]]);
+check('and so is its checkout', stripe_webhook_handle($p, $h, $secrets)[1] === '{"received":true,"ignored":true}');
+[$p, $h] = $stripe(['id' => 'evt_r9', 'type' => 'invoice.payment_failed', 'data' => ['object' => ['id' => 'in_velora', 'customer' => 'cus_velora', 'subscription' => 'sub_velora']]]);
+$m = $mailMark();
+check('and its failed invoice alerts nobody here', stripe_webhook_handle($p, $h, $secrets)[0] === 200 && ! $mails($m)
+      && (int) val('SELECT COUNT(*) FROM saas_webhook_events') === $before && ! val("SELECT COUNT(*) FROM saas_invoices WHERE stripe_invoice_id = 'in_velora'"));
+
 // Leave the test database as the other tests expect it.
 q("UPDATE saas_subscription SET stripe_customer_id = NULL, stripe_subscription_id = NULL, status = 'not_configured', quantity = 0, period_end = NULL,
    last_checkout_id = NULL, cancel_at_period_end = 0, price_id = NULL, price_unit_amount = NULL, price_currency = NULL, price_interval = NULL, reminder_sent_for = NULL WHERE id = 1");

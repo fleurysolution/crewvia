@@ -122,6 +122,18 @@ function stripe_webhook_handle(string $payload, string $header, array $secrets):
             return [200, '{"received":true,"ignored":true}'];
         }
         $local = row('SELECT * FROM saas_subscription WHERE id=1');
+        // P5-M114b: the Stripe account is shared with VeloraWeb and BPMS247. An event Crewvia acts on that names neither
+        // this workspace, nor its customer, nor its subscription belongs to another product: answered 200 and ignored,
+        // never 503 (Stripe would resend it for days, then disable the endpoint).
+        $actsOn = $type === 'checkout.session.completed' || str_starts_with($type, 'customer.subscription.') || str_starts_with($type, 'invoice.');
+        $ours = $workspace === ($config['tenant_id'] ?? '')
+            || (! empty($local['stripe_customer_id']) && ($object['customer'] ?? null) === $local['stripe_customer_id'])
+            || (! empty($local['stripe_subscription_id']) && ($object['id'] ?? null) === $local['stripe_subscription_id']);
+        if ($actsOn && ! $ours) {
+            db()->commit();
+            integration_event('stripe', 'webhook', 'ignored', $event['id'], $type . ': another product on the account');
+            return [200, '{"received":true,"ignored":true}'];
+        }
         if (in_array($type, ['invoice.paid', 'invoice.payment_failed'], true) && ($object['customer'] ?? '') !== $local['stripe_customer_id']) {
             db()->commit();
             integration_event('stripe', 'webhook', 'ignored', $event['id'], $type . ': another customer');
