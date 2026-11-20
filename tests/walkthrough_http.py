@@ -118,7 +118,7 @@ w2.post('/portal', {'do': 'accept_offer', 'application_id': fx['app3'], 'consent
 rec.post('/hiring', {'do': 'countersign', 'application_id': fx['app3'], 'countersigner_name': 'Walk recruiter', 'reviewed': '1', 'back': '/hiring'})
 st = probe('state')
 check('What is signed is what was shown: the terms and the note', st['acceptance'] and 'Pay: $45.00 an hour' in st['acceptance'] and 'Bring your steel-toe boots.' in st['acceptance'], st['acceptance'])
-check('and the placement starts the day the requisition does (it had none)', st['accepted_start'] == '2026-11-02', st['accepted_start'])
+check('and the placement starts the day the requisition does (it had none), never in the past', st['accepted_start'] == max('2026-11-02', __import__('datetime').date.today().isoformat()), st['accepted_start'])
 
 # ── 7. a placement's dates can be set ──────────────────────────────────
 status, body = rec.post('/placements/%d' % fx['pw'], {'do': 'dates', 'start_date': '2026-10-05', 'end_date': '2027-01-29'})

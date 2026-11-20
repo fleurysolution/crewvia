@@ -16,20 +16,22 @@ if ($u && in_array($u['role'] ?? '', ['worker', 'client'], true)) {
 require_once __DIR__ . '/../navigation.php';
 require_once __DIR__ . '/../home.php';
 require_once __DIR__ . '/../activity.php';
-$nav      = workspace_nav($u);
+$nav = $u ? array_values(array_filter(workspace_nav($u), static function (array $entry): bool {
+    return $entry[2] === null || can(...(array) $entry[2]);
+})) : [];
+$daily = $u ? workspace_daily($u) : [];
 $sections = workspace_sections($u);
 $navSections=[];$navOrder=[];$position=0;
 foreach($sections as $section=>$links) foreach($links as $link){$navSections[$link]=$section;$navOrder[$link]=$position++;}
 usort($nav,fn($left,$right)=>($navOrder[$left[0]] ?? 999)<=>($navOrder[$right[0]] ?? 999));
-if(!$u)$nav=[];
 $here = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '', '/');
 // P5-M73: bookmarks and recent screens, at the top of the menu.
 require_once __DIR__ . '/../nav-marks.php';
 $navLabels = array_column($nav, 1, 0);
-if ($u && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && isset($navLabels[$here]) && workspace_can_open($here, $u)) { nm_touch((int) $u['id'], $here); }
+if ($u && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' && isset($navLabels[$here])) { nm_touch((int) $u['id'], $here); }
 $navMarks = $u ? ['bookmark' => array_intersect_key(nm_list((int) $u['id'], 'bookmark'), $navLabels), 'recent' => array_intersect_key(nm_list((int) $u['id'], 'recent'), $navLabels)] : ['bookmark' => [], 'recent' => []];
 // P5-M99: Recent lists what is neither a daily screen nor a bookmark, three at most - the menu was too long.
-$navMarks['recent'] = array_slice(array_diff_key($navMarks['recent'], $navMarks['bookmark'], array_flip($u ? workspace_daily($u) : [])), 0, 3, true);
+$navMarks['recent'] = array_slice(array_diff_key($navMarks['recent'], $navMarks['bookmark'], array_flip($daily)), 0, 3, true);
 ?>
 <!doctype html>
 <html lang="<?= e(locale()) ?>">
@@ -622,24 +624,7 @@ input,select,textarea{border-color:#8a96a6}
 <header class="top">
   <div><a class="brand" href="<?= e($u ? home_for((string) $u['role']) : '/login') ?>"><?= e($appName) ?></a><div class="product-note"><?= te('A Fleury Solutions platform') ?></div></div>
   <?php if ($u): ?><button type="button" class="btn ghost sm nav-toggle" aria-controls="workspace-nav" aria-expanded="false"><?= te('Menu') ?></button><?php endif; ?>
-  <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div><div class="nav-find"><label class="sr-only" for="nav-find"><?= te('Find a screen') ?></label><input id="nav-find" type="search" autocomplete="off" placeholder="<?= te('Find a screen' ) ?>" title="<?= te('Type a few letters, then Enter' ) ?>"></div>
-    <?php if ($u): /* P5-M73: the person's bookmarks, then the screens they opened last. */ ?>
-    <div class="nav-marks" data-nav-marks>
-      <?php // P5-M99: no bookmark yet - just the link to add one, not an empty section. ?>
-      <?php if (! $navMarks['bookmark']): ?>
-        <?php if (isset($navLabels[$here])): ?><form method="post" action="/nav-mark" class="nav-mark-form"><?= csrf_field() ?><input type="hidden" name="path" value="<?= e($here) ?>"><button class="link small" data-bookmark-toggle><?= te('+ Bookmark this screen') ?></button></form><?php endif; ?>
-      <?php else: ?>
-      <details class="nav-group" data-section="Bookmarks" open><summary><?= te('Bookmarks') ?></summary>
-        <?php foreach ($navMarks['bookmark'] as $mPath => $_): ?><a href="<?= e($mPath) ?>" class="<?= $here === $mPath ? 'on' : '' ?>" data-bookmark>&#9733; <?= te($navLabels[$mPath]) ?></a><?php endforeach; ?>
-        <?php if (isset($navLabels[$here])): $marked = isset($navMarks['bookmark'][$here]); ?>
-        <form method="post" action="/nav-mark" class="nav-mark-form"><?= csrf_field() ?><input type="hidden" name="path" value="<?= e($here) ?>"><button class="link small" data-bookmark-toggle><?= $marked ? te('Remove this screen from bookmarks') : te('+ Bookmark this screen') ?></button></form>
-        <?php elseif (! $navMarks['bookmark']): ?><span class="small muted nav-mark-hint"><?= te('Open a screen, then bookmark it here.') ?></span><?php endif; ?>
-      </details><?php endif; ?>
-      <?php if ($navMarks['recent']): ?><details class="nav-group" data-section="Recent" open><summary><?= te('Recent') ?></summary>
-        <?php foreach ($navMarks['recent'] as $mPath => $_): ?><a href="<?= e($mPath) ?>" class="<?= $here === $mPath ? 'on' : '' ?>" data-recent><?= te($navLabels[$mPath]) ?></a><?php endforeach; ?>
-      </details><?php endif; ?>
-    </div>
-    <?php endif; ?>
+  <nav class="nav" id="workspace-nav" aria-label="<?= te('Workspace navigation') ?>"><div class="sidebar-identity"><div class="sidebar-symbol">C</div><strong><?= e($appName) ?></strong><span><?= te('by Fleury Solutions') ?></span></div><?php if ($u && count($nav) > 1): ?><div class="nav-find"><label class="sr-only" for="nav-find"><?= te('Find a screen') ?></label><input id="nav-find" type="search" autocomplete="off" placeholder="<?= te('Find a screen' ) ?>" title="<?= te('Type a few letters, then Enter' ) ?>"></div><?php endif; ?>
     <?php
     // Everything the sidebar needs is local to this call, so nothing it
     // uses can still be set when the view runs below.
@@ -653,7 +638,7 @@ input,select,textarea{border-color:#8a96a6}
 
             // P5-M93: the public job board opens beside the workspace.
             printf('<a href="%s" class="%s"%s>%s%s</a>',
-                   e($href), $here === $href ? 'on' : '', $href === '/careers' ? ' target="_blank" rel="noopener" data-careers' : '', te($label), $badge);
+                   e($href), $here === $href ? 'on' : '', $href === '/careers' ? ' target="_blank" rel="noopener" data-careers' : '', te($label), $badge === '' ? '' : ' ' . $badge);
         };
 
         // Wave 3: the role's daily screens first, in the order of its day;
@@ -661,8 +646,7 @@ input,select,textarea{border-color:#8a96a6}
         $top = [];
         $grouped = [];
 
-        foreach ($nav as [$href, $label, $need]) {
-            if ($need !== null && ! can(...(array) $need)) { continue; }
+        foreach ($nav as [$href, $label]) {
             if (in_array($href, $daily, true)) {
                 $top[$href] = $label;
             } else {
@@ -698,16 +682,65 @@ input,select,textarea{border-color:#8a96a6}
 
         printf('<details class="nav-more"%s><summary>%s</summary>%s</details>',
                $holdsAny ? ' open' : '', te('More'), $sections);
-    })($nav, $navSections, $here, $u ? workspace_daily($u) : []);
-    ?>  </nav>
-  <script>/* P5-M65b: find a screen in the menu - type a few letters, Enter opens the first one. */
-  (function(){var f=document.getElementById('nav-find');if(!f)return;var nav=document.getElementById('workspace-nav');
-   var norm=function(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();};
-   var run=function(){var q=norm(f.value.trim());nav.querySelectorAll('a').forEach(function(a){a.hidden=q!==''&&norm(a.textContent).indexOf(q)===-1;});
-    nav.querySelectorAll('details').forEach(function(g){if(q===''){g.hidden=false;return;}var any=[].some.call(g.querySelectorAll('a'),function(a){return !a.hidden;});g.hidden=!any;if(any)g.open=true;});};
-   f.addEventListener('input',run);run();
-   f.addEventListener('keydown',function(e){if(e.key==='Enter'){var a=[].filter.call(nav.querySelectorAll('a'),function(a){return !a.hidden;})[0];if(a){e.preventDefault();location.href=a.href;}}if(e.key==='Escape'){f.value='';run();}});
-  })();</script>
+    })($nav, $navSections, $here, $daily);
+    ?>
+    <?php if ($navMarks['bookmark'] || $navMarks['recent'] || isset($navLabels[$here])): ?>
+    <div class="nav-marks" data-nav-marks>
+      <?php if ($navMarks['bookmark'] || isset($navLabels[$here])): ?>
+      <details class="nav-group" data-section="Bookmarks"><summary><?= te('Bookmarks') ?></summary>
+        <?php foreach ($navMarks['bookmark'] as $mPath => $_): ?><a href="<?= e($mPath) ?>" class="<?= $here === $mPath ? 'on' : '' ?>" data-bookmark>&#9733; <?= te($navLabels[$mPath]) ?></a><?php endforeach; ?>
+        <?php if (isset($navLabels[$here])): $marked = isset($navMarks['bookmark'][$here]); ?>
+        <form method="post" action="/nav-mark" class="nav-mark-form"><?= csrf_field() ?><input type="hidden" name="path" value="<?= e($here) ?>"><button class="link small" data-bookmark-toggle><?= $marked ? te('Remove this screen from bookmarks') : te('+ Bookmark this screen') ?></button></form>
+        <?php endif; ?>
+      </details><?php endif; ?>
+      <?php if ($navMarks['recent']): ?><details class="nav-group" data-section="Recent"><summary><?= te('Recent') ?></summary>
+        <?php foreach ($navMarks['recent'] as $mPath => $_): ?><a href="<?= e($mPath) ?>" class="<?= $here === $mPath ? 'on' : '' ?>" data-recent><?= te($navLabels[$mPath]) ?></a><?php endforeach; ?>
+      </details><?php endif; ?>
+    </div>
+    <?php endif; ?>
+  </nav>
+  <script>
+  (() => {
+    const field = document.getElementById('nav-find');
+    if (!field) return;
+    const nav = document.getElementById('workspace-nav');
+    const links = [...nav.querySelectorAll('a:not([data-bookmark]):not([data-recent])')];
+    const groups = [...nav.querySelectorAll('details')].filter(group => !group.closest('[data-nav-marks]'));
+    const marks = nav.querySelector('[data-nav-marks]');
+    const normalize = text => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    let previousOpen = null;
+
+    function filter() {
+      const query = normalize(field.value.trim());
+      if (query && previousOpen === null) previousOpen = groups.map(group => group.open);
+      if (marks) marks.hidden = Boolean(query);
+      links.forEach(link => {
+        link.hidden = Boolean(query) && !normalize(link.textContent).includes(query);
+      });
+      groups.forEach((group, index) => {
+        const hasMatch = Boolean(group.querySelector('a:not([hidden])'));
+        group.hidden = Boolean(query) && !hasMatch;
+        if (query) group.open = hasMatch;
+        else if (previousOpen !== null) group.open = previousOpen[index];
+      });
+      if (!query) previousOpen = null;
+    }
+
+    field.addEventListener('input', filter);
+    field.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        field.value = '';
+        filter();
+      } else if (event.key === 'Enter' && field.value.trim()) {
+        const match = links.find(link => !link.hidden);
+        if (match) {
+          event.preventDefault();
+          match.click();
+        }
+      }
+    });
+  })();
+  </script>
   <?php if($u && !in_array($u['role'] ?? '',['worker','client'],true)): ?><form action="/search" method="get" class="workspace-search"><label class="sr-only" for="directory-search"><?= te('Search employee folders') ?></label><input id="directory-search" name="q" placeholder="<?= te('Search everything') ?>" aria-label="<?= te('Search everything') ?>"><button class="btn ghost sm"><?= te('Search') ?></button></form><?php endif; ?>
   <?php
   // One place for who is signed in: the notifications bell and the account

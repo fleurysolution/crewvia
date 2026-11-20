@@ -119,7 +119,7 @@ admin = Client()
 admin.login('admin@test.invalid')
 eyebrow = lambda body: (re.search(r'<div class="page-eyebrow">([^<]*)</div>', body) or [None, None])[1]
 body = admin.get('/projects')[1]
-check('Projects is labelled with its menu section, not "AGREEMENTS"', eyebrow(body) == 'Overview' and 'AGREEMENTS' not in body, eyebrow(body))
+check('Projects is labelled with its menu section, not "AGREEMENTS"', eyebrow(body) == 'Projects' and 'AGREEMENTS' not in body, eyebrow(body))
 check('and so is Requisitions ("Recruiting", not "RECRUITMENT / REQUISITIONS")', eyebrow(admin.get('/requisitions')[1]) == 'Recruiting')
 worker = Client()
 worker.login('worker@test.invalid')
