@@ -16,7 +16,7 @@ function saas_api(string $method, string $endpoint, array $params = [], ?string 
 {
     global $config;
     if (!saas_configured()) throw new RuntimeException('Stripe subscription configuration is incomplete.');
-    if (!preg_match('#^/(customers|checkout/sessions|billing_portal/sessions|subscriptions)(/[a-zA-Z0-9_]+)?$#D', $endpoint)) throw new RuntimeException('Invalid billing endpoint.');
+    if (!preg_match('#^/(customers|checkout/sessions|billing_portal/sessions|subscriptions|prices)(/[a-zA-Z0-9_]+)?$#D', $endpoint)) throw new RuntimeException('Invalid billing endpoint.');
     $headers = ['Authorization: Bearer ' . $config['stripe_secret_key'], 'Stripe-Version: 2024-06-20', 'Content-Type: application/x-www-form-urlencoded'];
     if ($idempotency) $headers[] = 'Idempotency-Key: ' . $idempotency;
     // A read, or a write carrying its idempotency key, is safe to repeat: Stripe answers the key's first result again (P4-M04).
@@ -67,7 +67,8 @@ function saas_subscription_refresh(string $subscription): void
     if (count($items)!==1 || ($items[0]['price']['id'] ?? '')!==$config['stripe_price_id']) throw new RuntimeException('Subscription price mismatch.');
     $status=(string)($remote['status'] ?? 'unknown');
     $period=(int)($remote['current_period_end'] ?? 0);
-    q('UPDATE saas_subscription SET stripe_subscription_id=?,status=?,quantity=?,period_end=? WHERE id=1',[$subscription,$status,(int)($items[0]['quantity'] ?? 0),$period?gmdate('Y-m-d H:i:s',$period):null]);
+    // P5-M114: whether the renewal is cancelled at the end of the period is Stripe's answer, kept here.
+    q('UPDATE saas_subscription SET stripe_subscription_id=?,status=?,quantity=?,period_end=?,cancel_at_period_end=? WHERE id=1',[$subscription,$status,(int)($items[0]['quantity'] ?? 0),$period?gmdate('Y-m-d H:i:s',$period):null,!empty($remote['cancel_at_period_end'])?1:0]);
 }
 
 
@@ -139,6 +140,9 @@ function stripe_webhook_handle(string $payload, string $header, array $secrets):
         }
         // The subscription is read back from Stripe, so events arriving out of order still leave its latest state.
         if ($subscription) saas_subscription_refresh($subscription);
+        // P5-M114: confirm the sign-up, record the invoice at our price, alert on a failed payment.
+        require_once __DIR__ . '/saas-renewal.php';
+        saas_after_event($type, $object);
         q('INSERT INTO saas_webhook_events(event_id,event_type) VALUES (?,?)', [$event['id'], $type]);
         db()->commit();
         integration_event('stripe', 'webhook', 'ok', $event['id'], $type);

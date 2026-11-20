@@ -5882,3 +5882,38 @@ Offer terms	Conditions de l’offre	Condiciones de la oferta
 Make the offer	Faire l’offre	Hacer la oferta
 Pay, per diem, hours, start date, travel and lodging	Salaire, per diem, heures, date de début, voyage et hébergement	Salario, viáticos, horas, fecha de inicio, viaje y alojamiento
 The candidate reads it in their portal with the job and the general conditions, and signs it there. They are hired once you countersign it.	Le candidat la lit dans son portail avec le poste et les conditions générales, et la signe là. Il est embauché quand vous la contresignez.	El candidato la lee en su portal con el puesto y las condiciones generales, y la firma allí. Queda contratado cuando usted la refrenda.
+month	mois	mes
+year	an	año
+Your plan renews automatically every :period at :amount until you cancel. The first renewal is on :date. You can cancel at any time in :cancel; you keep access until the end of the period you have paid for, and no further charge is made.	Votre forfait se renouvelle automatiquement chaque :period au prix de :amount jusqu'à ce que vous l'annuliez. Le premier renouvellement aura lieu le :date. Vous pouvez annuler à tout moment dans :cancel ; vous gardez l'accès jusqu'à la fin de la période déjà payée, et aucun autre prélèvement n'est effectué.	Su plan se renueva automáticamente cada :period por :amount hasta que lo cancele. La primera renovación será el :date. Puede cancelar en cualquier momento en :cancel; conserva el acceso hasta el final del período ya pagado y no se realiza ningún otro cargo.
+I agree that my plan renews automatically at :amount every :period until I cancel.	J'accepte que mon forfait se renouvelle automatiquement au prix de :amount chaque :period jusqu'à ce que je l'annule.	Acepto que mi plan se renueve automáticamente por :amount cada :period hasta que lo cancele.
+Your :product plan renews on :date	Votre forfait :product se renouvelle le :date	Su plan :product se renueva el :date
+On :date your plan renews for one year at :amount. Nothing to do if you want to keep it. To stop the renewal, cancel before that date in :cancel.	Le :date, votre forfait sera renouvelé pour un an au prix de :amount. Rien à faire si vous souhaitez le garder. Pour arrêter le renouvellement, annulez avant cette date dans :cancel.	El :date, su plan se renovará por un año por :amount. No tiene que hacer nada si desea conservarlo. Para detener la renovación, cancele antes de esa fecha en :cancel.
+Your Crewvia subscription renews automatically	Votre abonnement Crewvia se renouvelle automatiquement	Su suscripción a Crewvia se renueva automáticamente
+Hello,	Bonjour,	Hola:
+Thank you for subscribing to Crewvia. These are the terms you accepted on :date:	Merci de votre abonnement à Crewvia. Voici les conditions que vous avez acceptées le :date :	Gracias por suscribirse a Crewvia. Estas son las condiciones que aceptó el :date:
+To cancel:	Pour annuler :	Para cancelar:
+a Fleury Solutions LLC platform	une plateforme de Fleury Solutions LLC	una plataforma de Fleury Solutions LLC
+Crewvia: your subscription payment did not go through	Crewvia : le paiement de votre abonnement n'a pas abouti	Crewvia: el pago de su suscripción no se completó
+The payment of :amount for your Crewvia subscription did not go through. Please update your payment method in :where:	Le paiement de :amount pour votre abonnement Crewvia n'a pas abouti. Merci de mettre à jour votre moyen de paiement dans :where :	El pago de :amount de su suscripción a Crewvia no se completó. Actualice su método de pago en :where:
+The Stripe price must recur every month or every year, per seat.	Le prix Stripe doit être récurrent, chaque mois ou chaque année, par siège.	El precio de Stripe debe ser recurrente, cada mes o cada año, por puesto.
+There is no subscription to change.	Il n'y a aucun abonnement à modifier.	No hay ninguna suscripción que modificar.
+Tick the box to agree to the automatic renewal before you pay.	Cochez la case pour accepter le renouvellement automatique avant de payer.	Marque la casilla para aceptar la renovación automática antes de pagar.
+The terms have changed since you read them. Read them again, then agree.	Les conditions ont changé depuis votre lecture. Relisez-les, puis acceptez-les.	Las condiciones han cambiado desde que las leyó. Léalas de nuevo y acéptelas.
+Renewal cancelled. You keep access until the end of the period already paid for, and no further charge is made.	Renouvellement annulé. Vous gardez l'accès jusqu'à la fin de la période déjà payée, et aucun autre prélèvement n'est effectué.	Renovación cancelada. Conserva el acceso hasta el final del período ya pagado y no se realiza ningún otro cargo.
+Your subscription will renew as before.	Votre abonnement se renouvellera comme avant.	Su suscripción se renovará como antes.
+Renewal cancelled.	Renouvellement annulé.	Renovación cancelada.
+Access continues until :date. No further charge is made.	L'accès continue jusqu'au :date. Aucun autre prélèvement n'est effectué.	El acceso continúa hasta el :date. No se realiza ningún otro cargo.
+Keep my subscription	Garder mon abonnement	Conservar mi suscripción
+This subscription has ended.	Cet abonnement est terminé.	Esta suscripción ha terminado.
+Renews automatically on :date at :amount.	Renouvellement automatique le :date au prix de :amount.	Se renueva automáticamente el :date por :amount.
+Renews automatically on :date.	Renouvellement automatique le :date.	Se renueva automáticamente el :date.
+Cancel the renewal	Annuler le renouvellement	Cancelar la renovación
+You keep access until the end of the period already paid for, and no further charge is made.	Vous gardez l'accès jusqu'à la fin de la période déjà payée, et aucun autre prélèvement n'est effectué.	Conserva el acceso hasta el final del período ya pagado y no se realiza ningún otro cargo.
+Payment method and invoices (Stripe)	Moyen de paiement et factures (Stripe)	Método de pago y facturas (Stripe)
+:n contracted seats	:n sièges sous contrat	:n puestos contratados
+Continue to Stripe Checkout	Continuer vers le paiement Stripe	Continuar al pago con Stripe
+Change the number of seats	Modifier le nombre de sièges	Cambiar el número de puestos
+Review the terms	Lire les conditions	Revisar las condiciones
+seats	sièges	puestos
+Payment failed	Paiement échoué	Pago fallido
+Billing provider unavailable. Please retry or contact support.	Le service de facturation est indisponible. Réessayez ou contactez le support.	El servicio de facturación no está disponible. Inténtelo de nuevo o contacte con soporte.

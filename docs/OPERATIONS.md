@@ -52,6 +52,7 @@ user, never as root, from the application folder.
 | every 5 minutes | `cd /home/veloraweb/public_html/crewvia && /usr/local/bin/php install/deliver-account-mail.php > /dev/null` | "forgot password" messages. Without this job nobody who asks for a new password receives one |
 | every 5 minutes | `cd /home/veloraweb/public_html/crewvia && /usr/local/bin/php install/deliver-mail.php --quiet` | email to workers: the itinerary when a trip is booked (P5-M30) |
 | every 5 minutes | `cd /home/veloraweb/public_html/crewvia && /usr/local/bin/php install/deliver-campaigns.php --quiet` | campaign email: 50 a run, at most 500 in 24 hours (P5-M18) |
+| 06:15 every day, only on a Stripe subscription install | `cd /home/veloraweb/public_html/crewvia && /usr/local/bin/php install/renewal-reminders.php > /dev/null` | the reminder 30 days before a yearly subscription renews (P5-M114). A dedicated install such as RSS's has no Stripe subscription and needs no such job |
 | 1st of the month, 03:30 | `cd /home/veloraweb/public_html/crewvia && /usr/local/bin/php install/restore.php --drill --target-db=veloraweb_crewvia_drill latest > /dev/null` | proves the latest backup restores; failure is mailed (it prints to stderr) |
 
 The workflow and report jobs send their normal output to `/dev/null`.

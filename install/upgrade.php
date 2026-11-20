@@ -3234,4 +3234,44 @@ try {
 } catch (Throwable $e) {
     echo 'WARNING: the guards on reimbursements could not be created (' . $e->getMessage() . '). Grant TRIGGER and run the upgrade again.' . PHP_EOL;
 }
+// P5-M114: the subscription renews until cancelled. The price is read from Stripe and kept; the customer's
+// consent to the renewal terms is kept word for word for 3 years; each paid or failed invoice is recorded once.
+if (! val("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'saas_subscription' AND column_name = 'cancel_at_period_end'")) {
+    q("ALTER TABLE saas_subscription ADD COLUMN cancel_at_period_end TINYINT(1) NOT NULL DEFAULT 0,
+       ADD COLUMN price_id VARCHAR(100) NULL, ADD COLUMN price_unit_amount INT UNSIGNED NULL, ADD COLUMN price_currency CHAR(3) NULL,
+       ADD COLUMN price_interval ENUM('month','year') NULL, ADD COLUMN price_checked_at DATETIME NULL, ADD COLUMN reminder_sent_for DATETIME NULL");
+    echo 'Subscription: renews until cancelled; cancel at the end of the paid period from the Subscription screen.' . PHP_EOL;
+}
+db()->exec("CREATE TABLE IF NOT EXISTS saas_renewal_consents (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ user_id INT UNSIGNED NULL,
+ email VARCHAR(190) NOT NULL,
+ locale CHAR(2) NOT NULL,
+ terms_text TEXT NOT NULL,
+ consent_text TEXT NOT NULL,
+ amount_cents INT UNSIGNED NOT NULL,
+ currency CHAR(3) NOT NULL,
+ period ENUM('month','year') NOT NULL,
+ quantity INT UNSIGNED NOT NULL,
+ first_renewal_on DATE NOT NULL,
+ checkout_request_key CHAR(32) NULL,
+ checkout_session_id VARCHAR(100) NULL,
+ confirmed_at DATETIME NULL,
+ ip VARCHAR(45) NULL,
+ accepted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ keep_until DATE NOT NULL,
+ INDEX ix_consent_session (checkout_session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+db()->exec("CREATE TABLE IF NOT EXISTS saas_invoices (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ stripe_invoice_id VARCHAR(100) NOT NULL,
+ outcome ENUM('paid','failed') NOT NULL,
+ amount_cents INT UNSIGNED NOT NULL,
+ currency CHAR(3) NOT NULL,
+ quantity INT UNSIGNED NOT NULL,
+ paid_through DATETIME NULL,
+ billing_reason VARCHAR(40) NULL,
+ recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY uq_invoice_outcome (stripe_invoice_id, outcome)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
 echo "Upgrade complete. Existing records preserved.\n";
